@@ -1,93 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-        <link rel="stylesheet" href="style.css" />
-        <title>Portfolio</title>
-    </head>
-    <body>
-        <div class="bg-image">
-            <div class="filter-blur"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yousof Selim</title>
+    <link rel="icon" href="https://via.placeholder.com/32x32?text=YS" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="aurora-background">
+        <div class="aurora-shape" id="aurora-shape-1"></div>
+        <div class="aurora-shape" id="aurora-shape-2"></div>
+        <div class="aurora-shape" id="aurora-shape-3"></div>
+    </div>
+
+    <div class="focus-overlay" id="focusOverlay"></div>
+
+    <button class="color-toggle-button glassy" id="colorToggleButton" aria-label="Disable Dynamic Colors"></button>
+
+    <a href="resume.html" class="resume-button glassy" id="resumeButton">
+        <svg class="resume-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" class="icon-pen"></path>
+            <path d="M4 15" class="icon-line"></path>
+        </svg>
+        <span>Resume</span>
+    </a>
+
+    <nav class="nav glassy" id="nav">
+        <div class="nav-brand" id="navBrand">
+            <a href="#home" class="nav-brand-text">Y.S</a>
         </div>
-        <header>
-           <a href="#" class="logo">Yousof</a> 
-           
-           <nav>
-             <a href="#"class="active">Home</a>
-             <a href="#">Skills</a>
-             <a href="#">Education</a>
-             <a href="#">Experience</a>
-             <a href="#">Contact</a>
-           </nav>
-        </header>
-        <section class="home">
-            <div class="home-img">
-                <img src="IMG_3421.JPG" alt="">
-            </div>
-            <div class="home-content">
-                <h1>Hi, I'm <span>Yousof</span></h1>
-                <h3 class="typing-text">I'm a <span></span></h3>
-                <p>still haven't figured out what to put here or what colors to set on yet LOL</p>
-                <div class="social-icons">
-                    <a href="https://www.linkedin.com/in/yousof-selim-57b5a927a/" target="_blank">
-                        <i class="fa-brands fa-linkedin"></i>
-                      </a>
-                    <a href="https://github.com/yeegz" target="_blank">
-                        <i class="fa-brands fa-github"></i>
-                      </a>
-                      <a href="https://www.youtube.com/@IdkMypast" target="_blank">
-                        <i class="fa-brands fa-youtube"></i>
-                      </a>
+        <div class="nav-links" id="navLinks">
+            <a href="#about">About</a>
+            <a href="#experience">Experience</a>
+            <a href="#projects">Projects</a>
+        </div>
+    </nav>
+
+    <div class="menu-bar glassy" id="menuBar">
+        <svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </div>
+    
+    <main class="main-content">
+        <section class="hero" id="home">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <div class="hero-name-wrapper can-focus">
+                        <span class="hero-name-part" id="heroNamePart1">Yousof</span>
+                        <span class="hero-name-part" id="heroNamePart2">Selim</span>
+                    </div>
+                    <p class="hero-subtitle" id="heroSubtitle">Software Engineer</p>
+                    <div class="hero-socials">
+                        <a href="https://github.com/yeegz" target="_blank" class="hero-social-link glassy" aria-label="GitHub">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0C5.374 0 0 5.373 0 12c0 4.93 3.137 9.103 7.47 10.58.547.1.747-.237.747-.527v-1.84c-3.05.66-3.69-1.47-3.69-1.47-.5-1.27-1.22-1.61-1.22-1.61-1-.68.077-.67.077-.67 1.1.077 1.68 1.13 1.68 1.13 1 1.7 2.61 1.21 3.25.92.1-.72.39-1.21.71-1.49-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.43-2.22 1.15-2.99-.11-.28-.5-1.42.11-2.95 0 0 .94-.3 3.08 1.15.89-.25 1.84-.37 2.79-.37s1.9.12 2.79.37c2.14-1.45 3.08-1.15 3.08-1.15.61 1.53.22 2.67.11 2.95.72.77 1.15 1.77 1.15 2.99 0 4.29-2.61 5.24-5.1 5.52.4.34.76 1.03.76 2.08v3.08c0 .29.2.62.75.52C20.87 21.1 24 16.93 24 12c0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.linkedin.com/in/yousof-selim-57b5a927a/" target="_blank" class="hero-social-link glassy" aria-label="LinkedIn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-image-container">
+                    <img src="images/my-photo.jpg" alt="Yousof Selim" class="hero-photo" id="heroPhoto" crossorigin="anonymous">
+                </div>
             </div>
         </section>
 
-        <!--<div class="infocard">
-            <div class="infotext">
-              <div class="infotop"><i class="fa-solid fa-gamepad"></i></div>
-              <div class="infotext">
-                <h1>Game Development</h1>
-                <p>I have experience with game development</p>
-              </div>
+        <section class="section about" id="about">
+            <div class="container about-container">
+                <div class="about-title-wrapper">
+                    <h2 class="section-title">About Me</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="about-text glassy can-focus">
+                    <p class="about-intro">Yousof Selim, a software engineer</p>
+                    <p>I do websites, applications, games, photo editing, and video editing</p>
+                </div>
             </div>
-          </div>
-          
-          <div class="infocard">
-            <div class="infotext">
-              <div class="infotop"><i class="fa-solid fa-photo-film"></i></div>
-              <div class="infotext">
-                <h1>Editor</h1>
-                <p>I have experience with Editing</p>
-              </div>
+        </section>
+    
+        <section class="section experience" id="experience">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Experience</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="experience-content">
+                    <div class="timeline-item glassy can-focus">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>Student</h3>
+                            <p class="company">Global International School</p>
+                            <p class="period">2012-2022</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item glassy can-focus">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>Foundation for Information Technology</h3>
+                            <p class="company">Multimedia University</p>
+                            <p class="period">2023 - 2024</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item glassy can-focus">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>Bachelors Degree in Software Engineering</h3>
+                            <p class="company">Sunway University</p>
+                            <p class="period">2024 - Present</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        -->
+        </section>
+    
+        <section class="section projects" id="projects">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">My Projects</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="projects-grid">
+                    <div class="project-card glassy can-focus">
+                        <div class="project-image">
+                            <img src="images/fallenasteri.png" alt="Fallen Asteri Game" class="project-img">
+                        </div>
+                        <div class="project-info">
+                            <h3>Fallen Asteri</h3>
+                            <p>A challenging 2D platformer game developed during my time at Multimedia University.</p>
+                        </div>
+                    </div>
+                    <div class="project-card glassy can-focus">
+                        <div class="project-image">
+                            <img src="images/Screenshot 2025-07-07 at 9.00.48 PM.png" alt="To Do List Application" class="project-img">
+                        </div>
+                        <div class="project-info">
+                            <h3>To Do List App</h3>
+                            <p>A simple yet effective web-based to-do list application, built to practice fundamental web skills.</p>
+                        </div>
+                    </div>
+                    <div class="project-card glassy can-focus">
+                        <div class="project-image">
+                            <img src="https://via.placeholder.com/400x250?text=Time+Tracker+App" alt="Time Tracker Application" class="project-img">
+                        </div>
+                        <div class="project-info">
+                            <h3>Haven't Decided</h3>
+                            <p>okay</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    
+        <footer class="footer">
+            <div class="container footer-container">
+                <p>&copy; <span id="currentYear"></span> Yousof Selim. All rights reserved.</p>
+                <div class="footer-social-links">
+                     <a href="https://github.com/yeegz" target="_blank" class="social-link" aria-label="GitHub">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 4.93 3.137 9.103 7.47 10.58.547.1.747-.237.747-.527v-1.84c-3.05.66-3.69-1.47-3.69-1.47-.5-1.27-1.22-1.61-1.22-1.61-1-.68.077-.67.077-.67 1.1.077 1.68 1.13 1.68 1.13 1 1.7 2.61 1.21 3.25.92.1-.72.39-1.21.71-1.49-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.43-2.22 1.15-2.99-.11-.28-.5-1.42.11-2.95 0 0 .94-.3 3.08 1.15.89-.25 1.84-.37 2.79-.37s1.9.12 2.79.37c2.14-1.45 3.08-1.15 3.08-1.15.61 1.53.22 2.67.11 2.95.72.77 1.15 1.77 1.15 2.99 0 4.29-2.61 5.24-5.1 5.52.4.34.76 1.03.76 2.08v3.08c0 .29.2.62.75.52C20.87 21.1 24 16.93 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                    </a>
+                    <a href="https://www.linkedin.com/in/yousof-selim-57b5a927a/" target="_blank" class="social-link" aria-label="LinkedIn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    </a>
+                </div>
+                <a href="contact.html" class="btn-contact glassy">Contact Page</a>
+            </div>
+        </footer>
+    </main>
 
-        <div class="container">
-            <div class="card">
-                <div class="top"><i class="fa-brands fa-git"></i></div>
-                <div class="bottom">
-                    <h1>Git</h1>
-                    <p>Experience with git and github alongside cooperating with a team</p>
-                </div>
-            </div>
-                <div class="card">
-                <div class="top"><i class="fa-brands fa-html5"></i></div>
-                <div class="bottom">
-                    <h1>HTML</h1>
-                    <p>Experience with building websites</p>
-                </div>
-            </div>
-                <div class="card">
-                <div class="top"><i class="fa-solid fa-photo-film"></i></div>
-                <div class="bottom">
-                    <h1>Media</h1>
-                    <p>Experience with editing and formating media content</p>
-                </div>
-            </div>
-
-        </div>
-    </body>
+    <script src="lib/color-thief.min.js"></script>
+    <script src="script.js"></script>
+</body>
 </html>

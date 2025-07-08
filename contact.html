@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Yousof Selim</title>
+    <link rel="icon" href="https://via.placeholder.com/32x32?text=YS" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <img id="color-source-image" src="images/my-photo.jpg" alt="" style="display: none;">
+
+    <div class="aurora-background">
+        <div class="aurora-shape" id="aurora-shape-1"></div>
+        <div class="aurora-shape" id="aurora-shape-2"></div>
+        <div class="aurora-shape" id="aurora-shape-3"></div>
+    </div>
+    
+    <main class="main-content">
+        <section class="section contact-section">
+            <div class="container">
+                <div class="contact-wrapper">
+                    <div class="contact-info glassy">
+                        <div class="contact-header">
+                            <h2 class="section-title">Get In Touch</h2>
+                            <p class="contact-subtitle">I'd love to hear from you. Let's build something great together.</p>
+                        </div>
+                        <div class="contact-image">
+                            <img src="images/my-photo.jpg" alt="Yousof Selim">
+                        </div>
+                        <div class="contact-details">
+                            <p><strong></strong></p>
+                            <p><strong></strong></p>
+                        </div>
+                        <div class="back-link-wrapper">
+                            <a href="index.html" class="back-link">&larr; Back to Home</a>
+                        </div>
+                    </div>
+
+                    <form class="contact-form glassy" action="https://formspree.io/f/xjkrqbby" method="POST">
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Your Email</label>
+                            <input type="email" id="email" name="email" required placeholder="Enter a valid email address">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Your Message</label>
+                            <textarea id="message" name="message" rows="6" required placeholder="What's on your mind?"></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit glassy">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="lib/color-thief.min.js"></script>
+    <script src="contact-script.js"></script>
+</body>
+</html>

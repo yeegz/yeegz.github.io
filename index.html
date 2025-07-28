@@ -10,17 +10,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="interactive-dots">
 
-    <div class="aurora-background">
-        <div class="aurora-shape" id="aurora-shape-1"></div>
-        <div class="aurora-shape" id="aurora-shape-2"></div>
-        <div class="aurora-shape" id="aurora-shape-3"></div>
-    </div>
+    <div class="dots-background" id="dotsBackground"></div>
 
     <div class="focus-overlay" id="focusOverlay"></div>
 
-    <button class="color-toggle-button glassy" id="colorToggleButton" aria-label="Enable Dynamic Colors"></button>
+    <button class="control-button glassy" id="themeSwitcherButton" aria-label="Switch Color Theme">
+        <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+            <path d="M12 22.31a8 8 0 0 1 0-11.31"></path>
+            <path d="M15.53 8.47a8 8 0 0 0 0 11.31"></path>
+            <path d="M8.47 15.53a8 8 0 0 1 0-11.31"></path>
+        </svg>
+    </button>
+    <button class="control-button glassy" id="themeToggleButton" aria-label="Toggle Light/Dark Mode">
+        <svg class="control-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="control-icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
 
     <a href="resume.html" class="resume-button glassy" id="resumeButton">
         <svg class="resume-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -87,8 +98,15 @@
                 </div>
                 <div class="section-full-content" data-animation="fade-up">
                     <div class="about-text glassy can-focus">
-                        <p class="about-intro">Yousof Selim, a software engineer</p>
-                        <p>I do websites, applications, games, photo editing, and video editing</p>
+                        <p class="about-intro">
+                            I'm a passionate software engineering student with a knack for creating modern web applications, games, and AI-powered tools.
+                        </p>
+                        <p>
+                            Currently pursuing a dual degree from <strong>Sunway University & Lancaster University (Class of 2027)</strong>, I'm constantly diving into new technologies, focusing on full-stack development, networking, and data management.
+                        </p>
+                        <p>
+                            My toolkit includes <strong>Python, C++, HTML, CSS, and JavaScript</strong>, and I'm comfortable using tools like <strong>Git, GitHub, and Godot</strong>. I enjoy turning complex problems into elegant, user-friendly solutions, whether it's building responsive websites or developing the logic for a 2D RPG.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -101,9 +119,9 @@
                 </div>
                 <div class="experience-timeline-wrapper" data-animation="fade-up">
                     <div class="experience-horizontal-timeline">
-                        <div class="timeline-item-h" data-year="2012-2022">
+                        <div class="timeline-item-h" data-year="2011 - 2022">
                             <div class="timeline-content-h glassy can-focus">
-                                <h3>Student</h3>
+                                <h3>Student at School</h3>
                                 <p class="company">Global International School</p>
                             </div>
                         </div>
@@ -135,21 +153,14 @@
                             <div class="project-image"><img src="images/fallenasteri.png" alt="Fallen Asteri Game" class="project-img"></div>
                             <div class="project-info">
                                 <h3>Fallen Asteri</h3>
-                                <p>A challenging 2D platformer game developed during my time at Multimedia University.</p>
+                                <p>A challenging 2D platformer game developed with Godot during my time at Multimedia University.</p>
                             </div>
                         </a>
                         <a href="https://ystodolist.netlify.app/" class="project-card glassy can-focus" target="_blank">
-                             <div class="project-image"><img src="images/Screenshot 2025-07-07 at 9.00.48 PM.png" alt="To Do List Application" class="project-img"></div>
+                             <div class="project-image"><img src="images/todo.png" alt="To Do List Application" class="project-img"></div>
                             <div class="project-info">
                                 <h3>To Do List App</h3>
-                                <p>A simple yet effective web-based to-do list application, built to practice fundamental web skills.</p>
-                            </div>
-                        </a>
-                        <a href="#" class="project-card glassy can-focus" target="_blank">
-                           <div class="project-image"><img src="https://via.placeholder.com/400x250?text=Time+Tracker+App" alt="Time Tracker Application" class="project-img"></div>
-                            <div class="project-info">
-                                <h3>Haven't Decided</h3>
-                                <p>okay</p>
+                                <p>A simple and effective web-based to-do list, built to practice fundamental web development skills.</p>
                             </div>
                         </a>
                     </div>
@@ -171,7 +182,6 @@
 
     <div class="transition-overlay" id="transitionOverlay"></div>
 
-    <script src="lib/color-thief.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

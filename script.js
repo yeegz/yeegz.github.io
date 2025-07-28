@@ -1,211 +1,226 @@
+function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('mainContent');
     const nav = document.getElementById('nav');
     const menuBar = document.getElementById('menuBar');
     const menuIconOpen = document.getElementById('menuIconOpen');
     const menuIconClose = document.getElementById('menuIconClose');
+    const navLinksMobileEl = document.getElementById('navLinks');
     const heroSubtitle = document.getElementById('heroSubtitle');
-    const heroPhoto = document.getElementById('heroPhoto');
-    const navLinks = document.getElementById('navLinks');
     const focusOverlay = document.getElementById('focusOverlay');
-    const resumeButtonIconLine = document.querySelector('.resume-icon .icon-line');
     const currentYearSpan = document.getElementById('currentYear');
     const focusElements = document.querySelectorAll('.can-focus');
     const glassyElements = document.querySelectorAll('.glassy');
-    const resumeButton = document.querySelector('.resume-button');
     const footer = document.querySelector('.footer');
-    const colorToggleButton = document.getElementById('colorToggleButton');
-    const transitionOverlay = document.getElementById('transitionOverlay'); 
+    const heroPhoto = document.getElementById('heroPhoto');
 
-    const dynamicPhotoSrc = 'images/my-photo.png';
-    const staticPhotoSrc = 'images/my-photo.jpg';
+    const themeToggleButton = document.getElementById('themeToggleButton');
+    const themeSwitcherButton = document.getElementById('themeSwitcherButton');
+    const resumeButton = document.querySelector('.resume-button');
+    const homeButton = document.querySelector('.home-button');
 
-    let isColorThiefEnabled = false;
-    
-    function resetToDefaultColors() {
-        document.documentElement.style.removeProperty('--primary-color');
-        document.documentElement.style.removeProperty('--secondary-color');
-        document.documentElement.style.removeProperty('--accent-color');
-        document.documentElement.style.removeProperty('--primary-color-rgb');
-        document.documentElement.style.removeProperty('--secondary-color-rgb');
-        document.documentElement.style.removeProperty('--accent-color-rgb');
-        document.documentElement.style.removeProperty('--aurora-color-1');
-        document.documentElement.style.removeProperty('--aurora-color-2');
-        document.documentElement.style.removeProperty('--aurora-color-3');
-        document.documentElement.style.removeProperty('--glow-color-rgb');
-        
-        document.querySelectorAll('.timeline-item-h').forEach(item => {
-            item.style.removeProperty('--dot-color');
-        });
+    if (currentYearSpan) {
+        currentYearSpan.textContent = new Date().getFullYear();
     }
-
-    function applyDynamicColors() {
-        if (!isColorThiefEnabled || !window.ColorThief) return;
-        try {
-            const colorThief = new ColorThief();
-            setTimeout(() => {
-                const palette = colorThief.getPalette(heroPhoto, 5);
-                if (!palette) return;
-                const rgbToCss = (rgb) => `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
-                const rgbToString = (rgb) => `${rgb[0]}, ${rgb[1]}, ${rgb[2]}`;
-                const primaryColor = rgbToCss(palette[0]);
-                const accentColorRGB = rgbToString(palette[2]);
-
-                document.documentElement.style.setProperty('--primary-color', primaryColor);
-                document.documentElement.style.setProperty('--secondary-color', rgbToCss(palette[1]));
-                document.documentElement.style.setProperty('--accent-color', rgbToCss(palette[2]));
-                document.documentElement.style.setProperty('--primary-color-rgb', rgbToString(palette[0]));
-                document.documentElement.style.setProperty('--secondary-color-rgb', rgbToString(palette[1]));
-                document.documentElement.style.setProperty('--accent-color-rgb', accentColorRGB);
-                document.documentElement.style.setProperty('--aurora-color-1', primaryColor);
-                document.documentElement.style.setProperty('--aurora-color-2', rgbToCss(palette[2]));
-                document.documentElement.style.setProperty('--aurora-color-3', rgbToCss(palette[4]));
-                document.documentElement.style.setProperty('--glow-color-rgb', accentColorRGB);
-                document.querySelectorAll('.timeline-item-h').forEach(item => {
-                    item.style.setProperty('--dot-color', primaryColor);
-                });
-
-            }, 100);
-        } catch (error) {
-            console.error("ColorThief error:", error);
-            resetToDefaultColors();
+    if (resumeButton) {
+        const resumeButtonIconLine = resumeButton.querySelector('.icon-line');
+        if (resumeButtonIconLine) {
+            const length = resumeButtonIconLine.getTotalLength();
+            resumeButtonIconLine.style.strokeDasharray = length;
+            resumeButtonIconLine.style.strokeDashoffset = length;
         }
     }
 
-    
-    if (colorToggleButton && heroPhoto) {
-        colorToggleButton.addEventListener('click', () => {
-            transitionOverlay.classList.add('active'); 
+    const applyTheme = (theme) => {
+        if (theme === 'light') {
+            document.body.classList.add('light-mode');
+            if (heroPhoto) { heroPhoto.src = 'images/my-photo-light.jpg'; }
+        } else {
+            document.body.classList.remove('light-mode');
+            if (heroPhoto) { heroPhoto.src = 'images/my-photo.jpg'; }
+        }
+        localStorage.setItem('theme', theme);
+    };
 
-            setTimeout(() => {
-                isColorThiefEnabled = !isColorThiefEnabled;
-                if (isColorThiefEnabled) {
-                    heroPhoto.src = dynamicPhotoSrc;
-                    colorToggleButton.classList.add('on');
-                    colorToggleButton.setAttribute('aria-label', 'Disable Dynamic Colors');
-                } else {
-                    heroPhoto.src = staticPhotoSrc;
-                    colorToggleButton.classList.remove('on');
-                    colorToggleButton.setAttribute('aria-label', 'Enable Dynamic Colors');
-                    resetToDefaultColors();
-                }
-                
-            }, 400); 
-
-            setTimeout(() => {
-                transitionOverlay.classList.remove('active'); 
-            }, 600); 
+    if (themeToggleButton) {
+        themeToggleButton.addEventListener('click', () => {
+            const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+            applyTheme(newTheme);
         });
     }
-    
-    if (heroPhoto) {
-        heroPhoto.addEventListener('load', applyDynamicColors);
+
+    const colorThemes = ['theme-red', 'theme-green', 'theme-purple'];
+    let currentThemeIndex = 0;
+
+    const applyColorTheme = (themeClass) => {
+        colorThemes.forEach(t => document.body.classList.remove(t));
+        if (themeClass) {
+            document.body.classList.add(themeClass);
+            currentThemeIndex = colorThemes.indexOf(themeClass);
+        }
+        localStorage.setItem('colorTheme', themeClass);
+    };
+
+    if (themeSwitcherButton) {
+        themeSwitcherButton.addEventListener('click', () => {
+            currentThemeIndex = (currentThemeIndex + 1) % colorThemes.length;
+            const newThemeClass = colorThemes[currentThemeIndex];
+            applyColorTheme(newThemeClass);
+        });
     }
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedColorTheme = localStorage.getItem('colorTheme') || 'theme-red';
+    applyTheme(savedTheme);
+    applyColorTheme(savedColorTheme);
     
-    const subtitlePhrases = ["Software Engineer", "Game Developer", "Web Designer", "Photo Editor", "Video Editor"];
-    let currentPhraseIndex = 0;
-    function updateSubtitle() {
-        if (heroSubtitle) {
-            heroSubtitle.style.opacity = 0;
+    if (heroSubtitle) {
+        const subtitlePhrases = ["Software Engineer", "Game Developer", "Web Designer", "Photo Editor", "Video Editor"];
+        let currentPhraseIndex = 0;
+        
+        function updateSubtitle() {
+            heroSubtitle.classList.add('fade-out');
             setTimeout(() => {
                 currentPhraseIndex = (currentPhraseIndex + 1) % subtitlePhrases.length;
                 heroSubtitle.textContent = subtitlePhrases[currentPhraseIndex];
-                heroSubtitle.style.opacity = 1;
+                heroSubtitle.classList.remove('fade-out');
+                heroSubtitle.classList.add('fade-in');
             }, 300);
         }
+        setInterval(updateSubtitle, 4000);
     }
-    if (heroSubtitle) {
-        heroSubtitle.style.opacity = 1;
-        setInterval(updateSubtitle, 3000);
-    }
-    
-    if (currentYearSpan) { currentYearSpan.textContent = new Date().getFullYear(); }
-    if (resumeButtonIconLine) {
-        const length = resumeButtonIconLine.getTotalLength();
-        resumeButtonIconLine.style.strokeDasharray = length;
-        resumeButtonIconLine.style.strokeDashoffset = length;
-    }
-    
-    if (menuBar && navLinks) {
+
+    if (menuBar && navLinksMobileEl) {
         menuBar.addEventListener('click', (e) => {
             e.stopPropagation();
-            const isActive = navLinks.classList.toggle('active');
+            const isActive = navLinksMobileEl.classList.toggle('active');
             menuIconOpen.style.display = isActive ? 'none' : 'block';
             menuIconClose.style.display = isActive ? 'block' : 'none';
         });
     }
 
-    document.querySelectorAll('.nav-links-desktop a, .nav-links-mobile a').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const targetElement = document.querySelector(this.getAttribute('href'));
-            if (targetElement) {
-                targetElement.scrollIntoView({ behavior: 'smooth' });
-            }
-            if (navLinks.classList.contains('active')) {
-                navLinks.classList.remove('active');
-                menuIconOpen.style.display = 'block';
-                menuIconClose.style.display = 'none';
-            }
+    if (navLinksMobileEl) {
+        document.querySelectorAll('.nav-links-desktop a, .nav-links-mobile a, .nav-brand a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                if (this.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    if (navLinksMobileEl.classList.contains('active')) {
+                        navLinksMobileEl.classList.remove('active');
+                        menuIconOpen.style.display = 'block';
+                        menuIconClose.style.display = 'none';
+                    }
+                }
+            });
         });
-    });
+    }
     
-    const animationObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            const elementsToAnimate = entry.target.querySelectorAll('[data-animation]');
-            if (entry.isIntersecting) {
-                elementsToAnimate.forEach(el => { el.classList.add('is-visible'); });
-            } else {
-                elementsToAnimate.forEach(el => { el.classList.remove('is-visible'); });
-            }
-        });
-    }, { root: mainContent, threshold: 0.4 });
-
-    document.querySelectorAll('.animated-section').forEach(section => {
-        animationObserver.observe(section);
-    });
-
-    const navObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.target.id === 'home') {
-                nav.classList.toggle('visible', !entry.isIntersecting);
-            }
-        });
-    }, { root: mainContent, threshold: 0.1 });
-
     if (mainContent) {
-        const heroSection = document.getElementById('home');
-        if (heroSection) navObserver.observe(heroSection);
+        const animatedSections = document.querySelectorAll('.animated-section');
+        if (animatedSections.length > 0) {
+            const animationObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const elementsToAnimate = entry.target.querySelectorAll('[data-animation]');
+                    if (entry.isIntersecting) {
+                        elementsToAnimate.forEach(el => el.classList.add('is-visible'));
+                    } else {
+                        elementsToAnimate.forEach(el => el.classList.remove('is-visible'));
+                    }
+                });
+            }, { root: mainContent, threshold: 0.4 });
+            animatedSections.forEach(section => animationObserver.observe(section));
+        }
+
+        if (nav) {
+            const navObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.target.id === 'home') {
+                        nav.classList.toggle('visible', !entry.isIntersecting);
+                    }
+                });
+            }, { root: mainContent, threshold: 0.1 });
+            const heroSection = document.getElementById('home');
+            if (heroSection) navObserver.observe(heroSection);
+        }
+        
         if (footer) {
              const footerObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    resumeButton.classList.toggle('hidden', entry.isIntersecting);
-                    colorToggleButton.classList.toggle('hidden', entry.isIntersecting);
+                    const isHidden = entry.isIntersecting;
+                    if(resumeButton) resumeButton.classList.toggle('hidden', isHidden);
+                    if(themeToggleButton) themeToggleButton.classList.toggle('hidden', isHidden);
+                    if(themeSwitcherButton) themeSwitcherButton.classList.toggle('hidden', isHidden);
                 });
             }, { root: mainContent, threshold: 0.1 });
             footerObserver.observe(footer);
         }
+
+        const sections = document.querySelectorAll('main > section[id]');
+        const allNavLinks = document.querySelectorAll('.nav-links-desktop a, .nav-brand a, .nav-links-mobile a');
+        if (sections.length > 0 && allNavLinks.length > 0) {
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        allNavLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { root: mainContent, threshold: 0.5 });
+            sections.forEach(section => sectionObserver.observe(section));
+        }
     }
 
-    focusElements.forEach(el => {
-        const parentSection = el.closest('.animated-section, .hero');
-        el.addEventListener('mouseenter', () => {
-            focusOverlay.classList.add('active');
-            el.classList.add('is-focused');
-            if (parentSection) parentSection.classList.add('is-focused-section');
+    if (focusElements.length > 0 && focusOverlay) {
+        focusElements.forEach(el => {
+            const parentSection = el.closest('.animated-section, .hero, .resume-sidebar');
+            el.addEventListener('mouseenter', () => {
+                focusOverlay.classList.add('active');
+                el.classList.add('is-focused');
+                if (parentSection) parentSection.classList.add('is-focused-section');
+            });
+            el.addEventListener('mouseleave', () => {
+                focusOverlay.classList.remove('active');
+                el.classList.remove('is-focused');
+                if (parentSection) parentSection.classList.remove('is-focused-section');
+            });
         });
-        el.addEventListener('mouseleave', () => {
-            focusOverlay.classList.remove('active');
-            el.classList.remove('is-focused');
-            if (parentSection) parentSection.classList.remove('is-focused-section');
-        });
-    });
+    }
 
-    glassyElements.forEach(el => {
-        el.addEventListener('mousemove', e => {
-            const rect = el.getBoundingClientRect();
-            el.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-            el.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+    if (glassyElements.length > 0) {
+        glassyElements.forEach(el => {
+            el.addEventListener('mousemove', throttle(e => {
+                const rect = el.getBoundingClientRect();
+                el.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                el.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+            }, 30));
         });
-    });
+    }
+
+    if (document.body.classList.contains('interactive-dots')) {
+        window.addEventListener('mousemove', throttle(e => {
+            document.body.style.setProperty('--mouse-x', `${e.clientX}px`);
+            document.body.style.setProperty('--mouse-y', `${e.clientY}px`);
+        }, 16));
+    }
 });

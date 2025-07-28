@@ -10,58 +10,73 @@
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="interactive-dots">
 
-    <img id="color-source-image" src="images/my-photo.jpg" alt="" style="display: none;">
-
-    <div class="aurora-background">
+    <div class="aurora-background" id="auroraBackground">
         <div class="aurora-shape" id="aurora-shape-1"></div>
         <div class="aurora-shape" id="aurora-shape-2"></div>
         <div class="aurora-shape" id="aurora-shape-3"></div>
     </div>
-    
-    <main class="main-content">
-        <section class="section contact-section">
-            <div class="container">
-                <div class="contact-wrapper">
-                    <div class="contact-info glassy">
-                        <div class="contact-header">
-                            <h2 class="section-title">Get In Touch</h2>
-                            <p class="contact-subtitle">I'd love to hear from you. Let's build something great together.</p>
-                        </div>
-                        <div class="contact-image">
-                            <img src="images/my-photo.jpg" alt="Yousof Selim">
-                        </div>
-                        <div class="contact-details">
-                            <p><strong></strong></p>
-                            <p><strong></strong></p>
-                        </div>
-                        <div class="back-link-wrapper">
-                            <a href="index.html" class="back-link">&larr; Back to Home</a>
-                        </div>
-                    </div>
+    <div class="dots-background" id="dotsBackground"></div>
 
-                    <form class="contact-form glassy" action="https://formspree.io/f/xjkrqbby" method="POST">
-                        <div class="form-group">
-                            <label for="name">Your Name</label>
-                            <input type="text" id="name" name="name" required placeholder="Enter your full name">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Your Email</label>
-                            <input type="email" id="email" name="email" required placeholder="Enter a valid email address">
-                        </div>
-                        <div class="form-group">
-                            <label for="message">Your Message</label>
-                            <textarea id="message" name="message" rows="6" required placeholder="What's on your mind?"></textarea>
-                        </div>
-                        <button type="submit" class="btn-submit glassy">Send Message</button>
-                    </form>
+    <button class="control-button glassy" id="backgroundToggleButton" aria-label="Toggle Background Effect">
+        <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+    </button>
+    <button class="control-button glassy" id="themeToggleButton" aria-label="Toggle Light/Dark Mode">
+        <svg class="control-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="control-icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+    
+    <a href="index.html" class="back-to-home-button glassy">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path>
+        </svg>
+        <span>Home</span>
+    </a>
+    <main class="main-content-single">
+        <div class="contact-card glassy">
+            <div class="contact-info-side">
+                <h1 class="contact-title">Get in Touch</h1>
+                <p class="contact-description">
+                    I'm always open to discussing new projects, creative ideas, or opportunities to be part of your visions.
+                </p>
+                <div class="contact-details">
+                    <a href="mailto:yousof.selim@example.com" class="contact-item">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        <span>yousof.selim@example.com</span>
+                    </a>
+                    <a href="https://www.linkedin.com/in/yousof-selim-57b5a927a/" target="_blank" class="contact-item">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                        <span>LinkedIn Profile</span>
+                    </a>
                 </div>
             </div>
-        </section>
+            <div class="contact-form-side">
+                <form class="contact-form" action="https://formspree.io/f/xjkrqbby" method="POST">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required placeholder="Your Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required placeholder="your.email@address.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required placeholder="Let's talk..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit glassy">Send Message</button>
+                </form>
+            </div>
+        </div>
     </main>
 
-    <script src="lib/color-thief.min.js"></script>
-    <script src="contact-script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: 'Multimedia University',
                 photos: [
                     { src: 'images/mmu1.png', description: 'Our Final Exam' },
-                    { src: 'images/mmu2.png', description: '' },
+                    { src: 'images/mmu2.png', description: 'During Class' },
                     { src: 'images/mmu3.png', description: 'Us in Library' }
                 ]
             },
@@ -288,8 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: 'Sunway University',
                 photos: [
                     { src: 'images/sunway1.png', description: 'The iconic Sunway campus entrance.' },
-                    { src: 'images/sunway2.png', description: 'Working on a project in the computer lab.' },
-                    { src: 'images/sunway3.png', description: 'A vertical shot of the bustling hallway between classes.' }
+                    { src: 'images/sunway2.png', description: 'Waiting for Next Class' },
+                    { src: 'images/sunway3.png', description: 'A vertical shot of University Building' }
                 ]
             }
         };

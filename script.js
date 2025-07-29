@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleButton = document.getElementById('themeToggleButton');
     const themeSwitcherButton = document.getElementById('themeSwitcherButton');
     const resumeButton = document.querySelector('.resume-button');
-    const backgroundToggleButton = document.getElementById('backgroundToggleButton');
     const allNavLinks = document.querySelectorAll('.nav-links-desktop a, .nav-links-mobile a, .nav-brand a');
     const sections = document.querySelectorAll('main > section[id]');
 
@@ -177,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(resumeButton) resumeButton.classList.toggle('hidden', isHidden);
                     if(themeToggleButton) themeToggleButton.classList.toggle('hidden', isHidden);
                     if(themeSwitcherButton) themeSwitcherButton.classList.toggle('hidden', isHidden);
-                    if(backgroundToggleButton) backgroundToggleButton.classList.toggle('hidden', isHidden);
                 });
             }, { root: mainContent, threshold: 0.1 });
             footerObserver.observe(footer);
@@ -228,30 +226,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- PERFORMANCE: INTERACTIVE DOTS BACKGROUND ---
-    let isDotsInteractive = true;
-    const mouseMoveHandler = throttle(e => {
-        if (isDotsInteractive) {
+    // --- DOTS BACKGROUND EFFECT ---
+    if (document.body.classList.contains('interactive-dots')) {
+        window.addEventListener('mousemove', throttle(e => {
             document.body.style.setProperty('--mouse-x', `${e.clientX}px`);
-            document.body.setProperty('--mouse-y', `${e.clientY}px`);
-        }
-    }, 16);
-
-    const toggleInteractiveDots = (enable) => {
-        isDotsInteractive = enable;
-        document.body.classList.toggle('interactive-dots', enable);
-        localStorage.setItem('interactiveDots', enable ? 'true' : 'false');
-        if(enable) {
-            window.addEventListener('mousemove', mouseMoveHandler);
-        } else {
-            window.removeEventListener('mousemove', mouseMoveHandler);
-        }
-    };
-
-    if (backgroundToggleButton) {
-        backgroundToggleButton.addEventListener('click', () => {
-            toggleInteractiveDots(!isDotsInteractive);
-        });
+            document.body.style.setProperty('--mouse-y', `${e.clientY}px`);
+        }, 16));
     }
 
     // --- PHOTO GALLERY LOGIC ---
@@ -271,25 +251,25 @@ document.addEventListener('DOMContentLoaded', () => {
             gis: {
                 title: 'Global International School',
                 photos: [
-                    { src: 'images/GIS1.png', description: 'At Graduation' },
-                    { src: 'images/GIS2.png', description: 'Me and My Father' },
-                    { src: 'images/GIS3.png', description: 'Me and My Friends' }
+                    { src: 'images/GIS1.png', description: 'Me at Graduation' },
+                    { src: 'images/GIS2.png', description: 'Me and my Father' },
+                    { src: 'images/GIS3.png', description: 'Me and my Friends' }
                 ]
             },
             mmu: {
                 title: 'Multimedia University',
                 photos: [
-                    { src: 'images/mmu1.png', description: 'Our Final Exam' },
+                    { src: 'images/mmu1.png', description: 'Us before our Final' },
                     { src: 'images/mmu2.png', description: 'During Class' },
-                    { src: 'images/mmu3.png', description: 'Us in Library' }
+                    { src: 'images/mmu3.png', description: 'At Library' }
                 ]
             },
             sunway: {
                 title: 'Sunway University',
                 photos: [
-                    { src: 'images/sunway1.png', description: 'The iconic Sunway campus entrance.' },
-                    { src: 'images/sunway2.png', description: 'Waiting for Next Class' },
-                    { src: 'images/sunway3.png', description: 'A vertical shot of University Building' }
+                    { src: 'images/sunway1.png', description: 'Sunway campus entrance.' },
+                    { src: 'images/sunway2.png', description: 'Waiting for next Class' },
+                    { src: 'images/sunway3.png', description: 'A vertical shot of the Sunway University Campus' }
                 ]
             }
         };
@@ -363,9 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LOAD SAVED SETTINGS ---
     const savedTheme = localStorage.getItem('theme') || 'dark';
     const savedColorTheme = localStorage.getItem('colorTheme') || 'theme-red';
-    const savedDotsPreference = localStorage.getItem('interactiveDots') !== 'false';
 
     applyTheme(savedTheme);
     applyColorTheme(savedColorTheme);
-    toggleInteractiveDots(savedDotsPreference);
 });

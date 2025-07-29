@@ -142,7 +142,6 @@ body.light-mode .hero-name-wrapper.is-focused .hero-name-part { color: var(--tex
 .resume-button.hidden, .control-button.hidden { opacity: 0; transform: translateY(100px); pointer-events: none; }
 .control-button { bottom: 40px; right: 40px; width: 52px; height: 52px; border-radius: 50%; color: var(--text-color); }
 #themeSwitcherButton { bottom: 105px; }
-#backgroundToggleButton { bottom: 160px; }
 .control-icon { width: 24px; height: 24px; position: absolute; }
 .icon-moon { display: none; }
 body.light-mode .icon-sun { display: none; }
@@ -263,7 +262,7 @@ body.light-mode .footer-social-links .social-link svg { fill: #a1806e; }
     height: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
 }
 .gallery-main-image {
     max-width: 100%;
@@ -274,19 +273,20 @@ body.light-mode .footer-social-links .social-link svg { fill: #a1806e; }
     transition: opacity 0.3s ease-in-out;
 }
 .gallery-info-container {
-    flex: 0 1 350px;
+    flex: 0 1 400px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    gap: 1.5rem;
 }
 .gallery-description {
     color: var(--text-color);
-    font-size: 1rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 1.4;
     text-align: left;
-    line-height: 1.6;
     transition: opacity 0.3s ease-in-out;
+    width: 100%;
 }
 .gallery-close-btn {
     position: absolute;
@@ -422,11 +422,10 @@ body.light-mode .contact-form input, body.light-mode .contact-form textarea { ba
     .control-button { left: auto; right: 25px; }
     #themeToggleButton { bottom: 85px; }
     #themeSwitcherButton { bottom: 145px; }
-    #backgroundToggleButton { bottom: 205px; }
     .gallery-content-wrapper { flex-direction: column; gap: 1rem; }
     .gallery-image-container { max-height: 60%; }
     .gallery-info-container { max-width: 100%; align-items: center; }
-    .gallery-description { text-align: center; }
+    .gallery-description { text-align: center; font-size: 1.2rem;}
     .gallery-nav.prev { left: 15px; }
     .gallery-nav.next { right: 15px; }
     .gallery-close-btn { top: 15px; right: 15px; }

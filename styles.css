@@ -182,7 +182,7 @@ nav::after{ content:""; position:absolute; left:0; bottom:0; width:100%; height:
 .skills-credit .list{ font-family:var(--font-mono); font-size:.82rem; letter-spacing:.05em; color:var(--text); margin-top:.7rem; line-height:1.9; max-width:48ch; }
 .skills-credit .list .d{ color:var(--accent); padding:0 .35rem; }
 
-.marquee-sec{ padding:7rem 0; overflow:hidden; }
+.marquee-sec{ padding:7rem 0; overflow:hidden; position:relative; }
 .tearstrip{ width:100vw; margin-left:calc(50% - 50vw); overflow:hidden; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:.5rem 0; }
 .tearstrip .tt{ display:inline-block; white-space:nowrap; font-family:var(--font-mono); font-size:.7rem; letter-spacing:.28em; text-transform:uppercase; color:var(--faint); animation:tear 28s linear infinite; }
 .tearstrip .tt .dot{ vertical-align:.1em; }

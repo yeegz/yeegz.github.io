@@ -1,203 +1,942 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="js">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yousof Selim</title>
-    <link rel="icon" href="https://via.placeholder.com/32x32?text=YS" type="image/png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Yousof Selim — Software Engineer</title>
+<meta name="description" content="Yousof Selim — Software Engineering undergraduate (Sunway × Lancaster). 3+ years of freelance experience shipping cross-platform Flutter apps and minimalist web interfaces." />
+<meta name="author" content="Yousof Selim" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Yousof Selim — Software Engineer" />
+<meta property="og:description" content="Software Engineering undergraduate. 3+ years freelance — Flutter apps & considered web interfaces." />
+<meta property="og:url" content="https://yeegz.github.io" />
+<meta property="og:image" content="https://yeegz.github.io/images/my-photo.jpg" />
+<meta name="theme-color" content="#141215" />
+
+<!-- Type: Fraunces (expressive variable serif, display) · Hanken Grotesk (body) · JetBrains Mono (labels) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Hanken+Grotesk:ital,wght@0,300..800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   EVENING ATELIER — warm graphite lit by a single ember light
+   ============================================================ */
+:root{
+  /* ---- neutrals: warm near-black graphite ramp ---- */
+  --bg:        #141215;
+  --bg-deep:   #0E0C0F;
+  --surface:   #1C1A1E;
+  --surface-2: #252128;
+  --surface-3: #2C2730;
+
+  /* ---- borders ---- */
+  --bd:        rgba(247,242,236,0.08);
+  --bd-hover:  rgba(255,107,74,0.28);
+
+  /* ---- glass (used sparingly: nav + featured card) ---- */
+  --glass-bg:  rgba(255,178,138,0.045);
+  --glass-bd:  rgba(247,242,236,0.12);
+  --glass-hi:  rgba(255,255,255,0.10);
+
+  /* ---- text: three semantic tiers ---- */
+  --text:      #F4EFE8;
+  --muted:     #A8A199;
+  --faint:     #6E685F;
+
+  /* ---- ember accent family (one accent, expressed as tint/shade) ---- */
+  --accent:        #FF6B4A;
+  --accent-soft:   #FFB089;
+  --accent-deep:   #C2492A;
+  --accent-glow:   rgba(255,107,74,0.55);
+  --accent-wide:   rgba(255,107,74,0.20);
+  --accent-bleed:  rgba(255,107,74,0.06);
+  --glow:          rgba(255,138,102,0.45);
+
+  /* ---- slate counter-accent (10%, sparing) ---- */
+  --cool:      #6FA5A0;
+  --cool-glow: rgba(111,165,160,0.28);
+
+  /* ---- elevation ---- */
+  --shadow-rest: 0 1px 2px rgba(0,0,0,.40), 0 8px 24px -8px rgba(0,0,0,.50);
+  --shadow-lift: 0 2px 4px rgba(0,0,0,.40), 0 24px 48px -16px rgba(0,0,0,.60);
+
+  /* ---- type ---- */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'Hanken Grotesk', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  --step--1: clamp(0.83rem, 0.80rem + 0.15vw, 0.94rem);
+  --step-0:  clamp(1.00rem, 0.95rem + 0.25vw, 1.13rem);
+  --step-1:  clamp(1.25rem, 1.15rem + 0.50vw, 1.50rem);
+  --step-2:  clamp(1.80rem, 1.55rem + 1.20vw, 2.60rem);
+  --step-3:  clamp(2.50rem, 2.00rem + 2.60vw, 4.20rem);
+  --hero:    clamp(3.30rem, 1.80rem + 8.4vw, 9.5rem);
+
+  --ease: cubic-bezier(.22,1,.36,1);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+html{ -webkit-text-size-adjust:100%; }
+html.lenis, html.lenis body{ height:auto; }
+.lenis.lenis-smooth{ scroll-behavior:auto !important; }
+.lenis.lenis-stopped{ overflow:hidden; }
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-weight:400;
+  font-size:var(--step-0);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+  position:relative;
+  cursor:auto;
+}
+
+/* ---- Atmosphere layer 0: global warm wash + section mesh (fixed) ---- */
+.atmos{
+  position:fixed; inset:0; z-index:-3; pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(255,107,74,.08), transparent 60%),
+    radial-gradient(60% 50% at 50% 115%, rgba(111,165,160,.06), transparent 60%),
+    linear-gradient(180deg, var(--bg), var(--bg-deep));
+}
+/* drifting ember blobs */
+.blob{ position:fixed; border-radius:50%; filter:blur(90px); z-index:-3; pointer-events:none; opacity:.16; will-change:transform; }
+.blob.b1{ width:46vw; height:46vw; left:58%; top:-8%;  background:radial-gradient(circle, rgba(255,107,74,.30), transparent 70%); }
+.blob.b2{ width:40vw; height:40vw; left:-10%; top:38%; background:radial-gradient(circle, rgba(194,73,42,.22), transparent 70%); opacity:.14; }
+.blob.b3{ width:34vw; height:34vw; left:42%; top:78%;  background:radial-gradient(circle, rgba(111,165,160,.16), transparent 70%); opacity:.10; }
+
+/* ---- Atmosphere layer 1: dot-grid lit only under the cursor ---- */
+.dotgrid{
+  position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background-image: radial-gradient(circle at center, rgba(255,107,74,.85) 1px, transparent 1.7px);
+  background-size:26px 26px;
+  opacity:.5;
+  -webkit-mask-image: radial-gradient(230px circle at var(--mx,-300px) var(--my,-300px), #000 0%, rgba(0,0,0,.35) 45%, transparent 72%);
+  mask-image: radial-gradient(230px circle at var(--mx,-300px) var(--my,-300px), #000 0%, rgba(0,0,0,.35) 45%, transparent 72%);
+}
+
+/* ---- Film grain (top, soft-light) ---- */
+.grain{
+  position:fixed; inset:0; z-index:9000; pointer-events:none;
+  opacity:.04; mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---- Custom ring cursor ---- */
+.cursor{
+  position:fixed; top:0; left:0; width:30px; height:30px; border-radius:50%;
+  border:1.5px solid #fff; transform:translate(-50%,-50%);
+  pointer-events:none; z-index:10000; mix-blend-mode:difference;
+  will-change:transform; opacity:0; transition:opacity .3s ease;
+}
+.cursor.on{ opacity:1; }
+.cursor-dot{
+  position:fixed; top:0; left:0; width:5px; height:5px; border-radius:50%;
+  background:var(--accent); transform:translate(-50%,-50%);
+  pointer-events:none; z-index:10000; will-change:transform; opacity:0;
+}
+.cursor-dot.on{ opacity:1; }
+
+/* ---- Focus-mode vignette ---- */
+.vignette{
+  position:fixed; inset:0; z-index:40; pointer-events:none; opacity:0;
+  background:radial-gradient(120% 100% at 50% 50%, transparent 35%, rgba(14,12,15,.72) 100%);
+}
+
+/* ---- Preloader ---- */
+.preloader{
+  position:fixed; inset:0; z-index:100000; background:var(--bg-deep);
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1.1rem;
+}
+.preloader .pl-brand{ font-family:var(--font-mono); font-size:1.15rem; letter-spacing:.04em; color:var(--text); }
+.preloader .pl-brand b{ color:var(--accent); font-weight:500; }
+.preloader .pl-count{ font-family:var(--font-mono); font-size:.8rem; color:var(--faint); letter-spacing:.2em; }
+.preloader .pl-track{ width:160px; height:1px; background:var(--bd); position:relative; overflow:hidden; }
+.preloader .pl-fill{ position:absolute; inset:0 100% 0 0; background:var(--accent); }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.wrap{ width:min(1180px, 92vw); margin-inline:auto; }
+section{ position:relative; }
+.page{ position:relative; z-index:1; }
+
+.eyebrow{
+  font-family:var(--font-mono); font-size:var(--step--1); text-transform:uppercase;
+  letter-spacing:.2em; color:var(--accent-soft); display:inline-flex; align-items:center; gap:.7rem;
+}
+.eyebrow::before{ content:""; width:26px; height:1px; background:var(--accent); display:inline-block; }
+
+.lead{ font-size:var(--step-1); line-height:1.5; color:var(--muted); font-weight:400; max-width:46ch; }
+
+/* display headings */
+h1,h2,h3{ font-family:var(--font-display); font-weight:400; line-height:.96; letter-spacing:-.022em; }
+em{ font-style:italic; color:var(--accent); }
+
+/* ---- buttons ---- */
+.btn{
+  position:relative; display:inline-flex; align-items:center; gap:.55rem;
+  padding:.95rem 1.5rem; border-radius:999px; font-family:var(--font-body);
+  font-weight:500; font-size:.96rem; text-decoration:none; cursor:pointer;
+  transition:border-color .4s var(--ease), background .4s var(--ease), color .4s var(--ease);
+  will-change:transform;
+}
+.btn .lbl{ display:inline-block; }
+.btn-primary{ background:var(--accent); color:#1a0d08; box-shadow:0 0 0 1px var(--accent-deep) inset, 0 0 22px -2px var(--accent-glow), 0 0 48px 0 var(--accent-wide); }
+.btn-primary:hover{ background:var(--accent-soft); }
+.btn-ghost{ color:var(--text); border:1px solid var(--bd); background:rgba(255,255,255,.012); }
+.btn-ghost:hover{ border-color:var(--bd-hover); color:#fff; }
+
+/* ============================================================
+   NAV — glass pill
+   ============================================================ */
+nav{
+  position:fixed; top:18px; left:50%; transform:translateX(-50%);
+  z-index:100; display:flex; align-items:center; gap:1.4rem;
+  padding:.55rem .65rem .55rem 1.2rem; border-radius:999px;
+  background:var(--glass-bg); border:1px solid var(--glass-bd);
+  -webkit-backdrop-filter:blur(16px) saturate(160%); backdrop-filter:blur(16px) saturate(160%);
+  box-shadow:0 1px 0 0 var(--glass-hi) inset, 0 18px 50px -22px rgba(0,0,0,.8);
+}
+nav .brand{ font-family:var(--font-mono); font-size:1.02rem; letter-spacing:.02em; color:var(--text); text-decoration:none; }
+nav .brand b{ color:var(--accent); font-weight:500; text-shadow:0 0 12px rgba(255,107,74,.45); }
+nav .links{ display:flex; align-items:center; gap:.3rem; }
+nav .links a{ color:var(--muted); text-decoration:none; font-size:.9rem; padding:.5rem .85rem; border-radius:999px; transition:color .3s; white-space:nowrap; }
+nav .links a:not(.cta):hover{ color:var(--text); }
+nav .cta{ background:var(--accent); color:#1a0d08; font-weight:500; box-shadow:0 0 18px -2px var(--accent-glow); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{ min-height:100svh; display:flex; align-items:center; padding-top:8rem; padding-bottom:4rem; overflow:hidden; }
+.hero .mesh{
+  position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(55% 50% at 80% 6%, rgba(255,107,74,.16), transparent 60%),
+    radial-gradient(52% 55% at 8% 44%, rgba(255,107,74,.08), transparent 60%),
+    radial-gradient(60% 55% at 55% 118%, rgba(111,165,160,.07), transparent 60%);
+}
+.hero-grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:3.5rem; align-items:center; }
+.hero-name{
+  font-size:var(--hero); margin:.9rem 0 .2rem; letter-spacing:-.03em; line-height:.9;
+  font-variation-settings:'opsz' 144,'wght' 360,'SOFT' 0,'WONK' 0;
+}
+.hero-name.scrambling{ font-family:var(--font-mono); font-variation-settings:normal; font-weight:500; letter-spacing:.02em; color:var(--accent-soft); }
+.hero-tagline{ font-size:var(--step-2); color:var(--text); margin-top:.6rem; max-width:18ch; font-variation-settings:'opsz' 80,'wght' 380; }
+.hero .lead{ margin-top:1.6rem; }
+.hero .actions{ display:flex; gap:.9rem; margin-top:2.2rem; flex-wrap:wrap; }
+.hero-stats{ display:flex; gap:2.6rem; margin-top:3rem; }
+.hero-stats .n{ font-family:var(--font-display); font-size:1.9rem; font-variation-settings:'opsz' 60,'wght' 460; color:var(--text); }
+.hero-stats .n .u{ color:var(--accent); }
+.hero-stats .l{ font-family:var(--font-mono); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); margin-top:.25rem; }
+
+/* portrait */
+.portrait-wrap{ display:flex; justify-content:center; }
+.portrait{
+  position:relative; width:100%; max-width:380px; aspect-ratio:4/5; border-radius:18px;
+  background:url('images/my-photo.jpg') center 22% / cover no-repeat;
+  filter:grayscale(.85) brightness(.92) contrast(1.02);
+  box-shadow:inset 0 0 60px rgba(255,107,74,.10), 0 40px 80px -34px rgba(0,0,0,.8), 0 1px 0 0 rgba(255,255,255,.06) inset;
+  border:1px solid var(--bd);
+  will-change:transform, filter, clip-path;
+}
+.portrait::after{ content:""; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 0 1px rgba(255,107,74,.10); pointer-events:none; }
+.portrait .tag{
+  position:absolute; left:14px; bottom:14px; font-family:var(--font-mono); font-size:.68rem;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--text);
+  background:rgba(14,12,15,.5); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  padding:.4rem .7rem; border-radius:999px; border:1px solid var(--glass-bd);
+}
+
+/* ============================================================
+   SECTION SHELL
+   ============================================================ */
+.section{ padding:8rem 0; }
+.shead{ margin-bottom:3rem; }
+.shead h2{ font-size:var(--step-3); margin-top:.8rem; font-variation-settings:'opsz' 90,'wght' 440,'WONK' 0; }
+
+/* ---- reveal masks ---- */
+.line-mask{ overflow:hidden; display:block; }
+.line-inner{ display:block; will-change:transform; }
+[data-reveal]{ will-change:transform, opacity; }
+
+/* ============================================================
+   ABOUT
+   ============================================================ */
+.about-grid{ display:grid; grid-template-columns:.9fr 1.1fr; gap:4rem; align-items:start; }
+.about-photo{
+  width:100%; max-width:330px; aspect-ratio:1/1; border-radius:50%;
+  background:url('images/my-photo.jpg') center 20% / cover no-repeat;
+  border:1px solid var(--bd); position:relative; margin-inline:auto;
+  box-shadow:var(--shadow-rest);
+}
+.about-photo .ring{ position:absolute; inset:-12px; border-radius:50%; border:1px solid rgba(255,176,137,.30); }
+.about-photo .ring::after{ content:""; position:absolute; top:-4px; left:50%; width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 14px var(--accent); transform:translateX(-50%); }
+.about .body{ color:var(--muted); max-width:50ch; }
+.about .body strong{ color:var(--text); font-weight:600; }
+.study{ display:block; padding:1.4rem 1.5rem; margin-top:1.1rem; background:var(--surface-2); border:1px solid var(--bd); border-radius:14px; box-shadow:var(--shadow-rest); }
+.study .deg{ font-family:var(--font-display); font-variation-settings:'opsz' 40,'wght' 520; font-size:1.16rem; }
+.study .uni{ color:var(--accent-soft); font-size:.88rem; margin-top:.3rem; font-family:var(--font-mono); letter-spacing:.02em; }
+.chips{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.6rem; }
+.chip{
+  font-family:var(--font-mono); font-size:.74rem; color:var(--muted);
+  padding:.45rem .8rem; border:1px solid var(--bd); border-radius:999px; background:rgba(255,255,255,.018);
+  transition:transform .35s var(--ease), border-color .35s, color .35s;
+}
+.chip:hover{ transform:translateY(-3px); border-color:var(--bd-hover); color:var(--text); }
+
+/* ============================================================
+   PROJECTS — horizontal pinned reel (desktop) / stack (mobile)
+   ============================================================ */
+.reel{ overflow:hidden; }
+.reel .reel-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:2rem; flex-wrap:wrap; margin-bottom:2.5rem; }
+.reel-track{ display:flex; gap:1.6rem; will-change:transform; padding-bottom:.5rem; }
+.pcard{
+  position:relative; flex:0 0 auto; width:min(440px, 80vw); min-height:430px;
+  display:flex; flex-direction:column; padding:1.9rem; border-radius:18px;
+  background:var(--surface); border:1px solid var(--bd); text-decoration:none; color:var(--text);
+  box-shadow:var(--shadow-rest); overflow:hidden;
+  transition:border-color .4s var(--ease), box-shadow .4s var(--ease), transform .5s var(--ease);
+}
+.pcard .glowborder{ position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:radial-gradient(420px circle at var(--cx,50%) var(--cy,0%), rgba(255,107,74,.10), transparent 42%); opacity:0; transition:opacity .4s; }
+.pcard:hover .glowborder{ opacity:1; }
+.pcard:hover{ transform:translateY(-6px); border-color:var(--bd-hover); box-shadow:var(--shadow-lift); }
+.pcard .visual{ height:150px; margin:-.4rem -.4rem 1.4rem; border-radius:12px; position:relative; overflow:hidden;
+  background:
+    radial-gradient(120% 120% at 20% 10%, rgba(255,107,74,.34), transparent 55%),
+    linear-gradient(150deg, var(--surface-3), var(--surface)); }
+.pcard .visual .pn{ position:absolute; right:.7rem; bottom:.2rem; font-family:var(--font-display);
+  font-variation-settings:'opsz'144,'wght'350,'WONK'1; font-size:5.2rem; line-height:1; color:rgba(244,239,232,.07); }
+.pcard.feature .visual{ background:
+    radial-gradient(120% 120% at 75% 10%, rgba(111,165,160,.28), transparent 55%),
+    radial-gradient(120% 120% at 15% 90%, rgba(255,107,74,.40), transparent 55%),
+    linear-gradient(150deg, var(--surface-3), var(--surface)); }
+.pcard .knum{ font-family:var(--font-mono); font-size:.74rem; letter-spacing:.14em; color:var(--faint); }
+.pcard h3{ font-size:1.55rem; margin-top:.5rem; font-variation-settings:'opsz'50,'wght'500; }
+.pcard p{ color:var(--muted); margin-top:.7rem; font-size:.95rem; line-height:1.6; flex-grow:1; }
+.pcard .stack{ display:flex; gap:.45rem; flex-wrap:wrap; margin-top:1.2rem; }
+.pcard .arrow{ margin-top:1.2rem; color:var(--accent); font-weight:600; font-size:.9rem; font-family:var(--font-body); display:inline-flex; gap:.4rem; align-items:center; }
+.pcard .arrow svg{ transition:transform .4s var(--ease); }
+.pcard:hover .arrow svg{ transform:translateX(5px); }
+/* featured gradient border */
+.pcard.feature{ border:1px solid transparent; background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, var(--accent), transparent 55%, rgba(111,165,160,.4)) border-box; }
+
+.reel-progress{ height:2px; background:var(--bd); border-radius:2px; margin-top:2.4rem; position:relative; overflow:hidden; }
+.reel-progress .bar{ position:absolute; inset:0 100% 0 0; background:linear-gradient(90deg, var(--accent-deep), var(--accent)); }
+.reel-index{ font-family:var(--font-mono); font-size:.8rem; color:var(--muted); letter-spacing:.1em; }
+.reel-index b{ color:var(--accent); font-weight:500; }
+.reel-hint{ font-family:var(--font-mono); font-size:.72rem; color:var(--faint); letter-spacing:.12em; text-transform:uppercase; }
+
+/* ============================================================
+   EXPERIENCE — vertical rail
+   ============================================================ */
+.exp-list{ margin-top:2.6rem; position:relative; padding-left:1.6rem; }
+.exp-list::before{ content:""; position:absolute; left:4px; top:6px; bottom:6px; width:1px; background:var(--bd); }
+.exp-item{ position:relative; padding:1.5rem 1.7rem; margin-bottom:1rem; border-radius:14px;
+  background:var(--surface-2); border:1px solid var(--bd); box-shadow:var(--shadow-rest);
+  display:grid; grid-template-columns:1fr auto; gap:1rem 1.4rem; align-items:start; }
+.exp-item .node{ position:absolute; left:-1.6rem; top:1.9rem; width:11px; height:11px; border-radius:50%;
+  background:var(--accent); box-shadow:0 0 16px var(--accent); transform:translateX(-50%); }
+.exp-item.pulse .node::after{ content:""; position:absolute; inset:0; border-radius:50%; box-shadow:0 0 0 0 var(--accent-glow); animation:sonar 1.8s var(--ease) 1; }
+@keyframes sonar{ to{ box-shadow:0 0 0 16px rgba(255,107,74,0); } }
+.exp-item .role{ font-family:var(--font-display); font-variation-settings:'opsz'40,'wght'520; font-size:1.22rem; }
+.exp-item .org{ color:var(--muted); font-size:.93rem; margin-top:.35rem; max-width:60ch; }
+.exp-item .when{ font-family:var(--font-mono); color:var(--accent-soft); font-size:.8rem; letter-spacing:.06em; white-space:nowrap; }
+
+/* ============================================================
+   CONTACT / FOOTER
+   ============================================================ */
+.contact{ text-align:center; padding:9rem 0 4rem; }
+.contact h2{ font-size:clamp(2.6rem,7vw,5.4rem); font-variation-settings:'opsz'144,'wght'380; }
+.contact .lead{ margin:1.6rem auto 0; max-width:46ch; }
+.contact-links{ display:flex; gap:.9rem; justify-content:center; margin-top:2.6rem; flex-wrap:wrap; }
+footer{ border-top:1px solid var(--bd); padding:2.4rem 0; margin-top:5rem; }
+footer .wrap{ display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+  font-family:var(--font-mono); font-size:.78rem; color:var(--faint); letter-spacing:.04em; }
+footer .wrap .l b{ color:var(--accent); font-weight:500; }
+
+/* focus-mode helpers */
+.is-focused{ position:relative; z-index:60; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:900px){
+  .hero-grid{ grid-template-columns:1fr; gap:2.5rem; }
+  .portrait-wrap{ order:-1; }
+  .portrait{ max-width:300px; }
+  .about-grid{ grid-template-columns:1fr; gap:2.5rem; }
+  nav .links a:not(.cta){ display:none; }
+  .section{ padding:5.5rem 0; }
+}
+@media (max-width:560px){
+  .hero-stats{ gap:1.6rem; }
+  .pcard{ width:84vw; }
+}
+
+/* reveal hidden initial state (only when JS controls it) */
+.js [data-reveal]{ opacity:0; }
+.js .line-inner{ transform:translateY(110%); }
+
+/* reduced motion / no pointer */
+@media (prefers-reduced-motion:reduce){
+  *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+  .js [data-reveal]{ opacity:1 !important; }
+  .js .line-inner{ transform:none !important; }
+  .portrait{ filter:none !important; }
+  .blob{ display:none; }
+}
+</style>
 </head>
-<body class="interactive-dots">
 
-    <div class="dots-background" id="dotsBackground"></div>
-    <div class="focus-overlay" id="focusOverlay"></div>
+<body>
 
-    <button class="control-button glassy" id="themeSwitcherButton" aria-label="Switch Color Theme">
-        <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
-            <path d="M12 22.31a8 8 0 0 1 0-11.31"></path>
-            <path d="M15.53 8.47a8 8 0 0 0 0 11.31"></path>
-            <path d="M8.47 15.53a8 8 0 0 1 0-11.31"></path>
-        </svg>
-    </button>
-    <button class="control-button glassy" id="themeToggleButton" aria-label="Toggle Light/Dark Mode">
-        <svg class="control-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
-        <svg class="control-icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-    </button>
+<!-- atmosphere -->
+<div class="atmos"></div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div class="dotgrid"></div>
+<div class="grain"></div>
+<div class="vignette" id="vignette"></div>
 
-    <a href="resume.html" class="resume-button glassy" id="resumeButton">
-        <svg class="resume-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 20h9"></path>
-            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" class="icon-pen"></path>
-            <path d="M4 15" class="icon-line"></path>
-        </svg>
-        <span>Resume</span>
-    </a>
+<!-- custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
 
-    <nav class="nav glassy" id="nav">
-        <div class="nav-brand" id="navBrand">
-            <a href="#home" class="nav-brand-text">Y.S</a>
-        </div>
-        <div class="nav-links-desktop">
-            <a href="#about">About</a>
-            <a href="#qualifications">Qualifications</a>
-            <a href="#projects">Projects</a>
-        </div>
-    </nav>
+<!-- preloader -->
+<div class="preloader" id="preloader">
+  <div class="pl-brand">yee<b>.</b>gz</div>
+  <div class="pl-track"><div class="pl-fill" id="plFill"></div></div>
+  <div class="pl-count" id="plCount">0%</div>
+</div>
 
-    <div class="nav-links-mobile" id="navLinks">
-        <a href="#about">About</a>
-        <a href="#qualifications">Qualifications</a>
-        <a href="#projects">Projects</a>
+<div class="page" id="page">
+
+<!-- ======================= NAV ======================= -->
+<nav>
+  <a href="#hero" class="brand" data-magnetic>yee<b>.</b>gz</a>
+  <div class="links">
+    <a href="#about" data-magnetic>About</a>
+    <a href="#projects" data-magnetic>Work</a>
+    <a href="#experience" data-magnetic>Experience</a>
+    <a href="Yousof-Selim-Resume.pdf" target="_blank" rel="noopener" data-magnetic>Resume</a>
+    <a href="#contact" class="cta" data-magnetic>Let’s talk</a>
+  </div>
+</nav>
+
+<!-- ======================= HERO ======================= -->
+<section id="hero" class="hero">
+  <div class="mesh"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow" data-scramble="SOFTWARE ENGINEER · KUALA LUMPUR" data-reveal>SOFTWARE ENGINEER · KUALA LUMPUR</span>
+      <h1 class="hero-name" data-hero-name>Yousof Selim</h1>
+      <p class="hero-tagline" data-reveal>I build software that feels <em>effortless</em>.</p>
+      <p class="lead" data-reveal>Software engineering undergraduate with 3+ years of freelance experience — shipping cross-platform Flutter apps and considered web interfaces, from Arabic-script rendering to group-spending tools.</p>
+      <div class="actions" data-reveal>
+        <a href="#projects" class="btn btn-primary" data-magnetic><span class="lbl">View my work</span> →</a>
+        <a href="#contact" class="btn btn-ghost" data-magnetic><span class="lbl">Get in touch</span></a>
+      </div>
+      <div class="hero-stats" data-reveal>
+        <div><div class="n">3<span class="u">+</span></div><div class="l">yrs freelance</div></div>
+        <div><div class="n">Flutter</div><div class="l">+ web</div></div>
+        <div><div class="n">5</div><div class="l">projects shipped</div></div>
+      </div>
     </div>
-
-    <div class="menu-bar glassy" id="menuBar">
-        <svg class="menu-icon" id="menuIconOpen" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-        <svg class="menu-icon" id="menuIconClose" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
+    <div class="portrait-wrap">
+      <div class="portrait" id="portrait" data-tilt>
+        <span class="tag">KL · UTC+8</span>
+      </div>
     </div>
+  </div>
+</section>
 
-    <main class="main-content" id="mainContent">
-        <section class="hero" id="home">
-            <div class="container hero-container">
-                <div class="hero-content">
-                    <div class="hero-name-wrapper can-focus" tabindex="0">
-                        <span class="hero-name-part" id="heroNamePart1">Yousof</span>
-                        <span class="hero-name-part" id="heroNamePart2">Selim</span>
-                    </div>
-                    <p class="hero-subtitle" id="heroSubtitle"></p>
-                    <div class="hero-socials">
-                        <a href="https://github.com/yeegz" target="_blank" class="hero-social-link glassy can-focus" aria-label="GitHub"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 4.93 3.137 9.103 7.47 10.58.547.1.747-.237.747-.527v-1.84c-3.05.66-3.69-1.47-3.69-1.47-.5-1.27-1.22-1.61-1.22-1.61-1-.68.077-.67.077-.67 1.1.077 1.68 1.13 1.68 1.13 1 1.7 2.61 1.21 3.25.92.1-.72.39-1.21.71-1.49-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.43-2.22 1.15-2.99-.11-.28-.5-1.42.11-2.95 0 0 .94-.3 3.08 1.15.89-.25 1.84-.37 2.79-.37s1.9.12 2.79.37c2.14-1.45 3.08-1.15 3.08-1.15.61 1.53.22 2.67.11 2.95.72.77 1.15 1.77 1.15 2.99 0 4.29-2.61 5.24-5.1 5.52.4.34.76 1.03.76 2.08v3.08c0 .29.2.62.75.52C20.87 21.1 24 16.93 24 12c0-6.627-5.373-12-12-12z"/></svg></a>
-                        <a href="https://www.linkedin.com/in/yousof-selim-57b5a927a/" target="_blank" class="hero-social-link glassy can-focus" aria-label="LinkedIn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
-                    </div>
-                </div>
-                <div class="hero-image-container">
-                    <img src="images/my-photo.jpg" alt="Yousof Selim" class="hero-photo" id="heroPhoto" crossorigin="anonymous">
-                </div>
-            </div>
-        </section>
+<!-- ======================= ABOUT ======================= -->
+<section id="about" class="section about">
+  <div class="wrap about-grid">
+    <div>
+      <div class="about-photo"><div class="ring"></div></div>
+    </div>
+    <div>
+      <div class="shead">
+        <span class="eyebrow" data-scramble="01 — ABOUT" data-reveal>01 — ABOUT</span>
+        <h2 data-reveal="lines">A builder’s mind,<br/>a <em>designer’s</em> eye.</h2>
+      </div>
+      <p class="body" data-reveal>I care as much about how a product <strong>feels</strong> as how it’s wired underneath. Across 3+ years of freelance work I’ve taken real client projects from concept to shipped product — caring equally about the unglamorous parts (clean state, sensible architecture) and the delightful ones (motion, type, the last 5% of polish).</p>
+      <div class="study" data-reveal data-focus>
+        <div class="deg">BSc (Hons) Software Engineering</div>
+        <div class="uni">Sunway University × Lancaster University · 2024–present</div>
+      </div>
+      <div class="study" data-reveal data-focus>
+        <div class="deg">Foundation in Information Technology</div>
+        <div class="uni">Multimedia University · 2023–2024</div>
+      </div>
+      <div class="chips" data-reveal>
+        <span class="chip">Flutter / Dart</span>
+        <span class="chip">React Native</span>
+        <span class="chip">JavaScript / TS</span>
+        <span class="chip">Python</span>
+        <span class="chip">Node.js</span>
+        <span class="chip">Tailwind CSS</span>
+        <span class="chip">Firebase / Supabase</span>
+        <span class="chip">Figma</span>
+        <span class="chip">Godot / GDScript</span>
+        <span class="chip">Git / GitHub</span>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <section class="section-full animated-section" id="about">
-            <div class="section-full-container">
-                <div class="section-full-header" data-animation="fade-down">
-                    <h2 class="section-full-title">About</h2>
-                </div>
-                <div class="section-full-content" data-animation="fade-up">
-                    <div class="about-text glassy can-focus" tabindex="0">
-                        <p class="about-intro">
-                            I'm a passionate software engineering student with a knack for creating modern web applications, games, and AI-powered tools.
-                        </p>
-                        <p>
-                            Currently pursuing a dual degree from <strong>Sunway University & Lancaster University (Class of 2027)</strong>, I'm constantly diving into new technologies, focusing on full-stack development, networking, and data management.
-                        </p>
-                        <p>
-                            My toolkit includes <strong>Python, C++, HTML, CSS, and JavaScript</strong>, and I'm comfortable using tools like <strong>Git, GitHub, and Godot</strong>. I enjoy turning complex problems into elegant, user-friendly solutions, whether it's building responsive websites or developing the logic for a 2D RPG.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
+<!-- ======================= PROJECTS (reel) ======================= -->
+<section id="projects" class="section reel" data-reel>
+  <div class="wrap">
+    <div class="reel-head">
+      <div class="shead" style="margin-bottom:0">
+        <span class="eyebrow" data-scramble="02 — SELECTED WORK" data-reveal>02 — SELECTED WORK</span>
+        <h2 data-reveal="lines">Things I’ve<br/>shipped &amp; <em>built</em>.</h2>
+      </div>
+      <span class="reel-hint" data-reveal>Scroll to explore →</span>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="reel-track" id="reelTrack">
+      <a class="pcard feature" href="https://github.com/yeegz" target="_blank" rel="noopener" data-magnetic data-focus data-card>
+        <span class="glowborder"></span>
+        <div class="visual"><span class="pn">01</span></div>
+        <span class="knum">P/01 · 2025</span>
+        <h3>Tajweed Interactive Web App</h3>
+        <p>An educational web platform for learners of Quranic recitation. Restructured the navigation hierarchy and information architecture, with faithful UI rendering of Arabic script — RTL typography, diacritics and colour-coded tajweed rules.</p>
+        <div class="stack"><span class="chip">Web</span><span class="chip">UI / UX</span><span class="chip">RTL Type</span></div>
+        <span class="arrow">View on GitHub <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
 
-        <section class="section-full animated-section" id="qualifications">
-            <div class="qualifications-layout-container">
-                <div class="qualifications-header" data-animation="fade-down">
-                    <h2 class="qualifications-title">Qualifications</h2>
-                </div>
-                <div class="qualifications-timeline-wrapper" data-animation="fade-up">
-                    <div class="qualifications-horizontal-timeline">
-                        <div class="timeline-item-h" data-year="2011 - 2022">
-                            <div class="timeline-content-h glassy can-focus" tabindex="0">
-                                <h3>High School Graduate</h3>
-                                <p class="company">Global International School</p>
-                                <button class="view-photos-btn" data-album="gis">View Photos</button>
-                            </div>
-                        </div>
-                        <div class="timeline-item-h" data-year="2023 - 2024">
-                            <div class="timeline-content-h glassy can-focus" tabindex="0">
-                                <h3>Foundation in IT</h3>
-                                <p class="company">Multimedia University</p>
-                                <button class="view-photos-btn" data-album="mmu">View Photos</button>
-                            </div>
-                        </div>
-                        <div class="timeline-item-h" data-year="2024 - Present">
-                            <div class="timeline-content-h glassy can-focus" tabindex="0">
-                                <h3>Bachelor Degree in Software Engineering</h3>
-                                <p class="company">Sunway University</p>
-                                <button class="view-photos-btn" data-album="sunway">View Photos</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+      <a class="pcard" href="https://github.com/yeegz" target="_blank" rel="noopener" data-magnetic data-focus data-card>
+        <span class="glowborder"></span>
+        <div class="visual"><span class="pn">02</span></div>
+        <span class="knum">P/02 · 2026</span>
+        <h3>Hangout Spending Tracker</h3>
+        <p>A cross-platform mobile app that calculates and splits group expenses on outings. Built in Flutter with a clean, friction-free flow, efficient state management, and seamless deployment across Android and iOS.</p>
+        <div class="stack"><span class="chip">Flutter</span><span class="chip">Dart</span><span class="chip">Mobile</span></div>
+        <span class="arrow">View on GitHub <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
 
-        <section class="section-full animated-section" id="projects">
-            <div class="section-full-container">
-                <div class="section-full-header" data-animation="fade-down">
-                     <h2 class="section-full-title title-tilted">Projects</h2>
-                </div>
-                <div class="section-full-content" data-animation="fade-up">
-                    <div class="projects-grid">
-                        <a href="https://yeegz.itch.io/fallenasteri" class="project-card glassy can-focus" target="_blank">
-                            <div class="project-image"><img src="images/fallenasteri.png" alt="Fallen Asteri Game" class="project-img"></div>
-                            <div class="project-info">
-                                <h3>Fallen Asteri</h3>
-                                <p>A challenging 2D platformer game developed with Godot during my time at Multimedia University.</p>
-                            </div>
-                        </a>
-                        <a href="https://ystodolist.netlify.app/" class="project-card glassy can-focus" target="_blank">
-                             <div class="project-image"><img src="images/todo.png" alt="To Do List Application" class="project-img"></div>
-                            <div class="project-info">
-                                <h3>To Do List App</h3>
-                                <p>A simple and effective web-based to-do list, built to practice fundamental web development skills.</p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
+      <a class="pcard" href="https://github.com/yeegz" target="_blank" rel="noopener" data-magnetic data-focus data-card>
+        <span class="glowborder"></span>
+        <div class="visual"><span class="pn">03</span></div>
+        <span class="knum">P/03 · 2024–25</span>
+        <h3>Task Management App</h3>
+        <p>A custom to-do web app with a ClickUp-like interface — drag-and-drop boards, dynamic category tagging and priority sorting, built to keep work organised without the friction.</p>
+        <div class="stack"><span class="chip">Frontend</span><span class="chip">JavaScript</span><span class="chip">Drag &amp; Drop</span></div>
+        <span class="arrow">View on GitHub <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
 
-        <footer class="footer">
-            <div class="container footer-container">
-                <p>&copy; <span id="currentYear"></span> Yousof Selim. All rights reserved.</p>
-                <div class="footer-social-links">
-                     <a href="https://github.com/yeegz" target="_blank" class="social-link" aria-label="GitHub"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 4.93 3.137 9.103 7.47 10.58.547.1.747-.237.747-.527v-1.84c-3.05.66-3.69-1.47-3.69-1.47-.5-1.27-1.22-1.61-1.22-1.61-1-.68.077-.67.077-.67 1.1.077 1.68 1.13 1.68 1.13 1 1.7 2.61 1.21 3.25.92.1-.72.39-1.21.71-1.49-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.43-2.22 1.15-2.99-.11-.28-.5-1.42.11-2.95 0 0 .94-.3 3.08 1.15.89-.25 1.84-.37 2.79-.37s1.9.12 2.79.37c2.14-1.45 3.08-1.15 3.08-1.15.61 1.53.22 2.67.11 2.95.72.77 1.15 1.77 1.15 2.99 0 4.29-2.61 5.24-5.1 5.52.4.34.76 1.03.76 2.08v3.08c0 .29.2.62.75.52C20.87 21.1 24 16.93 24 12c0-6.627-5.373-12-12-12z"/></svg></a>
-                    <a href="https://www.linkedin.com/in/yousof-selim-57b5a927a/" target="_blank" class="social-link" aria-label="LinkedIn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
-                </div>
-                <a href="contact.html" class="btn-contact glassy">Contact Page</a>
-            </div>
-        </footer>
-    </main>
+      <a class="pcard" href="https://yeegz.itch.io/fallenasteri" target="_blank" rel="noopener" data-magnetic data-focus data-card>
+        <span class="glowborder"></span>
+        <div class="visual"><span class="pn">04</span></div>
+        <span class="knum">P/04 · 2024</span>
+        <h3>Fallen Asteri</h3>
+        <p>A 2D platformer built in the Godot Engine — player movement, combat systems and scene transitions programmed in GDScript, with version control and repository architecture managed end to end.</p>
+        <div class="stack"><span class="chip">Godot</span><span class="chip">GDScript</span><span class="chip">Game</span></div>
+        <span class="arrow">Play on itch.io <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </div>
+    <div class="reel-progress"><div class="bar" id="reelBar"></div></div>
+    <div style="display:flex;justify-content:space-between;margin-top:1rem">
+      <span class="reel-index"><b id="reelNow">01</b> — 04</span>
+      <span class="reel-hint">More on GitHub</span>
+    </div>
+  </div>
+</section>
 
-    <div class="transition-overlay" id="transitionOverlay"></div>
-
-    <div class="gallery-overlay" id="galleryOverlay">
-        <button class="gallery-close-btn" id="galleryCloseBtn" aria-label="Close gallery">&times;</button>
-        <button class="gallery-nav prev" id="galleryPrev" aria-label="Previous image">&#10094;</button>
-        <div class="gallery-content-wrapper">
-            <div class="gallery-image-container">
-                <img src="" alt="Gallery view" class="gallery-main-image" id="galleryMainImage">
-            </div>
-            <div class="gallery-info-container">
-                <p class="gallery-description" id="galleryDescription"></p>
-            </div>
+<!-- ======================= EXPERIENCE ======================= -->
+<section id="experience" class="section">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow" data-scramble="03 — EXPERIENCE" data-reveal>03 — EXPERIENCE</span>
+      <h2 data-reveal="lines">Where I’ve<br/><em>contributed</em>.</h2>
+    </div>
+    <div class="exp-list">
+      <div class="exp-item" data-reveal data-exp data-focus>
+        <span class="node"></span>
+        <div>
+          <div class="role">Freelance UI &amp; UX Developer</div>
+          <div class="org">Self-Employed · Remote — cross-platform apps &amp; modern web interfaces for real clients, taken from concept to shipped product.</div>
         </div>
-        <button class="gallery-nav next" id="galleryNext" aria-label="Next image">&#10095;</button>
+        <div class="when">2023 — Present</div>
+      </div>
+      <div class="exp-item" data-reveal data-exp data-focus>
+        <span class="node"></span>
+        <div>
+          <div class="role">Digital Marketing Executive</div>
+          <div class="org">Sunway Cybersecurity Club — managing the club’s LinkedIn presence and producing campaign graphics &amp; promotional material.</div>
+        </div>
+        <div class="when">2026 — Present</div>
+      </div>
     </div>
+  </div>
+</section>
 
-    <script src="script.js"></script>
+<!-- ======================= CONTACT ======================= -->
+<section id="contact" class="contact">
+  <div class="wrap">
+    <span class="eyebrow" style="justify-content:center" data-scramble="04 — CONTACT" data-reveal>04 — CONTACT</span>
+    <h2 data-reveal="lines" style="margin-top:1rem">Let’s build<br/>something <em>good</em>.</h2>
+    <p class="lead" data-reveal>Open to internships, collaborations and interesting problems. The fastest way to reach me is below.</p>
+    <div class="contact-links" data-reveal>
+      <a href="mailto:yousofselim2@gmail.com" class="btn btn-primary" data-magnetic><span class="lbl">Email me</span></a>
+      <a href="https://github.com/yeegz" target="_blank" rel="noopener" class="btn btn-ghost" data-magnetic><span class="lbl">GitHub</span></a>
+      <a href="https://www.linkedin.com/in/ysf-slm" target="_blank" rel="noopener" class="btn btn-ghost" data-magnetic><span class="lbl">LinkedIn</span></a>
+      <a href="Yousof-Selim-Resume.pdf" target="_blank" rel="noopener" class="btn btn-ghost" data-magnetic><span class="lbl">Resume</span></a>
+    </div>
+  </div>
+  <footer>
+    <div class="wrap">
+      <span class="l">yee<b>.</b>gz — built with intent</span>
+      <span>© <span id="yr"></span> Yousof Selim</span>
+    </div>
+  </footer>
+</section>
+
+</div><!-- /.page -->
+
+<!-- ======================= SCRIPTS ======================= -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/CustomEase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+(function(){
+  const D = document;
+  const hasGSAP = typeof gsap !== 'undefined';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine   = matchMedia('(pointer: fine)').matches;
+
+  // Failsafe: if GSAP missing, just show everything.
+  if(!hasGSAP){
+    D.querySelectorAll('[data-reveal]').forEach(e=>{e.style.opacity=1;});
+    D.querySelectorAll('.line-inner').forEach(e=>{e.style.transform='none';});
+    D.getElementById('portrait').style.filter='none';
+    D.getElementById('preloader').style.display='none';
+    startScramblesFallback();
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  if(typeof CustomEase!=='undefined'){ CustomEase.create('atelier','M0,0 C0.16,1 0.3,1 1,1'); }
+  const EASE = (typeof CustomEase!=='undefined') ? 'atelier' : 'power3.out';
+
+  /* ---- wrap heading lines for masked reveal ---- */
+  D.querySelectorAll('[data-reveal="lines"]').forEach(h=>{
+    const html = h.innerHTML;
+    const parts = html.split(/<br\s*\/?>/i);
+    h.innerHTML = parts.map(p=>`<span class="line-mask"><span class="line-inner">${p}</span></span>`).join('');
+  });
+
+  /* ---- Lenis smooth scroll on the GSAP ticker ---- */
+  let lenis=null;
+  if(!reduce && typeof Lenis!=='undefined'){
+    lenis = new Lenis({ duration:1.1, easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)) });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t=> lenis.raf(t*1000));
+    gsap.ticker.lagSmoothing(0);
+    lenis.stop(); // until preloader finishes
+    // anchor links via lenis
+    D.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', e=>{ const id=a.getAttribute('href'); if(id.length>1){ e.preventDefault(); lenis.scrollTo(id,{offset:-20}); } });
+    });
+  }
+
+  /* =========================================================
+     CURSOR-CARRIED LIGHT (dot grid mask)  +  ring cursor
+     ========================================================= */
+  const root = D.documentElement;
+  const proxyL = {x:innerWidth/2, y:innerHeight/2};
+  const ring = D.getElementById('cursor');
+  const dot  = D.getElementById('cursorDot');
+
+  if(fine && !reduce){
+    const setMX = gsap.quickSetter(root,'--mx','px');
+    const setMY = gsap.quickSetter(root,'--my','px');
+    const lx = gsap.quickTo(proxyL,'x',{duration:.5,ease:'power3'});
+    const ly = gsap.quickTo(proxyL,'y',{duration:.5,ease:'power3'});
+    const rx = gsap.quickTo(ring,'x',{duration:.18,ease:'power3'});
+    const ry = gsap.quickTo(ring,'y',{duration:.18,ease:'power3'});
+    const dx = gsap.quickTo(dot,'x',{duration:.08,ease:'power3'});
+    const dy = gsap.quickTo(dot,'y',{duration:.08,ease:'power3'});
+    gsap.ticker.add(()=>{ setMX(proxyL.x); setMY(proxyL.y); });
+
+    window.addEventListener('pointermove', e=>{
+      lx(e.clientX); ly(e.clientY);
+      rx(e.clientX); ry(e.clientY);
+      dx(e.clientX); dy(e.clientY);
+      ring.classList.add('on'); dot.classList.add('on');
+    }, {passive:true});
+    window.addEventListener('pointerout', e=>{ if(!e.relatedTarget){ ring.classList.remove('on'); dot.classList.remove('on'); }});
+
+    /* magnetic targets */
+    D.querySelectorAll('[data-magnetic]').forEach(el=>{
+      const inner = el.querySelector('.lbl') || el;
+      const xT = gsap.quickTo(el,'x',{duration:.6,ease:'power3'});
+      const yT = gsap.quickTo(el,'y',{duration:.6,ease:'power3'});
+      const ixT = gsap.quickTo(inner,'x',{duration:.6,ease:'power3'});
+      const iyT = gsap.quickTo(inner,'y',{duration:.6,ease:'power3'});
+      el.addEventListener('pointerenter', ()=> gsap.to(ring,{scale:2.3,duration:.4,ease:'power2.out'}));
+      el.addEventListener('pointermove', e=>{
+        const r=el.getBoundingClientRect();
+        const mx=e.clientX-(r.left+r.width/2), my=e.clientY-(r.top+r.height/2);
+        xT(mx*0.35); yT(my*0.35); ixT(mx*0.18); iyT(my*0.18);
+      });
+      el.addEventListener('pointerleave', ()=>{
+        gsap.to(ring,{scale:1,duration:.4,ease:'power2.out'});
+        gsap.to(el,{x:0,y:0,duration:.8,ease:'elastic.out(1,0.4)'});
+        gsap.to(inner,{x:0,y:0,duration:.8,ease:'elastic.out(1,0.4)'});
+      });
+    });
+
+    /* per-card cursor highlight */
+    D.querySelectorAll('[data-card]').forEach(card=>{
+      card.addEventListener('pointermove', e=>{
+        const r=card.getBoundingClientRect();
+        card.style.setProperty('--cx', (e.clientX-r.left)+'px');
+        card.style.setProperty('--cy', (e.clientY-r.top)+'px');
+      });
+    });
+  }
+
+  /* =========================================================
+     REVEALS (run once)
+     ========================================================= */
+  function revealGeneric(){
+    gsap.utils.toArray('[data-reveal]:not([data-reveal="lines"])').forEach(el=>{
+      gsap.fromTo(el,{y:26,opacity:0},{
+        y:0,opacity:1,duration:.9,ease:EASE,
+        scrollTrigger:{trigger:el,start:'top 86%',once:true}
+      });
+    });
+    gsap.utils.toArray('[data-reveal="lines"]').forEach(h=>{
+      const inners=h.querySelectorAll('.line-inner');
+      gsap.to(inners,{yPercent:0,duration:.95,ease:'power4.out',stagger:.09,
+        scrollTrigger:{trigger:h,start:'top 84%',once:true}});
+    });
+  }
+
+  /* =========================================================
+     SCRAMBLE / DECODE
+     ========================================================= */
+  const CH = 'ABCDEFGHJKLMNPQRSTUVWXYZ!@#$%&/<>{}0123456789';
+  function scramble(el, finalText, dur){
+    dur = dur || 950;
+    const len=finalText.length; let start=null;
+    el.classList.add('scrambling');
+    function tick(t){
+      if(start===null) start=t;
+      const p=Math.min((t-start)/dur,1);
+      const reveal=Math.floor(p*len*1.18);
+      let out='';
+      for(let i=0;i<len;i++){
+        const c=finalText[i];
+        if(c===' '){ out+=' '; continue; }
+        out += (i<reveal) ? c : CH[(Math.random()*CH.length)|0];
+      }
+      el.textContent=out;
+      if(p<1){ requestAnimationFrame(tick); }
+      else { el.textContent=finalText; el.classList.remove('scrambling'); }
+    }
+    requestAnimationFrame(tick);
+  }
+  function startScramblesFallback(){
+    D.querySelectorAll('[data-scramble]').forEach(el=> el.textContent=el.getAttribute('data-scramble'));
+  }
+
+  function heroIntro(){
+    const name = D.querySelector('[data-hero-name]');
+    if(reduce){ return; }
+    scramble(name, 'Yousof Selim', 1100);
+    // eyebrow scrambles too
+    const eb = D.querySelector('#hero .eyebrow');
+    if(eb) scramble(eb, eb.getAttribute('data-scramble'), 900);
+  }
+
+  // section eyebrows scramble on scroll-in
+  function eyebrowScrambles(){
+    gsap.utils.toArray('[data-scramble]').forEach(el=>{
+      if(el.closest('#hero')) return; // hero handled in intro
+      ScrollTrigger.create({trigger:el,start:'top 88%',once:true,
+        onEnter:()=> scramble(el, el.getAttribute('data-scramble'), 800)});
+    });
+  }
+
+  /* =========================================================
+     HERO portrait scrub: develop grayscale→color + WONK sharpen on name
+     ========================================================= */
+  function heroScrub(){
+    const portrait = D.getElementById('portrait');
+    const name = D.querySelector('[data-hero-name]');
+    const mm = gsap.matchMedia();
+    mm.add('(min-width:901px) and (prefers-reduced-motion: no-preference)', ()=>{
+      const proxy={opsz:144, wonk:0, wght:360};
+      const setVar=()=> name.style.fontVariationSettings=`'opsz' ${proxy.opsz},'wght' ${proxy.wght},'SOFT' 0,'WONK' ${proxy.wonk}`;
+      const tl=gsap.timeline({scrollTrigger:{trigger:'#hero',start:'top top',end:'+=90%',scrub:1}});
+      tl.fromTo(portrait,{filter:'grayscale(0.85) brightness(0.92) contrast(1.02)'},
+                         {filter:'grayscale(0) brightness(1) contrast(1)',ease:'none'},0);
+      tl.fromTo(portrait,{scale:1.03,yPercent:0},{scale:.97,yPercent:-4,ease:'none'},0);
+      tl.to(proxy,{wonk:1,wght:400,ease:'none',onUpdate:setVar},0);
+      return ()=>{ portrait.style.filter=''; name.style.fontVariationSettings=''; };
+    });
+    // mobile / reduced: color immediately
+    mm.add('(max-width:900px),(prefers-reduced-motion: reduce)', ()=>{
+      portrait.style.filter='grayscale(0) brightness(1)';
+    });
+  }
+
+  /* =========================================================
+     PROJECTS horizontal reel
+     ========================================================= */
+  function projectsReel(){
+    const track=D.getElementById('reelTrack');
+    const cards=gsap.utils.toArray('.pcard');
+    const bar=D.getElementById('reelBar');
+    const now=D.getElementById('reelNow');
+    const mm=gsap.matchMedia();
+
+    mm.add('(min-width:901px)', ()=>{
+      const amount=()=> -(track.scrollWidth - D.querySelector('#projects .wrap').clientWidth);
+      const tween=gsap.to(track,{x:amount,ease:'none'});
+      const st=ScrollTrigger.create({
+        trigger:'#projects', start:'top top',
+        end:()=> '+=' + (track.scrollWidth - D.querySelector('#projects .wrap').clientWidth + window.innerHeight*0.4),
+        pin:true, anticipatePin:1, scrub:1, animation:tween, invalidateOnRefresh:true,
+        onUpdate:self=>{
+          bar.style.transform=`translateX(${(self.progress*100)-0}%)`;
+          const idx=Math.min(cards.length, Math.floor(self.progress*cards.length)+1);
+          now.textContent=String(idx).padStart(2,'0');
+        }
+      });
+      // per-card reveal as they enter via containerAnimation
+      cards.forEach(card=>{
+        const v=card.querySelector('.visual');
+        gsap.fromTo(card,{opacity:0,y:40},{opacity:1,y:0,duration:.7,ease:EASE,
+          scrollTrigger:{trigger:card,containerAnimation:tween,start:'left 88%',once:true}});
+        if(v) gsap.fromTo(v,{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0% 0 0)',duration:.9,ease:'power3.inOut',
+          scrollTrigger:{trigger:card,containerAnimation:tween,start:'left 85%',once:true}});
+      });
+      return ()=>{ gsap.set(track,{x:0}); };
+    });
+
+    mm.add('(max-width:900px)', ()=>{
+      gsap.set(track,{flexDirection:'column'});
+      track.style.flexDirection='column';
+      cards.forEach(c=> c.style.width='100%');
+      cards.forEach(card=>{
+        gsap.fromTo(card,{opacity:0,y:30},{opacity:1,y:0,duration:.7,ease:EASE,
+          scrollTrigger:{trigger:card,start:'top 88%',once:true}});
+      });
+      D.querySelector('.reel-progress').style.display='none';
+      return ()=>{ track.style.flexDirection=''; };
+    });
+  }
+
+  /* =========================================================
+     EXPERIENCE sonar pulse on arrival
+     ========================================================= */
+  function expPulse(){
+    gsap.utils.toArray('[data-exp]').forEach(el=>{
+      ScrollTrigger.create({trigger:el,start:'top 80%',once:true,
+        onEnter:()=> el.classList.add('pulse')});
+    });
+  }
+
+  /* =========================================================
+     THEATRE-DIM FOCUS (click to focus, Esc/outside to release)
+     ========================================================= */
+  function focusMode(){
+    if(reduce) return;
+    const vig=D.getElementById('vignette');
+    let active=null, tl=null;
+    function focusEl(el){
+      const group=Array.from(el.parentElement.children).filter(c=>c!==el && c.hasAttribute('data-focus'));
+      // also dim across the whole section group: gather siblings with data-focus in same container
+      active=el; el.classList.add('is-focused');
+      tl=gsap.timeline();
+      tl.to(group,{filter:'blur(3px) saturate(.5)',opacity:.42,scale:.985,duration:.5,ease:'power2.out',stagger:{each:.012,from:'center'}},0);
+      tl.to(vig,{opacity:1,duration:.5,ease:'power2.out'},0);
+      tl.fromTo(el,{boxShadow:'0 0 0 0 rgba(255,107,74,0)'},
+        {boxShadow:'0 0 0 1px rgba(255,107,74,.5), 0 30px 60px -20px rgba(255,107,74,.25)',duration:.55,ease:'power2.out'},0);
+      tl.to(el,{scale:1.015,duration:.55,ease:'back.out(1.4)'},0);
+    }
+    function release(){
+      if(!active) return;
+      const el=active; const group=Array.from(el.parentElement.children).filter(c=>c!==el && c.hasAttribute('data-focus'));
+      gsap.to(group,{filter:'none',opacity:1,scale:1,duration:.45,ease:'power2.out'});
+      gsap.to(vig,{opacity:0,duration:.4});
+      gsap.to(el,{scale:1,boxShadow:'none',duration:.45,ease:'power2.out',onComplete:()=>{ el.classList.remove('is-focused'); el.style.boxShadow=''; }});
+      active=null;
+    }
+    D.querySelectorAll('[data-focus]').forEach(el=>{
+      el.addEventListener('click', e=>{
+        // links: allow normal navigation, don't hijack
+        if(el.tagName==='A') return;
+        e.preventDefault();
+        if(active===el){ release(); } else { if(active) release(); focusEl(el); }
+      });
+    });
+    D.addEventListener('keydown', e=>{ if(e.key==='Escape') release(); });
+  }
+
+  /* =========================================================
+     PRELOADER → reveal → choreography
+     ========================================================= */
+  function runPreloader(done){
+    const pl=D.getElementById('preloader');
+    const fill=D.getElementById('plFill');
+    const count=D.getElementById('plCount');
+    let finished=false;
+    const finish=()=>{ if(finished) return; finished=true; pl.style.display='none'; done(); };
+    if(reduce){ finish(); return; }
+    const o={v:0};
+    gsap.to(o,{v:100,duration:1.9,ease:'steps(16)',onUpdate:()=>{
+      const v=Math.round(o.v); count.textContent=v+'%';
+      fill.style.transform=`translateX(${v}%)`;
+    },onComplete:()=>{
+      gsap.to(pl,{clipPath:'inset(0 0 100% 0)',duration:.9,ease:'power3.inOut',onComplete:finish});
+    }});
+    // safety: never trap the page if rAF is throttled (e.g. tab backgrounded during load)
+    setTimeout(finish, 5200);
+  }
+
+  function boot(){
+    revealGeneric();
+    eyebrowScrambles();
+    heroScrub();
+    projectsReel();
+    expPulse();
+    focusMode();
+    ScrollTrigger.refresh();
+  }
+
+  // build everything, then run preloader, then start motion
+  window.addEventListener('load', ()=>{
+    boot();
+    runPreloader(()=>{
+      if(lenis) lenis.start();
+      heroIntro();
+      ScrollTrigger.refresh();
+    });
+  });
+  // safety: if load already fired
+  if(document.readyState==='complete'){ /* handled by load */ }
+})();
+</script>
 </body>
 </html>

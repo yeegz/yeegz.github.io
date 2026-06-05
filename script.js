@@ -106,7 +106,7 @@
       const a = locked>0 ? amp*(1-locked) : amp*dpr;
       ctx.beginPath(); ctx.moveTo(0,mid);
       for(let x=0;x<=W;x+=2*dpr){ ctx.lineTo(x, mid + Math.sin(x*freq/dpr + t)*a); }
-      ctx.strokeStyle='#3DE1FF'; ctx.lineWidth=1.5*dpr; ctx.shadowBlur=8; ctx.shadowColor='rgba(61,225,255,.8)'; ctx.stroke();
+      ctx.strokeStyle='#3DE1FF'; ctx.lineWidth=1.5*dpr; ctx.shadowBlur=15*dpr; ctx.shadowColor='rgba(61,225,255,.95)'; ctx.stroke(); ctx.shadowBlur=0;
       if(locked>0){ ctx.beginPath(); ctx.arc(W*0.5,mid,2.5*dpr,0,7); ctx.fillStyle='#3DE1FF'; ctx.fill(); }
       requestAnimationFrame(frame);
     }

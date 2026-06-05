@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ysf.slm — Yousof Selim, Software Engineer</title>
-<meta name="description" content="Yousof Selim (ysf.slm) — software-engineering undergrad, three years freelance shipping cross-platform Flutter apps and considered web. Printed in cyan on black." />
+<meta name="description" content="Yousof Selim (ysf.slm) — software-engineering undergrad, three years freelance. I ship cross-platform Flutter apps and considered web, designed and built by hand." />
 <meta name="author" content="Yousof Selim" />
 <meta name="theme-color" content="#06080A" />
 <meta name="apple-mobile-web-app-title" content="ysf.slm" />
 
 <meta property="og:type" content="website" />
 <meta property="og:title" content="ysf.slm — Yousof Selim" />
-<meta property="og:description" content="Software engineer. I turn noise into software that feels effortless. Printed in cyan on black." />
+<meta property="og:description" content="Software engineer. I turn noise into software that feels effortless. Designed & built with love by Yousof Selim." />
 <meta property="og:url" content="https://yeegz.github.io" />
 <meta property="og:image" content="https://yeegz.github.io/images/my-photo.jpg" />
 
@@ -23,7 +23,7 @@
 
 <style>
 /* ============================================================
-   ysf.slm — PRINTED IN CYAN ON BLACK
+   ysf.slm — designed & built by hand by Yousof Selim
    Blackout editorial folio · cyan only marks LOCKED/ACTIVE/TRUE
    ============================================================ */
 :root{
@@ -311,6 +311,36 @@ footer .pg b{ color:var(--accent); }
 .js [data-reveal]{ opacity:0; }
 .js .line-inner{ transform:translateY(110%); }
 
+/* ---- + register corner marks (replace the SIGNAL—LOCKED caption) ---- */
+.regcorner{ position:absolute; width:14px; height:14px; z-index:3; pointer-events:none; opacity:.9; }
+.regcorner::before,.regcorner::after{ content:""; position:absolute; background:var(--accent); box-shadow:0 0 6px var(--accent-glow); }
+.regcorner::before{ left:6px; top:0; width:1px; height:14px; }
+.regcorner::after{ top:6px; left:0; height:1px; width:14px; }
+.regcorner.tr{ top:10px; right:10px; }
+.regcorner.tl{ top:10px; left:10px; }
+
+/* ---- rotating role in hero eyebrow ---- */
+.rolecycle{ display:inline-flex; align-items:center; gap:.6rem; }
+.rolecycle .rl{ color:var(--accent); }
+.rolecycle .role{ display:inline-block; min-width:14ch; }
+.rolecycle .role.scrambling{ color:var(--accent); }
+
+/* ---- project plate thumbnails ---- */
+.plate .thumb{ position:relative; height:172px; margin:-1.7rem -1.7rem 1.3rem; overflow:hidden; border-bottom:1px solid var(--bd); background:var(--surface-2); }
+.plate .thumb img{ width:100%; height:100%; object-fit:cover; object-position:center top; filter:grayscale(.5) brightness(.82) contrast(1.04); transition:filter .5s var(--ease), transform .6s var(--ease); }
+.plate:hover .thumb img{ filter:grayscale(0) brightness(1); transform:scale(1.04); }
+.plate .thumb.ph{ display:flex; align-items:center; justify-content:center;
+  background:
+    repeating-linear-gradient(0deg, var(--graticule) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(90deg, var(--graticule) 0 1px, transparent 1px 22px),
+    linear-gradient(160deg, var(--surface-2), var(--surface)); }
+.plate .thumb.ph .ghost{ font-family:var(--font-display); font-variation-settings:'opsz'144,'wght'400; font-size:5rem; line-height:1; color:transparent; -webkit-text-stroke:1px rgba(61,225,255,.28); }
+.plate h3{ margin-top:.5rem; }
+.plate .meta{ margin-top:auto; padding-top:1.2rem; }
+
+/* ---- top scroll-progress signal ---- */
+.scrollbar{ position:fixed; top:0; left:0; height:2px; width:100%; transform:scaleX(0); transform-origin:left; background:var(--accent); z-index:200; box-shadow:0 0 10px var(--accent-glow); }
+
 @media (prefers-reduced-motion:reduce){
   *{ animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
   .js [data-reveal]{ opacity:1!important; }
@@ -327,6 +357,7 @@ footer .pg b{ color:var(--accent); }
 <div class="grain"></div>
 <div class="regmark"></div>
 <div class="flash" id="flash"></div>
+<div class="scrollbar" id="scrollbar"></div>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-dot" id="cursorDot"></div>
 
@@ -347,7 +378,7 @@ footer .pg b{ color:var(--accent); }
   <div class="nav-links">
     <a href="#about" data-magnetic>About <span class="fol">01</span></a>
     <a href="#projects" data-magnetic>Work <span class="fol">02</span></a>
-    <a href="#experience" data-magnetic>Record <span class="fol">03</span></a>
+    <a href="#experience" data-magnetic>Experience <span class="fol">03</span></a>
     <a href="Yousof-Selim-Resume.pdf" target="_blank" rel="noopener" data-magnetic>Resume <span class="fol">↗</span></a>
   </div>
 </nav>
@@ -356,7 +387,7 @@ footer .pg b{ color:var(--accent); }
 <section id="hero" class="hero">
   <div class="wrap cover">
     <div class="cover-left">
-      <span class="eyebrow" data-scramble="SOFTWARE ENGINEER · TUNING SIGNALS INTO SOFTWARE">SOFTWARE ENGINEER · TUNING SIGNALS INTO SOFTWARE</span>
+      <span class="eyebrow rolecycle"><span class="rl">—</span> <span class="role" data-roles="Software Engineer|Flutter Developer|UI / UX Designer|Frontend Developer|Game Developer|Video Editor|Photo Editor">Software Engineer</span></span>
       <h1 class="hero-name" data-hero-name><span>Yousof</span><span>Selim</span></h1>
       <p class="hero-tagline" data-reveal>I turn noise into software that feels <em class="ink" data-ink>effortless</em>.</p>
       <p class="hero-lead" data-reveal>Software-engineering undergrad, three years freelance. I ship cross-platform Flutter apps and quiet, considered web — right-to-left Arabic type that has to be exactly right, group-spending maths, the last 5% nobody else finishes.</p>
@@ -364,12 +395,12 @@ footer .pg b{ color:var(--accent); }
     </div>
     <div class="portrait" id="portrait" data-magnetic>
       <div class="img"></div><div class="duo"></div><div class="scan" id="heroScan"></div>
-      <span class="cap"><i></i> SIGNAL — LOCKED</span>
+      <span class="regcorner tr"></span>
     </div>
   </div>
   <div class="wrap">
     <svg class="signalbus" id="signalbus" preserveAspectRatio="none" viewBox="0 0 1200 30"><path d=""/></svg>
-    <div class="colophon"><span>ISSUE 01 — SOFTWARE &amp; DESIGN — EST. 2023</span><span>PRINTED IN CYAN</span></div>
+    <div class="colophon"><span>AVAILABLE FOR INTERNSHIPS &amp; FREELANCE</span><span>EST. 2023</span></div>
   </div>
 </section>
 
@@ -377,19 +408,19 @@ footer .pg b{ color:var(--accent); }
 <section id="about" class="section">
   <span class="folio" style="left:-1rem;top:1rem">01</span>
   <div class="wrap">
-    <span class="vlabel"><span class="n">01</span> — PROFILE</span>
+    <span class="vlabel"><span class="n">01</span> — ABOUT</span>
     <div class="shead">
-      <span class="eyebrow" data-scramble="01 — PROFILE">01 — PROFILE</span>
+      <span class="eyebrow" data-scramble="01 — ABOUT">01 — ABOUT</span>
       <h2 data-reveal="lines">A builder’s mind,<br/>a <em class="ink" data-ink>designer’s</em> eye.</h2>
     </div>
     <div class="about-grid">
       <div>
         <div class="about-photo">
           <div class="img"></div><div class="duo"></div><div class="scan"></div>
-          <span class="cap"><i></i> SIGNAL — LOCKED</span>
+          <span class="regcorner tl"></span>
         </div>
         <div class="specsheet" data-reveal>
-          <div class="sh">ON RECORD — STUDIES</div>
+          <div class="sh">EDUCATION</div>
           <div class="spec-row">
             <div class="inst">Sunway × Lancaster<span class="sub">BSc (Hons) Software Engineering</span></div>
             <div class="lead-dots"></div>
@@ -405,7 +436,7 @@ footer .pg b{ color:var(--accent); }
       <div>
         <p class="about-body" data-reveal><span class="drop">I</span> care as much about how a thing <strong>feels</strong> as how it’s wired underneath. Three years of freelance taught me to take real client work from a vague idea to a shipped product — the unglamorous parts (clean state, sensible architecture) and the delightful ones (motion, type, the last 5% of polish) in equal measure.</p>
         <div class="skills-credit" data-reveal>
-          <div class="sh">TYPESET IN —</div>
+          <div class="sh">CORE STACK —</div>
           <div class="list">FLUTTER<span class="d">·</span>DART<span class="d">·</span>TYPESCRIPT<span class="d">·</span>PYTHON<span class="d">·</span>REACT NATIVE<span class="d">·</span>NODE<span class="d">·</span>TAILWIND<span class="d">·</span>FIREBASE<span class="d">·</span>SUPABASE<span class="d">·</span>GODOT<span class="d">·</span>FIGMA<span class="d">·</span>GIT</div>
         </div>
       </div>
@@ -418,7 +449,7 @@ footer .pg b{ color:var(--accent); }
   <span class="folio" style="right:0;top:0">02</span>
   <div class="wrap">
     <div class="shead">
-      <span class="eyebrow" data-scramble="02 — SIGNALS SHIPPED">02 — SIGNALS SHIPPED</span>
+      <span class="eyebrow" data-scramble="02 — SELECTED WORK">02 — SELECTED WORK</span>
       <h2 data-reveal="lines">Things I’ve<br/>actually <em class="ink" data-ink>shipped</em>.</h2>
     </div>
   </div>
@@ -428,29 +459,29 @@ footer .pg b{ color:var(--accent); }
     <span class="marquee-gutter">AUTOPLAY — HOVER TO HOLD</span>
     <div class="reel-track" id="reelTrack">
       <a class="plate" href="https://github.com/yeegz" target="_blank" rel="noopener" data-magnetic data-plate>
-        <span class="pfolio">01</span>
-        <span class="slug">PLATE 01 / 2025 / <b>WEB · RTL TYPE</b></span>
+        <div class="thumb ph"><span class="ghost">01</span><span class="regcorner tr"></span></div>
+        <span class="slug">PROJECT 01 / 2025 / <b>WEB · RTL TYPE</b></span>
         <h3>Tajweed Interactive Web App</h3><span class="uline"></span>
         <p>Quranic recitation, rendered right — RTL Arabic type, diacritics, and colour-coded tajweed that can’t be off by a pixel.</p>
         <span class="meta">View source <span class="arrow">↗</span></span>
       </a>
       <a class="plate" href="https://github.com/yeegz" target="_blank" rel="noopener" data-magnetic data-plate>
-        <span class="pfolio">02</span>
-        <span class="slug">PLATE 02 / 2026 / <b>FLUTTER · MOBILE</b></span>
+        <div class="thumb ph"><span class="ghost">02</span><span class="regcorner tr"></span></div>
+        <span class="slug">PROJECT 02 / 2026 / <b>FLUTTER · MOBILE</b></span>
         <h3>Hangout Spending Tracker</h3><span class="uline"></span>
         <p>Splits the bill before the bill splits the group. Cross-platform Flutter, clean state, ships to Android &amp; iOS.</p>
         <span class="meta">View source <span class="arrow">↗</span></span>
       </a>
       <a class="plate" href="https://github.com/yeegz" target="_blank" rel="noopener" data-magnetic data-plate>
-        <span class="pfolio">03</span>
-        <span class="slug">PLATE 03 / 2024–25 / <b>FRONTEND · JS</b></span>
+        <div class="thumb"><img src="images/todo.png" alt="Task Management App screenshot" loading="lazy"/><span class="regcorner tr"></span></div>
+        <span class="slug">PROJECT 03 / 2024–25 / <b>FRONTEND · JS</b></span>
         <h3>Task Management App</h3><span class="uline"></span>
         <p>ClickUp energy — drag-drop boards, dynamic tagging, priority sorting. No friction.</p>
         <span class="meta">View source <span class="arrow">↗</span></span>
       </a>
       <a class="plate" href="https://yeegz.itch.io/fallenasteri" target="_blank" rel="noopener" data-magnetic data-plate>
-        <span class="pfolio">04</span>
-        <span class="slug">PLATE 04 / 2024 / <b>GODOT · GDSCRIPT</b></span>
+        <div class="thumb"><img src="images/fallenasteri.png" alt="Fallen Asteri game screenshot" loading="lazy"/><span class="regcorner tr"></span></div>
+        <span class="slug">PROJECT 04 / 2024 / <b>GODOT · GDSCRIPT</b></span>
         <h3>Fallen Asteri</h3><span class="uline"></span>
         <p>A 2D platformer in Godot. Movement, combat, scene transitions — and yes, it ships.</p>
         <span class="meta">Play on itch.io <span class="arrow">↗</span></span>
@@ -464,9 +495,9 @@ footer .pg b{ color:var(--accent); }
 <section id="experience" class="section">
   <span class="folio" style="left:-1rem;top:0">03</span>
   <div class="wrap">
-    <span class="vlabel"><span class="n">03</span> — RECORD</span>
+    <span class="vlabel"><span class="n">03</span> — EXPERIENCE</span>
     <div class="shead">
-      <span class="eyebrow" data-scramble="03 — ON THE RECORD">03 — ON THE RECORD</span>
+      <span class="eyebrow" data-scramble="03 — EXPERIENCE">03 — EXPERIENCE</span>
       <h2 data-reveal="lines">Where I’ve<br/><em class="ink" data-ink>contributed</em>.</h2>
     </div>
     <div class="rec">
@@ -488,7 +519,7 @@ footer .pg b{ color:var(--accent); }
 <section id="contact" class="contact">
   <span class="folio" style="right:0;top:-2rem">04</span>
   <div class="wrap">
-    <span class="eyebrow" data-scramble="04 — OPEN CHANNEL">04 — OPEN CHANNEL</span>
+    <span class="eyebrow" data-scramble="04 — CONTACT">04 — CONTACT</span>
     <h2 data-reveal="lines" style="margin-top:1rem">Let’s set<br/>something<br/>in <em class="ink" data-ink>motion</em>.</h2>
     <p class="clead" data-reveal>Open to internships, collaborations, and oddly-specific problems. Email’s the fastest way in — I actually read it.</p>
     <div class="contact-links" data-reveal>
@@ -499,9 +530,9 @@ footer .pg b{ color:var(--accent); }
     </div>
     <div class="colo" data-reveal>
       <div class="credits">
-        EDITOR &amp; ENGINEER — YOUSOF SELIM<span class="dot"></span><br/>
-        SET IN FRAUNCES / HANKEN GROTESK / JETBRAINS MONO<br/>
-        PRINTED IN CYAN ON BLACK — © <span id="yr"></span> · PRINTED <span id="stamp"></span>
+        DESIGNED, BUILT &amp; HAND-WIRED BY YOUSOF SELIM<span class="dot"></span><br/>
+        EVERY PIXEL PLACED BY HAND — MADE WITH LOVE, NOT A TEMPLATE<br/>
+        © <span id="yr"></span> YOUSOF SELIM · LAST UPDATED <span id="stamp"></span>
       </div>
     </div>
   </div>
@@ -537,8 +568,9 @@ footer .pg b{ color:var(--accent); }
   try{ console.log('%c ysf.slm ','background:#3DE1FF;color:#06141A;font-weight:bold;padding:2px 4px');
        console.log('%c~∿∿∿  signal acquired — peek at the source, it\'s hand-wired.','color:#3DE1FF'); }catch(e){}
 
-  // tear strips
-  const tt='— YSF<span class="dot"></span>SLM &nbsp; ISSUE 01 &nbsp; PRINTED IN CYAN ON BLACK &nbsp; ';
+  // tear strips — running list of skills
+  const SKILLS=['FLUTTER','DART','TYPESCRIPT','JAVASCRIPT','PYTHON','REACT NATIVE','NODE','TAILWIND','FIREBASE','SUPABASE','GODOT','GDSCRIPT','FIGMA','UI / UX','GIT','VIDEO EDITING','PHOTO EDITING','CANVA'];
+  const tt=SKILLS.join(' &nbsp;·&nbsp; ')+' &nbsp;·&nbsp; ';
   const t1=D.getElementById('tear1'), t2=D.getElementById('tear2');
   if(t1) t1.innerHTML=(tt).repeat(6); if(t2) t2.innerHTML=(tt).repeat(6);
 
@@ -720,6 +752,38 @@ footer .pg b{ color:var(--accent); }
     });
   }
 
+  // ---- rotating role (uses the same scramble decode as the intro) ----
+  function roleCycle(){
+    const el=D.querySelector('.rolecycle .role'); if(!el) return;
+    const roles=el.getAttribute('data-roles').split('|');
+    if(reduce) return;
+    let i=0;
+    setInterval(()=>{ i=(i+1)%roles.length; scramble(el, roles[i], 650); }, 2600);
+  }
+
+  // ---- life while scrolling: signal reacts to scroll, folios parallax, progress ----
+  function scrollLife(){
+    if(reduce) return;
+    let agit=0;
+    gsap.ticker.add((time)=>{
+      if(D.hidden) return;
+      agit*=0.9;
+      if(busPath)  busPath.setAttribute('d',  wavePath(1200,30, 5+agit*16, 0.030+agit*0.020, time*1.4));
+      if(basePath) basePath.setAttribute('d', wavePath(1600,30, 4+agit*13, 0.025+agit*0.016, time*1.8));
+    });
+    const bump=v=>{ agit=Math.min(1.4, agit+Math.min(Math.abs(v),1)); };
+    if(lenis){ lenis.on('scroll', e=>bump((e.velocity||0)/28)); }
+    else { let last=scrollY; addEventListener('scroll',()=>{ bump((scrollY-last)/50); last=scrollY; },{passive:true}); }
+    // folio ghosts drift (parallax depth)
+    gsap.utils.toArray('.folio').forEach(f=>{
+      gsap.fromTo(f,{yPercent:-14},{yPercent:22,ease:'none',
+        scrollTrigger:{trigger:f.closest('section'),start:'top bottom',end:'bottom top',scrub:true}});
+    });
+    // top scroll-progress signal
+    const sb=D.getElementById('scrollbar');
+    if(sb) ScrollTrigger.create({start:0,end:'max',onUpdate:self=>{ sb.style.transform='scaleX('+self.progress.toFixed(4)+')'; }});
+  }
+
   // ---- preloader ----
   function preloader(done){
     const pl=D.getElementById('preloader'), pct=D.getElementById('plPct');
@@ -734,7 +798,7 @@ footer .pg b{ color:var(--accent); }
 
   // ---- boot ----
   function boot(){
-    revealGeneric(); revealHeadings(); eyebrowScrambles(); tuneIn(); marquee(); ScrollTrigger.refresh();
+    revealGeneric(); revealHeadings(); eyebrowScrambles(); tuneIn(); marquee(); scrollLife(); ScrollTrigger.refresh();
   }
   addEventListener('load', ()=>{
     boot();
@@ -755,7 +819,7 @@ footer .pg b{ color:var(--accent); }
       const nm=D.querySelector('[data-hero-name]'); if(nm && !reduce){
         const spans=nm.querySelectorAll('span'); scramble(spans[0],'Yousof',900); scramble(spans[1],'Selim',1050);
       }
-      const eb=D.querySelector('#hero .eyebrow'); if(eb && !reduce) scramble(eb, eb.getAttribute('data-scramble'), 900);
+      roleCycle();
       ScrollTrigger.refresh();
     });
   });

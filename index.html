@@ -78,10 +78,7 @@ body{
 .regmark::after{ top:7px; left:0; height:1px; width:16px; }
 
 /* ---- custom cursor ---- */
-.cursor{ position:fixed; top:0; left:0; width:30px; height:30px; border-radius:50%; border:1.5px solid #fff;
-  transform:translate(-50%,-50%); pointer-events:none; z-index:10000; mix-blend-mode:difference; will-change:transform; opacity:0; transition:opacity .3s; }
-.cursor.on{ opacity:1; }
-.cursor-dot{ position:fixed; top:0; left:0; width:5px; height:5px; background:var(--accent); transform:translate(-50%,-50%);
+.cursor-dot{ position:fixed; top:0; left:0; width:6px; height:6px; background:var(--accent); transform:translate(-50%,-50%);
   pointer-events:none; z-index:10000; will-change:transform; opacity:0; }
 .cursor-dot.on{ opacity:1; }
 
@@ -159,12 +156,15 @@ nav::after{ content:""; position:absolute; left:0; bottom:0; width:100%; height:
    HERO — 00 / COVER
    ============================================================ */
 .hero{ min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding:9rem 0 2.5rem; position:relative; overflow:hidden; }
-.cover{ position:relative; display:grid; grid-template-columns:1fr auto; align-items:end; gap:2rem; }
+.cover{ position:relative; display:grid; grid-template-columns:1fr auto; align-items:center; gap:3rem; }
 .cover-left{ position:relative; z-index:2; }
 .hero .eyebrow{ display:block; margin-bottom:1.4rem; }
 .hero-name{ font-size:var(--hero); font-variation-settings:'opsz'144,'wght'330,'SOFT'0,'WONK'0;
   letter-spacing:-.04em; line-height:.82; margin-left:-.06em; }
-.hero-name span{ display:block; }
+.hero-name .ln{ display:block; }
+.hero-name .t{ display:inline; }
+.hero-name .hl{ background:var(--accent); color:var(--accent-ink); padding:0 .1em; -webkit-box-decoration-break:clone; box-decoration-break:clone; box-shadow:0 0 24px -4px var(--accent-glow); }
+.hero-name .hl.scrambling{ color:var(--accent-ink); background:var(--accent); }
 .hero-name.scrambling{ font-family:var(--font-mono); font-variation-settings:normal; font-weight:500; letter-spacing:.01em; color:var(--accent); }
 .hero-tagline{ font-size:var(--step-2); margin-top:1.5rem; max-width:20ch; font-variation-settings:'opsz'72,'wght'360; }
 .hero-lead{ font-size:var(--step-1); color:var(--muted); max-width:54ch; margin-top:1.5rem; line-height:1.55; }
@@ -178,9 +178,9 @@ nav::after{ content:""; position:absolute; left:0; bottom:0; width:100%; height:
   font-family:var(--font-mono); font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); }
 
 /* undersized lower-right duotone portrait, captioned like a readout */
-.portrait{ position:relative; width:clamp(170px,22vw,290px); aspect-ratio:4/5; border-radius:18px; overflow:hidden;
-  border:1px solid var(--bd); align-self:end; }
-.portrait .img{ position:absolute; inset:0; background:url('images/my-photo.jpg') center 20% / cover no-repeat;
+.portrait{ position:relative; width:clamp(210px,27vw,350px); aspect-ratio:4/5; border-radius:18px; overflow:hidden;
+  border:1px solid var(--bd); align-self:center; }
+.portrait .img{ position:absolute; inset:0; background:url('images/my-photo.jpg') center 22% / cover no-repeat;
   filter:grayscale(1) contrast(1.06) brightness(.92); }
 .portrait .duo{ position:absolute; inset:0; background:var(--accent); mix-blend-mode:color; opacity:.62; }
 .portrait .scan{ position:absolute; inset:0; pointer-events:none; opacity:0;
@@ -203,7 +203,7 @@ nav::after{ content:""; position:absolute; left:0; bottom:0; width:100%; height:
    ============================================================ */
 .about-grid{ display:grid; grid-template-columns:5fr 7fr; gap:4rem; align-items:start; }
 .about-photo{ position:relative; width:100%; max-width:330px; aspect-ratio:4/5; border-radius:20px; overflow:hidden; border:1px solid var(--bd); }
-.about-photo .img{ position:absolute; inset:0; background:url('images/my-photo.jpg') center 18% / cover no-repeat; filter:grayscale(1) contrast(1.05) brightness(.95); }
+.about-photo .img{ position:absolute; inset:0; background:url('images/about.jpg') center 30% / cover no-repeat; filter:grayscale(1) contrast(1.05) brightness(.95); }
 .about-photo .duo{ position:absolute; inset:0; background:var(--accent); mix-blend-mode:color; opacity:.6; }
 .about-photo .scan{ position:absolute; inset:0; pointer-events:none; opacity:.0; background:repeating-linear-gradient(0deg, rgba(61,225,255,.2) 0 1px, transparent 1px 4px); }
 .about-photo .cap{ position:absolute; left:12px; bottom:12px; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.12em; text-transform:uppercase; color:var(--text); display:flex; gap:.45rem; align-items:center; }
@@ -277,7 +277,7 @@ nav::after{ content:""; position:absolute; left:0; bottom:0; width:100%; height:
 /* ============================================================
    CONTACT / COLOPHON — 04
    ============================================================ */
-.contact{ padding:8rem 0 3rem; position:relative; }
+.contact{ padding:4rem 0 3rem; position:relative; }
 .contact h2{ font-size:clamp(2.6rem,8vw,6.4rem); font-variation-settings:'opsz'144,'wght'380; line-height:.92; }
 .contact h2 span{ display:block; }
 .contact .clead{ font-size:var(--step-1); color:var(--muted); max-width:46ch; margin-top:1.8rem; }
@@ -358,7 +358,6 @@ footer .pg b{ color:var(--accent); }
 <div class="regmark"></div>
 <div class="flash" id="flash"></div>
 <div class="scrollbar" id="scrollbar"></div>
-<div class="cursor" id="cursor"></div>
 <div class="cursor-dot" id="cursorDot"></div>
 
 <div class="preloader" id="preloader">
@@ -388,7 +387,7 @@ footer .pg b{ color:var(--accent); }
   <div class="wrap cover">
     <div class="cover-left">
       <span class="eyebrow rolecycle"><span class="rl">—</span> <span class="role" data-roles="Software Engineer|Flutter Developer|UI / UX Designer|Frontend Developer|Game Developer|Video Editor|Photo Editor">Software Engineer</span></span>
-      <h1 class="hero-name" data-hero-name><span>Yousof</span><span>Selim</span></h1>
+      <h1 class="hero-name" data-hero-name><span class="ln"><span class="t">Yousof</span></span><span class="ln"><span class="t hl">Selim</span></span></h1>
       <p class="hero-tagline" data-reveal>I turn noise into software that feels <em class="ink" data-ink>effortless</em>.</p>
       <p class="hero-lead" data-reveal>Software-engineering undergrad, three years freelance. I ship cross-platform Flutter apps and quiet, considered web — right-to-left Arabic type that has to be exactly right, group-spending maths, the last 5% nobody else finishes.</p>
       <div class="hero-stats" data-reveal><b>3+</b> yrs freelance &nbsp;·&nbsp; Flutter + considered web &nbsp;·&nbsp; <b>4</b> things actually shipped</div>
@@ -623,24 +622,21 @@ footer .pg b{ color:var(--accent); }
   }
   const goContact=()=> lenis?lenis.scrollTo('#contact',{offset:0}):D.getElementById('contact').scrollIntoView();
 
-  // ---- cursor ring + graticule light + magnetic ----
-  const ring=D.getElementById('cursor'), dot=D.getElementById('cursorDot');
+  const dot=D.getElementById('cursorDot');
   const proxyL={x:innerWidth/2,y:innerHeight/2};
   if(fine && !reduce){
     const setMX=gsap.quickSetter(root,'--mx','px'), setMY=gsap.quickSetter(root,'--my','px');
     const lx=gsap.quickTo(proxyL,'x',{duration:.45,ease:'power3'}), ly=gsap.quickTo(proxyL,'y',{duration:.45,ease:'power3'});
-    const rx=gsap.quickTo(ring,'x',{duration:.18,ease:'power3'}), ry=gsap.quickTo(ring,'y',{duration:.18,ease:'power3'});
     const dx=gsap.quickTo(dot,'x',{duration:.07,ease:'power3'}), dy=gsap.quickTo(dot,'y',{duration:.07,ease:'power3'});
     gsap.ticker.add(()=>{ setMX(proxyL.x); setMY(proxyL.y); });
-    addEventListener('pointermove',e=>{ lx(e.clientX);ly(e.clientY);rx(e.clientX);ry(e.clientY);dx(e.clientX);dy(e.clientY); ring.classList.add('on');dot.classList.add('on'); },{passive:true});
-    addEventListener('pointerout',e=>{ if(!e.relatedTarget){ring.classList.remove('on');dot.classList.remove('on');} });
+    addEventListener('pointermove',e=>{ lx(e.clientX);ly(e.clientY);dx(e.clientX);dy(e.clientY); dot.classList.add('on'); },{passive:true});
+    addEventListener('pointerout',e=>{ if(!e.relatedTarget){dot.classList.remove('on');} });
     D.querySelectorAll('[data-magnetic]').forEach(el=>{
-      const inner=el.querySelector('.lbl')||el.querySelector('.txt')||el;
+      const inner=el.querySelector('.lbl')||el.querySelector('.txt');
       const xT=gsap.quickTo(el,'x',{duration:.6,ease:'power3'}), yT=gsap.quickTo(el,'y',{duration:.6,ease:'power3'});
-      const ixT=gsap.quickTo(inner,'x',{duration:.6,ease:'power3'}), iyT=gsap.quickTo(inner,'y',{duration:.6,ease:'power3'});
-      el.addEventListener('pointerenter',()=>gsap.to(ring,{scale:2.2,duration:.4,ease:'power2.out'}));
-      el.addEventListener('pointermove',e=>{ const r=el.getBoundingClientRect(); const mx=e.clientX-(r.left+r.width/2),my=e.clientY-(r.top+r.height/2); xT(mx*.3);yT(my*.3);ixT(mx*.16);iyT(my*.16); });
-      el.addEventListener('pointerleave',()=>{ gsap.to(ring,{scale:1,duration:.4,ease:'power2.out'}); gsap.to([el,inner],{x:0,y:0,duration:.8,ease:'elastic.out(1,0.4)'}); });
+      const ixT=inner&&gsap.quickTo(inner,'x',{duration:.6,ease:'power3'}), iyT=inner&&gsap.quickTo(inner,'y',{duration:.6,ease:'power3'});
+      el.addEventListener('pointermove',e=>{ const r=el.getBoundingClientRect(); const mx=e.clientX-(r.left+r.width/2),my=e.clientY-(r.top+r.height/2); xT(mx*.3);yT(my*.3); if(inner){ixT(mx*.16);iyT(my*.16);} });
+      el.addEventListener('pointerleave',()=>{ gsap.to(inner?[el,inner]:el,{x:0,y:0,duration:.8,ease:'elastic.out(1,0.4)'}); });
     });
   }
 
@@ -764,16 +760,17 @@ footer .pg b{ color:var(--accent); }
   // ---- life while scrolling: signal reacts to scroll, folios parallax, progress ----
   function scrollLife(){
     if(reduce) return;
-    let agit=0;
+    let agit=0, target=0;
     gsap.ticker.add((time)=>{
       if(D.hidden) return;
-      agit*=0.9;
-      if(busPath)  busPath.setAttribute('d',  wavePath(1200,30, 5+agit*16, 0.030+agit*0.020, time*1.4));
-      if(basePath) basePath.setAttribute('d', wavePath(1600,30, 4+agit*13, 0.025+agit*0.016, time*1.8));
+      target*=0.93;
+      agit += (target-agit)*0.1;
+      if(busPath)  busPath.setAttribute('d',  wavePath(1200,30, 3+agit*7,   0.03,  time*1.2));
+      if(basePath) basePath.setAttribute('d', wavePath(1600,30, 2.5+agit*6, 0.025, time*1.5));
     });
-    const bump=v=>{ agit=Math.min(1.4, agit+Math.min(Math.abs(v),1)); };
-    if(lenis){ lenis.on('scroll', e=>bump((e.velocity||0)/28)); }
-    else { let last=scrollY; addEventListener('scroll',()=>{ bump((scrollY-last)/50); last=scrollY; },{passive:true}); }
+    const bump=v=>{ target=Math.min(1, target+Math.min(Math.abs(v),0.5)); };
+    if(lenis){ lenis.on('scroll', e=>bump((e.velocity||0)/30)); }
+    else { let last=scrollY; addEventListener('scroll',()=>{ bump((scrollY-last)/55); last=scrollY; },{passive:true}); }
     // folio ghosts drift (parallax depth)
     gsap.utils.toArray('.folio').forEach(f=>{
       gsap.fromTo(f,{yPercent:-14},{yPercent:22,ease:'none',
@@ -817,7 +814,7 @@ footer .pg b{ color:var(--accent); }
     }
     preloader(()=>{ if(lenis) lenis.start();
       const nm=D.querySelector('[data-hero-name]'); if(nm && !reduce){
-        const spans=nm.querySelectorAll('span'); scramble(spans[0],'Yousof',900); scramble(spans[1],'Selim',1050);
+        const t=nm.querySelectorAll('.t'); scramble(t[0],'Yousof',900); scramble(t[1],'Selim',1050);
       }
       roleCycle();
       ScrollTrigger.refresh();

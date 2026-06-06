@@ -12,7 +12,7 @@
   try{ console.log('%c ysf.slm ','background:#3DE1FF;color:#06141A;font-weight:bold;padding:2px 4px');
        console.log('%c~∿∿∿  signal acquired — peek at the source, it\'s hand-wired.','color:#3DE1FF'); }catch(e){}
 
-  const SKILLS=['FLUTTER','DART','TYPESCRIPT','JAVASCRIPT','PYTHON','REACT NATIVE','NODE','TAILWIND','FIREBASE','SUPABASE','GODOT','GDSCRIPT','FIGMA','UI / UX','GIT','VIDEO EDITING','PHOTO EDITING','CANVA'];
+  const SKILLS=['FLUTTER','DART','REACT NATIVE','TYPESCRIPT','JAVASCRIPT','PYTHON','HTML / CSS','GDSCRIPT','NODE.JS','REST APIS','SUPABASE','FIREBASE','POSTGRESQL','SQL / NOSQL','TAILWIND','CLAUDE','CURSOR','GITHUB COPILOT','CHATGPT','GEMINI','GIT / GITHUB','XCODE','FIGMA','GODOT'];
   const tt=SKILLS.join(' &nbsp;·&nbsp; ')+' &nbsp;·&nbsp; ';
   const t1=D.getElementById('tear1'), t2=D.getElementById('tear2');
   if(t1) t1.innerHTML=(tt).repeat(6); if(t2) t2.innerHTML=(tt).repeat(6);

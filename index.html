@@ -2,85 +2,163 @@
 <html lang="en" class="js">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>ysf.slm — Yousof Selim, Software Engineer</title>
 <meta name="description" content="Yousof Selim (ysf.slm) — software-engineering undergrad, three years freelance. I ship cross-platform Flutter apps and considered web, designed and built by hand." />
 <meta name="author" content="Yousof Selim" />
 <meta name="theme-color" content="#06080A" />
+<meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-title" content="ysf.slm" />
+<link rel="canonical" href="https://yeegz.github.io/" />
 
 <meta property="og:type" content="website" />
-<meta property="og:title" content="ysf.slm — Yousof Selim" />
-<meta property="og:description" content="Software engineer. I turn noise into software that feels effortless. Designed & built with love by Yousof Selim." />
-<meta property="og:url" content="https://yeegz.github.io" />
-<meta property="og:image" content="https://yeegz.github.io/images/my-photo.jpg" />
+<meta property="og:site_name" content="ysf.slm" />
+<meta property="og:title" content="Yousof Selim — Software Engineer" />
+<meta property="og:description" content="Software engineer. I turn noise into software that feels effortless. Cross-platform Flutter apps & considered web — designed and built by hand." />
+<meta property="og:url" content="https://yeegz.github.io/" />
+<meta property="og:image" content="https://yeegz.github.io/images/og-card.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="ysf.slm — Yousof Selim, Software Engineer. A cyan oscilloscope signal on near-black." />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Yousof Selim — Software Engineer" />
+<meta name="twitter:description" content="I turn noise into software that feels effortless. Cross-platform Flutter & considered web — built by hand." />
+<meta name="twitter:image" content="https://yeegz.github.io/images/og-card.png" />
+<meta name="twitter:image:alt" content="ysf.slm — Yousof Selim, Software Engineer." />
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2306080A'/%3E%3Ctext x='4' y='24' font-family='monospace' font-size='22' fill='%23ECF0F3'%3Ey%3C/text%3E%3Crect x='22' y='23' width='5' height='5' fill='%233DE1FF'/%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2306080A'/%3E%3Ctext x='4' y='24' font-family='monospace' font-size='22' fill='%23ECF0F3'%3Ey%3C/text%3E%3Crect x='22' y='23' width='5' height='5' fill='%233DE1FF'/%3E%3C/svg%3E" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Hanken+Grotesk:ital,wght@0,300..800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="preload" as="image" href="images/my-photo.jpg" fetchpriority="high" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Hanken+Grotesk:ital,wght@0,300..800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
 <link rel="stylesheet" href="styles.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Yousof Selim",
+  "alternateName": "ysf.slm",
+  "url": "https://yeegz.github.io/",
+  "image": "https://yeegz.github.io/images/og-card.png",
+  "jobTitle": "Software Engineer",
+  "description": "Software-engineering undergrad and three-year freelance developer shipping cross-platform Flutter apps and considered web.",
+  "email": "mailto:yousofselim2@gmail.com",
+  "knowsAbout": ["Flutter", "Dart", "React Native", "TypeScript", "Node.js", "UI/UX Design", "Right-to-left Arabic typography"],
+  "knowsLanguage": ["en", "ar"],
+  "alumniOf": [
+    { "@type": "CollegeOrUniversity", "name": "Sunway University" },
+    { "@type": "CollegeOrUniversity", "name": "Lancaster University" },
+    { "@type": "CollegeOrUniversity", "name": "Multimedia University" }
+  ],
+  "sameAs": [
+    "https://github.com/yeegz",
+    "https://www.linkedin.com/in/ysf-slm",
+    "https://yeegz.itch.io"
+  ]
+}
+</script>
 </head>
 
 <body>
-<div class="atmos"></div>
-<div class="graticule"></div>
-<div class="grain"></div>
-<div class="regmark"></div>
-<div class="flash" id="flash"></div>
-<div class="scrollbar" id="scrollbar"></div>
-<div class="cursor-dot" id="cursorDot"></div>
+<a href="#main" class="skip-link">Skip to content</a>
 
-<div class="preloader" id="preloader">
-  <div class="pl-brand">ysf<span class="dot"></span>slm</div>
-  <canvas id="plCanvas" width="400" height="68"></canvas>
+<div class="atmos" aria-hidden="true"></div>
+<div class="graticule" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="regmark" aria-hidden="true"></div>
+<div class="flash" id="flash" aria-hidden="true"></div>
+<div class="scrollbar" id="scrollbar" aria-hidden="true"></div>
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+
+<div class="preloader" id="preloader" role="status" aria-live="polite">
+  <div class="pl-brand">ysf<span class="dot" aria-hidden="true"></span>slm</div>
+  <canvas id="plCanvas" width="400" height="68" aria-hidden="true"></canvas>
   <div class="pl-status">ACQUIRING SIGNAL · <b id="plPct">00</b>%</div>
 </div>
 
 <div class="page" id="page">
 
-<nav>
-  <a href="#hero" class="brand" data-magnetic>
-    <canvas id="scope" width="260" height="60"></canvas>
-    <span class="txt">ysf<span class="dot" id="navDot" title="lock the signal"></span>slm</span>
+<nav aria-label="Primary">
+  <a href="#hero" class="brand" data-magnetic aria-label="ysf.slm — home">
+    <canvas id="scope" width="260" height="60" aria-hidden="true"></canvas>
+    <span class="txt">ysf<span class="dot" aria-hidden="true"></span>slm</span>
   </a>
   <div class="nav-links">
-    <a href="#about" data-magnetic>About <span class="fol">01</span></a>
-    <a href="#projects" data-magnetic>Work <span class="fol">02</span></a>
-    <a href="#experience" data-magnetic>Experience <span class="fol">03</span></a>
-    <a href="Yousof-Selim-Resume.pdf" target="_blank" rel="noopener" data-magnetic>Resume <span class="fol">↗</span></a>
+    <a href="#about" data-magnetic>About <span class="fol" aria-hidden="true">01</span></a>
+    <a href="#projects" data-magnetic>Work <span class="fol" aria-hidden="true">02</span></a>
+    <a href="#experience" data-magnetic>Experience <span class="fol" aria-hidden="true">03</span></a>
+    <a href="Yousof-Selim-Resume.pdf" target="_blank" rel="noopener" data-magnetic>Resume <span class="fol" aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span></a>
+    <button type="button" class="navdot-btn" id="navDot" aria-label="Lock signal — jump to contact"><span class="dot" aria-hidden="true"></span></button>
   </div>
+  <button type="button" class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="menu">
+    <span class="nt-label">Index</span>
+    <span class="nt-glyph" aria-hidden="true"><i></i><i></i></span>
+  </button>
 </nav>
 
-<section id="hero" class="hero">
+<div class="menu" id="menu" aria-hidden="true">
+  <div class="menu-inner">
+    <div class="menu-head">
+      <span class="eyebrow">— INDEX</span>
+      <span class="eyebrow">ysf<span class="dot" aria-hidden="true"></span>slm</span>
+    </div>
+    <nav class="menu-links" aria-label="Mobile">
+      <a href="#about"><span class="mn">01</span> About</a>
+      <a href="#projects"><span class="mn">02</span> Work</a>
+      <a href="#experience"><span class="mn">03</span> Experience</a>
+      <a href="#contact"><span class="mn">04</span> Contact</a>
+      <a href="Yousof-Selim-Resume.pdf" target="_blank" rel="noopener"><span class="mn">↗</span> Resume<span class="sr-only"> (opens in new tab)</span></a>
+    </nav>
+    <svg class="signalbus menu-bus" preserveAspectRatio="none" viewBox="0 0 1200 30" aria-hidden="true"><path d=""/></svg>
+    <div class="menu-foot">
+      <a href="mailto:yousofselim2@gmail.com">yousofselim2@gmail.com</a>
+      <div class="menu-soc">
+        <a href="https://github.com/yeegz" target="_blank" rel="noopener">GitHub<span class="sr-only"> (opens in new tab)</span></a>
+        <a href="https://www.linkedin.com/in/ysf-slm" target="_blank" rel="noopener">LinkedIn<span class="sr-only"> (opens in new tab)</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+<section id="hero" class="hero" tabindex="-1" aria-labelledby="heroName">
   <div class="wrap cover">
     <div class="cover-left">
-      <span class="eyebrow rolecycle"><span class="rl">—</span> <span class="role" data-roles="Software Engineer|Flutter Developer|UI / UX Designer|Frontend Developer|Game Developer|Video Editor|Photo Editor">Software Engineer</span></span>
-      <h1 class="hero-name" data-hero-name><span class="ln"><span class="t">Yousof</span></span><span class="ln"><span class="t hl">Selim</span></span></h1>
+      <span class="eyebrow rolecycle" aria-hidden="true"><span class="rl">—</span> <span class="role" data-roles="Software Engineer|Flutter Developer|UI / UX Designer|Frontend Developer|Game Developer|Video Editor|Photo Editor">Software Engineer</span></span>
+      <span class="sr-only">Yousof Selim, software engineer and Flutter developer.</span>
+      <h1 class="hero-name" id="heroName" data-hero-name aria-label="Yousof Selim"><span class="ln"><span class="t">Yousof</span></span><span class="ln"><span class="t hl">Selim</span></span></h1>
       <p class="hero-tagline" data-reveal>I turn noise into software that feels <em class="ink" data-ink>effortless</em>.</p>
       <p class="hero-lead" data-reveal>Software-engineering undergrad, three years freelance. I ship cross-platform Flutter apps and quiet, considered web — right-to-left Arabic type that has to be exactly right, group-spending maths, the last 5% nobody else finishes.</p>
-      <div class="hero-stats" data-reveal><b>3+</b> yrs freelance &nbsp;·&nbsp; Flutter + considered web &nbsp;·&nbsp; <b>4</b> things actually shipped</div>
+      <div class="hero-stats" data-reveal><b>3+</b> yrs freelance &nbsp;·&nbsp; Flutter + considered web &nbsp;·&nbsp; shipped to <b>Android, iOS &amp; web</b></div>
     </div>
     <div class="portrait" id="portrait" data-magnetic>
-      <div class="img"></div><div class="duo"></div><div class="scan" id="heroScan"></div>
-      <span class="regcorner tr"></span>
+      <img class="img" src="images/my-photo.jpg" alt="Yousof Selim" width="430" height="538" fetchpriority="high" />
+      <div class="duo" aria-hidden="true"></div><div class="scan" id="heroScan" aria-hidden="true"></div>
+      <span class="regcorner tr" aria-hidden="true"></span>
+      <span class="regcorner tl" aria-hidden="true"></span>
+      <span class="cap" aria-hidden="true"><i></i>SUBJECT / YS · LIVE FEED</span>
     </div>
   </div>
   <div class="wrap">
-    <svg class="signalbus" id="signalbus" preserveAspectRatio="none" viewBox="0 0 1200 30"><path d=""/></svg>
+    <svg class="signalbus" id="signalbus" preserveAspectRatio="none" viewBox="0 0 1200 30" aria-hidden="true"><path d=""/></svg>
     <div class="colophon"><span>AVAILABLE FOR INTERNSHIPS &amp; FREELANCE</span><span>EST. 2023</span></div>
   </div>
 </section>
 
-<section id="about" class="section">
-  <span class="folio" style="left:-1rem;top:1rem">01</span>
+<section id="about" class="section" tabindex="-1" aria-labelledby="aboutH">
+  <span class="folio" aria-hidden="true">01</span>
   <div class="wrap">
-    <span class="vlabel"><span class="n">01</span> — ABOUT</span>
+    <span class="vlabel" aria-hidden="true"><span class="n">01</span> — ABOUT</span>
     <div class="shead">
       <span class="eyebrow" data-scramble="01 — ABOUT">01 — ABOUT</span>
-      <h2 data-reveal="lines">A builder’s mind,<br/>a <em class="ink" data-ink>designer’s</em> eye.</h2>
+      <h2 id="aboutH" data-reveal="lines">A builder’s mind,<br/>a <em class="ink" data-ink>designer’s</em> eye.</h2>
     </div>
     <div class="about-grid">
       <p class="about-body" data-reveal><span class="drop">I</span> care as much about how a thing <strong>feels</strong> as how it’s wired underneath. Three years of freelance taught me to take real client work from a vague idea to a shipped product — the unglamorous parts (clean state, sensible architecture) and the delightful ones (motion, type, the last 5% of polish) in equal measure.</p>
@@ -89,128 +167,180 @@
           <div class="sh">EDUCATION</div>
           <div class="spec-row">
             <div class="inst">Sunway × Lancaster<span class="sub">BSc (Hons) Software Engineering</span></div>
-            <div class="lead-dots"></div>
+            <div class="lead-dots" aria-hidden="true"></div>
             <div class="yr">2024—<span class="live">NOW</span></div>
           </div>
           <div class="spec-row sub-entry">
             <div class="inst">Multimedia University<span class="sub">Foundation in IT</span></div>
-            <div class="lead-dots"></div>
+            <div class="lead-dots" aria-hidden="true"></div>
             <div class="yr">2023—24</div>
           </div>
         </div>
         <div class="skills-credit" data-reveal>
           <div class="sh">CORE STACK —</div>
-          <div class="list">FLUTTER<span class="d">·</span>DART<span class="d">·</span>REACT NATIVE<span class="d">·</span>TYPESCRIPT<span class="d">·</span>NODE.JS<span class="d">·</span>REST APIS<span class="d">·</span>SUPABASE<span class="d">·</span>FIREBASE<span class="d">·</span>TAILWIND<span class="d">·</span>PYTHON<span class="d">·</span>GODOT<span class="d">·</span>CLAUDE<span class="d">·</span>CURSOR<span class="d">·</span>FIGMA<span class="d">·</span>GIT</div>
+          <ul class="list" id="skillsList">
+            <li>Flutter</li><li>Dart</li><li>React Native</li><li>TypeScript</li><li>Node.js</li><li>REST APIs</li><li>Supabase</li><li>Firebase</li><li>PostgreSQL</li><li>Tailwind</li><li>Python</li><li>Godot</li><li>Figma</li><li>Git</li><li class="ai">AI-assisted (Claude · Cursor)</li>
+          </ul>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="projects" class="marquee-sec">
-  <span class="folio" style="right:0;top:0">02</span>
+<section id="projects" class="marquee-sec" tabindex="-1" aria-labelledby="workH">
+  <span class="folio fr" aria-hidden="true">02</span>
   <div class="wrap">
     <div class="shead">
       <span class="eyebrow" data-scramble="02 — SELECTED WORK">02 — SELECTED WORK</span>
-      <h2 data-reveal="lines">Things I’ve<br/>actually <em class="ink" data-ink>shipped</em>.</h2>
+      <h2 id="workH" data-reveal="lines">Things I’ve<br/>actually <em class="ink" data-ink>shipped</em>.</h2>
     </div>
   </div>
-  <div class="tearstrip"><span class="tt" id="tear1"></span></div>
+  <div class="tearstrip" aria-hidden="true"><span class="tt" id="tear1"></span></div>
   <div class="marquee" id="marquee">
-    <svg class="baseline" id="reelBase" preserveAspectRatio="none" viewBox="0 0 1600 30"><path d=""/></svg>
-    <span class="marquee-gutter">AUTOPLAY — HOVER TO HOLD</span>
+    <svg class="baseline" id="reelBase" preserveAspectRatio="none" viewBox="0 0 1600 30" aria-hidden="true"><path d=""/></svg>
+    <span class="marquee-gutter" aria-hidden="true">AUTOPLAY — HOVER TO HOLD</span>
     <div class="reel-track" id="reelTrack">
       <a class="plate" href="https://github.com/yeegz" target="_blank" rel="noopener" data-magnetic data-plate>
-        <div class="thumb ph"><span class="ghost">01</span><span class="regcorner tr"></span></div>
+        <span class="pfolio" aria-hidden="true">01</span>
+        <div class="thumb spec spec-tajweed" aria-hidden="true">
+          <span class="spec-ar">ٱقْرَأْ</span>
+          <span class="spec-tag">RTL · TAJWEED · DIACRITICS</span>
+          <span class="regcorner tr"></span>
+        </div>
         <span class="slug">PROJECT 01 / 2025 / <b>WEB · RTL TYPE</b></span>
         <h3>Tajweed Interactive Web App</h3><span class="uline"></span>
         <p>Quranic recitation, rendered right — RTL Arabic type, diacritics, and colour-coded tajweed that can’t be off by a pixel.</p>
-        <span class="meta">View source <span class="arrow">↗</span></span>
+        <span class="meta">View source <span class="arrow" aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span></span>
       </a>
       <a class="plate" href="https://github.com/yeegz" target="_blank" rel="noopener" data-magnetic data-plate>
-        <div class="thumb ph"><span class="ghost">02</span><span class="regcorner tr"></span></div>
+        <span class="pfolio" aria-hidden="true">02</span>
+        <div class="thumb spec spec-split" aria-hidden="true">
+          <span class="spec-row1"><i>YOU</i><b>RM 84.00</b></span>
+          <span class="spec-bars"><u style="--w:100%"></u><u style="--w:64%"></u><u style="--w:38%"></u></span>
+          <span class="spec-tag">SPLIT · 3 WAYS · SETTLED</span>
+          <span class="regcorner tr"></span>
+        </div>
         <span class="slug">PROJECT 02 / 2026 / <b>FLUTTER · MOBILE</b></span>
         <h3>Hangout Spending Tracker</h3><span class="uline"></span>
         <p>Splits the bill before the bill splits the group. Cross-platform Flutter, clean state, ships to Android &amp; iOS.</p>
-        <span class="meta">View source <span class="arrow">↗</span></span>
+        <span class="meta">View source <span class="arrow" aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span></span>
       </a>
       <a class="plate" href="https://github.com/yeegz" target="_blank" rel="noopener" data-magnetic data-plate>
-        <div class="thumb"><img src="images/todo.png" alt="Task Management App screenshot" loading="lazy"/><span class="regcorner tr"></span></div>
+        <span class="pfolio" aria-hidden="true">03</span>
+        <div class="thumb"><img src="images/todo.jpg" alt="Task management app — drag-and-drop boards with tags and priority" width="800" height="405" loading="lazy"/><span class="regcorner tr" aria-hidden="true"></span></div>
         <span class="slug">PROJECT 03 / 2024–25 / <b>FRONTEND · JS</b></span>
         <h3>Task Management App</h3><span class="uline"></span>
         <p>ClickUp energy — drag-drop boards, dynamic tagging, priority sorting. No friction.</p>
-        <span class="meta">View source <span class="arrow">↗</span></span>
+        <span class="meta">View source <span class="arrow" aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span></span>
       </a>
       <a class="plate" href="https://yeegz.itch.io/fallenasteri" target="_blank" rel="noopener" data-magnetic data-plate>
-        <div class="thumb"><img src="images/fallenasteri.png" alt="Fallen Asteri game screenshot" loading="lazy"/><span class="regcorner tr"></span></div>
+        <span class="pfolio" aria-hidden="true">04</span>
+        <div class="thumb"><img src="images/fallenasteri.png" alt="Fallen Asteri — a 2D platformer made in Godot" width="794" height="446" loading="lazy"/><span class="regcorner tr" aria-hidden="true"></span></div>
         <span class="slug">PROJECT 04 / 2024 / <b>GODOT · GDSCRIPT</b></span>
         <h3>Fallen Asteri</h3><span class="uline"></span>
         <p>A 2D platformer in Godot. Movement, combat, scene transitions — and yes, it ships.</p>
-        <span class="meta">Play on itch.io <span class="arrow">↗</span></span>
+        <span class="meta">Play on itch.io <span class="arrow" aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span></span>
       </a>
     </div>
   </div>
-  <div class="tearstrip"><span class="tt" id="tear2"></span></div>
+  <div class="tearstrip" aria-hidden="true"><span class="tt" id="tear2"></span></div>
 </section>
 
-<section id="experience" class="section">
-  <span class="folio" style="left:-1rem;top:0">03</span>
+<section id="experience" class="section" tabindex="-1" aria-labelledby="expH">
+  <span class="folio" aria-hidden="true">03</span>
   <div class="wrap">
-    <span class="vlabel"><span class="n">03</span> — EXPERIENCE</span>
-    <div class="shead">
-      <span class="eyebrow" data-scramble="03 — EXPERIENCE">03 — EXPERIENCE</span>
-      <h2 data-reveal="lines">Where I’ve<br/><em class="ink" data-ink>contributed</em>.</h2>
+    <span class="vlabel" aria-hidden="true"><span class="n">03</span> — EXPERIENCE</span>
+    <div class="shead exp-head">
+      <div>
+        <span class="eyebrow" data-scramble="03 — EXPERIENCE">03 — EXPERIENCE</span>
+        <h2 id="expH" data-reveal="lines">Where I’ve<br/><em class="ink" data-ink>contributed</em>.</h2>
+      </div>
+      <div class="exp-stat" data-reveal aria-hidden="true"><b>3</b> yrs <span class="d">·</span> <b>4</b> shipped <span class="d">·</span> <b>0</b> templates</div>
     </div>
     <div class="rec">
       <div class="rec-row live" data-reveal data-rec>
         <div class="yr">2023—<span class="now">NOW</span></div>
-        <div><div class="role">Freelance UI &amp; UX Developer</div><div class="org">Self-employed — cross-platform apps &amp; modern web for real clients, concept to shipped.</div></div>
-        <div class="tag"><span class="node"></span> STILL RUNNING</div>
+        <div><div class="role">Freelance UI &amp; UX Developer</div><div class="org">Self-employed — cross-platform apps &amp; modern web for real clients, concept to shipped. RTL Arabic typesetting, group-finance tooling, and the polish pass most builds skip.</div></div>
+        <div class="tag"><span class="node" aria-hidden="true"></span> STILL RUNNING</div>
       </div>
       <div class="rec-row" data-reveal data-rec>
         <div class="yr">2026—<span class="now">NOW</span></div>
-        <div><div class="role">Digital Marketing Executive</div><div class="org">Sunway Cybersecurity Club — running the club’s LinkedIn presence and campaign graphics.</div></div>
-        <div class="tag"><span class="node"></span> ACTIVE</div>
+        <div><div class="role">Digital Marketing &amp; Community</div><div class="org">Sunway Cybersecurity Club — running the club’s LinkedIn presence, campaign graphics, and member outreach.</div></div>
+        <div class="tag"><span class="node" aria-hidden="true"></span> ACTIVE</div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="contact" class="contact">
-  <span class="folio" style="right:0;top:-2rem">04</span>
+<section id="contact" class="contact" tabindex="-1" aria-labelledby="contactH">
+  <span class="folio fr" aria-hidden="true">04</span>
   <div class="wrap">
-    <span class="eyebrow" data-scramble="04 — CONTACT">04 — CONTACT</span>
-    <h2 data-reveal="lines" style="margin-top:1rem">Let’s set<br/>something<br/>in <em class="ink" data-ink>motion</em>.</h2>
-    <p class="clead" data-reveal>Open to internships, collaborations, and oddly-specific problems. Email’s the fastest way in — I actually read it.</p>
-    <div class="contact-links" data-reveal>
-      <a href="mailto:yousofselim2@gmail.com" class="btn btn-primary" data-magnetic><span class="lbl">Email me</span></a>
-      <a href="https://github.com/yeegz" target="_blank" rel="noopener" class="tlink" data-magnetic>GitHub ↗</a>
-      <a href="https://www.linkedin.com/in/ysf-slm" target="_blank" rel="noopener" class="tlink" data-magnetic>LinkedIn ↗</a>
-      <a href="Yousof-Selim-Resume.pdf" target="_blank" rel="noopener" class="tlink" data-magnetic>Résumé ↗</a>
+    <div class="contact-head">
+      <span class="eyebrow" data-scramble="04 — CONTACT">04 — CONTACT</span>
+      <span class="status" data-reveal><span class="node" aria-hidden="true"></span> Available — internships &amp; freelance</span>
+    </div>
+    <h2 id="contactH" data-reveal="lines">Let’s set something<br/>in <em class="ink" data-ink>motion</em>.</h2>
+    <p class="clead" data-reveal>Open to internships, collaborations, and oddly-specific problems. Pick a channel — email’s the fastest, and I actually read it.</p>
+
+    <ul class="channels" data-reveal>
+      <li class="channel primary">
+        <span class="ch-n" aria-hidden="true">01</span>
+        <span class="ch-body"><span class="ch-label">Email</span><span class="ch-val">yousofselim2@gmail.com</span></span>
+        <span class="ch-actions">
+          <button type="button" class="ce-btn" id="copyEmail" data-email="yousofselim2@gmail.com" aria-label="Copy email address"><span class="ce-label">Copy</span></button>
+          <a class="ce-btn solid" href="mailto:yousofselim2@gmail.com" data-magnetic><span class="lbl">Compose <span aria-hidden="true">↗</span></span></a>
+        </span>
+      </li>
+      <li class="channel">
+        <a href="https://github.com/yeegz" target="_blank" rel="noopener">
+          <span class="ch-n" aria-hidden="true">02</span>
+          <span class="ch-body"><span class="ch-label">GitHub</span><span class="ch-val">github.com/yeegz</span></span>
+          <span class="ch-go">Open <span class="arrow" aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span></span>
+        </a>
+      </li>
+      <li class="channel">
+        <a href="https://www.linkedin.com/in/ysf-slm" target="_blank" rel="noopener">
+          <span class="ch-n" aria-hidden="true">03</span>
+          <span class="ch-body"><span class="ch-label">LinkedIn</span><span class="ch-val">in/ysf-slm</span></span>
+          <span class="ch-go">Open <span class="arrow" aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span></span>
+        </a>
+      </li>
+      <li class="channel">
+        <a href="Yousof-Selim-Resume.pdf" target="_blank" rel="noopener">
+          <span class="ch-n" aria-hidden="true">04</span>
+          <span class="ch-body"><span class="ch-label">Résumé</span><span class="ch-val">PDF</span></span>
+          <span class="ch-go">Open <span class="arrow" aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span></span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="contact-meta" data-reveal>
+      <span><i class="mk" aria-hidden="true"></i>Based in <b>Malaysia</b> · <span id="localTime">--:--</span> MYT</span>
+      <span>Typical reply · <b>within a day</b></span>
     </div>
     <div class="colo" data-reveal>
       <div class="credits">
-        DESIGNED, BUILT &amp; HAND-WIRED BY YOUSOF SELIM<span class="dot"></span><br/>
-        EVERY PIXEL PLACED BY HAND — MADE WITH LOVE, NOT A TEMPLATE<br/>
+        DESIGNED, BUILT &amp; HAND-WIRED BY YOUSOF SELIM<span class="dot" aria-hidden="true"></span><br/>
+        EVERY PIXEL PLACED BY HAND — NOT A TEMPLATE<br/>
         © <span id="yr"></span> YOUSOF SELIM · LAST UPDATED <span id="stamp"></span>
       </div>
     </div>
   </div>
   <footer>
     <div class="wrap">
-      <a href="#hero" class="brand" data-magnetic><span class="txt">ysf<span class="dot"></span>slm</span></a>
+      <a href="#hero" class="brand" data-magnetic><span class="txt">ysf<span class="dot" aria-hidden="true"></span>slm</span></a>
       <span>tuned by hand, not by template</span>
       <span class="pg">pg.<b>05</b>/05 — end of issue</span>
     </div>
   </footer>
 </section>
 
+</main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/CustomEase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
-<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js" defer></script>
+<script src="script.js" defer></script>
 </body>
 </html>

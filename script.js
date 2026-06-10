@@ -425,8 +425,8 @@
     }).catch(() => {});
   }
 
-  if (wideScreen && finePointer && nmLast && heroStageEl) {
-    nmLast.classList.add('nm-egg');
+  const gameScreen = matchMedia('(min-width: 1150px)').matches;
+  if (gameScreen && finePointer && nmLast && heroStageEl) {
     const eggLine = nmLast.closest('.nm-line');
     if (eggLine) eggLine.style.pointerEvents = 'auto';
     nmLast.setAttribute('role', 'button');
@@ -486,6 +486,11 @@
 
     const press = () => {
       if (game) return;
+      if (window.scrollY > 8) {
+        if (lenis) lenis.scrollTo(0, { duration: 0.9 });
+        else window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
       presses++;
       if (presses >= 3) {
         presses = 0;
@@ -500,7 +505,9 @@
       clearTimeout(pressTimer);
       pressTimer = setTimeout(() => { presses = 0; nmLast.dataset.cursor = 'PRESS ×3'; }, 1600);
     };
-    nmLast.addEventListener('click', press);
+    nmLast.addEventListener('pointerdown', (e) => {
+      if (e.button === 0) press();
+    });
     nmLast.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); press(); }
     });
@@ -509,7 +516,13 @@
       if (game) return;
       if (lenis) lenis.scrollTo(0, { duration: 0.45 });
       else window.scrollTo(0, 0);
-      setTimeout(buildGame, 520);
+      const deadline = performance.now() + 2200;
+      const waitTop = () => {
+        if (game) return;
+        if (window.scrollY < 4 || performance.now() > deadline) buildGame();
+        else requestAnimationFrame(waitTop);
+      };
+      setTimeout(() => requestAnimationFrame(waitTop), 480);
     };
 
     const buildGame = () => {
@@ -526,6 +539,15 @@
       const sr = heroStageEl.getBoundingClientRect();
       const stackR = nmStack.getBoundingClientRect();
       const groundY = stackR.bottom - sr.top + 1;
+      const walls = [nmFirst, nmLast].map((el) => {
+        const r = el.getBoundingClientRect();
+        return {
+          left: r.left - sr.left,
+          right: r.right - sr.left,
+          top: r.top - sr.top + r.height * 0.18,
+          bottom: r.bottom - sr.top
+        };
+      });
       const plats = [];
       const picks = [];
       [[nmFirst, 0], [nmLast, 6]].forEach(([el, off]) => {
@@ -546,7 +568,7 @@
           plats.push(p);
           picks.push({
             x: p.x + p.w / 2,
-            y: p.y - 62,
+            y: p.y - 44,
             fact: FACTS[off + i],
             plat: p,
             got: false
@@ -803,11 +825,19 @@
         }
 
         const prevY = st.y;
+        const prevX = st.x;
         const grav = Math.abs(st.vy) < 90 && !st.grounded ? 950 : 1500;
         st.vy += grav * dt;
         st.x += st.vx * dt;
         st.y += st.vy * dt;
         st.x = Math.max(10, Math.min(sr.width - 10, st.x));
+        for (let wi = 0; wi < walls.length; wi++) {
+          const w = walls[wi];
+          if (st.y > w.top + 8 && st.y - 26 < w.bottom) {
+            if (prevX <= w.left - 7 && st.x > w.left - 7) st.x = w.left - 7;
+            else if (prevX >= w.right + 7 && st.x < w.right + 7) st.x = w.right + 7;
+          }
+        }
         const vyImpact = st.vy;
         st.wasGrounded = st.grounded;
         st.grounded = false;
@@ -875,7 +905,7 @@
         fxc.globalAlpha = 1;
         for (let ci = 0; ci < picks.length; ci++) {
           const c = picks[ci];
-          if (c.got) continue;
+          if (c.got || st.grounded) continue;
           const ddx = st.x - c.x;
           const ddy = (st.y - 16) - c.y;
           if (ddx * ddx + ddy * ddy < 560) {

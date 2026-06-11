@@ -290,9 +290,9 @@ html.gaming { overflow: hidden; }
 .pin.about-active .about-panel { pointer-events: auto; }
 .pin .about-figure {
   justify-self: center; align-self: center; margin: 0;
-  height: min(46svh, 470px); width: auto; aspect-ratio: 666 / 1000;
+  height: min(34svh, 330px); width: auto; aspect-ratio: 1016 / 796;
 }
-.pin .about-figure img { height: 100%; width: 100%; object-fit: cover; }
+.pin .about-figure img { display: none; }
 .pin .about-body { max-width: 560px; padding-right: 2vw; }
 
 .sec-label {
@@ -680,7 +680,7 @@ html.gaming { overflow: hidden; }
   .reduced .work-panel, .no-js .work-panel { display: none; }
 }
 
-.pin .about-figure img, .pin .about-figure .fig-frame, .pin .about-figure .fig-tag { opacity: 0; }
+.pin .about-figure .fig-frame, .pin .about-figure .fig-tag { opacity: 0; }
 
 @media (max-height: 830px) and (min-width: 901px) {
   .pin .about-panel { padding-top: 9vh; padding-bottom: 3vh; }
@@ -690,7 +690,7 @@ html.gaming { overflow: hidden; }
   .pin .about-facts .fact { padding: 0.92rem 0; }
   .pin .about-facts dd { font-size: 0.88rem; line-height: 1.55; }
   .pin .fact-sub { font-size: 0.78rem; margin-top: 0.3rem; }
-  .pin .about-figure { height: min(42svh, 430px); }
+  .pin .about-figure { height: min(31svh, 300px); }
 }
 
 @media (max-height: 760px) and (min-width: 901px) {
@@ -701,7 +701,7 @@ html.gaming { overflow: hidden; }
   .pin .about-facts .fact { padding: 0.68rem 0; gap: 1.2rem; }
   .pin .about-facts dd { font-size: 0.82rem; line-height: 1.45; }
   .pin .fact-sub { font-size: 0.74rem; margin-top: 0.2rem; }
-  .pin .about-figure { height: min(40svh, 390px); }
+  .pin .about-figure { height: min(29svh, 280px); }
 }
 
 @media (max-width: 1024px) {

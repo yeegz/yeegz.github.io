@@ -136,7 +136,7 @@
   }
   setTimeout(start, 1300);
 
-  const portraitFX = {};
+  const portraitFX = { dev: { v: 0 } };
   let heroVisible = true;
   const heroStageEl = document.getElementById('heroStage');
   if (heroStageEl) {
@@ -301,7 +301,7 @@
       for (let cy = 0; cy < sh; cy += cs, rowI++) {
         const xo = (rowI % 2) ? cs / 2 : 0;
         for (let cx = -xo; cx < sw; cx += cs) {
-          let lum = 0, a = 0, n = 0;
+          let lum = 0, a = 0, n = 0, cr = 0, cg = 0, cb = 0;
           const x0 = Math.max(0, Math.floor(cx)), x1 = Math.min(sw, Math.ceil(cx + cs));
           const y0 = Math.max(0, Math.floor(cy)), y1 = Math.min(sh, Math.ceil(cy + cs));
           for (let y = y0; y < y1; y++) {
@@ -309,15 +309,21 @@
               const i = (y * sw + x) * 4;
               const al = px[i + 3] / 255;
               lum += (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255 * al;
+              cr += px[i] * al; cg += px[i + 1] * al; cb += px[i + 2] * al;
               a += al; n++;
             }
           }
           if (!n) continue;
-          lum /= n; a /= n;
+          lum /= n;
+          const aSum = a;
+          a /= n;
           if (a < 0.42) continue;
           const r = (CELL * 0.47) * Math.pow(Math.min(1, lum * 1.45 + 0.06), 0.78);
           if (r < 1.4) continue;
-          dots.push({ x: (cx + cs / 2) * S, y: (cy + cs / 2) * S, r });
+          dots.push({
+            x: (cx + cs / 2) * S, y: (cy + cs / 2) * S, r,
+            c0: Math.round(cr / aSum), c1: Math.round(cg / aSum), c2: Math.round(cb / aSum)
+          });
         }
       }
 
@@ -399,16 +405,32 @@
             const ds = dx * dx + dy * dy;
             if (ds < 160000) boost = Math.exp(-ds / 40000) * 0.75;
           }
-          const breathe = 1 + 0.045 * Math.sin(t * 1.4 + d.x * 0.012 + d.y * 0.009);
-          const r = d.r * grow * breathe * (1 + band * 0.42 + boost);
-          const g = Math.max(renderG, Math.min(1, band * 0.85 + boost));
-          if (g > 0.92) {
-            ctx.fillStyle = '#c9eed1';
-          } else if (g > 0.05) {
-            ctx.fillStyle = 'rgb(' + (242 - 87 * g | 0) + ',' + (239 - 32 * g | 0) + ',' + (233 - 68 * g | 0) + ')';
-          } else {
-            ctx.fillStyle = '#f2efe9';
+          const dv = portraitFX.dev.v;
+          let dq = 0;
+          if (dv > 0) {
+            dq = Math.min(1, Math.max(0, (dv * (DIAG + 520) - s) / 420));
           }
+          const breathe = 1 + 0.045 * (1 - dq) * Math.sin(t * 1.4 + d.x * 0.012 + d.y * 0.009);
+          const r = d.r * grow * breathe * (1 + (band * 0.42 + boost) * (1 - dq) + dq * 0.42);
+          const g = Math.max(renderG, Math.min(1, band * 0.85 + boost)) * (1 - dq);
+          let rC, gC, bC;
+          if (g > 0.92) {
+            rC = 201; gC = 238; bC = 209;
+          } else {
+            rC = 242 - 87 * g; gC = 239 - 32 * g; bC = 233 - 68 * g;
+          }
+          if (dq > 0) {
+            rC += (d.c0 - rC) * dq;
+            gC += (d.c1 - gC) * dq;
+            bC += (d.c2 - bC) * dq;
+            const edge = Math.sin(Math.PI * dq) * 0.55;
+            if (edge > 0.04) {
+              rC += (155 - rC) * edge;
+              gC += (207 - gC) * edge;
+              bC += (165 - bC) * edge;
+            }
+          }
+          ctx.fillStyle = 'rgb(' + (rC | 0) + ',' + (gC | 0) + ',' + (bC | 0) + ')';
           ctx.beginPath();
           ctx.arc(d.x, d.y, r, 0, 6.2832);
           ctx.fill();
@@ -1008,8 +1030,7 @@
       }, 0.05)
       .to('#figFrame', { opacity: 1, duration: 0.14, ease: 'power1.out' }, 0.56)
       .to('#figTag', { opacity: 1, duration: 0.12 }, 0.66)
-      .to('#gardenImg', { opacity: 1, duration: 0.2, ease: 'power1.inOut' }, 0.72)
-      .to(wrap, { opacity: 0, duration: 0.16, ease: 'power1.in' }, 0.8)
+      .to(portraitFX.dev, { v: 1, duration: 0.34, ease: 'none' }, 0.62)
       .fromTo('#aboutPanel [data-reveal]',
         { opacity: 0, y: 44 },
         { opacity: 1, y: 0, stagger: 0.05, duration: 0.32, ease: 'power2.out' },

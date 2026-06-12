@@ -237,14 +237,20 @@
       for (let y = NCELL / 2; y < NH; y += NCELL) {
         for (let x = NCELL / 2; x < NW; x += NCELL) {
           if (d[((y | 0) * NW + (x | 0)) * 4 + 3] > 110) {
-            set.push({ x, y, h: Math.random() * 0.7 });
+            set.push({ x, y, h: (1 - x / NW) * 0.45 + Math.random() * 0.18 });
           }
         }
       }
       return set;
     };
-    const setA = sampleText('يوسف سليم', '500 40px "Geeza Pro", "Arial", sans-serif');
-    const setB = sampleText('YOUSOF SELIM', '500 34px "JetBrains Mono", monospace');
+    let setA = sampleText('يوسف سليم', '500 40px "Geeza Pro", "Arial", sans-serif');
+    let setB = sampleText('YOUSOF SELIM', '500 34px "JetBrains Mono", monospace');
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        setA = sampleText('يوسف سليم', '500 40px "Geeza Pro", "Arial", sans-serif');
+        setB = sampleText('YOUSOF SELIM', '500 34px "JetBrains Mono", monospace');
+      });
+    }
     let namePhase = 0;
     let nameDir = 1;
     let nameHold = 2.6;
@@ -252,7 +258,7 @@
     const drawSet = (set, vis) => {
       for (let i = 0; i < set.length; i++) {
         const p = set[i];
-        const v = Math.min(1, Math.max(0, (vis - p.h) * 3.4));
+        const v = Math.min(1, Math.max(0, (vis - p.h) * 2.8));
         if (v < 0.05) continue;
         nctx.globalAlpha = v;
         nctx.beginPath();
@@ -1013,6 +1019,7 @@
 
     const dock = { x: 0, y: 0, s: 0.8 };
     const measure = () => {
+      if (typeof placeNiche === 'function') placeNiche();
       const prevY = gsap.getProperty(wrap, 'y');
       gsap.set(wrap, { clearProps: 'transform' });
       const a = wrap.getBoundingClientRect();
@@ -1043,12 +1050,13 @@
       .to('#nmStack', { xPercent: 16, opacity: 0.06, ease: 'power1.inOut', duration: 0.5 }, 0)
       .to(heroMeta, { autoAlpha: 0, y: -50, ease: 'power1.in', duration: 0.26 }, 0)
       .to('#halo', { opacity: 0.4, duration: 0.5 }, 0)
-      .to(wrap, {
+      .fromTo(wrap, { x: 0, y: 0, scale: 1 }, {
         x: () => dock.x,
         y: () => dock.y,
         scale: () => dock.s,
         ease: 'power2.inOut',
-        duration: 0.5
+        duration: 0.5,
+        immediateRender: false
       }, 0.05)
       .to('#figFrame', { opacity: 1, duration: 0.12, ease: 'power1.out' }, 0.45)
       .to('#figTag', { opacity: 1, duration: 0.1 }, 0.52)
@@ -1073,13 +1081,49 @@
   }
 
   const pinned = docEl.classList.contains('pin');
-  const reveals = gsap.utils.toArray('[data-reveal]').filter((el) => !pinned || !el.closest('#aboutPanel'));
+  const reveals = gsap.utils.toArray('[data-reveal]').filter((el) =>
+    (!pinned || !el.closest('#aboutPanel')) &&
+    !el.classList.contains('sys-row') &&
+    !el.classList.contains('rec-row'));
   ScrollTrigger.batch(reveals, {
     start: 'top 88%',
     once: true,
+    onEnter: (els) => {
+      gsap.fromTo(els,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.95, stagger: 0.08, ease: 'power3.out' });
+      els.forEach((el) => {
+        el.classList.add('drawn');
+        if (el.classList.contains('work-row')) {
+          gsap.fromTo(el.querySelectorAll('.work-spec div'),
+            { clipPath: 'inset(0 100% 0 0)' },
+            { clipPath: 'inset(0 -2% 0 0)', stagger: 0.09, duration: 0.7, ease: 'power2.out', delay: 0.3 });
+        }
+      });
+    }
+  });
+
+  ScrollTrigger.batch('.sys-row', {
+    start: 'top 88%',
+    once: true,
     onEnter: (els) => gsap.fromTo(els,
-      { opacity: 0, y: 40 },
-      { opacity: 1, y: 0, duration: 0.95, stagger: 0.08, ease: 'power3.out' })
+      { opacity: 0, clipPath: 'inset(0 100% 0 0)' },
+      { opacity: 1, clipPath: 'inset(0 -2% 0 0)', stagger: 0.12, duration: 0.9, ease: 'power2.inOut' })
+  });
+
+  gsap.utils.toArray('.rec-row').forEach((row) => {
+    gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 86%', once: true } })
+      .fromTo(row, { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power1.out' })
+      .fromTo(row.querySelector('.rec-date'), { x: -26, opacity: 0 }, { x: 0, opacity: 1, duration: 0.85, ease: 'power3.out' }, 0.05)
+      .fromTo(row.querySelector('.rec-body'), { x: 26, opacity: 0 }, { x: 0, opacity: 1, duration: 0.85, ease: 'power3.out' }, 0.15);
+  });
+
+  gsap.utils.toArray('.sec-title .line-shift').forEach((l) => {
+    gsap.fromTo(l, { yPercent: 11 }, {
+      yPercent: -8,
+      ease: 'none',
+      scrollTrigger: { trigger: l.closest('.sec-head'), start: 'top bottom', end: 'bottom top', scrub: true }
+    });
   });
 
   if (document.getElementById('lampLine')) {

@@ -305,6 +305,12 @@ html.gaming { overflow: hidden; }
   content: ""; position: absolute; left: 100%; top: 50%;
   width: 36vw; height: 1px; background: var(--line-soft);
 }
+.js:not(.reduced) .sec-label::after {
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 1.3s var(--ease-out) 0.25s;
+}
+.sec-label.drawn::after { transform: scaleX(1); }
+.reduced .sec-label::after { transform: scaleX(1) !important; }
 .about-body .sec-label { border: 0; padding: 0; }
 .about-body .sec-label::after { display: none; }
 .about-title {

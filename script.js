@@ -387,9 +387,12 @@
         const bgV = portraitFX.bg.v;
         const phV = portraitFX.ph.v;
         if (bgV > 0 && photoReady) {
+          const sc = 1.03 - 0.03 * bgV;
+          const dw = cnv.width * sc;
+          const dh = cnv.height * sc;
           ctx.globalAlpha = bgV;
           ctx.filter = 'saturate(0.92) contrast(1.05) brightness(0.96)';
-          ctx.drawImage(photoImg, 0, 0, cnv.width, cnv.height);
+          ctx.drawImage(photoImg, (cnv.width - dw) / 2, (cnv.height - dh) / 2, dw, dh);
           ctx.filter = 'none';
           ctx.globalAlpha = 1;
         }
@@ -1028,7 +1031,7 @@
         start: 'top top',
         end: '+=205%',
         pin: true,
-        scrub: 1,
+        scrub: 1.2,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
@@ -1047,15 +1050,15 @@
         ease: 'power2.inOut',
         duration: 0.5
       }, 0.05)
-      .to('#figFrame', { opacity: 1, duration: 0.12, ease: 'power1.out' }, 0.5)
-      .to('#figTag', { opacity: 1, duration: 0.1 }, 0.56)
-      .to(portraitFX.dev, { v: 1, duration: 0.15, ease: 'none' }, 0.56)
-      .to(portraitFX.bg, { v: 1, duration: 0.14, ease: 'power1.inOut' }, 0.73)
-      .to(portraitFX.ph, { v: 1, duration: 0.1, ease: 'none' }, 0.88)
+      .to('#figFrame', { opacity: 1, duration: 0.12, ease: 'power1.out' }, 0.45)
+      .to('#figTag', { opacity: 1, duration: 0.1 }, 0.52)
+      .to(portraitFX.dev, { v: 1, duration: 0.22, ease: 'power1.inOut' }, 0.42)
+      .to(portraitFX.bg, { v: 1, duration: 0.2, ease: 'power1.inOut' }, 0.6)
+      .to(portraitFX.ph, { v: 1, duration: 0.16, ease: 'power1.inOut' }, 0.78)
       .fromTo('#aboutPanel [data-reveal]',
         { opacity: 0, y: 44 },
         { opacity: 1, y: 0, stagger: 0.05, duration: 0.3, ease: 'power2.out' },
-        0.44);
+        0.4);
   } else {
     gsap.to('#heroName', {
       yPercent: -7,

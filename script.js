@@ -136,7 +136,7 @@
   }
   setTimeout(start, 1300);
 
-  const portraitFX = { dev: { v: 0 } };
+  const portraitFX = { dev: { v: 0 }, bg: { v: 0 }, ph: { v: 0 } };
   let heroVisible = true;
   const heroStageEl = document.getElementById('heroStage');
   if (heroStageEl) {
@@ -337,6 +337,11 @@
       slx.fillStyle = '#0b0b0c';
       slx.fillRect(0, 0, sil.width, sil.height);
 
+      let photoReady = false;
+      const photoImg = new Image();
+      photoImg.src = 'images/yousof-photo.png';
+      photoImg.decode().then(() => { photoReady = true; }).catch(() => {});
+
       const cnv = document.createElement('canvas');
       cnv.width = sw * S; cnv.height = sh * S;
       cnv.className = 'portrait-canvas';
@@ -379,9 +384,22 @@
         const front = (t - pT0) * 1050;
         const done = front > DIAG + 460;
         if (pMode === 'dissolve' && done) return;
-        if (pMode === 'dissolve') ctx.globalAlpha = Math.max(0, 1 - front / (DIAG + 460));
-        ctx.drawImage(sil, 0, 0);
-        ctx.globalAlpha = 1;
+        const bgV = portraitFX.bg.v;
+        const phV = portraitFX.ph.v;
+        if (bgV > 0 && photoReady) {
+          ctx.globalAlpha = bgV;
+          ctx.filter = 'saturate(0.92) contrast(1.05) brightness(0.96)';
+          ctx.drawImage(photoImg, 0, 0, cnv.width, cnv.height);
+          ctx.filter = 'none';
+          ctx.globalAlpha = 1;
+        }
+        const silA = (pMode === 'dissolve' ? Math.max(0, 1 - front / (DIAG + 460)) : 1) * (1 - phV);
+        if (silA > 0.01) {
+          ctx.globalAlpha = silA;
+          ctx.drawImage(sil, 0, 0);
+        }
+        ctx.globalAlpha = Math.max(0, 1 - phV);
+        if (phV >= 0.995) { ctx.globalAlpha = 1; return; }
         const settled = pMode === 'render' && done;
         const bandPos = (t * 150) % (DIAG * 2.2);
         for (let i = 0; i < dots.length; i++) {
@@ -435,6 +453,7 @@
           ctx.arc(d.x, d.y, r, 0, 6.2832);
           ctx.fill();
         }
+        ctx.globalAlpha = 1;
       };
       new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
@@ -1007,14 +1026,14 @@
       scrollTrigger: {
         trigger: pinEl,
         start: 'top top',
-        end: '+=160%',
+        end: '+=205%',
         pin: true,
         scrub: 1,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
-          docEl.classList.toggle('about-active', self.progress > 0.55);
-          docEl.classList.toggle('meta-off', self.progress > 0.12);
+          docEl.classList.toggle('about-active', self.progress > 0.45);
+          docEl.classList.toggle('meta-off', self.progress > 0.1);
         }
       }
     })
@@ -1026,15 +1045,17 @@
         y: () => dock.y,
         scale: () => dock.s,
         ease: 'power2.inOut',
-        duration: 0.6
+        duration: 0.5
       }, 0.05)
-      .to('#figFrame', { opacity: 1, duration: 0.14, ease: 'power1.out' }, 0.56)
-      .to('#figTag', { opacity: 1, duration: 0.12 }, 0.66)
-      .to(portraitFX.dev, { v: 1, duration: 0.34, ease: 'none' }, 0.62)
+      .to('#figFrame', { opacity: 1, duration: 0.12, ease: 'power1.out' }, 0.5)
+      .to('#figTag', { opacity: 1, duration: 0.1 }, 0.56)
+      .to(portraitFX.dev, { v: 1, duration: 0.15, ease: 'none' }, 0.56)
+      .to(portraitFX.bg, { v: 1, duration: 0.14, ease: 'power1.inOut' }, 0.73)
+      .to(portraitFX.ph, { v: 1, duration: 0.1, ease: 'none' }, 0.88)
       .fromTo('#aboutPanel [data-reveal]',
         { opacity: 0, y: 44 },
-        { opacity: 1, y: 0, stagger: 0.05, duration: 0.32, ease: 'power2.out' },
-        0.5);
+        { opacity: 1, y: 0, stagger: 0.05, duration: 0.3, ease: 'power2.out' },
+        0.44);
   } else {
     gsap.to('#heroName', {
       yPercent: -7,

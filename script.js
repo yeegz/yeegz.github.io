@@ -490,7 +490,7 @@
       'FREELANCE — FEB 2023', '4 CLIENT APPS SHIPPED', "BSC '27 — SUNWAY × LANCASTER",
       'NOW BUILDING BUPPLES', 'EN / AR — SUBANG JAYA'
     ];
-    const BONUS = ['TAJWEED — UI/UX REDESIGN', 'TASK MANAGER — DRAG & DROP', 'FALLEN ASTERI — GODOT'];
+    const BONUS = ['PHOTOSHOOT — WEBGL FX', 'TASK MANAGER — DRAG & DROP', 'FALLEN ASTERI — GODOT'];
     const SPR = {
       run1: ['..XX....', '..XX....', '...X....', '.XXXX...', 'X..X.X..', '...XX...', '...X....', '..X.X...', '..X..X..', '.X....X.', '.X.....X', 'XX......'],
       run2: ['..XX....', '..XX....', '...X....', '.XXXX...', '.X.X.X..', '...XX...', '...X....', '...XX...', '...XX...', '..X..X..', '..X..X..', '..X..XX.'],
@@ -1372,4 +1372,70 @@
       el.addEventListener('pointerleave', () => { mx(0); my(0); });
     });
   }
+})();
+
+/* ===== Mobile menu — standalone so it works even with reduced motion / no GSAP ===== */
+(() => {
+  const toggle = document.getElementById('navToggle');
+  const nav = document.getElementById('mobileNav');
+  if (!toggle || !nav) return;
+  const docEl = document.documentElement;
+  const label = toggle.querySelector('.nav-toggle-label');
+  const links = Array.from(nav.querySelectorAll('a'));
+  const focusables = [toggle].concat(links);
+  let open = false;
+
+  const setOpen = (state) => {
+    if (state === open) return;
+    open = state;
+    docEl.classList.toggle('menu-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    if (label) label.textContent = open ? 'Close' : 'Menu';
+    nav.setAttribute('aria-hidden', open ? 'false' : 'true');
+    if (open) nav.removeAttribute('inert'); else nav.setAttribute('inert', '');
+    if (window.lenis) { if (open) window.lenis.stop(); else window.lenis.start(); }
+    if (open) {
+      setTimeout(() => { if (open) (links[0] || nav).focus({ preventScroll: true }); }, 90);
+    } else {
+      toggle.focus({ preventScroll: true });
+    }
+  };
+
+  toggle.addEventListener('click', () => setOpen(!open));
+
+  document.addEventListener('keydown', (e) => {
+    if (!open) return;
+    if (e.key === 'Escape') { e.preventDefault(); setOpen(false); return; }
+    if (e.key === 'Tab' && focusables.length) {
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  links.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      setOpen(false);
+      if (href && href.charAt(0) === '#') {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          requestAnimationFrame(() => {
+            if (window.lenis) window.lenis.scrollTo(target, { duration: 1.2 });
+            else target.scrollIntoView({ behavior: 'smooth' });
+            target.setAttribute('tabindex', '-1');
+            target.focus({ preventScroll: true });
+          });
+        }
+      }
+    });
+  });
+
+  const mq = matchMedia('(min-width: 761px)');
+  const onChange = () => { if (mq.matches && open) setOpen(false); };
+  if (mq.addEventListener) mq.addEventListener('change', onChange);
+  else if (mq.addListener) mq.addListener(onChange);
 })();

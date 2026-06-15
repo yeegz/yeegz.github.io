@@ -38,7 +38,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="styles.css?v=16" />
+<link rel="stylesheet" href="styles.css?v=17" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 setTimeout(function () {
@@ -84,7 +84,30 @@ setTimeout(function () {
     <a href="#contact" data-scrollto><sup>04</sup>Contact</a>
   </nav>
   <a class="head-resume" href="Yousof-Selim-Resume.pdf" download data-cursor="PDF">Resume</a>
+  <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
+    <span class="nav-toggle-lines" aria-hidden="true"><i></i><i></i></span>
+    <span class="nav-toggle-label" aria-hidden="true">Menu</span>
+  </button>
 </header>
+
+<nav class="mobile-nav" id="mobileNav" aria-label="Menu" aria-hidden="true" inert>
+  <div class="mnav-inner">
+    <p class="mnav-eyebrow">MENU<span class="slash">/</span>NAVIGATE</p>
+    <ul class="mnav-list">
+      <li><a href="#work"><sup>01</sup><span>Work</span><i aria-hidden="true">→</i></a></li>
+      <li><a href="#stack"><sup>02</sup><span>Stack</span><i aria-hidden="true">→</i></a></li>
+      <li><a href="#record"><sup>03</sup><span>Record</span><i aria-hidden="true">→</i></a></li>
+      <li><a href="#contact"><sup>04</sup><span>Contact</span><i aria-hidden="true">→</i></a></li>
+    </ul>
+    <div class="mnav-foot">
+      <a class="mnav-resume" href="Yousof-Selim-Resume.pdf" download>Resume<span class="cta-arr">↓</span></a>
+      <div class="mnav-social">
+        <a href="https://github.com/yeegz" target="_blank" rel="noopener">GitHub<span class="cta-arr">↗</span></a>
+        <a href="https://www.linkedin.com/in/ysf-slm" target="_blank" rel="noopener">LinkedIn<span class="cta-arr">↗</span></a>
+      </div>
+    </div>
+  </div>
+</nav>
 
 <main id="top">
 
@@ -231,27 +254,27 @@ setTimeout(function () {
         </li>
 
         <li class="work-row" data-reveal>
-          <article class="work-link" data-cursor="02 — CASE">
+          <a class="work-link" href="https://photoshoot-yeegz.web.app/app/" target="_blank" rel="noopener" data-cursor="02 — OPEN" aria-label="Photoshoot — try the live web app">
             <span class="work-no" aria-hidden="true">02</span>
             <div class="work-main">
-              <h3 class="work-name">Tajweed Interactive</h3>
-              <p class="work-kicker">Learning platform · UI/UX redesign</p>
-              <p class="work-case">Redesigned navigation, page hierarchy, and learning flows for a Quranic recitation platform — clearer structure, better accessibility.</p>
+              <h3 class="work-name">Photoshoot</h3>
+              <p class="work-kicker">Desktop photobooth · WebGL + face FX</p>
+              <p class="work-case">A clean-room photobooth for Windows — a live WebGL viewfinder with 17 real-time GLSL effects and 8 face-tracked filters, plus single shots, 4-shot strips, and video. Runs fully in the browser too; nothing is ever uploaded.</p>
               <dl class="work-spec">
-                <div><dt>Stack</dt><dd>Frontend · UI/UX</dd></div>
-                <div><dt>Role</dt><dd>Navigation &amp; learning-flow redesign</dd></div>
-                <div><dt>Platform</dt><dd>Web</dd></div>
+                <div><dt>Stack</dt><dd>Electron · WebGL2 · GLSL · MediaPipe</dd></div>
+                <div><dt>Role</dt><dd>Concept to deployment — solo</dd></div>
+                <div><dt>Platform</dt><dd>Windows · Web</dd></div>
               </dl>
             </div>
             <div class="work-side">
-              <p class="work-year">SEP 2025 — NOW</p>
-              <p class="work-status">IN PROGRESS</p>
+              <p class="work-year">JUN 2026</p>
+              <p class="work-status">LIVE — IN BROWSER ↗</p>
               <span class="work-arrow" aria-hidden="true">→</span>
             </div>
             <div class="work-media" aria-hidden="true">
-              <div class="media-ph"><span class="ph-mark">TJ</span><span class="ph-cap">VISUAL — IN PRODUCTION</span></div>
+              <div class="media-ph"><span class="ph-mark">PS</span><span class="ph-cap">LIVE — TRY IN BROWSER</span></div>
             </div>
-          </article>
+          </a>
         </li>
 
         <li class="work-row" data-reveal>
@@ -314,7 +337,7 @@ setTimeout(function () {
             </div>
           </div>
           <div class="wp-item">
-            <div class="media-ph"><span class="ph-mark">TJ</span><span class="ph-cap">VISUAL — IN PRODUCTION</span></div>
+            <div class="media-ph"><span class="ph-mark">PS</span><span class="ph-cap">LIVE — TRY IN BROWSER</span></div>
           </div>
           <div class="wp-item">
             <img class="wp-shot" src="images/todo.jpg" alt="" loading="lazy" decoding="async" width="800" height="405" />
@@ -445,6 +468,6 @@ setTimeout(function () {
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js" defer></script>
-<script src="script.js?v=16" defer></script>
+<script src="script.js?v=17" defer></script>
 </body>
 </html>

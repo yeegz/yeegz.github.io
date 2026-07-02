@@ -38,7 +38,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="styles.css?v=17" />
+<link rel="stylesheet" href="styles.css?v=19" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 setTimeout(function () {
@@ -151,6 +151,11 @@ setTimeout(function () {
           <p class="role-sub"><span class="swap-line" id="roleBottom">Flutter <em>&amp;</em> Full-Stack <em>Developer</em></span></p>
         </div>
         <p class="hm hm-loc" data-load>SUBANG JAYA, MALAYSIA<br />3.04°N — 101.59°E</p>
+        <div class="hm hm-idstrip" data-load>
+          <p class="idstrip-meta">EST. FEB 2023<br />SUBANG JAYA, MY</p>
+          <span class="vh" lang="ar" dir="rtl">يوسف سليم — Yousof Selim</span>
+          <canvas id="nameDotsM" width="460" height="60" aria-hidden="true"></canvas>
+        </div>
         <dl class="hm hm-data" aria-label="Quick facts">
           <div data-load><dt>Name</dt><dd class="dd-name"><span class="vh" lang="ar" dir="rtl">يوسف سليم — Yousof Selim</span><canvas id="nameDots" width="460" height="60" aria-hidden="true"></canvas></dd></div>
           <div data-load><dt>Freelance since</dt><dd>FEB 2023</dd></div>
@@ -272,7 +277,7 @@ setTimeout(function () {
               <span class="work-arrow" aria-hidden="true">→</span>
             </div>
             <div class="work-media" aria-hidden="true">
-              <div class="media-ph"><span class="ph-mark">PS</span><span class="ph-cap">LIVE — TRY IN BROWSER</span></div>
+              <img class="ps-art" src="images/photoshoot-app.webp" alt="" loading="lazy" decoding="async" width="1202" height="956" />
             </div>
           </a>
         </li>
@@ -337,7 +342,7 @@ setTimeout(function () {
             </div>
           </div>
           <div class="wp-item">
-            <div class="media-ph"><span class="ph-mark">PS</span><span class="ph-cap">LIVE — TRY IN BROWSER</span></div>
+            <img class="wp-shot wp-shot-ps" src="images/photoshoot-app.webp" alt="" loading="lazy" decoding="async" width="1202" height="956" />
           </div>
           <div class="wp-item">
             <img class="wp-shot" src="images/todo.jpg" alt="" loading="lazy" decoding="async" width="800" height="405" />
@@ -350,7 +355,7 @@ setTimeout(function () {
           <span class="pf-c pf-tl"></span><span class="pf-c pf-tr"></span>
           <span class="pf-c pf-bl"></span><span class="pf-c pf-br"></span>
         </span>
-        <p class="wp-caption"><span class="wp-counter"><span id="wpIndex">01</span> / 04</span><span class="wp-ticks" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="wpName">BUPPLES</span></p>
+        <p class="wp-caption"><span class="wp-counter"><span id="wpIndex">01</span> / 04</span><span class="wp-ticks" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="wp-id"><span class="wp-sigil" id="wpSigil" aria-hidden="true"></span><span id="wpName">BUPPLES</span></span></p>
       </aside>
     </div>
   </section>
@@ -447,7 +452,7 @@ setTimeout(function () {
 
 <footer class="site-foot">
   <p>© 2026 Yousof Selim</p>
-  <p>Subang Jaya, Malaysia — <span id="localTime">--:--</span> MYT</p>
+  <p>Subang Jaya, Malaysia — <span id="localTime">--:--</span> MYT<span id="dayPhase"></span></p>
   <p>Designed &amp; built by hand</p>
   <a href="#top" data-scrollto data-cursor="TOP">Back to top ↑</a>
 </footer>
@@ -461,6 +466,7 @@ setTimeout(function () {
   <span class="cursor-dot" id="cursorDot"></span>
   <span class="cursor-ring" id="cursorRing">
     <svg class="ring-dots" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18.5" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="0.1 9.6" /></svg>
+    <span class="cursor-sigil" id="cursorSigil"></span>
     <span class="cursor-label" id="cursorLabel"></span>
   </span>
 </div>
@@ -468,6 +474,6 @@ setTimeout(function () {
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js" defer></script>
-<script src="script.js?v=17" defer></script>
+<script src="script.js?v=19" defer></script>
 </body>
 </html>

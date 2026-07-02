@@ -52,14 +52,395 @@
   }
 
   const timeEl = document.getElementById('localTime');
+  const phaseEl = document.getElementById('dayPhase');
   if (timeEl) {
     const tickClock = () => {
-      timeEl.textContent = new Date().toLocaleTimeString('en-GB', {
+      const now = new Date();
+      timeEl.textContent = now.toLocaleTimeString('en-GB', {
         hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kuala_Lumpur'
       });
+      if (phaseEl) {
+        const h = parseInt(now.toLocaleTimeString('en-GB', {
+          hour: '2-digit', hour12: false, timeZone: 'Asia/Kuala_Lumpur'
+        }), 10);
+        phaseEl.textContent = ' · ' + (
+          h >= 5 && h < 12 ? 'MORNING' :
+          h >= 12 && h < 18 ? 'AFTERNOON' :
+          h >= 18 && h < 23 ? 'EVENING' : 'LATE NIGHT — STILL BUILDING');
+      }
     };
     tickClock();
     setInterval(tickClock, 30000);
+  }
+
+  try {
+    console.log(
+      '%c YSF.SLM %c SPECIMEN ARCHIVE — 2026 ',
+      'background:#9bcfa5;color:#0a0a0b;font-family:monospace;font-weight:bold;padding:4px 7px;',
+      'background:#141415;color:#f2efe9;font-family:monospace;padding:4px 7px;'
+    );
+    console.log(
+      '%cdesigned & built by hand — no template, no builder.\n%cpsst — on a desktop, click SELIM three times.',
+      'color:#8e8b85;font-family:monospace;',
+      'color:#9bcfa5;font-family:monospace;'
+    );
+  } catch (err) {}
+
+  const baseTitle = document.title;
+  document.addEventListener('visibilitychange', () => {
+    document.title = document.hidden ? 'ysf.slm — archived until you return' : baseTitle;
+  });
+
+  const FACTS = [
+    'FLUTTER & DART', 'TYPESCRIPT & JS', 'PYTHON & SQL',
+    'SUPABASE · POSTGRES', 'FIREBASE · FIRESTORE', 'NODE.JS & REST APIS',
+    'FREELANCE — FEB 2023', '4 CLIENT APPS SHIPPED', "BSC '27 — SUNWAY × LANCASTER",
+    'NOW BUILDING BUPPLES', 'EN / AR — SUBANG JAYA'
+  ];
+  const BONUS = ['PHOTOSHOOT — WEBGL FX', 'TASK MANAGER — DRAG & DROP', 'FALLEN ASTERI — GODOT'];
+
+  /* ── Project sigils — dotted-stroke glyphs, one per case file.
+     Bupples = Pip (the app's real mark: two overlapping rings, eyes in the lens),
+     Photoshoot = camera, Task = check card, Fallen Asteri = sword. ── */
+  const SIGIL_GEO = {
+    bupples: {
+      strokes: [
+        { circle: [39, 50, 21], step: 6.4 },
+        { circle: [61, 50, 21], step: 6.4 },
+        { dot: [44.6, 50, 2.9], accent: true, tag: 'eye' },
+        { dot: [55.4, 50, 2.9], accent: true, tag: 'eye' }
+      ],
+      idle: 'blink'
+    },
+    photoshoot: {
+      strokes: [
+        { pts: [[26, 35], [74, 35], [74, 73], [26, 73]], close: true, step: 6.2 },
+        { pts: [[40, 35], [44, 26], [59, 26], [63, 35]], step: 6 },
+        { circle: [50, 54, 12], step: 5.8 },
+        { dot: [50, 54, 3], accent: true, tag: 'pulse' },
+        { dot: [67.5, 42.5, 1.8], accent: true }
+      ],
+      idle: 'pulse'
+    },
+    task: {
+      strokes: [
+        { pts: [[27, 27], [73, 27], [73, 73], [27, 73]], close: true, step: 6.2 },
+        { pts: [[37, 51], [46, 60], [63, 39]], step: 4.6, accent: true, tag: 'check' }
+      ],
+      idle: 'check'
+    },
+    asteri: {
+      strokes: [
+        { pts: [[44, 57], [44, 23], [50, 11], [56, 23], [56, 57]], step: 5.4 },
+        { pts: [[50, 24], [50, 50]], step: 6.5, faint: true },
+        { pts: [[34, 63], [66, 63]], step: 5.2 },
+        { pts: [[50, 69], [50, 79]], step: 5 },
+        { dot: [50, 86, 2.8], accent: true, tag: 'gem' }
+      ],
+      idle: 'sheen'
+    }
+  };
+  const SIGIL_PAL = {
+    cursor: { ink: '#1a1b1c', accent: '#417a52', dotScale: 1.18 },
+    stamp: { ink: '#d8d5ce', accent: '#9bcfa5', dotScale: 1.28 },
+    panel: { ink: '#cfccc4', accent: '#9bcfa5', dotScale: 1.75 }
+  };
+  const sigilDots = (geo) => {
+    const dots = [];
+    const push = (x, y, r, st, tag) => {
+      const prev = dots[dots.length - 1];
+      if (prev && !tag && Math.hypot(prev.x - x, prev.y - y) < 2.4) return;
+      dots.push({ x, y, r, accent: !!st.accent, faint: !!st.faint, tag: tag || st.tag || '' });
+    };
+    geo.strokes.forEach((st) => {
+      if (st.dot) { push(st.dot[0], st.dot[1], st.dot[2], st, st.tag || 'solo'); return; }
+      if (st.circle) {
+        const cx = st.circle[0], cy = st.circle[1], cr = st.circle[2];
+        const n = Math.max(6, Math.round((2 * Math.PI * cr) / st.step));
+        for (let i = 0; i < n; i++) {
+          const a = (i / n) * 2 * Math.PI - Math.PI / 2;
+          push(cx + Math.cos(a) * cr, cy + Math.sin(a) * cr, 1.9, st);
+        }
+        return;
+      }
+      const pts = st.close ? st.pts.concat([st.pts[0]]) : st.pts;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const x0 = pts[i][0], y0 = pts[i][1];
+        const x1 = pts[i + 1][0], y1 = pts[i + 1][1];
+        const len = Math.hypot(x1 - x0, y1 - y0);
+        const n = Math.max(1, Math.round(len / st.step));
+        for (let j = (i === 0 ? 0 : 1); j <= n; j++) {
+          const t = j / n;
+          push(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, 1.9, st);
+        }
+      }
+    });
+    return dots;
+  };
+  const makeSigil = (name, px, pal) => {
+    const geo = SIGIL_GEO[name];
+    if (!geo) return null;
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const cnv = document.createElement('canvas');
+    cnv.width = Math.round(px * dpr);
+    cnv.height = Math.round(px * dpr);
+    cnv.style.width = px + 'px';
+    cnv.style.height = px + 'px';
+    cnv.setAttribute('aria-hidden', 'true');
+    const ctx = cnv.getContext('2d');
+    const k = (px * dpr) / 100;
+    const dots = sigilDots(geo);
+    const S_MAX = 200;
+    let raf = null;
+    let t0 = 0;
+    const api = { canvas: cnv, played: false, settled: false };
+    const render = (t, still) => {
+      const front = api.settled ? 9999 : (t - t0) * 340;
+      ctx.clearRect(0, 0, cnv.width, cnv.height);
+      let blinkV = 1;
+      let pulseV = 0;
+      let checkV = 1;
+      let bandPos = -1;
+      if (!still) {
+        if (geo.idle === 'blink') {
+          const ph = t % 3.8;
+          if (ph < 0.3) blinkV = Math.abs(ph / 0.15 - 1);
+        } else if (geo.idle === 'pulse') {
+          const ph = t % 4.2;
+          if (ph < 0.9) pulseV = Math.sin((ph / 0.9) * Math.PI);
+        } else if (geo.idle === 'check') {
+          const ph = t % 7;
+          checkV = ph < 0.4 ? ph / 0.4 : 1;
+        } else if (geo.idle === 'sheen') {
+          const ph = t % 5.5;
+          if (ph < 1.1) bandPos = (ph / 1.1) * S_MAX;
+        }
+      }
+      for (let i = 0; i < dots.length; i++) {
+        const d = dots[i];
+        const s = d.x + d.y;
+        let g = api.settled ? 1 : Math.min(1, Math.max(0, (front - s) / 60));
+        if (g <= 0) continue;
+        g = g * (2 - g);
+        let r = d.r * pal.dotScale * k * g;
+        let alpha = d.faint ? 0.4 : 1;
+        let sy = 1;
+        if (d.tag === 'eye') sy = Math.max(0.14, blinkV);
+        if (d.tag === 'pulse') r *= 1 + pulseV * 0.7;
+        if (d.tag === 'check') alpha *= 0.2 + 0.8 * checkV;
+        if (bandPos >= 0) {
+          let b = 1 - Math.abs(s - bandPos) / 26;
+          if (b > 0) { b = b * b; r *= 1 + b * 0.5; alpha = Math.min(1, alpha + b * 0.4); }
+        }
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = d.accent ? pal.accent : pal.ink;
+        ctx.beginPath();
+        ctx.ellipse(d.x * k, d.y * k, r, r * sy, 0, 0, 6.2832);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    };
+    const loop = (now) => {
+      raf = requestAnimationFrame(loop);
+      render(now / 1000, false);
+    };
+    api.play = () => {
+      api.played = true;
+      api.settled = false;
+      t0 = performance.now() / 1000;
+      if (!raf) raf = requestAnimationFrame(loop);
+    };
+    api.idle = () => {
+      api.settled = true;
+      if (!raf) raf = requestAnimationFrame(loop);
+    };
+    api.settle = () => {
+      api.played = true;
+      api.settled = true;
+      api.stop();
+      render(0, true);
+    };
+    api.stop = () => {
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+    };
+    return api;
+  };
+
+  /* case-file stamps: the same sigils, printed on each work row for touch screens */
+  const SIGIL_ROWS = ['bupples', 'photoshoot', 'task', 'asteri'];
+  document.querySelectorAll('#workList .work-link').forEach((link, i) => {
+    const name = SIGIL_ROWS[i];
+    if (!SIGIL_GEO[name]) return;
+    const sig = makeSigil(name, 40, SIGIL_PAL.stamp);
+    if (!sig) return;
+    link.dataset.cursorSigil = name;
+    const holder = document.createElement('span');
+    holder.className = 'work-sigil';
+    holder.setAttribute('aria-hidden', 'true');
+    holder.appendChild(sig.canvas);
+    link.appendChild(holder);
+    if (reduced || !('IntersectionObserver' in window)) {
+      sig.settle();
+      return;
+    }
+    new IntersectionObserver((en) => {
+      if (en[0].isIntersecting) {
+        if (!sig.played) sig.play();
+        else sig.idle();
+      } else {
+        sig.stop();
+      }
+    }, { rootMargin: '40px' }).observe(sig.canvas);
+  });
+
+  /* dot-matrix nameplate — desktop data plate + mobile ID strip share the frames */
+  const nameCanvases = [document.getElementById('nameDots'), document.getElementById('nameDotsM')]
+    .filter(Boolean)
+    .map((c) => ({ c, x: c.getContext('2d'), on: true }));
+  if (nameCanvases.length) {
+    const NW = 460;
+    const NH = 60;
+    const NCELL = 5;
+    const markShown = () => nameCanvases.forEach((t) => { t.on = t.c.getClientRects().length > 0; });
+    markShown();
+    let shownTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(shownTimer);
+      shownTimer = setTimeout(markShown, 200);
+    });
+    const sampleText = (text, font) => {
+      const off = document.createElement('canvas');
+      off.width = NW; off.height = NH;
+      const o = off.getContext('2d');
+      o.fillStyle = '#fff';
+      o.font = font;
+      o.textAlign = 'right';
+      o.textBaseline = 'middle';
+      o.fillText(text, NW - 4, NH / 2 + 2);
+      const d = o.getImageData(0, 0, NW, NH).data;
+      const set = [];
+      for (let y = NCELL / 2; y < NH; y += NCELL) {
+        for (let x = NCELL / 2; x < NW; x += NCELL) {
+          if (d[((y | 0) * NW + (x | 0)) * 4 + 3] > 110) {
+            set.push({ x, y, h: (1 - x / NW) * 0.45 + Math.random() * 0.18 });
+          }
+        }
+      }
+      return set;
+    };
+    let setA = sampleText('يوسف سليم', '500 40px "Geeza Pro", "Arial", sans-serif');
+    let setB = sampleText('YOUSOF SELIM', '500 34px "JetBrains Mono", monospace');
+    const drawSet = (nctx, set, vis) => {
+      for (let i = 0; i < set.length; i++) {
+        const p = set[i];
+        const v = Math.min(1, Math.max(0, (vis - p.h) * 2.8));
+        if (v < 0.05) continue;
+        nctx.globalAlpha = v;
+        nctx.beginPath();
+        nctx.arc(p.x, p.y, NCELL * 0.42 * (0.4 + v * 0.6), 0, 6.2832);
+        nctx.fill();
+      }
+      nctx.globalAlpha = 1;
+    };
+    const drawStatic = () => {
+      nameCanvases.forEach((t) => {
+        t.x.clearRect(0, 0, NW, NH);
+        t.x.fillStyle = '#f2efe9';
+        drawSet(t.x, setB, 1.2);
+      });
+    };
+    if (reduced) {
+      drawStatic();
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+          setB = sampleText('YOUSOF SELIM', '500 34px "JetBrains Mono", monospace');
+          drawStatic();
+        });
+      }
+    } else {
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+          setA = sampleText('يوسف سليم', '500 40px "Geeza Pro", "Arial", sans-serif');
+          setB = sampleText('YOUSOF SELIM', '500 34px "JetBrains Mono", monospace');
+        });
+      }
+      let nameOn = true;
+      const heroEl = document.getElementById('heroStage');
+      if (heroEl && 'IntersectionObserver' in window) {
+        new IntersectionObserver((en) => { nameOn = en[0].isIntersecting; }, { rootMargin: '60px' }).observe(heroEl);
+      }
+      let namePhase = 0;
+      let nameDir = 1;
+      let nameHold = 2.6;
+      let nameLast = performance.now();
+      const nameTick = (now) => {
+        requestAnimationFrame(nameTick);
+        const dt = Math.min(0.05, (now - nameLast) / 1000);
+        nameLast = now;
+        if (!nameOn || document.hidden) return;
+        if (nameHold > 0) {
+          nameHold -= dt;
+        } else {
+          namePhase += nameDir * dt / 1.1;
+          if (namePhase >= 1) { namePhase = 1; nameDir = -1; nameHold = 3.4; }
+          if (namePhase <= 0) { namePhase = 0; nameDir = 1; nameHold = 3.4; }
+        }
+        nameCanvases.forEach((t) => {
+          if (!t.on) return;
+          t.x.clearRect(0, 0, NW, NH);
+          t.x.fillStyle = '#f2efe9';
+          drawSet(t.x, setA, 1 - namePhase);
+          drawSet(t.x, setB, namePhase);
+        });
+      };
+      requestAnimationFrame(nameTick);
+    }
+  }
+
+  /* touch archive: tapping SELIM pops fact chips (the desktop game's little sibling) */
+  const heroStagePre = document.getElementById('heroStage');
+  const touchEgg = !(matchMedia('(min-width: 1150px)').matches && finePointer);
+  if (touchEgg && nmLast && heroStagePre) {
+    const eggLineTap = nmLast.closest('.nm-line');
+    if (eggLineTap) eggLineTap.style.pointerEvents = 'auto';
+    nmLast.setAttribute('role', 'button');
+    nmLast.setAttribute('tabindex', '0');
+    nmLast.setAttribute('aria-label', 'Selim — tap for a fact from the archive');
+    const ALLFACTS = FACTS.concat(BONUS);
+    let fi = 0;
+    let chipT = null;
+    const chip = document.createElement('span');
+    chip.className = 'egg-chip egg-chip-tap';
+    chip.setAttribute('role', 'status');
+    chip.setAttribute('aria-live', 'polite');
+    const chipDot = document.createElement('i');
+    chipDot.textContent = '◉';
+    chipDot.setAttribute('aria-hidden', 'true');
+    const chipText = document.createElement('span');
+    chip.appendChild(chipDot);
+    chip.appendChild(chipText);
+    heroStagePre.appendChild(chip);
+    const popFact = () => {
+      const sr = heroStagePre.getBoundingClientRect();
+      const r = nmLast.getBoundingClientRect();
+      nmLast.classList.remove('egg-flash');
+      void nmLast.offsetWidth;
+      nmLast.classList.add('egg-flash');
+      chipText.textContent = ALLFACTS[fi % ALLFACTS.length];
+      fi++;
+      const cx = Math.max(84, Math.min(sr.width - 84, r.left - sr.left + r.width * (0.2 + 0.6 * ((fi * 0.37) % 1))));
+      chip.style.left = cx + 'px';
+      chip.style.top = (r.top - sr.top - 14) + 'px';
+      chip.classList.remove('on');
+      void chip.offsetWidth;
+      chip.classList.add('on');
+      clearTimeout(chipT);
+      chipT = setTimeout(() => chip.classList.remove('on'), 2400);
+    };
+    nmLast.addEventListener('click', popFact);
+    nmLast.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); popFact(); }
+    });
   }
 
   if (reduced || !window.gsap || !window.ScrollTrigger) {
@@ -215,76 +596,6 @@
         }
       });
     }, 3900);
-  }
-
-  const nameDots = document.getElementById('nameDots');
-  if (nameDots) {
-    const nctx = nameDots.getContext('2d');
-    const NW = nameDots.width;
-    const NH = nameDots.height;
-    const NCELL = 5;
-    const sampleText = (text, font) => {
-      const off = document.createElement('canvas');
-      off.width = NW; off.height = NH;
-      const o = off.getContext('2d');
-      o.fillStyle = '#fff';
-      o.font = font;
-      o.textAlign = 'right';
-      o.textBaseline = 'middle';
-      o.fillText(text, NW - 4, NH / 2 + 2);
-      const d = o.getImageData(0, 0, NW, NH).data;
-      const set = [];
-      for (let y = NCELL / 2; y < NH; y += NCELL) {
-        for (let x = NCELL / 2; x < NW; x += NCELL) {
-          if (d[((y | 0) * NW + (x | 0)) * 4 + 3] > 110) {
-            set.push({ x, y, h: (1 - x / NW) * 0.45 + Math.random() * 0.18 });
-          }
-        }
-      }
-      return set;
-    };
-    let setA = sampleText('يوسف سليم', '500 40px "Geeza Pro", "Arial", sans-serif');
-    let setB = sampleText('YOUSOF SELIM', '500 34px "JetBrains Mono", monospace');
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        setA = sampleText('يوسف سليم', '500 40px "Geeza Pro", "Arial", sans-serif');
-        setB = sampleText('YOUSOF SELIM', '500 34px "JetBrains Mono", monospace');
-      });
-    }
-    let namePhase = 0;
-    let nameDir = 1;
-    let nameHold = 2.6;
-    let nameLast = performance.now();
-    const drawSet = (set, vis) => {
-      for (let i = 0; i < set.length; i++) {
-        const p = set[i];
-        const v = Math.min(1, Math.max(0, (vis - p.h) * 2.8));
-        if (v < 0.05) continue;
-        nctx.globalAlpha = v;
-        nctx.beginPath();
-        nctx.arc(p.x, p.y, NCELL * 0.42 * (0.4 + v * 0.6), 0, 6.2832);
-        nctx.fill();
-      }
-    };
-    const nameTick = (now) => {
-      requestAnimationFrame(nameTick);
-      const dt = Math.min(0.05, (now - nameLast) / 1000);
-      nameLast = now;
-      if (!heroVisible || document.hidden) return;
-      if (nameHold > 0) {
-        nameHold -= dt;
-      } else {
-        namePhase += nameDir * dt / 1.1;
-        if (namePhase >= 1) { namePhase = 1; nameDir = -1; nameHold = 3.4; }
-        if (namePhase <= 0) { namePhase = 0; nameDir = 1; nameHold = 3.4; }
-      }
-      nctx.clearRect(0, 0, NW, NH);
-      nctx.fillStyle = '#f2efe9';
-      drawSet(setA, 1 - namePhase);
-      drawSet(setB, namePhase);
-      nctx.globalAlpha = 1;
-    };
-    requestAnimationFrame(nameTick);
   }
 
   const portraitImgEl = document.getElementById('portrait');
@@ -481,16 +792,9 @@
     if (eggLine) eggLine.style.pointerEvents = 'auto';
     nmLast.setAttribute('role', 'button');
     nmLast.setAttribute('tabindex', '0');
-    nmLast.setAttribute('aria-label', 'Hidden mini game: press three times to explore the name');
+    nmLast.setAttribute('aria-label', 'Selim — hidden mini game: press three times to explore the name');
     nmLast.dataset.cursor = 'PRESS ×3';
 
-    const FACTS = [
-      'FLUTTER & DART', 'TYPESCRIPT & JS', 'PYTHON & SQL',
-      'SUPABASE · POSTGRES', 'FIREBASE · FIRESTORE', 'NODE.JS & REST APIS',
-      'FREELANCE — FEB 2023', '4 CLIENT APPS SHIPPED', "BSC '27 — SUNWAY × LANCASTER",
-      'NOW BUILDING BUPPLES', 'EN / AR — SUBANG JAYA'
-    ];
-    const BONUS = ['PHOTOSHOOT — WEBGL FX', 'TASK MANAGER — DRAG & DROP', 'FALLEN ASTERI — GODOT'];
     const SPR = {
       run1: ['..XX....', '..XX....', '...X....', '.XXXX...', 'X..X.X..', '...XX...', '...X....', '..X.X...', '..X..X..', '.X....X.', '.X.....X', 'XX......'],
       run2: ['..XX....', '..XX....', '...X....', '.XXXX...', '.X.X.X..', '...XX...', '...X....', '...XX...', '...XX...', '..X..X..', '..X..X..', '..X..XX.'],
@@ -1283,6 +1587,31 @@
     const ticks = gsap.utils.toArray('.wp-ticks i');
     const wpIndex = document.getElementById('wpIndex');
     const wpName = document.getElementById('wpName');
+    const wpSigilHold = document.getElementById('wpSigil');
+    const panelSigils = {};
+    let panelSigilLive = null;
+    let panelOn = true;
+    if (wpSigilHold && 'IntersectionObserver' in window) {
+      new IntersectionObserver((en) => {
+        panelOn = en[0].isIntersecting;
+        if (panelSigilLive) { if (panelOn) panelSigilLive.idle(); else panelSigilLive.stop(); }
+      }, { rootMargin: '80px' }).observe(wpSigilHold);
+    }
+    const setPanelSigil = (i) => {
+      if (!wpSigilHold) return;
+      const name = SIGIL_ROWS[i];
+      if (panelSigilLive) panelSigilLive.stop();
+      while (wpSigilHold.firstChild) wpSigilHold.removeChild(wpSigilHold.firstChild);
+      panelSigilLive = null;
+      if (!name) return;
+      if (!(name in panelSigils)) panelSigils[name] = makeSigil(name, 26, SIGIL_PAL.panel);
+      panelSigilLive = panelSigils[name];
+      if (panelSigilLive) {
+        wpSigilHold.appendChild(panelSigilLive.canvas);
+        if (panelOn) panelSigilLive.play();
+        else panelSigilLive.settle();
+      }
+    };
     let current = 0;
     let hovering = false;
 
@@ -1295,8 +1624,10 @@
       wpIndex.textContent = String(i + 1).padStart(2, '0');
       const name = workRows[i].querySelector('.work-name');
       wpName.textContent = name ? name.textContent.toUpperCase() : '';
+      setPanelSigil(i);
     };
     setActive(0);
+    setPanelSigil(0);
 
     gsap.set('#workPanel', { transformPerspective: 1100, transformOrigin: '50% 18%' });
     gsap.fromTo('#workPanel',
@@ -1352,12 +1683,33 @@
       dotX(e.clientX); dotY(e.clientY);
       ringX(e.clientX); ringY(e.clientY);
     }, { passive: true });
+    const sigilHold = document.getElementById('cursorSigil');
+    const cursorSigils = {};
+    let curSigilName = null;
+    let curSigilLive = null;
     document.addEventListener('mouseover', (e) => {
       const view = e.target.closest('[data-cursor]');
       const interactive = e.target.closest('a, button');
       docEl.classList.toggle('cur-view', !!view);
       docEl.classList.toggle('cur-hover', !view && !!interactive);
       if (view) label.textContent = view.dataset.cursor;
+      const sigEl = e.target.closest('[data-cursor-sigil]');
+      const name = sigEl && sigilHold ? sigEl.dataset.cursorSigil : null;
+      if (name !== curSigilName) {
+        curSigilName = name;
+        if (curSigilLive) curSigilLive.stop();
+        while (sigilHold.firstChild) sigilHold.removeChild(sigilHold.firstChild);
+        curSigilLive = null;
+        if (name) {
+          if (!(name in cursorSigils)) cursorSigils[name] = makeSigil(name, 62, SIGIL_PAL.cursor);
+          curSigilLive = cursorSigils[name];
+          if (curSigilLive) {
+            sigilHold.appendChild(curSigilLive.canvas);
+            curSigilLive.play();
+          }
+        }
+      }
+      docEl.classList.toggle('cur-sigil', !!(name && curSigilLive));
     });
 
     document.querySelectorAll('.magnetic').forEach((el) => {

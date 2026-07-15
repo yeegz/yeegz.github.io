@@ -74,6 +74,8 @@ Transitions should overlap slightly so the outgoing section hands color, line, o
 
 Color continuity is explicit rather than incidental: the first color stop of each section matches the final surface of the preceding section, then eases into that section's own surface over a shallow boundary ramp. No section relies on a transparent background that can expose an unrelated body color. Identity hands its themed surface into Experience; Experience hands its themed surface through a restrained neutral bridge into Contact; Contact resolves back into the page/footer surface. These ramps become shorter on narrow screens so they do not consume the composition.
 
+Scroll-time loading and entrance motion use the same authored system as the initial loader. Each section reserves its layout before media decoding, activates through one shared observer/controller, and reveals according to its structure without temporary blank gaps. Offscreen ambient motion pauses; noncritical image failure never blocks the next section.
+
 ### Interactive State Quality
 
 Every actionable element receives a complete state set:
@@ -113,6 +115,7 @@ Hover states must not shift surrounding layout. Press states use small transform
 - Use intentional image loading states that preserve layout dimensions.
 - Remove stale copy, duplicated controls, debug labels, prototype approval UI, and effects that do not explain the work.
 - Ensure the final Contact ending feels conclusive rather than like another project panel.
+- Treat `360`, `390`, and `430` CSS pixels as first-class mobile compositions alongside tablet and desktop. Mobile typography, section spacing, loading states, background ramps, and touch interactions are verified independently at all three widths.
 
 ## Résumé and Content Synchronization
 
@@ -371,6 +374,7 @@ Fallen Asteri enemies use authored pixel-art sprites with crisp nearest-neighbor
 - The complete portfolio shows improved typography, spacing, navigation feedback, image loading behavior, and responsive stability rather than only redesigned sections.
 - No production URL references localhost, Downloads, `tmp`, or `.superpowers` assets.
 - Keyboard, touch, reduced-motion, and responsive behavior are verified.
+- At `360`, `390`, and `430` CSS pixels, the full portfolio has no horizontal page overflow, no clipped display titles, no hover-only actions, and no touch target smaller than `44×44` CSS pixels.
 
 ## Non-Goals
 

@@ -271,12 +271,21 @@ Recommended capabilities: combat systems, player movement, scene/state transitio
 
 ### Mobile
 
+- Treat `360`, `390`, and `430` CSS pixels as first-class authored layouts and verify each one independently rather than relying on a single generic breakpoint.
 - Each project becomes a readable vertical section rather than forcing desktop overlap.
 - Bupples screens remain overlapped but use tap-to-focus and reduced depth.
 - Adelante keeps the `A`, arrow focus state, and quote-deck tap behavior.
 - Photoshoot keeps a compact viewfinder, full-width shutter controls, and a horizontally readable capture strip.
 - Fallen Asteri retains tap targets of at least 44 CSS pixels; the decorative sword follows touch only during interaction or is replaced by a visible attack affordance.
 - No title, quote, phone, photo strip, or game frame may create horizontal page scrolling.
+- No mobile interaction depends on hover. Every project-specific action has an equivalent tap, focus, or visible button affordance with a minimum `44×44` CSS-pixel target.
+
+### Stage Media Loading
+
+- The project-colored shell and stage background appear immediately on open; media never creates a blank white or transparent frame.
+- All stage images reserve intrinsic dimensions before decoding.
+- A small project-colored loading mark may cover undecoded media, but it releases independently with a hard timeout and never blocks close/back navigation.
+- Media decoding, project entry, and background handoff share the same easing vocabulary without delaying the stage for noncritical assets.
 
 ## Accessibility
 

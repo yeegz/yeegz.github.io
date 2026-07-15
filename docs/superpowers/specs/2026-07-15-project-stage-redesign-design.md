@@ -120,6 +120,11 @@ Do not include the rejected “Pip is watching the pointer” copy.
 
 Recommended capabilities: cent-exact ledger, real-time sync, AI receipt extraction, secure cross-platform release.
 
+#### External Actions
+
+- Primary: `Experience it live` → `https://bupples.web.app/`
+- Secondary: `View showcase` → `https://github.com/yeegz/Bupples-showcase`
+
 ### Adelante
 
 #### Content
@@ -162,6 +167,10 @@ Clicking, tapping, or pressing Enter/Space discards the front sheet with a short
 
 Recommended capabilities: native widgets, scheduled content pipeline, offline/privacy-first behavior, 80 automated tests.
 
+#### External Actions
+
+- Primary: `View showcase` → `https://github.com/yeegz/adelante-showcase`
+
 ### Photoshoot
 
 #### Content
@@ -203,6 +212,13 @@ Implementation should retain per-image focal metadata so responsive crops can be
 
 Recommended capabilities: WebGL2 pipeline, 17 real-time effects, 8 MediaPipe face effects, fully local processing.
 
+#### External Actions
+
+- Primary: `Experience it live` → `https://photoshoot-yeegz.web.app/`
+- Secondary: `View GitHub` → `https://github.com/yeegz/photoshoot`
+
+The primary action intentionally opens the Photoshoot web experience/landing page rather than deep-linking to `/app/`. Visitors can review the product and choose to launch the live camera app from there.
+
 ### Fallen Asteri
 
 #### Content
@@ -233,6 +249,11 @@ This remains a portfolio micro-interaction, not a recreation of the complete gam
 #### Capability Rail
 
 Recommended capabilities: combat systems, player movement, scene/state transitions, team Git workflow.
+
+#### External Actions
+
+- Primary: `Play the game` → `https://yeegz.itch.io/fallenasteri`
+- Secondary: `View GitHub` → `https://github.com/yeegz/Fallen-Asteri`
 
 ## Responsive Behavior
 
@@ -327,4 +348,3 @@ Opening and closing a stage resets ephemeral interaction state unless preserving
 - Giving each project a completely unrelated navigation or page shell.
 - Adding large capability-card grids, decorative copy that explains cursor tracking, or permanent explanatory captions that compete with the project title.
 - Replacing the overall portfolio archive identity.
-

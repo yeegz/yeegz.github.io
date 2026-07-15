@@ -29,6 +29,20 @@ The non-project sections use the portfolio's near-black, cream, muted sage, and 
 
 Typography continues to pair a bold condensed/extended display sans, an expressive italic serif, and a compact monospaced metadata face. Fine rules, small archive labels, and generous negative space remain consistent across sections.
 
+## Dark and Light Theme System
+
+- Dark mode remains the default authored experience.
+- A persistent header control switches the full portfolio between dark and light modes and exposes its current state to assistive technology.
+- The choice persists locally and may respect the operating-system preference on a first visit, but a user choice always wins.
+- Light mode restyles the landing shell, navigation, Selected Work archive, Skills, Education, Identity/About, Experience, Contact, footer, controls, rules, text, and loading states—not only the page background.
+- Identity/About follows the active global theme. Its registered photograph and dotted reveal may retain a locally darkened image treatment for contrast, but the section surface, typography, rules, metadata, and decorative type all become light in light mode.
+- The Selected Work archive follows the global theme, but an opened project stage retains its approved project-specific palette. Light mode must not recolor Bupples, Adelante, Photoshoot, or Fallen Asteri internally.
+- Project-stage entry temporarily hands the themed archive surface into the fixed project palette; closing reverses that handoff back into the current global theme.
+- Theme changes interpolate surface, text, rule, and muted colors smoothly without flashing, resetting scroll position, restarting section animations, or interrupting an open interaction.
+- Every theme meets WCAG AA contrast and is verified at the supported responsive widths.
+
+Contact remains structurally distinctive through typography, ruled space, draggable email text, and cursor behavior. Its background stays close to the surrounding portfolio surface in both modes. Sage appears only as a restrained accent/glow; Contact must not alternate into another dominant green field.
+
 ## Portfolio-Wide Experience and Motion System
 
 The redesign is an overall portfolio polish pass, not a set of isolated section replacements. Navigation, loading, scrolling, section handoffs, interactive states, responsiveness, and visual rhythm must improve together.
@@ -57,6 +71,8 @@ Avoid applying the same generic fade-up to every section. Each section reveals a
 - Contact builds from the headline baseline, then opens the email rule and links.
 
 Transitions should overlap slightly so the outgoing section hands color, line, or motion into the next section instead of stopping completely before the next begins. Use scroll progress and CSS custom properties for shared accent/background interpolation where helpful, while keeping content legible at all intermediate states.
+
+Color continuity is explicit rather than incidental: the first color stop of each section matches the final surface of the preceding section, then eases into that section's own surface over a shallow boundary ramp. No section relies on a transparent background that can expose an unrelated body color. Identity hands its themed surface into Experience; Experience hands its themed surface through a restrained neutral bridge into Contact; Contact resolves back into the page/footer surface. These ramps become shorter on narrow screens so they do not consume the composition.
 
 ### Interactive State Quality
 
@@ -284,6 +300,7 @@ The section includes:
 
 - Pointer movement may reposition one soft sage radial glow.
 - Hovering/focusing the email line creates a restrained horizontal light sweep.
+- The email is bare typography rather than a boxed card. On pointer or touch drag it moves only within a small bounded range, tilts subtly, and springs back with the shared easing; a normal click without a drag still opens the mail action.
 - The copy control writes the email to the clipboard and reports `Copied`; if clipboard access fails, it opens a mail action or otherwise exposes the address.
 - The email remains a real `mailto:` link.
 - The composition remains readable and functional without pointer movement or JavaScript.
@@ -298,6 +315,10 @@ The section includes:
 ## Global Cursor Grammar
 
 - Preserve the portfolio's reactive cursor on fine-pointer devices.
+- At rest, the portfolio cursor is a spacious, low-opacity dotted orbit with a small center point and no persistent explanatory label. The dots are especially restrained in light mode so the cursor does not read as visual noise.
+- When an actionable element is hovered, grabbed, or pressed, the orbit expands into a solid action badge and centers a short verb inside it, such as `OPEN`, `COPY`, `DRAG`, `FILTER`, `RENDER`, or the destination theme name.
+- The action badge uses the inverse theme value: warm light fill with near-black text in dark mode, and near-black fill with warm light text in light mode. Project stages may map this inverse pair to their own palette while preserving contrast.
+- The fill, label, and scale settle as one continuous medium-speed transition: the solid disc grows beneath the fading orbit, then the label resolves near the center. Target roughly 300–380 ms with an authored ease so the fill feels elegant but never delays interaction. Pressing compresses the badge without shifting the target; leaving restores the dotted orbit and hides the label.
 - The cursor changes accent and treatment as project stages become active.
 - Over Fallen Asteri it becomes the approved refined pixel sword with an accurate hotspot; the separate slash trail remains removed.
 - Over standard links, buttons, text, forms, and non-project sections, cursor behavior remains restrained and never hides interaction semantics.
@@ -336,11 +357,12 @@ Fallen Asteri enemies use authored pixel-art sprites with crisp nearest-neighbor
 - Skills contains all six exact résumé groups, every lane auto-scrolls, only the hovered/focused lane pauses, and edge arrows manually scroll that lane.
 - Education uses the approved two-chapter editorial layout and portfolio-matched palette.
 - Identity uses a smaller left-side photograph and right-side text on desktop.
+- Identity/About fully adopts the light palette in light mode while retaining the local photograph contrast needed by the dotted reveal.
 - The landing dotted figure docks into that frame without a position or scale jump.
 - The developed photograph uses a crisp registered derivative of `IMG_7210.jpg`, with reduced exposure and geometry matching the dotted artwork.
 - Experience contains only the Sunway Cybersecurity Club Digital Marketing Executive role and uses the interactive content-calendar composition.
 - Contact uses the rebuilt typographic sign-off and remains stable at all supported widths.
-- The reactive cursor remains available, project-aware, accessible, and performant.
+- The reactive cursor remains available, project-aware, accessible, and performant; actionable hover states expand into inverse-theme filled badges with concise centered action labels.
 - Fallen Asteri uses the refined sword cursor and coherent pixel-art enemies with no separate slash trail.
 - The initial loading sequence is visually authored, tied to actual readiness, bounded by a timeout, and exits without flashes or layout shifts.
 - Section entrances and handoffs are structurally distinct, smooth, and consistent with the shared motion grammar.

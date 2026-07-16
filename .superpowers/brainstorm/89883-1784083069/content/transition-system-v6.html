@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project transition system</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Cardo:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --site:#0a0a0b; --paper:#f2efe9; --green:#9bcfa5; --line:rgba(242,239,233,.14); --orange:#e97842; }
+    * { box-sizing:border-box; }
+    html { background:var(--site); color:var(--paper); font-family:"Space Grotesk",sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 50% -20%,#292726,transparent 40rem),var(--site); }
+    button { font:inherit; }
+    .page-head { padding:28px clamp(22px,4vw,60px) 24px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr minmax(300px,45ch); align-items:end; gap:35px; }
+    .eyebrow,.mono,.shell-head,.row-no,.row-meta,.cap b,.approval button { font:500 9px/1.45 "JetBrains Mono",monospace; letter-spacing:.15em; text-transform:uppercase; }
+    .eyebrow { color:var(--green); margin:0 0 10px; }
+    h1 { margin:0; font:800 clamp(27px,3.5vw,54px)/.9 "Archivo",sans-serif; font-stretch:120%; letter-spacing:-.025em; text-transform:uppercase; }
+    .page-head p:last-child { margin:0; color:#aaa79f; font-size:13px; line-height:1.55; }
+    .demo-wrap { margin:28px clamp(18px,3vw,50px) 0; padding:8px; border:1px solid var(--line); background:#111113; }
+    .theater { --ct:120px; --cr:30px; --cb:120px; --cl:30px; position:relative; height:min(790px,80vh); min-height:680px; overflow:hidden; background:#09090a; isolation:isolate; }
+    .shell-head { position:absolute; z-index:40; top:0; left:0; right:0; height:62px; padding:0 25px; display:flex; align-items:center; justify-content:space-between; color:#bbb8b1; border-bottom:1px solid rgba(242,239,233,.13); transition:color .55s,border-color .55s; }
+    .shell-brand { font:800 17px "Archivo",sans-serif; letter-spacing:-.02em; text-transform:none; color:#f1eee7; transition:color .55s; }
+    .shell-brand i { display:inline-block; width:6px; height:6px; background:var(--green); margin-left:3px; transition:background .55s; }
+    .exit { opacity:0; pointer-events:none; border:0; background:none; color:inherit; padding:9px; cursor:pointer; transition:opacity .25s; font:500 9px "JetBrains Mono",monospace; letter-spacing:.13em; text-transform:uppercase; }
+    .theater.open .exit { opacity:1; pointer-events:auto; transition-delay:.65s; }
+    .theater.open[data-project="bupples"] .shell-head { color:#aeb5af; border-color:rgba(134,189,152,.2); }.theater.open[data-project="bupples"] .shell-brand{color:#f4f0e7}.theater.open[data-project="bupples"] .shell-brand i{background:#86bd98}
+    .theater.open[data-project="adelante"] .shell-head { color:#756d63; border-color:rgba(75,58,37,.13); }.theater.open[data-project="adelante"] .shell-brand{color:#15130f}.theater.open[data-project="adelante"] .shell-brand i{background:var(--orange)}
+
+    /* Homepage archive view */
+    .site-view { position:absolute; inset:62px 0 0; z-index:3; padding:clamp(30px,4vw,64px); background:#0a0a0b; transition:opacity .28s ease,transform .7s cubic-bezier(.22,1,.36,1),filter .42s; }
+    .theater.open .site-view { opacity:0; transform:scale(.975); filter:blur(6px); pointer-events:none; }
+    .site-label { color:#85827c; margin-bottom:18px; }
+    .site-title { margin:0 0 clamp(25px,4vh,45px); font:900 clamp(51px,8vw,122px)/.77 "Archivo",sans-serif; font-stretch:125%; text-transform:uppercase; letter-spacing:-.05em; }
+    .site-title em { font:italic 31% "Instrument Serif",serif; text-transform:none; color:#a7a39c; letter-spacing:0; margin-left:13px; }
+    .project-list { border-bottom:1px solid rgba(255,255,255,.14); }
+    .project-row { width:100%; min-height:82px; border:0; border-top:1px solid rgba(255,255,255,.14); background:transparent; color:#e9e6df; display:grid; grid-template-columns:54px 1fr 250px 44px; gap:20px; align-items:center; padding:12px 8px; cursor:pointer; text-align:left; transition:background .25s,padding .3s,color .25s; }
+    .project-row:hover { background:#141616; padding-left:18px; }
+    .project-row strong { font:800 clamp(23px,2.7vw,40px)/1 "Archivo",sans-serif; font-stretch:115%; text-transform:uppercase; }
+    .project-row p { margin:0; color:#8e8c86; font-size:11px; line-height:1.4; }
+    .project-row .open-arr { justify-self:end; font-size:23px; transition:transform .3s; }.project-row:hover .open-arr{transform:translateX(6px)}
+    .project-row[data-project="bupples"]:hover{color:#a7d2b4}.project-row[data-project="adelante"]:hover{color:#ef946b}
+    .project-row.disabled { cursor:default; opacity:.5; }.project-row.disabled:hover{padding-left:8px;background:transparent}
+
+    /* Shared row-to-world wash */
+    .wash { position:absolute; inset:0; z-index:10; pointer-events:none; clip-path:inset(var(--ct) var(--cr) var(--cb) var(--cl) round 16px); transition:clip-path 1s cubic-bezier(.16,1,.3,1),background .35s; }
+    .theater[data-project="bupples"] .wash { background:#050b07; }.theater[data-project="adelante"] .wash{background:#faf7f0}
+    .theater.open .wash { clip-path:inset(0 0 0 0 round 0); }
+    .project-view { position:absolute; inset:62px 0 0; z-index:20; opacity:0; transform:scale(.985); pointer-events:none; transition:opacity .24s ease,transform .5s cubic-bezier(.16,1,.3,1); }
+    .theater.open .project-view { opacity:1; transform:none; pointer-events:auto; transition:opacity .32s ease .42s,transform .72s cubic-bezier(.16,1,.3,1) .36s; }
+    .project { display:none; position:absolute; inset:0; overflow:hidden; }
+    .theater[data-project="bupples"] .project.bupples,.theater[data-project="adelante"] .project.adelante{display:block}
+
+    /* Bupples unique stage */
+    .bupples { --accent:#86bd98; background:#050b07; color:#f4f0e7; isolation:isolate; }
+    .bupples::before { content:""; position:absolute; inset:-20px; z-index:-3; background-image:radial-gradient(circle,var(--accent) 1.1px,transparent 1.55px); background-size:38px 38px; opacity:.1; transform:translate(var(--bgx,0px),var(--bgy,0px)); }
+    .bupples::after { content:""; position:absolute; z-index:-2; width:60vw;height:48vw;left:65%;top:44%;transform:translate(-50%,-50%);background:radial-gradient(circle,color-mix(in srgb,var(--accent) 23%,transparent),transparent 65%);filter:blur(35px); }
+    .b-copy { position:absolute; left:clamp(27px,4vw,63px); top:43%; transform:translateY(-50%); width:30%; z-index:5; }
+    .b-copy h2 { margin:0; font:900 clamp(48px,5.8vw,93px)/.82 "Archivo",sans-serif; font-stretch:125%; letter-spacing:-.06em; text-transform:uppercase; white-space:nowrap; }
+    .b-copy em { display:block; margin:14px 0 0 18%; color:var(--accent); font:italic clamp(17px,1.7vw,26px) "Instrument Serif",serif; }
+    .b-copy p { max-width:28ch;color:#aaa9a2;font-size:11px;line-height:1.62;margin:23px 0 0; }
+    .pip-mark { margin-top:22px;width:43px;height:33px;position:relative;color:var(--accent); }.pip-mark i{width:30px;height:30px;border:2px solid currentColor;border-radius:50%;position:absolute;top:0;transition:transform .3s}.pip-mark i:first-child{left:0}.pip-mark i:last-child{right:0}.pip-mark::after{content:"⌁";position:absolute;left:17px;top:6px;font-size:14px}.bupples:hover .pip-mark i:first-child{transform:translateX(3px)}.bupples:hover .pip-mark i:last-child{transform:translateX(-3px)}
+    .phone-stack { --spread:0px; position:absolute; left:31%; right:1%; top:3%; bottom:78px; perspective:1400px; }
+    .phone-stack:hover { --spread:54px; }
+    .screen { position:absolute; left:50%; top:50%; overflow:hidden; background:#070c09; border:5px solid #151c17; box-shadow:0 34px 78px rgba(0,0,0,.6); transition:transform .54s cubic-bezier(.16,1,.3,1),filter .25s,box-shadow .25s; will-change:transform; }
+    .screen img { width:100%;height:100%;display:block;object-fit:contain;background:#050907; }
+    .screen.left { height:76%;aspect-ratio:1290/2225;border-radius:29px;z-index:2;transform:translate3d(calc(-50% - 72px - var(--spread) + var(--lpx,0px)),calc(-50% + var(--lpy,0px)),-45px) rotateY(11deg) rotateZ(-6deg);filter:brightness(.87); }
+    .screen.center { height:91%;aspect-ratio:1290/2796;border-radius:34px;z-index:5;transform:translate3d(calc(-50% + var(--cpx,0px)),calc(-50% + var(--cpy,0px)),75px) rotateZ(1deg); }
+    .screen.right { height:78%;aspect-ratio:1290/2796;border-radius:30px;z-index:3;transform:translate3d(calc(-50% + 82px + var(--spread) + var(--rpx,0px)),calc(-50% + var(--rpy,0px)),-25px) rotateY(-10deg) rotateZ(6deg);filter:brightness(.9); }
+    .screen:hover { filter:brightness(1);box-shadow:0 43px 98px color-mix(in srgb,var(--accent) 22%,transparent); }
+    .screen.left:hover { transform:translate3d(calc(-50% - 92px - var(--spread) + var(--lpx,0px)),calc(-50% - 8px + var(--lpy,0px)),20px) rotateY(6deg) rotateZ(-4deg); }
+    .screen.right:hover { transform:translate3d(calc(-50% + 102px + var(--spread) + var(--rpx,0px)),calc(-50% - 8px + var(--rpy,0px)),20px) rotateY(-6deg) rotateZ(4deg); }
+    .screen.center:hover { transform:translate3d(calc(-50% + var(--cpx,0px)),calc(-50% - 10px + var(--cpy,0px)),100px) rotateZ(0); }
+
+    /* Adelante unique stage */
+    .adelante { background:#faf7f0;color:#15130f;isolation:isolate; }
+    .adelante::before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(circle at 80% 28%,rgba(233,120,66,.11),transparent 29%),radial-gradient(circle at 42% 92%,rgba(168,191,181,.24),transparent 33%)}
+    .a-word { position:absolute;left:clamp(30px,4.7vw,74px);top:4%;z-index:4; }.a-word h2{margin:0;font:400 clamp(78px,10vw,162px)/.9 "Cardo",serif;letter-spacing:-.05em;white-space:nowrap}.a-word p{margin:9px 0 0 28%;color:#756d63;font:italic clamp(16px,1.6vw,24px) "Cardo",serif}
+    .widget-stack { --card-spread:0px; position:absolute;left:5%;bottom:92px;width:min(51%,650px);height:49%;perspective:1200px; }
+    .widget-stack:hover { --card-spread:20px; }
+    .widget { position:absolute;inset:0;border-radius:27px;padding:clamp(25px,3vw,43px);box-shadow:0 25px 72px rgba(65,52,34,.13);transition:transform .65s cubic-bezier(.16,1,.3,1),opacity .35s;display:flex;flex-direction:column;justify-content:center; }
+    .widget.back-one { background:linear-gradient(135deg,#171615,#090908);color:#f7f3eb;transform:translate3d(calc(24px + var(--card-spread)),calc(-13px - var(--card-spread)), -70px) rotate(3.2deg);opacity:.72; }
+    .widget.back-two { background:linear-gradient(135deg,#eaf3f3,#d9e9ea);color:#102020;transform:translate3d(calc(-22px - var(--card-spread)),calc(-10px - var(--card-spread)), -95px) rotate(-3.7deg);opacity:.8; }
+    .widget.front { background:linear-gradient(135deg,#fffaf1,#f0e7d8);color:#17130e;z-index:3; }
+    .widget blockquote { margin:0;font:italic clamp(28px,3.35vw,51px)/1.12 "Cardo",serif;letter-spacing:-.025em;text-wrap:balance;transition:opacity .27s,transform .42s cubic-bezier(.22,1,.36,1); }.widget blockquote.changing{opacity:0;transform:translateY(8px)}
+    .widget cite { margin-top:18px;color:#7e7467;font:500 9px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;font-style:normal; }
+    .widget-mark { position:absolute;right:20px;bottom:17px;font:italic 24px "Cardo",serif;color:var(--orange); }
+    .a-mark { position:absolute;right:2%;top:16%;width:min(39vw,525px);height:min(50vh,480px);border:0;padding:0;background:transparent;color:#15130f;cursor:pointer; }
+    .big-a { position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:italic clamp(225px,25vw,410px)/.78 "Cardo",serif;letter-spacing:-.11em;transition:transform .9s cubic-bezier(.22,1,.36,1); }
+    .a-mark svg { position:absolute;left:0;top:14%;width:106%;overflow:visible;transform:translateX(8%);pointer-events:none; }.a-mark path{fill:none;stroke:var(--orange);stroke-width:17;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.a-mark .sweep{stroke-dasharray:560;stroke-dashoffset:560;opacity:0;transition:stroke-dashoffset 1.04s cubic-bezier(.22,1,.36,1),opacity .025s}.a-mark .head{stroke-dasharray:330;stroke-dashoffset:330;opacity:0;transition:stroke-dashoffset .62s cubic-bezier(.22,1,.36,1) .42s,opacity .025s linear .42s}.a-mark:is(:hover,:focus-visible) .sweep,.a-mark:is(:hover,:focus-visible) .head{stroke-dashoffset:0;opacity:1}.a-mark:is(:hover,:focus-visible) .big-a{transform:translate(calc(-50% + 10px),-50%) rotate(-1deg)}
+
+    /* Compact capabilities: same component, project-specific content. */
+    .cap-strip { position:absolute;left:3%;right:3%;bottom:18px;height:58px;display:grid;grid-template-columns:repeat(4,1fr);z-index:12;border:1px solid currentColor;border-color:color-mix(in srgb,currentColor 15%,transparent);background:color-mix(in srgb,currentColor 5%,transparent);backdrop-filter:blur(14px); }
+    .cap { display:flex;align-items:center;gap:10px;padding:9px 13px;border-right:1px solid color-mix(in srgb,currentColor 14%,transparent);min-width:0; }.cap:last-child{border-right:0}.cap svg{width:19px;height:19px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.cap b{display:block;font-size:8px;color:inherit}.cap small{display:block;margin-top:2px;font-size:9px;opacity:.66;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bupples .cap-strip{color:#a9cfb4;background:rgba(12,20,15,.72)}.adelante .cap-strip{color:#3f382e;background:rgba(255,253,248,.64)}
+
+    .transition-note { margin:28px clamp(22px,4vw,60px) 0;display:grid;grid-template-columns:.7fr 1fr;gap:28px;align-items:start}.transition-note h3{margin:0;font:800 clamp(22px,2.6vw,39px)/1 "Archivo",sans-serif;font-stretch:115%;text-transform:uppercase}.transition-note p{margin:0;color:#9a978f;font-size:12px;line-height:1.65}.transition-note b{color:#dbd8d0;font-weight:500}
+    .approval { margin:26px clamp(22px,4vw,60px) 50px;display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center}.approval p{margin:0;color:#b0ada5;font-size:13px}.approval button{border:1px solid var(--line);background:#111214;color:#d7d4cd;padding:12px 15px;cursor:pointer}.approval button:hover,.approval button.selected{background:var(--green);color:#071009;border-color:var(--green)}
+    @media(max-width:950px){.page-head{grid-template-columns:1fr}.project-row{grid-template-columns:42px 1fr 35px}.project-row p{display:none}.b-copy{top:20%;width:48%;transform:none}.b-copy h2{font-size:55px}.phone-stack{left:8%;top:190px}.screen.left{height:62%}.screen.center{height:75%}.screen.right{height:64%}.a-word h2{font-size:81px}.widget-stack{width:57%;left:3%}.a-mark{right:-4%;top:23%;width:47vw}.big-a{font-size:270px}.cap{padding:8px}.cap small{display:none}.transition-note,.approval{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="page-head">
+    <div><p class="eyebrow">Transition system / 06</p><h1>The archive opens into the work.</h1></div>
+    <p>Click Bupples or Adelante below. The selected row becomes the project background, the persistent header recolors, and Exit reverses the same motion. Each open case keeps its own composition and interaction.</p>
+  </header>
+
+  <div class="demo-wrap">
+    <div class="theater" id="theater">
+      <header class="shell-head"><span class="shell-brand">ysf.slm<i></i></span><span id="shellLabel">01 / Selected work</span><button class="exit" id="exit" type="button">Exit project ×</button></header>
+      <section class="site-view">
+        <p class="site-label mono">01 / Case files — 4</p>
+        <h2 class="site-title">Selected <em>work.</em></h2>
+        <div class="project-list">
+          <button class="project-row" data-project="bupples" type="button"><span class="row-no">01</span><strong>Bupples</strong><p>Social expense system · Flutter · Firebase</p><span class="open-arr">→</span></button>
+          <div class="project-row disabled"><span class="row-no">02</span><strong>Photoshoot</strong><p>WebGL photobooth · Electron · MediaPipe</p><span class="open-arr">→</span></div>
+          <button class="project-row" data-project="adelante" type="button"><span class="row-no">03</span><strong>Adelante</strong><p>Widget-first motivation · Flutter · Native widgets</p><span class="open-arr">→</span></button>
+          <div class="project-row disabled"><span class="row-no">04</span><strong>Fallen Asteri</strong><p>2D platformer · Godot · GDScript</p><span class="open-arr">→</span></div>
+        </div>
+      </section>
+      <div class="wash"></div>
+      <section class="project-view">
+        <article class="project bupples" id="bupples">
+          <section class="b-copy"><h2>Bupples</h2><em>Money, made social.</em><p>Cent-exact expense sharing, AI receipts, live group chat, and settlement plans across iOS, Android, and web.</p><div class="pip-mark"><i></i><i></i></div></section>
+          <div class="phone-stack">
+            <figure class="screen left"><img src="http://127.0.0.1:61964/IMG_4702.jpg" alt="Ask Pip assistant screen" /></figure>
+            <figure class="screen center"><img src="http://127.0.0.1:61964/IMG_4701.PNG" alt="Bupples profile screen" /></figure>
+            <figure class="screen right"><img src="http://127.0.0.1:61964/IMG_4700.PNG" alt="Bupples accent editor" /></figure>
+          </div>
+          <div class="cap-strip">
+            <div class="cap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M9 9h4.2a2 2 0 0 1 0 4H11a2 2 0 0 0 0 4h4M12 6v12"/></svg><span><b>Ledger</b><small>ISO 4217 exact</small></span></div>
+            <div class="cap"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h5M8 16h3"/><path d="M17 14l2 2 3-4"/></svg><span><b>AI receipts</b><small>Gemini extraction</small></span></div>
+            <div class="cap"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg><span><b>Realtime</b><small>Chat + sync</small></span></div>
+            <div class="cap"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.7-2.8 8.1-7 10-4.2-1.9-7-5.3-7-10V6z"/><path d="M9 12l2 2 4-5"/></svg><span><b>Protected</b><small>Rules + App Check</small></span></div>
+          </div>
+        </article>
+        <article class="project adelante">
+          <section class="a-word"><h2>Adelante</h2><p>Spanish — “go forward.”</p></section>
+          <div class="widget-stack"><div class="widget back-one"></div><div class="widget back-two"></div><div class="widget front"><blockquote id="quote">“Difficulties are things that show what men are.”</blockquote><cite id="cite">Epictetus · Discourses, Book I.24</cite><span class="widget-mark">A →</span></div></div>
+          <button class="a-mark" id="aMark" type="button" aria-label="Draw the Adelante arrow and show the next quote"><span class="big-a">A</span><svg viewBox="0 0 560 360" aria-hidden="true"><path class="sweep" d="M34 252 C150 182 290 132 458 142"/><path class="head" d="M360 61 L470 141 L370 244"/></svg></button>
+          <div class="cap-strip">
+            <div class="cap"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 9h6M7 12h9"/></svg><span><b>Native widgets</b><small>iOS + Android</small></span></div>
+            <div class="cap"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.7-2.8 8.1-7 10-4.2-1.9-7-5.3-7-10V6z"/><path d="M9 12l2 2 4-5"/></svg><span><b>Private</b><small>No accounts or ads</small></span></div>
+            <div class="cap"><svg viewBox="0 0 24 24"><path d="M6 19h12M7 16h10V7H7zM9 4h6"/><path d="M9 11h6"/></svg><span><b>Offline-first</b><small>Cached content</small></span></div>
+            <div class="cap"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/><path d="M4 5h7M14 19h6"/></svg><span><b>Validated</b><small>80 automated tests</small></span></div>
+          </div>
+        </article>
+      </section>
+    </div>
+  </div>
+
+  <section class="transition-note"><h3>One transition grammar</h3><p><b>The project row is the doorway.</b> Its bounds expand into the project’s palette; the title and preview media arrive only after that surface has taken over. The persistent header prevents the experience from feeling like a different website. Exit reverses the morph, and ordinary scroll resumes exactly where the visitor left it.</p></section>
+  <div class="approval"><p>Does this shared transition, overlapping Bupples stack, Adelante widget stack, and compact capability rail feel right?</p><button data-choice="lock-system-v6" onclick="toggleSelect(this)">Lock this system</button><button data-choice="revise-system-v6" onclick="toggleSelect(this)">Revise again</button></div>
+
+  <script>
+    const theater=document.getElementById('theater'),shellLabel=document.getElementById('shellLabel'),exit=document.getElementById('exit');
+    document.querySelectorAll('button.project-row').forEach(row=>row.addEventListener('click',()=>{
+      const shell=theater.getBoundingClientRect(),rect=row.getBoundingClientRect();
+      theater.style.setProperty('--ct',(rect.top-shell.top)+'px');theater.style.setProperty('--cr',(shell.right-rect.right)+'px');theater.style.setProperty('--cb',(shell.bottom-rect.bottom)+'px');theater.style.setProperty('--cl',(rect.left-shell.left)+'px');
+      theater.dataset.project=row.dataset.project;shellLabel.textContent=row.dataset.project==='bupples'?'01 / Bupples':'03 / Adelante';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>theater.classList.add('open')));
+    }));
+    exit.addEventListener('click',()=>{theater.classList.remove('open');setTimeout(()=>{shellLabel.textContent='01 / Selected work'},650)});
+    const b=document.getElementById('bupples');b.addEventListener('pointermove',e=>{const r=b.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;b.style.setProperty('--lpx',(x*-22)+'px');b.style.setProperty('--lpy',(y*-13)+'px');b.style.setProperty('--cpx',(x*14)+'px');b.style.setProperty('--cpy',(y*10)+'px');b.style.setProperty('--rpx',(x*26)+'px');b.style.setProperty('--rpy',(y*16)+'px');b.style.setProperty('--bgx',(x*-8)+'px');b.style.setProperty('--bgy',(y*-8)+'px')});
+    b.addEventListener('pointerleave',()=>['--lpx','--lpy','--cpx','--cpy','--rpx','--rpy'].forEach(k=>b.style.removeProperty(k)));
+    const quotes=[['“Difficulties are things that show what men are.”','Epictetus · Discourses, Book I.24'],['“Be still, and know that I am God.”','King James Version · Psalm 46:10'],['“But lo! with hardship goeth ease.”',"The Qur’an · Ash-Sharh 94:5"]];let qi=0;const quote=document.getElementById('quote'),cite=document.getElementById('cite');document.getElementById('aMark').addEventListener('click',()=>{quote.classList.add('changing');setTimeout(()=>{qi=(qi+1)%quotes.length;quote.textContent=quotes[qi][0];cite.textContent=quotes[qi][1];quote.classList.remove('changing')},285)});
+  </script>
+</body>
+</html>

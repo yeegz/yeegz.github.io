@@ -1,0 +1,1156 @@
+Deep Research Report on yeegz.github.io
+Executive summary
+Your portfolio is already more distinctive than the average developer portfolio. It has a strong authored
+identity: a custom visual system, personal photography, Arabic/English naming, location and coordinates, a
+hand-built tone, custom sigils, and even a hidden interaction/game tied to your name. The site is also not a
+generic template repository: the public repo is a small static-site codebase with hand-authored
+ index.html , styles.css , script.js , images, a PDF resume, robots.txt , and sitemap.xml ,
+with no visible package manager, README, or build pipeline in the root. That gives the site character, but it
+also means the current one-page architecture will become harder to scale as soon as projects become
+richer, more narrative, and more numerous. 1
+
+
+The main opportunity is not to make the site “more animated.” It is to make it more revealing. Right now,
+projects are concise and stylish, but only two of the four are externally clickable; two are presented as inert
+case rows, and the sitemap contains only the homepage. The result is that the site communicates taste and
+polish, but not yet enough evidence, process, trade-offs, or outcomes to make each project feel like a
+memorable story. Reworking the Projects area into first-class, per-project case-study pages is the single
+highest-impact change for uniqueness, credibility, SEO depth, and recruiter usefulness. 2
+
+
+The Skills section is the second-biggest opportunity. Its current “Technical System” taxonomy is clean and
+legible, but it reads as a classified list rather than something emotionally memorable. A better direction is
+an interactive skill constellation / signal-board / holiday-lights system that feels native to the current
+archive/specimen aesthetic. The best implementation choice is likely inline SVG first, because SVG is DOM-
+accessible and can expose names through <title> , while <canvas> is powerful for motion but weaker
+for accessibility unless you provide semantic fallback content. If you want a “Christmas-lights” effect, use
+SVG or CSS for the default accessible version, then progressively enhance with JavaScript; reserve Canvas
+only for an optional decorative layer. 3
+
+
+Technically, the site already does some important things right: it has a skip link, semantic headings,
+ prefers-reduced-motion handling, lazy-loaded images, canonical URL, Open Graph/Twitter tags, a
+Person JSON-LD block, a permissive robots.txt , and a valid sitemap. However, the CSS and JS are
+already fairly large for a one-page portfolio, external animation libraries are loaded from CDN, there is no
+visible analytics integration, no responsive image markup, no visible build tooling, and no visible CI/
+performance regression testing. The next version should keep the handcrafted feeling but move to a more
+maintainable content-and-build architecture. If you want the smallest change, use Vite with modularized JS.
+If you want the best long-term structure, use Astro content collections with GitHub Pages deployment via
+Actions. 4
+
+
+My core recommendation is this: preserve the current visual signature, but shift the site from
+“portfolio landing page” to “personal product archive.” That means dossier-like project pages, a more
+expressive skills visualization, a visible personal narrative, richer internal linking, lightweight analytics, and a
+build system that lets you keep shipping without turning the codebase into one giant scroll-script. 5
+
+
+
+                                                         1
+Current-state audit
+
+Audit basis and assumptions
+
+This audit is based on the public production site and the public GitHub repository as visible on July 15, 2026.
+The live site is served on the default GitHub Pages subdomain, and the repo appears to expose a simple
+static-site structure in the root rather than a generated build artifact from a visible framework pipeline.
+Because the public repo root shows index.html , styles.css , script.js , images/ ,
+robots.txt , sitemap.xml , and a resume PDF—but no visible package.json , README, CNAME, or
+visible workflow directory in the root listing—I am treating the current implementation as a handcrafted
+static site with unspecified tooling and GitHub Pages hosting. That is an assumption about the visible public
+implementation only, not about any private local setup you may have. 6
+
+
+What is already strong
+
+The site’s strongest asset is identity design. The hero, custom typography, archive/specimen tone, location
+markers, bilingual name treatment, self-photography, progress rail, custom cursor, sigils, and hidden
+“SELIM” interaction all make the site feel authored rather than assembled. The site explicitly states
+“Designed & built by hand,” and the script even advertises the hidden desktop interaction in the console.
+This is exactly the sort of authored detail that many portfolio sites lack. 7
+
+
+The semantic foundation is also better than average. The document uses lang="en" , a skip link, a single
+h1 , section-level h2 s, and project h3 s. The site includes a canonical URL, OG/Twitter metadata, a
+favicon, a theme color, and a Person JSON-LD object with sameAs , knowsAbout , and alumniOf . It
+also exposes robots.txt and a sitemap. These are real strengths, and they mean you are not starting
+from zero on accessibility and SEO.   8
+
+
+
+
+The site also has visible motion governance. It includes a reduced-motion CSS block, and the JS checks
+ prefers-reduced-motion before enabling the heavier GSAP/ScrollTrigger/Lenis behavior. That is good
+motion hygiene, especially given how animation-forward the current design is.      9
+
+
+
+
+What is holding it back
+
+The biggest limitation is information depth. The current IA is essentially one page with four sections—
+Identity, Work, Stack, Record, Contact—and a single sitemap URL. That keeps the experience elegant, but it
+prevents project pages from becoming durable, indexable, linkable assets. Bupples and the Task
+Management App are present as <article> rows rather than linked project destinations, while
+Photoshoot and Fallen Asteri link outward to external experiences. That asymmetry weakens both
+storytelling and the internal architecture. 10
+
+
+The Skills section is currently organized as a clean text taxonomy—Languages, Frontend, Backend & Data,
+Tools, AI-Assisted Dev—which is easy to scan but emotionally flat. It describes capability, but it does not
+create memory. For a portfolio that is already visually authored, this section is the most obviously
+“traditional” part of the experience. 11
+
+
+
+
+                                                       2
+From a maintainability perspective, the site is reaching the point where its single-file strategy becomes a
+scaling risk. The public repo shows a 67.2 KB custom script.js and a 44 KB styles.css , while the
+homepage also loads GSAP, ScrollTrigger, and Lenis from CDN. For a one-page portfolio, that is a substantial
+motion stack; my inference is not that it is “too big,” but that it is now big enough that the next round of
+features should not be added to the same structural pattern. 12
+
+
+Performance and responsive delivery can also improve. Images are lazy-loaded and dimensioned, which is
+good, but there is no visible srcset , sizes , or <picture> usage. The image folder contains several
+.jpg and .png assets in addition to .webp , which suggests a clear opportunity to modernize image
+delivery. MDN and web.dev both recommend lazy loading as a way to shorten the critical rendering path,
+and web.dev recommends responsive image markup and modern formats such as AVIF/WebP for more
+efficient delivery. 13
+
+
+A few accessibility risks are worth flagging. Many project images are given empty alt text and wrapped in
+aria-hidden="true" media regions, which is acceptable when they are purely decorative, but if a case
+study depends on visuals to communicate product behavior, those visuals will need meaningful alternatives
+on case pages. The darkest utility tone in the palette is #5c5a55 ; by calculation against the published
+background color #0a0a0b , that tone falls below WCAG’s 3:1 minimum for non-text contrast and well
+below 4.5:1 for normal text, so it should remain decorative only. WCAG 2.2 requires 4.5:1 for normal text
+and 3:1 for UI components/non-text states. 14
+
+
+The repository and deployment posture also look underdeveloped from a discoverability and engineering-
+process perspective. The public repo has no visible description, topics, README, or releases. There is also no
+visible analytics script on the site. That does not hurt aesthetics, but it does reduce your ability to measure
+what works, document the system, and make the GitHub presence reinforce the portfolio brand. 15
+
+
+Current and recommended site structure
+
+The existing information architecture is elegant but shallow. The proposed architecture preserves the
+homepage as an expressive overview while turning projects into durable content objects.
+
+
+
+                                                                      Home
+
+
+
+
+                 Identity                Selected Work           Technical System               Experience   Contact
+
+
+
+
+      Bupples               Photoshoot             Task Management App              Fallen Asteri
+
+
+
+
+                                                                3
+                                                                                                                                                                                                                           Home
+
+
+
+
+                                                                                         Projects index                                                             Skills lab               Resume timeline               Now and notes            Contact
+
+
+
+
+                           Bupples case study              Photoshoot case study      Task case study           Fallen Asteri case study   Interactive lights map           Accessible list fallback           Build log              Experiments
+
+
+
+
+    Overview     Problem           Process and decisions              Build details    Results            Demo code gallery
+
+
+
+
+Reworking projects into full case studies
+The Projects section should become the backbone of the site. Today, it behaves like an attractive inventory:
+title, kicker, short description, stack, role, platform, date, status. That is good metadata, but it is only the
+first layer. For hiring and personal differentiation, every project needs to answer a deeper set of questions:
+Why did this exist? What was difficult? What trade-offs did you make? What did you learn? What
+shipped? What is still imperfect? Right now, the homepage summarizes those answers but does not
+expose them. 16
+
+
+I recommend turning each project into a case file with a reusable layout. This fits your existing archive/
+specimen aesthetic better than a generic “project detail page.” Visually, think of each page as a dossier:
+coded header, status stripe, summary card, evidence gallery, engineering notes, and final verdict.
+Structurally, think of it as content-first, with metadata frontmatter or JSON driving the page. Astro content
+collections are well suited for this because they add typed structured content and page generation without
+forcing you into a heavyweight CMS, and GitHub Pages now recommends Actions-based deployment for
+Pages sites.        17
+
+
+
+
+A practical case-study structure for your site would be:
+
+
+               Section                             What it should do
+
+               Header                              Name, one-line thesis, role, timeframe, status, platform, repo/demo links
+
+               Problem                             What user problem or product need you were solving
+
+               Constraints                         Time, scope, team size, tech/platform constraints
+
+               Approach                            Architecture, UX direction, system decisions
+
+               Build details                       Key features, flows, data model, libraries, infra
+
+               Trade-offs                          What you cut, changed, or would redo
+
+               Outcome                             Current status, usage, demo, lessons, next steps
+
+               Evidence                            Screenshots, flows, diagrams, short clips, commit snapshots
+
+For each project, include the following metadata at minimum: title , slug , summary , status ,
+dates , role , team , platforms , tech , links.demo , links.code , links.store ,
+links.video , heroImage , featured , tags , problem , outcome , metrics , and learning . If
+you move to Astro content collections, that metadata can be type-checked in source and then reused on the
+homepage, projects index, sitemap, structured data, and social previews. 18
+
+
+
+
+                                                                                                                        4
+A suggested content schema:
+
+
+
+  <article class="case-file">
+    <header class="case-hero">
+       <p class="case-code">CASE 01 / MOBILE PRODUCT</p>
+       <h1>Bupples</h1>
+       <p class="case-summary">
+         Group expense-splitting built for real-world hangouts:
+         live member bubbles, flexible splits, tax/service handling,
+         and settle-up plans with minimal payments.
+       </p>
+
+       <dl class="case-meta">
+         <div><dt>Role</dt><dd>Concept to deployment — solo</dd></div>
+         <div><dt>Timeline</dt><dd>Feb 2026 — present</dd></div>
+         <div><dt>Platform</dt><dd>iOS · Android</dd></div>
+         <div><dt>Status</dt><dd>Store listings in prep</dd></div>
+       </dl>
+
+      <nav class="case-actions" aria-label="Project links">
+        <a href="/projects/bupples/demo">Live demo</a>
+        <a href="/projects/bupples/code">Source code</a>
+        <a href="/projects/bupples/gallery">Gallery</a>
+      </nav>
+    </header>
+
+    <section id="problem"><h2>Problem</h2></section>
+    <section id="constraints"><h2>Constraints</h2></section>
+    <section id="approach"><h2>Approach</h2></section>
+    <section id="build"><h2>Build details</h2></section>
+    <section id="tradeoffs"><h2>Trade-offs</h2></section>
+    <section id="outcomes"><h2>Outcomes</h2></section>
+  </article>
+
+
+The most important storytelling improvement is to write each case study as a decision log, not as a
+brochure. Recruiters and technical reviewers do not just want a polished project description; they want to
+understand your judgment. For example, Photoshoot already hints at high-interest technical depth—
+WebGL2, GLSL, MediaPipe, Electron, real-time effects, no uploads. That is exactly the kind of project that
+benefits from a mini-technical essay explaining pipeline design, performance constraints, and privacy
+choices. The current one-line card hints at that value, but does not surface it. 19
+
+
+Each project page should support multiple evidence modes:
+
+
+     • a polished hero visual,
+     • a short annotated gallery,
+     • an optional 30–60 second video walkthrough,
+
+
+
+
+                                                     5
+      • architecture or flow diagrams,
+      • code/repo link if showing code is appropriate,
+      • and a short “what I’d improve next” section.
+
+This matters not only for storytelling, but also for SEO and shareability: one homepage can only target
+broad portfolio terms, while case pages can target project-specific phrases and concepts. Google’s guidance
+for title links emphasizes clarity, uniqueness, and alignment between page titles and visible main headings.
+Separate project pages let you do that properly. 20
+
+
+You should also instrument project interactions. Right now, no visible analytics integration is present. Add
+event tracking for at least: project_card_open , project_demo_click , project_code_click ,
+project_gallery_next , resume_download , email_copy , contact_click , search_use , and
+easter_egg_start . GA4’s measurement model is event-based, and privacy-friendly alternatives such as
+Plausible and Umami support custom goals/events as well. On a personal portfolio, Plausible or Umami are
+often a better fit because the analytics surface stays lightweight and understandable. 21
+
+
+A simple analytics adapter pattern keeps the site portable:
+
+
+
+  export function trackPortfolioEvent(name, data = {}) {
+    // Plausible
+    if (window.plausible) {
+      window.plausible(name, { props: data });
+    }
+
+      // Umami
+      if (window.umami?.track) {
+        window.umami.track(name, data);
+      }
+
+      // GA4
+      if (window.gtag) {
+        window.gtag('event', name, data);
+      }
+  }
+
+  // Example usage
+  document.querySelectorAll('[data-project-link]').forEach((el) => {
+    el.addEventListener('click', () => {
+      trackPortfolioEvent('project_demo_click', {
+        project: el.dataset.project,
+        type: el.dataset.linkType
+      });
+    });
+  });
+
+
+
+
+                                                         6
+If you add internal case-study pages, also add project-level structured data where appropriate. Person is
+already implemented, which is a good base. For relevant project pages, you can layer CreativeWork or
+SoftwareApplication schema depending on the content and whether the page is about a software
+product. Google’s structured-data docs explicitly point to Google Search documentation as the authoritative
+reference for supported behavior, and SoftwareApplication is a formal schema.org type. 22
+
+
+Reimagining skills and personal features
+The current Skills section is semantically clear but emotionally low-voltage. If your goal is to feel more
+unique and personal, rework Skills into something that feels like your own interface language, not just a
+competency table. The concept you proposed—animated Christmas lights—is promising because it can
+express hierarchy, grouping, warmth, and delight. But it will work best if it is reframed through your
+existing aesthetic. Rather than generic holiday lights, think of it as a signal board, circuit garland, or
+night-market string of capability lights that ties back to your current black-paper, archive, and green-
+accent system. 23
+
+
+A strong interaction model would look like this:
+
+
+     • Each skill cluster sits on a hanging line: Languages, Product UI, Backend/Data, Tools, Creative Code,
+       AI Workflow.
+     • Each bulb represents one skill.
+     • Bulb brightness indicates confidence/recency.
+     • Clicking a bulb filters projects and record items that use that skill.
+     • Hover/focus reveals a short note like “Most used in 2026” or “Used in Bupples + Photoshoot.”
+     • A semantic list stays available below or behind the visualization for assistive tech and users who
+       disable motion. 24
+
+Implementation options and trade-offs
+
+                                                              Performance
+ Approach       Best use             Accessibility profile                           Recommendation
+                                                              profile
+
+ CSS +          Simple bulbs,        Strong, because          Strongest
+                                                                                     Best fallback /
+ semantic       hover/focus          content remains          baseline; minimal
+                                                                                     baseline
+ HTML           glow, filters        plain HTML               JS
+
+                                     Strong, because SVG
+                Curved wires,
+                                     can expose
+                custom bulb                                   Very good for this     Best primary
+ Inline SVG                          accessible names via
+                shapes, tooltips,                             scale                  implementation
+                                      <title> and
+                labels
+                                     remains in the DOM
+
+                Hundreds of          Weakest by default;
+                                                              Can be smooth,
+                particles,           canvas content is not                           Use only as optional
+                                                              but forces more
+ Canvas         bloom, physics,      exposed semantically                            decorative
+                                                              custom rendering
+                richer light         and needs fallback                              enhancement
+                                                              work
+                simulation           content
+
+
+
+
+                                                       7
+                                                              Performance
+  Approach       Best use             Accessibility profile                           Recommendation
+                                                              profile
+
+                 Prebuilt             Depends on wrapper
+                                                              Usually compact,
+                 animation            semantics; good for                             Good for intro
+  Lottie /                                                    but less flexible for
+                 sequences or         decorative motion,                              flourishes, not the
+  dotLottie                                                   data-driven skill
+                 branded intro        not ideal for dynamic                           core skills system
+                                                              interaction
+                 loops                filtering
+
+The accessibility distinction matters. MDN notes that inline SVG supports accessible naming through
+ <title> , while <canvas> content is not exposed semantically to accessibility tools and should not be
+the only representation of meaningful content. That is why I would make the “lights” visualization SVG-
+driven and then optionally add a subtle Canvas glow behind it if you want extra atmosphere. 25
+
+
+A practical SVG-first implementation could look like this:
+
+
+
+  <section class="skills-lab" aria-labelledby="skills-title">
+    <h2 id="skills-title">Skill Signals</h2>
+
+    <svg class="skill-board" viewBox="0 0 900 320" role="img" aria-
+  labelledby="skills-desc">
+      <title id="skills-desc">Interactive visualization of Yousof Selim’s skills
+  grouped into connected strings of lights.</title>
+
+      <path d="M40 70 C180 40, 280 120, 420 80 S700 40, 860 90" class="wire" />
+      <g class="bulb" tabindex="0" data-skill="flutter" data-group="frontend"
+  transform="translate(120 72)">
+        <title>Flutter — strongest recent mobile stack</title>
+        <circle r="14" class="bulb-core"></circle>
+        <circle r="24" class="bulb-glow"></circle>
+        <text y="42">Flutter</text>
+      </g>
+
+      <g class="bulb" tabindex="0" data-skill="supabase" data-group="backend"
+  transform="translate(320 84)">
+        <title>Supabase — backend and realtime data</title>
+        <circle r="14" class="bulb-core"></circle>
+        <circle r="24" class="bulb-glow"></circle>
+        <text y="42">Supabase</text>
+      </g>
+
+      <g class="bulb" tabindex="0" data-skill="glsl" data-group="creative-code"
+  transform="translate(560 64)">
+        <title>GLSL — creative coding and visual effects</title>
+        <circle r="14" class="bulb-core"></circle>
+        <circle r="24" class="bulb-glow"></circle>
+        <text y="42">GLSL</text>
+
+
+
+                                                        8
+      </g>
+    </svg>
+
+    <ul class="skills-fallback">
+      <li><button data-skill-filter="flutter">Flutter</button></li>
+      <li><button data-skill-filter="supabase">Supabase</button></li>
+      <li><button data-skill-filter="glsl">GLSL</button></li>
+    </ul>
+  </section>
+
+
+
+  .skill-board { inline-size: 100%; block-size: auto; }
+  .wire { fill: none; stroke: rgba(242,239,233,.24); stroke-width: 2; }
+  .bulb { cursor: pointer; }
+  .bulb-core { fill: #9bcfa5; }
+  .bulb-glow { fill: rgba(155,207,165,.18); opacity: .4; transition: opacity .
+  24s, transform .24s; }
+  .bulb text {
+    font: 600 14px "Space Grotesk", sans-serif;
+    fill: #f2efe9;
+    text-anchor: middle;
+  }
+  .bulb:is(:hover, :focus-visible) .bulb-glow {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bulb-glow { transition: none; }
+  }
+
+
+
+  const skillBulbs = document.querySelectorAll('.bulb,[data-skill-filter]');
+
+  skillBulbs.forEach((el) => {
+    const skill = el.dataset.skill || el.dataset.skillFilter;
+    el.addEventListener('click', () => {
+      document.querySelectorAll('[data-project-skills]').forEach((card) => {
+        const skills = card.dataset.projectSkills.split(',');
+        card.hidden = !skills.includes(skill);
+      });
+    });
+  });
+
+
+Creative personalization features worth adding
+
+Your site already has one hidden mini-game, custom sigils, and strong authored visuals. That is a good
+reason not to add random gimmicks. New features should deepen your story. The most promising ideas
+
+
+
+
+                                                    9
+are the ones that expose how you think, what you like, and how you build. The patterns below fit your
+existing brand direction and can stay lightweight if progressively enhanced. 26
+
+
+An interactive resume timeline is high-value. The current Experience section is compact and useful, but it
+is only a short list. Transform it into a horizontal or vertical timeline where each stop can expand to show
+capabilities gained, tools used, notable deliverables, and links to related projects. Pair the PDF download
+you already have with a readable HTML version that is indexable and easier for recruiters on mobile. 27
+
+
+A “Now building” or “lab notes” section would make the portfolio feel alive. The current site already says
+“NOW BUILDING BUPPLES” in the fact strings and “store listings in prep” on Bupples. Turn that into a visible,
+regularly updated note stream: what you are building, what you are learning, what you are refining. Lee
+Robinson’s site works well partly because it blends engineering identity with ongoing writing and personal
+context; Kent C. Dodds does something similar by mixing technical authority with a clearer sense of
+personhood and interests. 28
+
+
+A searchable archive is also a good fit once you have real internal pages. Pagefind is specifically built for
+static sites, works on static HTML output, and is designed to be low-bandwidth. That makes it especially well
+suited if you stay on GitHub Pages or move to Astro-generated static output. 29
+
+
+Other personal features that fit well here:
+
+
+     • a theme pair rather than a full light/dark toggle: “Archive mode” and “Studio mode,”
+     • EN / AR micro-labels in selected interface moments rather than full bilingual duplication,
+     • a project walkthrough mode that guides first-time visitors through three flagship projects,
+     • an experiments shelf for small visual or technical tests,
+     • and a surfaced “Find the hidden lab mode” line, so the existing easter egg becomes discoverable
+       without losing charm. 30
+
+
+Motion, accessibility, performance, code quality, and deployment
+
+UI and motion direction
+
+The current site’s motion language is already a core part of its appeal, so the goal should be refinement, not
+escalation. At the moment, custom motion is spread across the hero, reveals, cursor, sigils, the portrait
+treatment, and the hidden game, with GSAP/ScrollTrigger/Lenis enabling the larger choreography. That
+system works because the content is still limited. As the site grows, motion should become more selective
+and role-based: hero motion for identity, reveal motion for section entrances, microinteraction motion for
+controls, and optional decorative motion for atmosphere. Not every surface needs to move. 31
+
+
+A good next-step language would be:
+
+
+     • identity motion in the hero only,
+     • evidence motion on project pages only where it explains a feature,
+     • system motion in the skills map and timeline,
+     • and ambient motion reduced to subtle grain, glow, or pulse.
+
+
+
+
+                                                     10
+This matters for responsiveness. INP measures interaction latency across a page session, and web.dev
+recommends keeping INP at 200 ms or less for a good experience. Heavy scroll libraries, large animation
+timelines, and too much JS coordination can make interaction feel slick at first but slower under real-world
+conditions, especially on mobile or mid-range hardware. 32
+
+
+Accessibility checklist and fixes
+
+Your current implementation already includes a skip link, reduced-motion behavior, and keyboard support
+for at least some hidden interactions. Keep that, then add the following as hard requirements. 33
+
+
+ Check               Current state               Fix
+
+ Keyboard            Two project rows are
+                                                 Make every project row a real link to an internal case page
+ access to all       articles rather than
+                                                 or a button that opens a modal/detail view.
+ project entries     links or buttons. 34
+
+                                                 Add an explicit visible “Reduce motion” toggle in settings,
+                                                 and add pause/stop/hide controls for any auto-moving
+                     Reduced-motion is
+ Motion control                                  skills visual that loops longer than five seconds. WCAG
+                     present. 35
+                                                 requires user control for moving or auto-updating content
+                                                 in those cases. 36
+
+                     Some palette values
+                                                 Reserve --muted-2 for decorative strokes only; keep
+                     are strong; the darkest
+ Color contrast                                  functional labels and states at 4.5:1 for text and 3:1 for
+                     utility tone is risky for
+                                                 non-text/UI states. 38
+                     functional UI. 37
+
+                                                 If the skills map or project explainers rely on non-text
+ SVG / Canvas        Canvas is used for          visuals, use SVG first or provide text fallback. MDN
+ semantics           visual effects. 39          explicitly warns that canvas is not semantically exposed.
+                                                  40
+
+
+                                                 If you add scrollspy or section-aware nav, use aria-
+ Active              No visible aria-
+                                                 current="page" or aria-current="true"
+ navigation          current usage was
+                                                 appropriately so assistive tech knows which section is
+ state               found.   41
+                                                 current. 42
+
+                                                 Increase contrast/size consistency on all custom controls
+ Focus               A visible focus style
+                                                 and project cards; WCAG 2.2’s focus guidance is a useful
+ treatment           exists. 43
+                                                 target even if you do not aim for AAA everywhere. 44
+
+
+Performance and code quality improvements
+
+The site already uses helpful primitives such as loading="lazy" , decoding="async" , explicit image
+dimensions, and fetchpriority="high" on the hero portrait. Those are all solid choices. Keep them.
+ 45
+
+
+
+
+                                                       11
+The next performance gains will come from delivery architecture, not from tossing more micro-
+optimizations at the current page. The highest-value improvements are:
+
+
+    1. Split content from choreography. Move project data into structured content files and break the
+       current giant script into modules. The visible JS file is already 67.2 KB and the CSS is 44 KB. Even if
+       the site still feels fast in practice, that architecture will become harder to reason about as you add
+       project pages, filters, search, and more custom interactions. 46
+
+
+    2. Adopt responsive image delivery. You already include widths/heights, but you do not yet publish
+        srcset , sizes , or <picture> sources. Responsive image markup exists precisely to avoid
+       sending oversized assets to smaller screens.    47
+
+
+
+
+    3. Modernize image formats. The repo image directory still includes multiple .jpg and .png
+       assets. Web.dev highlights AVIF and WebP as modern formats aimed at reduced file size for web
+       delivery. Keep PNG where transparency or workflow requires it, but convert photographic content
+       and most screenshots to AVIF/WebP variants. 48
+
+
+    4. Use content-visibility strategically for long off-screen sections once you add case pages or
+       accordions. MDN notes that content-visibility: auto lets browsers skip rendering work until
+       content becomes relevant, improving initial load. Use this carefully on long narrative sections, not on
+       content needed immediately above the fold. 49
+
+
+    5. Tighten font loading. You currently load four Google font families. web.dev recommends
+       optimizing web-font loading and using font-display strategies to reduce blank text and layout
+       shifts. If you rebuild, subset or self-host only the weights and glyph ranges you actually need,
+       especially since your design depends heavily on typography. 50
+
+
+Suggested testing stack and target metrics
+
+Lighthouse is an automated audit surface for performance, accessibility, SEO, and best practices, and
+Chrome’s scoring docs consider 90–100 “good.” For Core Web Vitals, web.dev recommends aiming for LCP at
+or under 2.5 seconds, INP at or under 200 ms, and CLS at or under 0.1. Those are appropriate portfolio
+targets. 51
+
+
+Your suggested test stack:
+
+
+     • Lighthouse CI on every pull request for homepage and each project page. 52
+     • Playwright for smoke tests, keyboard journeys, and accessibility assertions/snapshots. 53
+     • Manual screen-reader passes for homepage, projects index, one case page, skills lab, and contact.
+       Use WAI-ARIA APG patterns as the reference whenever you build custom widgets. 54
+     • Structured-data validation whenever you add SoftwareApplication , CreativeWork ,
+       WebSite , or ProfilePage markup. Google’s Search Central docs should be your source of truth
+       for what Search actually supports.   55
+
+
+
+Recommended score gates for CI:
+
+
+
+
+                                                       12
+                                   Area                          Target
+
+                                   Lighthouse Performance        90+
+
+                                   Lighthouse Accessibility      95+
+
+                                   Lighthouse Best Practices     95+
+
+                                   Lighthouse SEO                95+
+
+                                   LCP                           ≤ 2.5s
+
+                                   INP                           ≤ 200ms
+
+                                   CLS                           ≤ 0.1
+
+
+Build tooling and deployment
+
+For implementation, I see two realistic paths.
+
+
+Path A: stay close to the current setup. Use Vite as the build tool, keep writing HTML/CSS/JS, split the
+current script into modules, generate project pages from simple content files, and deploy the static output
+to GitHub Pages with Actions. Vite is specifically designed as a fast build tool for modern web projects, and
+GitHub Pages now recommends Actions-based deployment flows. 56
+
+
+Path B: move to Astro. This is the better long-term option if you want real case-study pages, notes, a
+search index, typed metadata, and a future blog without giving up static output. Astro content collections
+are purpose-built for structured content sets, and the generated site can still deploy to GitHub Pages. 17
+
+
+For deployment hardening, I recommend:
+
+
+     • moving to a custom domain when ready,
+     • verifying the domain in GitHub Pages,
+     • and documenting deployment in the repo README. GitHub documents both custom-domain
+       configuration and verification, and explicitly notes that verification protects against takeover
+       scenarios. 57
+
+
+SEO, content strategy, and reference patterns
+
+SEO and portfolio narrative
+
+At the SEO layer, your foundation is already solid. The site has a descriptive title, a substantial meta
+description, canonical URL, OG/Twitter metadata, robots, sitemap, and a Person JSON-LD object. What is
+missing is content depth and page granularity. The sitemap contains only the homepage, there are no
+visible project detail pages, and current structured data focuses on you as a person rather than on the work
+itself. Separate project URLs would immediately improve indexable surface area and let you target
+meaningful long-tail queries around your projects, technologies, and product work. 58
+
+
+
+
+                                                      13
+For copy strategy, the site should shift from a general role description to a personal thesis. Right now, the
+value proposition is “Flutter & Full-Stack Developer,” “Software Engineering Student,” and “I build mobile and
+web products with clean engineering, modern interfaces, and real user experience.” That is good, but still
+broad. A stronger narrative would emphasize your differentiators together: product-minded engineering,
+motion-sensitive UI craft, bilingual identity, student-to-builder trajectory, and your interest in both polished
+interfaces and more creative systems like WebGL and game work. 11
+
+
+A more distinctive homepage copy stack might be:
+
+
+     • Hero headline: “I design and build product interfaces that feel precise, personal, and alive.”
+     • Subhead: “Software engineering student in Malaysia shipping mobile, web, and creative interactive
+       work.”
+     • Primary CTA: “Read case studies”
+     • Secondary CTA: “View resume”
+     • Tertiary CTA: “Open lab notes”
+
+That still matches the current tone, but it is more specific and less interchangeable.
+
+
+You should also improve the content model around headings and CTAs. Google’s title-link guidance notes
+that Search may get confused when multiple headings compete for primary prominence. Once you add
+project pages, keep a single clear h1 , match the visible main title with the page title, and make every
+page’s primary action obvious: demo, code, contact, or read the story.    20
+
+
+
+
+Social previews and structured data
+
+Social previews are already implemented with Open Graph and Twitter metadata, including image and alt
+text. That is a strong baseline, and the Open Graph protocol exists precisely to turn pages into richer shared
+objects in social environments. The next step is to generate different preview cards per project page—not
+one generic card for the entire site. 59
+
+
+Once you have multiple pages, add:
+
+
+     • ProfilePage -style markup on the homepage if you expand the personal profile role,
+     • SoftwareApplication on relevant software project pages,
+     • CreativeWork when a project is better treated as a broader artifact,
+     • and possibly a WebSite node if you add internal search later.      60
+
+
+
+Portfolio examples and template references
+
+The examples below are not for copying visually. They are useful because each solves a different portfolio
+problem well.
+
+
+
+
+                                                      14
+ Example              What it does well              What to borrow              What to avoid
+
+                                                     Clear value                 The visual pattern is now
+                      Accessible, minimal,
+ Brittany                                            proposition, curation       widely imitated, so
+                      recruiter-legible,
+ Chiang 61                                           discipline, accessible      duplicating it would hurt your
+                      polished, calm
+                                                     craft language              uniqueness
+
+                      Blends engineering             “Now” energy,
+                                                                                 Can feel more like a personal
+ Lee Robinson         identity with writing,         learning/public-
+                                                                                 knowledge hub than a
+   62                 personal context, and          thinking layer, wider
+                                                                                 portfolio if overexpanded
+                      ongoing work                   personal signal
+
+                                                     Put the person beside
+                      Strong personal voice,                                     If copied too literally, the site
+ Kent C.                                             the work, not behind it;
+                      clear CTA paths, more                                      can drift away from product
+ Dodds 63                                            make self-description
+                      human narrative                                            evidence into personality-first
+                                                     warmer
+
+                                                     Permission to make          High implementation/
+                      Unforgettable
+ Bruno Simon                                         the site an experience      performance/accessibility
+                      interaction; portfolio as
+   64                                                and hide secrets            burden; do not turn every
+                      world-building
+                                                     thoughtfully                page into a game
+
+ Vercel               Structured content, blog
+                                                     Scalable content            Out-of-the-box visual identity
+ Portfolio            support, SEO, RSS,
+                                                     architecture and            is generic unless you heavily
+ Starter Kit          analytics, markdown-
+                                                     publishing ergonomics       customize it
+   65                 driven workflow
+
+My recommendation is to borrow:
+
+
+        • Brittany’s clarity,
+        • Lee’s ongoing voice,
+        • Kent’s personhood,
+        • Bruno’s selective wonder,
+        • and Vercel/Astro starter ideas for content structure.
+
+But the visual system should stay yours.
+
+
+Implementation roadmap, effort estimates, and sample plan
+
+Prioritized roadmap
+
+The roadmap below is ordered by impact on uniqueness, usefulness, and maintainability.
+
+
+ Priority       Initiative                             Why it matters                               Effort
+
+                Create real per-project case-study     Biggest gain in credibility, SEO depth,
+ Highest                                                                                            High
+                pages                                  narrative, and linkability
+
+
+
+
+                                                        15
+  Priority                                Initiative                                                                                         Why it matters                                                                                                                    Effort
+
+                                          Introduce structured content                                                                       Makes projects, notes, skills, and SEO                                                                                            Medium to
+  Highest
+                                          architecture                                                                                       extensible                                                                                                                        High
+
+                                          Rebuild Skills into interactive SVG                                                                Strongest visual uniqueness upgrade
+  High                                                                                                                                                                                                                                                                         Medium
+                                          signal-board lights                                                                                after project pages
+
+                                          Add analytics events and                                                                           Lets you measure what content                                                                                                     Low to
+  High
+                                          lightweight reporting                                                                              actually works                                                                                                                    Medium
+
+                                          Modularize JS/CSS and add CI                                                                       Prevents the handcrafted codebase
+  High                                                                                                                                                                                                                                                                         Medium
+                                          testing                                                                                            from becoming fragile
+
+                                          Add search, filters, and                                                                           Makes the site feel like an archive, not
+  Medium                                                                                                                                                                                                                                                                       Medium
+                                          interactive resume timeline                                                                        a landing page
+
+                                          Add project-specific social cards                                                                  Improves sharing and search
+  Medium                                                                                                                                                                                                                                                                       Medium
+                                          and structured data                                                                                comprehension
+
+                                          Add custom domain and repo                                                                         Improves professionalism, trust, and
+  Medium                                                                                                                                                                                                                                                                       Low
+                                          documentation                                                                                      maintainability
+
+
+Suggested build plan
+
+If you want the best balance of speed and durability, I would sequence implementation like this:
+
+
+                                                                                                                               Portfolio evolution roadmap
+
+                           Content model and route plan
+  Foundation
+                                                                   Build setup and modularization
+
+                                                                                                             Project case-study template
+
+  Projects                                                                                                                                              Migrate Bupples and Photoshoot
+
+                                                                                                                                                                                                  Migrate Task and Fallen Asteri
+
+                                                                                                                                                               SVG skills signal-board
+  Skills and personalization
+                                                                                                                                                                                                         Search filters and timeline
+
+                                                                                                                 Analytics instrumentation
+
+  Quality                                                                                                                                                                                                                                                      SEO structured data and OG cards
+
+                                                                                                                                                                                                                                                Accessibility and CI testing
+
+  Launch                                                                                                                                                                                                                                          Domain, README, release notes
+
+                       Jul 17              Jul 19         Jul 21     Jul 23               Jul 25    Jul 27   Jul 29                Jul 31    Aug 01   Aug 03                Aug 05       Aug 07              Aug 09                    Aug 11   Aug 13                Aug 15              Aug 17
+
+
+
+
+Recommended directory shape
+
+If you move to Astro or another static generator, this structure will scale cleanly:
+
+
+
+  src/
+    content/
+      projects/
+        bupples.md
+        photoshoot.md
+        task-management.md
+        fallen-asteri.md
+      notes/
+        now.md
+        lab-log-001.md
+
+
+
+
+                                                                                                                                                16
+   components/
+     CaseHero.astro
+     SkillsSignalBoard.astro
+     Timeline.astro
+     ProjectCard.astro
+   layouts/
+     BaseLayout.astro
+     CaseLayout.astro
+   pages/
+     index.astro
+     projects/index.astro
+     projects/[slug].astro
+     resume.astro
+     now.astro
+ public/
+   images/
+   social/
+ tests/
+   e2e/
+
+
+A portable case-study data example
+
+
+ export const projects = [
+    {
+      title: 'Bupples',
+      slug: 'bupples',
+      summary: 'Group expense-splitting with realtime sync and settle-up plans.',
+      role: 'Concept to deployment — solo',
+      status: 'Store listings in prep',
+      dates: '2026-02 to present',
+      platforms: ['iOS', 'Android'],
+      tags: ['Flutter', 'Dart', 'Supabase', 'Firebase', 'Product UX'],
+      links: {
+         case: '/projects/bupples/',
+         demo: null,
+         code: null
+      },
+      outcomes: [
+         'Realtime group state across devices',
+         'Flexible split workflows',
+         'Payment minimization logic'
+      ]
+    }
+ ];
+
+
+
+
+                                        17
+Final implementation notes
+
+If you want the portfolio to feel more unique and personal, the winning move is to make the personality
+actionable. The site already has unmistakable taste. What it needs now is more of you in the work:
+
+
+          • your product judgment,
+          • your engineering trade-offs,
+          • your unfinished thoughts,
+          • your favorite experiments,
+          • and your evolving practice.
+
+Do not replace the current identity. Extend it into a real archive. That is the version of this portfolio that will
+feel most memorable—and most defensible—one year from now. 66
+
+
+
+ 1    3     5    7    11   23   27   30   66   Yousof Selim — Flutter & Full-Stack Developer
+https://github.com/yeegz/yeegz.github.io/raw/refs/heads/main/index.html
+
+ 2    4     8    10   13   14   16   19   21   22   31   33   34   45   47    50   58   59   https://github.com/yeegz/yeegz.github.io/
+blob/main/index.html
+https://github.com/yeegz/yeegz.github.io/blob/main/index.html
+
+ 6   15    https://github.com/yeegz/yeegz.github.io
+https://github.com/yeegz/yeegz.github.io
+
+ 9   35     37   43   yeegz.github.io/styles.css at main · yeegz/yeegz.github.io · GitHub
+https://github.com/yeegz/yeegz.github.io/blob/main/styles.css
+
+12   26     39   41   46   yeegz.github.io/script.js at main · yeegz/yeegz.github.io · GitHub
+https://github.com/yeegz/yeegz.github.io/blob/main/script.js
+
+17   18    https://docs.astro.build/en/guides/content-collections/
+https://docs.astro.build/en/guides/content-collections/
+
+20   https://developers.google.com/search/docs/appearance/title-link
+https://developers.google.com/search/docs/appearance/title-link
+
+24https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40media/prefers-reduced-
+motion
+https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40media/prefers-reduced-motion
+
+25   https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/title
+https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/title
+
+28   raw.githubusercontent.com
+https://github.com/yeegz/yeegz.github.io/raw/refs/heads/main/script.js
+
+29   https://pagefind.app/
+https://pagefind.app/
+
+32   https://web.dev/articles/inp
+https://web.dev/articles/inp
+
+
+
+
+                                                                             18
+36   https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html
+https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html
+
+38   https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html
+https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html
+
+40   https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas
+https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/canvas
+
+42   https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-current
+https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-current
+
+44   https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance.html
+https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance.html
+
+48   yeegz.github.io/images at main · yeegz/yeegz.github.io · GitHub
+https://github.com/yeegz/yeegz.github.io/tree/main/images
+
+49   https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/content-visibility
+https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/content-visibility
+
+51   Introduction to Lighthouse - Chrome for Developers
+https://developer.chrome.com/docs/lighthouse/overview?utm_source=chatgpt.com
+
+52   https://github.com/googlechrome/lighthouse-ci
+https://github.com/googlechrome/lighthouse-ci
+
+53   https://playwright.dev/docs/accessibility-testing
+https://playwright.dev/docs/accessibility-testing
+
+54   https://www.w3.org/WAI/ARIA/apg/
+https://www.w3.org/WAI/ARIA/apg/
+
+55   https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data
+https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data
+
+56   https://vite.dev/guide/
+https://vite.dev/guide/
+
+57   https://docs.github.com/articles/setting-up-a-custom-domain-with-pages
+https://docs.github.com/articles/setting-up-a-custom-domain-with-pages
+
+60   https://developers.google.com/search/docs/appearance/structured-data/profile-page
+https://developers.google.com/search/docs/appearance/structured-data/profile-page
+
+61   Brittany Chiang
+https://brittanychiang.com/?utm_source=chatgpt.com
+
+62   Lee Robinson
+https://leerob.com/?utm_source=chatgpt.com
+
+63   Kent C. Dodds
+https://kentcdodds.com/?utm_source=chatgpt.com
+
+64   Bruno Simon
+https://bruno-simon.com/?utm_source=chatgpt.com
+
+
+
+
+                                                              19
+65   Next.js Portfolio Starter Kit
+https://vercel.com/templates/next.js/portfolio-starter-kit?utm_source=chatgpt.com
+
+
+
+
+                                                              20
+

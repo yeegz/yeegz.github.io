@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adelante case-stage refinement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Cardo:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --site:#0a0a0b; --site-ink:#f3f0e8; --green:#9bcfa5; --line:rgba(243,240,232,.14); --paper:#faf7f0; --paper-2:#fffdf8; --ink:#15130f; --muted:#756d63; --orange:#e97842; }
+    * { box-sizing:border-box; }
+    html { background:var(--site); color:var(--site-ink); font-family:"Space Grotesk",sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 50% -20%,#282524,transparent 36rem),var(--site); }
+    button { font:inherit; }
+    .top { padding:28px clamp(22px,4vw,60px) 24px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr minmax(280px,43ch); align-items:end; gap:34px; }
+    .eyebrow,.mono,.project-tab,.approval button { font:500 9px/1.45 "JetBrains Mono",monospace; letter-spacing:.15em; text-transform:uppercase; }
+    .eyebrow { color:var(--green); margin:0 0 10px; }
+    h1 { font:800 clamp(26px,3.4vw,52px)/.9 "Archivo",sans-serif; font-stretch:120%; letter-spacing:-.025em; text-transform:uppercase; margin:0; }
+    .top p:last-child { margin:0; color:#aaa79f; font-size:13px; line-height:1.55; }
+    .frame { margin:28px clamp(18px,3vw,50px) 0; padding:8px; border:1px solid var(--line); background:#101012; }
+    .case { min-height:min(770px,79vh); display:grid; grid-template-columns:220px 1fr; overflow:hidden; }
+    .shelf { background:#111214; border-right:1px solid rgba(255,255,255,.12); padding:26px 17px; display:flex; flex-direction:column; }
+    .brand { font:800 21px "Archivo",sans-serif; margin-bottom:34px; }.brand i{display:inline-block;width:7px;height:7px;background:var(--green);margin-left:3px}
+    .project-tab { color:#777; border:0; border-top:1px solid rgba(255,255,255,.12); background:none; padding:15px 11px; display:flex; align-items:center; justify-content:space-between; }
+    .project-tab strong { font:700 15px "Archivo",sans-serif; letter-spacing:0; color:#d8d6d0; }
+    .project-tab.active { background:#f4eee4; color:#a94e29; margin:0 -8px; padding-left:19px; padding-right:19px; }
+    .project-tab.active strong { color:#17130e; }
+    .shelf-note { margin:auto 8px 0; color:#6f716e; font-size:9px; line-height:1.7; }
+    .stage { position:relative; overflow:hidden; isolation:isolate; background:var(--paper); color:var(--ink); }
+    .stage::before { content:""; position:absolute; inset:0; z-index:-3; background:radial-gradient(circle at 83% 29%,rgba(233,120,66,.105),transparent 29%),radial-gradient(circle at 48% 93%,rgba(168,191,181,.23),transparent 33%); }
+    .stage::after { content:"ADELANTE"; position:absolute; left:5%; bottom:-12%; z-index:-2; font:700 22vw/1 "Cardo",serif; letter-spacing:-.06em; color:rgba(21,19,15,.025); white-space:nowrap; }
+    .stage-head { position:absolute; z-index:8; left:29px; right:29px; top:22px; display:flex; align-items:center; justify-content:space-between; color:var(--muted); }
+    .stage-head span:first-child { color:#a9512d; }
+    .wordmark { position:absolute; left:clamp(30px,4.8vw,76px); top:10%; z-index:4; width:70%; }
+    .wordmark h2 { margin:0; font:400 clamp(82px,11.2vw,182px)/.88 "Cardo",serif; letter-spacing:-.055em; white-space:nowrap; }
+    .wordmark p { margin:13px 0 0 29%; color:var(--muted); font:italic clamp(16px,1.7vw,25px)/1.25 "Cardo",serif; }
+    .quote-wrap { position:absolute; left:clamp(32px,5vw,80px); bottom:10%; z-index:4; width:min(53%,680px); padding:clamp(23px,3vw,42px); background:rgba(255,253,248,.78); border:1px solid rgba(96,76,49,.13); border-radius:28px; box-shadow:0 25px 70px rgba(66,54,37,.09); backdrop-filter:blur(13px); }
+    .quote { margin:0; font:italic clamp(29px,3.65vw,55px)/1.12 "Cardo",serif; letter-spacing:-.025em; text-wrap:balance; transition:opacity .28s ease,transform .45s cubic-bezier(.22,1,.36,1); }
+    .quote.changing { opacity:0; transform:translateY(9px); }
+    .cite { margin:19px 0 0; color:var(--muted); font:500 9px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
+    .mark { position:absolute; z-index:5; right:3%; top:23%; width:min(39vw,540px); height:min(55vh,520px); border:0; padding:0; background:transparent; color:var(--ink); cursor:pointer; }
+    .big-a { position:absolute; inset:50% auto auto 50%; transform:translate(-50%,-50%); font:italic clamp(230px,27vw,430px)/.78 "Cardo",serif; letter-spacing:-.11em; transition:transform .9s cubic-bezier(.22,1,.36,1),color .55s ease; user-select:none; }
+    .mark svg { position:absolute; inset:13% -2% auto 0; width:106%; overflow:visible; pointer-events:none; }
+    .mark path { fill:none; stroke:var(--orange); stroke-linecap:round; stroke-linejoin:round; stroke-width:17; vector-effect:non-scaling-stroke; pathLength:1; stroke-dasharray:1; stroke-dashoffset:1; }
+    .mark .sweep { transition:stroke-dashoffset 1.05s cubic-bezier(.22,1,.36,1); }
+    .mark .head { transition:stroke-dashoffset .62s cubic-bezier(.22,1,.36,1) .42s; }
+    .mark:is(:hover,:focus-visible) .sweep { stroke-dashoffset:0; }
+    .mark:is(:hover,:focus-visible) .head { stroke-dashoffset:0; }
+    .mark:is(:hover,:focus-visible) .big-a { transform:translate(calc(-50% + 10px),-50%) rotate(-1deg); color:#21180f; }
+    .mark:not(:hover):not(:focus-visible) .sweep { transition-duration:.52s; transition-delay:.09s; }
+    .mark:not(:hover):not(:focus-visible) .head { transition-duration:.38s; transition-delay:0s; }
+    .mark-hint { position:absolute; right:10%; bottom:11%; z-index:6; color:#9b745f; font:500 9px "JetBrains Mono",monospace; letter-spacing:.14em; text-transform:uppercase; }
+    .palette { position:absolute; right:28px; top:70px; display:flex; gap:7px; z-index:7; }.palette i{width:12px;height:12px;border-radius:50%;border:1px solid rgba(21,19,15,.15)}.palette i:nth-child(1){background:#faf7f0}.palette i:nth-child(2){background:#15130f}.palette i:nth-child(3){background:#e97842}.palette i:nth-child(4){background:#a8bfb5}
+    .logic { margin:30px clamp(22px,4vw,60px) 0; display:grid; grid-template-columns:.7fr 1fr; gap:28px; align-items:start; }
+    .logic h3 { margin:0; font:800 clamp(22px,2.6vw,39px)/1 "Archivo",sans-serif; font-stretch:115%; text-transform:uppercase; }
+    .logic p { margin:0; color:#9a978f; font-size:12px; line-height:1.65; }
+    .logic b { color:#dad7d0; font-weight:500; }
+    .approval { margin:26px clamp(22px,4vw,60px) 48px; display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; }
+    .approval p { margin:0; color:#b0ada5; font-size:13px; }
+    .approval button { border:1px solid var(--line); background:#111214; color:#d7d4cd; padding:12px 15px; cursor:pointer; }.approval button:hover,.approval button.selected{background:var(--green);color:#071009;border-color:var(--green)}
+    @media(max-width:920px){.top{grid-template-columns:1fr}.case{grid-template-columns:1fr;min-height:780px}.shelf{display:none}.wordmark{top:9%;width:90%}.wordmark h2{font-size:82px}.quote-wrap{width:56%;left:24px;bottom:8%}.quote{font-size:31px}.mark{right:-2%;top:27%;width:47vw}.big-a{font-size:260px}.approval,.logic{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div><p class="eyebrow">Adelante / refinement 04</p><h1>Space to move forward.</h1></div>
+    <p>The blue control has been removed. The real mark is now a generous italic A crossed by one smooth orange gesture, while the wordmark and quote get enough room to breathe.</p>
+  </header>
+
+  <div class="frame">
+    <div class="case">
+      <aside class="shelf">
+        <div class="brand">ysf.slm<i></i></div>
+        <div class="project-tab"><strong>Bupples</strong><span>01</span></div>
+        <div class="project-tab"><strong>Photoshoot</strong><span>02</span></div>
+        <div class="project-tab active"><strong>Adelante</strong><span>03</span></div>
+        <div class="project-tab"><strong>Fallen Asteri</strong><span>04</span></div>
+        <p class="shelf-note mono">The archive frame stays familiar. The open case gets one composition and interaction that only belongs to this product.</p>
+      </aside>
+
+      <main class="stage">
+        <div class="stage-head mono"><span>03 / Widget-first motivation</span><span>Hover A · press for next quote</span></div>
+        <div class="palette" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <section class="wordmark"><h2>Adelante</h2><p>Spanish — “go forward.”</p></section>
+        <section class="quote-wrap">
+          <blockquote class="quote" id="quote">“Difficulties are things that show what men are.”</blockquote>
+          <p class="cite" id="cite">Epictetus · Discourses, Book I.24</p>
+        </section>
+        <button class="mark" id="mark" type="button" aria-label="Draw the Adelante arrow and show the next quote">
+          <span class="big-a">A</span>
+          <svg viewBox="0 0 560 360" aria-hidden="true">
+            <path class="sweep" pathLength="1" d="M34 252 C150 182 290 132 458 142" />
+            <path class="head" pathLength="1" d="M360 61 L470 141 L370 244" />
+          </svg>
+        </button>
+        <p class="mark-hint">Hover to draw · press to advance</p>
+      </main>
+    </div>
+  </div>
+
+  <section class="logic">
+    <h3>Adelante’s lead act</h3>
+    <p><b>The A is the object; the arrow is the event.</b> Hovering draws the orange path with a continuous two-part easing, then lets the letter settle forward. Pressing advances the quote without moving the surrounding page. The archive navigation and case hierarchy remain consistent with the other projects.</p>
+  </section>
+
+  <div class="approval">
+    <p>Does this lock the Adelante wordmark, quote spacing, and orange forward-draw interaction?</p>
+    <button data-choice="lock-adelante-v4" onclick="toggleSelect(this)">Lock Adelante</button>
+    <button data-choice="revise-adelante-v4" onclick="toggleSelect(this)">Revise again</button>
+  </div>
+
+  <script>
+    const quotes=[
+      ['“Difficulties are things that show what men are.”','Epictetus · Discourses, Book I.24'],
+      ['“Be still, and know that I am God.”','King James Version · Psalm 46:10'],
+      ['“But lo! with hardship goeth ease.”',"The Qur’an · Ash-Sharh 94:5"]
+    ];
+    let index=0;
+    const quote=document.getElementById('quote');
+    const cite=document.getElementById('cite');
+    document.getElementById('mark').addEventListener('click',()=>{
+      quote.classList.add('changing');
+      setTimeout(()=>{index=(index+1)%quotes.length;quote.textContent=quotes[index][0];cite.textContent=quotes[index][1];quote.classList.remove('changing')},285);
+    });
+  </script>
+</body>
+</html>

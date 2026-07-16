@@ -1,0 +1,464 @@
+(() => {
+  'use strict';
+
+  const root = document.documentElement;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = matchMedia('(pointer: fine) and (hover: hover)').matches;
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, reduceMotion ? 0 : ms));
+  const transitionDone = (element, property, fallback = 1000) => {
+    if (reduceMotion || !element) return Promise.resolve();
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        element.removeEventListener('transitionend', onEnd);
+        clearTimeout(timer);
+        resolve();
+      };
+      const onEnd = (event) => { if (event.target === element && event.propertyName === property) finish(); };
+      const timer = setTimeout(finish, fallback);
+      element.addEventListener('transitionend', onEnd);
+    });
+  };
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+  /* Real, bounded loading sequence. */
+  const loader = document.getElementById('siteLoader');
+  const critical = [document.getElementById('portrait'), document.getElementById('gardenImg')].filter(Boolean);
+  const mediaReady = Promise.all(critical.map((image) => {
+    if (image.complete && image.naturalWidth) return Promise.resolve();
+    return typeof image.decode === 'function' ? image.decode().catch(() => {}) : new Promise((resolve) => {
+      image.addEventListener('load', resolve, { once: true });
+      image.addEventListener('error', resolve, { once: true });
+    });
+  }));
+  Promise.race([Promise.all([document.fonts?.ready || Promise.resolve(), mediaReady]), wait(1050)]).then(async () => {
+    await wait(120);
+    root.classList.add('is-ready');
+    loader?.setAttribute('aria-hidden', 'true');
+  });
+
+  /* Theme is global; authored project palettes remain fixed. */
+  const themeToggle = document.getElementById('themeToggle');
+  const themeChoices = [...document.querySelectorAll('[data-theme-choice]')];
+  const applyTheme = (theme, persist = true) => {
+    const next = theme === 'light' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    themeToggle?.setAttribute('aria-pressed', String(next === 'light'));
+    themeToggle?.setAttribute('aria-label', `Switch to ${next === 'light' ? 'dark' : 'light'} mode`);
+    if (themeToggle) themeToggle.dataset.cursor = next === 'light' ? 'DARK' : 'LIGHT';
+    themeChoices.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.themeChoice === next)));
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'light' ? '#eee8db' : '#0a0a0b');
+    if (persist) try { localStorage.setItem('ysf-theme', next); } catch (_) {}
+  };
+  applyTheme(root.dataset.theme, false);
+  themeToggle?.addEventListener('click', () => applyTheme(root.dataset.theme === 'light' ? 'dark' : 'light'));
+  themeChoices.forEach((button) => button.addEventListener('click', () => applyTheme(button.dataset.themeChoice)));
+
+  /* Exact final Skills behavior: every lane moves; only the selected lane pauses. */
+  const skillLanes = [...document.querySelectorAll('[data-skill-lane]')];
+  const skillPositions = skillLanes.map(() => 0);
+  skillLanes.forEach((lane, index) => {
+    const scroller = lane.querySelector('.skill-scroller');
+    const set = lane.querySelector('.tool-set');
+    const direction = Number(lane.dataset.direction) || 1;
+    if (direction < 0) requestAnimationFrame(() => {
+      skillPositions[index] = set.offsetWidth;
+      scroller.scrollLeft = skillPositions[index];
+    });
+    const nudge = (dir) => {
+      const step = Math.min(scroller.clientWidth * .74, 540);
+      const width = set.offsetWidth;
+      if (dir < 0 && scroller.scrollLeft < step) scroller.scrollLeft += width;
+      if (dir > 0 && scroller.scrollLeft > width * 1.55) scroller.scrollLeft -= width;
+      scroller.scrollBy({ left: dir * step, behavior: reduceMotion ? 'auto' : 'smooth' });
+      skillPositions[index] = scroller.scrollLeft + dir * step;
+    };
+    const nudgeFromControl = (event, direction) => {
+      nudge(direction);
+      if (event.detail > 0) event.currentTarget.blur();
+    };
+    lane.querySelector('.prev')?.addEventListener('click', (event) => nudgeFromControl(event, -1));
+    lane.querySelector('.next')?.addEventListener('click', (event) => nudgeFromControl(event, 1));
+  });
+  let skillLast = performance.now();
+  const moveSkills = (now) => {
+    const delta = Math.min(32, now - skillLast);
+    skillLast = now;
+    if (!reduceMotion && !document.hidden) skillLanes.forEach((lane, index) => {
+      const scroller = lane.querySelector('.skill-scroller');
+      const width = lane.querySelector('.tool-set')?.offsetWidth || 0;
+      if (!width) return;
+      if (lane.matches(':hover') || lane.contains(document.activeElement)) {
+        skillPositions[index] = scroller.scrollLeft;
+        return;
+      }
+      const direction = Number(lane.dataset.direction) || 1;
+      skillPositions[index] += direction * (.019 + (index % 3) * .003) * delta;
+      if (direction > 0 && skillPositions[index] >= width) skillPositions[index] -= width;
+      if (direction < 0 && skillPositions[index] <= 0) skillPositions[index] += width;
+      scroller.scrollLeft = skillPositions[index];
+    });
+    requestAnimationFrame(moveSkills);
+  };
+  requestAnimationFrame(moveSkills);
+
+  /* Education chapters. */
+  const education = {
+    degree: {
+      ghost: '2027', no: 'Chapter 02 / Current', title: 'BSc (Hons) Software Engineering', type: 'Expected 2027',
+      institutions: [['Sunway University', 'Malaysia'], ['Lancaster University', 'United Kingdom']],
+      status: 'Subang Jaya, Malaysia<br>Dual-degree programme<br>In progress',
+      courses: ['Software Architecture', 'Data Structures', 'Mobile Development', 'Databases', 'UI / UX Design']
+    },
+    foundation: {
+      ghost: '2024', no: 'Chapter 01 / Complete', title: 'Foundation in Information Technology', type: 'May 2023 — July 2024',
+      institutions: [['Multimedia University', 'Malaysia']],
+      status: 'Cyberjaya, Malaysia<br>Foundation programme<br>Completed',
+      courses: ['Programming', 'Data Structures', 'Networking', 'Web Fundamentals']
+    }
+  };
+  const chapter = document.getElementById('chapter');
+  const chapterTabs = [...document.querySelectorAll('.chapter-tab')];
+  const showChapter = (key) => {
+    const record = education[key];
+    const lockup = document.getElementById('institutionLockup');
+    const courses = document.getElementById('courses');
+    if (!record || !lockup || !courses) return;
+    document.getElementById('education').dataset.ghost = record.ghost;
+    document.getElementById('chapterNo').textContent = record.no;
+    document.getElementById('eduTitle').textContent = record.title;
+    document.getElementById('degreeType').textContent = record.type;
+    document.getElementById('eduStatus').innerHTML = record.status;
+    lockup.replaceChildren();
+    record.institutions.forEach(([name, place], index) => {
+      if (index) { const multiplier = document.createElement('i'); multiplier.textContent = '×'; lockup.append(multiplier); }
+      const group = document.createElement('span');
+      const strong = document.createElement('b'); strong.textContent = name;
+      const small = document.createElement('small'); small.textContent = place;
+      group.append(strong, small); lockup.append(group);
+    });
+    courses.replaceChildren(...record.courses.map((name) => { const item = document.createElement('span'); item.textContent = name; return item; }));
+    chapterTabs.forEach((tab) => {
+      const active = tab.dataset.chapter === key;
+      tab.classList.toggle('active', active);
+      tab.setAttribute('aria-selected', String(active));
+    });
+    chapter?.classList.remove('change');
+    void chapter?.offsetWidth;
+    chapter?.classList.add('change');
+  };
+  chapterTabs.forEach((tab) => tab.addEventListener('click', () => showChapter(tab.dataset.chapter)));
+  showChapter('degree');
+
+  /* Experience calendar filter. */
+  const calendar = document.getElementById('campaignCalendar');
+  document.querySelectorAll('.filter').forEach((button) => button.addEventListener('click', () => {
+    const same = calendar.dataset.activeFilter === button.dataset.filter;
+    if (same) delete calendar.dataset.activeFilter;
+    else calendar.dataset.activeFilter = button.dataset.filter;
+    document.querySelectorAll('.filter').forEach((item) => item.classList.toggle('active', !same && item === button));
+  }));
+
+  /* Contact drag, bounded and springing home. */
+  const contact = document.getElementById('contact');
+  const mail = document.getElementById('dragMail');
+  const mailTrack = document.getElementById('mailTrack');
+  let dragging = false, dragMoved = false, suppressMailClick = false, dragStartX = 0, dragStartY = 0;
+  contact?.addEventListener('pointermove', (event) => {
+    const section = contact.getBoundingClientRect();
+    contact.style.setProperty('--cx', `${(event.clientX - section.left) / section.width * 100}%`);
+    contact.style.setProperty('--cy', `${(event.clientY - section.top) / section.height * 100}%`);
+    if (!dragging) return;
+    const track = mailTrack.getBoundingClientRect();
+    const item = mail.getBoundingClientRect();
+    const maxX = Math.max(20, Math.min(90, (track.width - item.width) / 2 - 24));
+    const dx = clamp(event.clientX - dragStartX, -maxX, maxX);
+    const dy = clamp(event.clientY - dragStartY, -34, 34);
+    dragMoved ||= Math.hypot(event.clientX - dragStartX, event.clientY - dragStartY) > 5;
+    mail.style.setProperty('--dx', `${dx}px`);
+    mail.style.setProperty('--dy', `${dy}px`);
+    mail.style.setProperty('--rot', `${clamp(dx / 28, -3.2, 3.2)}deg`);
+  });
+  mail?.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    dragging = true; dragMoved = false; dragStartX = event.clientX; dragStartY = event.clientY;
+    mail.setPointerCapture(event.pointerId); mail.classList.add('dragging');
+  });
+  const releaseMail = (event) => {
+    if (!dragging) return;
+    dragging = false; suppressMailClick = dragMoved; mail.classList.remove('dragging');
+    mail.style.setProperty('--dx', '0px'); mail.style.setProperty('--dy', '0px'); mail.style.setProperty('--rot', '0deg');
+    if (mail.hasPointerCapture?.(event.pointerId)) mail.releasePointerCapture(event.pointerId);
+  };
+  mail?.addEventListener('pointerup', releaseMail); mail?.addEventListener('pointercancel', releaseMail);
+  mail?.addEventListener('click', (event) => { if (suppressMailClick) { event.preventDefault(); suppressMailClick = false; } });
+  document.getElementById('copyMail')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget;
+    try {
+      await navigator.clipboard.writeText('yousofselim2@gmail.com');
+      button.textContent = 'Copied ✓';
+      clearTimeout(button._copyReset);
+      button._copyReset = setTimeout(() => { button.textContent = 'Copy address ↗'; }, 1800);
+    }
+    catch (_) { location.href = 'mailto:yousofselim2@gmail.com'; }
+  });
+
+  /* Project theater lifecycle and the row-originating surface expansion. */
+  const theater = document.getElementById('projectTheater');
+  const theaterWash = theater?.querySelector('.theater-wash');
+  const theaterBackground = [...document.querySelectorAll('body > .site-loader, body > .skip-link, body > .site-head, body > .mobile-nav, body > main, body > .site-foot, body > .progress-rail')];
+  let theaterBackgroundState = null;
+  const isolateTheater = (active) => {
+    if (active) {
+      if (theaterBackgroundState) return;
+      theaterBackgroundState = theaterBackground.map((element) => [element, element.inert]);
+      theaterBackground.forEach((element) => { element.inert = true; });
+      return;
+    }
+    theaterBackgroundState?.forEach(([element, wasInert]) => { element.inert = wasInert; });
+    theaterBackgroundState = null;
+  };
+  const theaterFocusable = () => [...theater.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+    .filter((element) => !element.closest('[hidden]') && element.getClientRects().length);
+  const projectNames = ['bupples', 'photoshoot', 'adelante', 'asteri'];
+  const projectMeta = {
+    bupples: { label: '01 / Bupples', surface: '#050b07', color: '#f4f0e7' },
+    photoshoot: { label: '02 / Photoshoot', surface: '#e9e3d6', color: '#24221f' },
+    adelante: { label: '03 / Adelante', surface: '#faf7f0', color: '#15130f' },
+    asteri: { label: '04 / Fallen Asteri', surface: '#120909', color: '#f4e8d7' }
+  };
+  let currentProject = '', projectOpener = null, projectScroll = 0, theaterBusy = false;
+  let pendingProjectSteps = 0, pendingProjectClose = false;
+  const completeTheaterAction = () => {
+    theaterBusy = false;
+    if (!theater?.open) { pendingProjectSteps = 0; pendingProjectClose = false; return; }
+    if (pendingProjectClose) {
+      pendingProjectClose = false; pendingProjectSteps = 0; closeProject(); return;
+    }
+    if (pendingProjectSteps) {
+      const offset = Math.sign(pendingProjectSteps); pendingProjectSteps -= offset; navigateProject(offset);
+    }
+  };
+  const showProject = (name) => {
+    theater.querySelectorAll('[data-project-stage]').forEach((stage) => { stage.hidden = stage.dataset.projectStage !== name; });
+    currentProject = name;
+    theater.dataset.project = name;
+    theater.style.setProperty('--project-surface', projectMeta[name].surface);
+    theater.style.color = projectMeta[name].color;
+    document.getElementById('theaterLabel').textContent = projectMeta[name].label;
+  };
+  const openProject = async (name, opener) => {
+    if (theaterBusy || theater.open || !projectMeta[name]) return;
+    theaterBusy = true; pendingProjectSteps = 0; pendingProjectClose = false; projectOpener = opener; projectScroll = scrollY;
+    const row = opener.getBoundingClientRect();
+    theater.style.setProperty('--wash-top', `${Math.max(0, row.top)}px`);
+    theater.style.setProperty('--wash-right', `${Math.max(0, innerWidth - row.right)}px`);
+    theater.style.setProperty('--wash-bottom', `${Math.max(0, innerHeight - row.bottom)}px`);
+    theater.style.setProperty('--wash-left', `${Math.max(0, row.left)}px`);
+    showProject(name);
+    if (typeof theater.show === 'function') theater.show();
+    else theater.setAttribute('open', '');
+    isolateTheater(true);
+    root.classList.add('project-open');
+    window.lenis?.stop?.();
+    requestAnimationFrame(() => requestAnimationFrame(() => theater.classList.add('is-open')));
+    await transitionDone(theaterWash, 'clip-path', 980);
+    theater.querySelector('[data-close-project]')?.focus({ preventScroll: true });
+    completeTheaterAction();
+  };
+  const closeProject = async () => {
+    if (!theater.open) return;
+    if (theaterBusy) { pendingProjectClose = true; pendingProjectSteps = 0; return; }
+    theaterBusy = true; theater.classList.add('is-closing'); theater.classList.remove('is-open');
+    root.classList.remove('project-open');
+    await transitionDone(theaterWash, 'clip-path', 980);
+    theater.close(); theater.classList.remove('is-closing');
+    isolateTheater(false);
+    window.lenis?.start?.(); window.scrollTo(0, projectScroll); projectOpener?.focus({ preventScroll: true }); completeTheaterAction();
+  };
+  document.querySelectorAll('[data-open-project]').forEach((button) => button.addEventListener('click', () => openProject(button.dataset.openProject, button)));
+  theater?.querySelector('[data-close-project]')?.addEventListener('click', closeProject);
+  theater?.addEventListener('cancel', (event) => { event.preventDefault(); closeProject(); });
+  document.addEventListener('keydown', (event) => {
+    if (!theater?.open) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeProject();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusable = theaterFocusable();
+    if (!focusable.length) { event.preventDefault(); theater.focus(); return; }
+    const first = focusable[0], last = focusable[focusable.length - 1], active = document.activeElement;
+    if (!theater.contains(active)) { event.preventDefault(); first.focus(); return; }
+    if (event.shiftKey && active === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && active === last) { event.preventDefault(); first.focus(); }
+  });
+  const navigateProject = async (offset) => {
+    if (!theater?.open) return;
+    if (theaterBusy) { if (!pendingProjectClose) pendingProjectSteps += offset; return; }
+    const nextName = projectNames[(projectNames.indexOf(currentProject) + offset + projectNames.length) % projectNames.length];
+    const outgoing = theater.querySelector(`[data-project-stage="${currentProject}"]`);
+    const incoming = theater.querySelector(`[data-project-stage="${nextName}"]`);
+    if (!incoming || incoming === outgoing) return;
+    theaterBusy = true;
+    outgoing?.classList.add('stage-switching', 'stage-out');
+    await wait(260);
+    outgoing?.classList.remove('stage-switching', 'stage-out');
+    showProject(nextName);
+    incoming.classList.add('stage-switching', 'stage-in');
+    void incoming.offsetWidth;
+    requestAnimationFrame(() => incoming.classList.remove('stage-in'));
+    await wait(460);
+    incoming.classList.remove('stage-switching');
+    completeTheaterAction();
+  };
+  theater?.querySelectorAll('[data-project-nav]').forEach((button) => button.addEventListener('click', () => {
+    navigateProject(button.dataset.projectNav === 'next' ? 1 : -1);
+  }));
+
+  /* Bupples parallax without separating the approved phone overlap. */
+  const bupples = document.querySelector('[data-project-stage="bupples"]');
+  bupples?.addEventListener('pointermove', (event) => {
+    const rect = bupples.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - .5;
+    const y = (event.clientY - rect.top) / rect.height - .5;
+    bupples.style.setProperty('--lpx', `${x * -18}px`); bupples.style.setProperty('--lpy', `${y * -11}px`);
+    bupples.style.setProperty('--cpx', `${x * 12}px`); bupples.style.setProperty('--cpy', `${y * 8}px`);
+    bupples.style.setProperty('--rpx', `${x * 20}px`); bupples.style.setProperty('--rpy', `${y * 12}px`);
+    bupples.style.setProperty('--bgx', `${x * -7}px`); bupples.style.setProperty('--bgy', `${y * -7}px`);
+  });
+  bupples?.addEventListener('pointerleave', () => ['--lpx','--lpy','--cpx','--cpy','--rpx','--rpy','--bgx','--bgy'].forEach((name) => bupples.style.removeProperty(name)));
+
+  /* Adelante deck and alternating discovered message. */
+  const quoteDeck = document.getElementById('quoteDeck');
+  let quoteCards = quoteDeck ? [...quoteDeck.querySelectorAll('.quote-card')] : [], quoteBusy = false;
+  const layoutQuotes = () => quoteCards.forEach((card, index) => card.dataset.position = index);
+  const advanceQuote = async () => {
+    if (quoteBusy || !quoteCards.length) return;
+    quoteBusy = true; const front = quoteCards.shift(); front.classList.add('leaving');
+    await wait(560); front.style.transition = 'none'; front.classList.remove('leaving'); quoteCards.push(front); layoutQuotes();
+    void front.offsetWidth; requestAnimationFrame(() => { front.style.transition = ''; quoteBusy = false; });
+  };
+  quoteDeck?.addEventListener('click', advanceQuote);
+  quoteDeck?.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); advanceQuote(); } });
+  const adelanteMessages = ['Adelante is Spanish for “go forward.”', 'Even the smallest step is still forward.'];
+  let adelanteMessage = 0;
+  document.getElementById('aMark')?.addEventListener('pointerenter', async () => {
+    const line = document.getElementById('forwardLine'); line.classList.add('changing'); await wait(80);
+    line.textContent = adelanteMessages[adelanteMessage]; adelanteMessage = (adelanteMessage + 1) % adelanteMessages.length; line.classList.remove('changing');
+  });
+
+  /* Photoshoot session, preserving each approved focal point. */
+  const photos = [
+    ['images/projects/photoshoot/subject-01.jpg', '50% 56%'],
+    ['images/projects/photoshoot/subject-02.jpg', '50% 35%'],
+    ['images/projects/photoshoot/subject-03.jpg', '50% 37%'],
+    ['images/projects/photoshoot/subject-04.jpg', '50% 40%']
+  ];
+  const viewfinder = document.getElementById('viewfinder'), viewImage = document.getElementById('viewImage');
+  let photoIndex = 0, shot = 0, currentEffect = 'none';
+  document.getElementById('effects')?.addEventListener('click', (event) => {
+    const button = event.target.closest('.effect'); if (!button) return;
+    currentEffect = button.dataset.effect; viewfinder.dataset.effect = currentEffect;
+    document.querySelectorAll('.effect').forEach((item) => item.classList.toggle('active', item === button));
+    document.getElementById('effectLabel').textContent = `ISO 400 · F/1.8 · ${currentEffect === 'none' ? 'CLEAN' : currentEffect.toUpperCase()}`;
+  });
+  document.getElementById('shutter')?.addEventListener('click', async () => {
+    const flash = document.getElementById('flash'), slots = [...document.getElementById('strip').children];
+    flash.classList.remove('fire'); void flash.offsetWidth; flash.classList.add('fire');
+    if (shot === 4) { slots.forEach((slot) => slot.replaceChildren()); shot = 0; }
+    const capture = document.createElement('img'); capture.src = photos[photoIndex][0]; capture.style.objectPosition = photos[photoIndex][1];
+    if (currentEffect === 'mono') capture.style.filter = 'grayscale(1) contrast(1.13)';
+    if (currentEffect === 'sepia') capture.style.filter = 'sepia(.82) contrast(1.08)';
+    if (currentEffect === 'pop') capture.style.filter = 'saturate(1.8) contrast(1.18)';
+    slots[shot].append(capture); shot += 1; document.getElementById('shotCount').textContent = `${shot} / 4 captured`;
+    photoIndex = (photoIndex + 1) % photos.length; viewImage.classList.add('switching'); await wait(175);
+    viewImage.src = photos[photoIndex][0]; viewImage.style.objectPosition = photos[photoIndex][1];
+    document.getElementById('subjectLabel').textContent = `SUBJECT ${String(photoIndex + 1).padStart(2, '0')}`; viewImage.classList.remove('switching');
+  });
+
+  /* Fallen Asteri micro-combat, bounded to four enemies. */
+  const fStage = document.querySelector('[data-project-stage="asteri"]'), game = document.getElementById('gameFrame');
+  const sword = document.getElementById('swordCursor');
+  let xp = 0, level = 1, kills = 0, spawnIndex = 0;
+  const spawnPoints = [[18,64],[39,57],[63,65],[82,53],[27,50],[73,58]];
+  const spawnEnemy = () => {
+    if (!game || game.querySelectorAll('.enemy').length >= 4) return;
+    const enemy = document.createElement('button'); const point = spawnPoints[spawnIndex % spawnPoints.length]; const types = ['slime','bat','eye'];
+    enemy.type = 'button'; enemy.className = `enemy ${types[spawnIndex % types.length]}`; spawnIndex += 1;
+    enemy.setAttribute('aria-label', 'Defeat enemy'); enemy.style.left = `${point[0]}%`; enemy.style.top = `${point[1]}%`;
+    const body = document.createElement('span'); body.className = 'enemy-body'; enemy.append(body); game.append(enemy);
+    enemy.addEventListener('click', (event) => killEnemy(enemy, event));
+  };
+  const killEnemy = (enemy, event) => {
+    event.stopPropagation(); if (enemy.classList.contains('dying')) return;
+    const gameRect = game.getBoundingClientRect(), enemyRect = enemy.getBoundingClientRect();
+    const x = enemyRect.left - gameRect.left + enemyRect.width / 2, y = enemyRect.top - gameRect.top + enemyRect.height / 2;
+    sword.classList.remove('attack'); void sword.offsetWidth; sword.classList.add('attack'); enemy.classList.add('dying');
+    game.classList.add('hit'); setTimeout(() => game.classList.remove('hit'), 120);
+    for (let index = 0; index < 9; index += 1) {
+      const pixel = document.createElement('i'); pixel.className = 'death-pixel'; pixel.style.setProperty('--px', `${x}px`); pixel.style.setProperty('--py', `${y}px`);
+      pixel.style.setProperty('--dx', `${Math.random() * 80 - 40}px`); pixel.style.setProperty('--dy', `${Math.random() * -65 - 5}px`); game.append(pixel); setTimeout(() => pixel.remove(), 650);
+    }
+    const pop = document.createElement('b'); pop.className = 'xp-pop'; pop.textContent = '+35 XP'; pop.style.left = `${x + 10}px`; pop.style.top = `${y - 8}px`; game.append(pop); setTimeout(() => pop.remove(), 750);
+    kills += 1; xp += 35; document.getElementById('kills').textContent = `${kills} ENEMIES CLEARED`;
+    if (xp >= 100) { xp -= 100; level += 1; document.getElementById('level').textContent = level; const flare = document.getElementById('levelUp'); flare.classList.remove('show'); void flare.offsetWidth; flare.classList.add('show'); }
+    document.getElementById('xpFill').style.width = `${xp}%`;
+    setTimeout(() => { enemy.remove(); setTimeout(spawnEnemy, 450); }, 520);
+  };
+  for (let index = 0; index < 4; index += 1) spawnEnemy();
+  fStage?.addEventListener('pointermove', (event) => {
+    const rect = fStage.getBoundingClientRect(); fStage.style.setProperty('--sx', `${event.clientX - rect.left}px`); fStage.style.setProperty('--sy', `${event.clientY - rect.top}px`);
+  });
+  fStage?.addEventListener('pointerleave', () => { fStage.style.setProperty('--sx', '-100px'); fStage.style.setProperty('--sy', '-100px'); });
+
+  /* One corrected cursor system. No second transform or legacy margin math. */
+  if (finePointer) {
+    const cursor = document.getElementById('cursor'), label = document.getElementById('cursorLabel');
+    root.classList.add('cur');
+    let cursorX = -100, cursorY = -100, cursorFrame = 0, actionFrame = 0;
+    const paint = () => { cursorFrame = 0; cursor.style.transform = `translate3d(${cursorX}px,${cursorY}px,0)`; };
+    const updateCursorAction = (target) => {
+      const element = target instanceof Element ? target : null;
+      const inAsteri = !!element?.closest('.f-stage');
+      root.classList.toggle('sword-mode', inAsteri);
+      const action = element?.closest('[data-cursor],a,button,[role="button"]');
+      const verb = action?.dataset.cursor || (action?.tagName === 'A' ? 'OPEN' : action ? 'SELECT' : '');
+      label.textContent = verb;
+      root.classList.toggle('cur-view', !!verb && !inAsteri);
+    };
+    const refreshCursorAction = () => {
+      if (actionFrame) return;
+      actionFrame = requestAnimationFrame(() => {
+        actionFrame = 0;
+        updateCursorAction(document.elementFromPoint(cursorX, cursorY));
+      });
+    };
+    window.addEventListener('pointermove', (event) => {
+      cursorX = event.clientX; cursorY = event.clientY; if (!cursorFrame) cursorFrame = requestAnimationFrame(paint);
+      cursor.classList.add('is-visible');
+      updateCursorAction(event.target);
+    }, { passive: true });
+    document.addEventListener('pointerover', (event) => updateCursorAction(event.target), true);
+    document.addEventListener('pointerout', refreshCursorAction, true);
+    document.addEventListener('click', refreshCursorAction, true);
+    addEventListener('scroll', refreshCursorAction, { passive: true, capture: true });
+    addEventListener('pointerdown', (event) => {
+      if (event.target instanceof Element && event.target.closest('[data-cursor],a,button,[role="button"]')) root.classList.add('cursor-press');
+    });
+    const releaseCursor = () => root.classList.remove('cursor-press');
+    addEventListener('pointerup', releaseCursor);
+    addEventListener('pointercancel', releaseCursor);
+    addEventListener('blur', releaseCursor);
+    document.documentElement.addEventListener('mouseleave', () => {
+      cursor.classList.remove('is-visible');
+      updateCursorAction(null);
+      releaseCursor();
+    });
+  } else {
+    document.getElementById('cursor')?.setAttribute('hidden', '');
+  }
+})();

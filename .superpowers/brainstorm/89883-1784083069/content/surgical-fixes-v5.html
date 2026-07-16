@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bupples and Adelante — surgical fixes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Cardo:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --site:#0a0a0b; --site-ink:#f3f0e8; --green:#9bcfa5; --line:rgba(243,240,232,.14); --orange:#e97842; }
+    * { box-sizing:border-box; }
+    html { background:var(--site); color:var(--site-ink); font-family:"Space Grotesk",sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 50% -20%,#282625,transparent 38rem),var(--site); }
+    button { font:inherit; }
+    .top { padding:28px clamp(22px,4vw,60px) 24px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr minmax(290px,44ch); align-items:end; gap:34px; }
+    .eyebrow,.mono,.approval button { font:500 9px/1.45 "JetBrains Mono",monospace; letter-spacing:.15em; text-transform:uppercase; }
+    .eyebrow { color:var(--green); margin:0 0 10px; }
+    h1 { font:800 clamp(26px,3.4vw,52px)/.9 "Archivo",sans-serif; font-stretch:120%; letter-spacing:-.025em; text-transform:uppercase; margin:0; }
+    .top p:last-child { margin:0; color:#aaa79f; font-size:13px; line-height:1.55; }
+    .review { padding:28px clamp(18px,3vw,50px) 0; display:grid; gap:34px; }
+    .review-block { border:1px solid var(--line); background:#101012; padding:8px; }
+    .block-label { display:flex; align-items:center; justify-content:space-between; padding:11px 8px 16px; color:#a8a59e; }
+    .block-label strong { color:#e2dfd7; font:700 16px "Archivo",sans-serif; text-transform:uppercase; }
+    .block-label span { font:500 9px "JetBrains Mono",monospace; letter-spacing:.13em; text-transform:uppercase; }
+
+    /* Restored Bupples composition: three surfaces remain one cluster. */
+    .b-stage { --accent:#86bd98; height:min(720px,72vh); min-height:570px; position:relative; overflow:hidden; isolation:isolate; background:#050b07; cursor:crosshair; }
+    .b-stage::before { content:""; position:absolute; inset:-20px; z-index:-3; background-image:radial-gradient(circle,var(--accent) 1.1px,transparent 1.55px); background-size:38px 38px; opacity:.1; transform:translate(calc(var(--mx,0)*-9px),calc(var(--my,0)*-9px)); }
+    .b-stage::after { content:""; position:absolute; width:58vw; height:48vw; z-index:-2; left:64%; top:50%; transform:translate(-50%,-50%) translate(calc(var(--mx,0)*27px),calc(var(--my,0)*20px)); background:radial-gradient(circle,color-mix(in srgb,var(--accent) 24%,transparent),transparent 66%); filter:blur(34px); }
+    .b-head { position:absolute; left:27px; right:27px; top:22px; display:flex; justify-content:space-between; color:#7f8680; z-index:9; }.b-head span:first-child{color:var(--accent)}
+    .b-copy { position:absolute; left:clamp(25px,3.8vw,59px); top:50%; width:31%; transform:translateY(-54%); z-index:7; }
+    .b-copy h2 { margin:0; font:900 clamp(47px,5.7vw,91px)/.82 "Archivo",sans-serif; font-stretch:125%; letter-spacing:-.058em; text-transform:uppercase; white-space:nowrap; }
+    .b-copy em { display:block; margin:14px 0 0 19%; color:var(--accent); font:italic clamp(17px,1.7vw,26px) "Instrument Serif",serif; }
+    .b-copy p { max-width:28ch; color:#aaa9a2; font-size:11px; line-height:1.62; margin:23px 0 0; }
+    .pip-mark { margin-top:23px; width:45px; height:34px; position:relative; color:var(--accent); }
+    .pip-mark i { width:31px; height:31px; border:2px solid currentColor; border-radius:50%; position:absolute; top:0; transition:transform .3s; }.pip-mark i:first-child{left:0}.pip-mark i:last-child{right:0}
+    .pip-mark::after { content:"⌁"; position:absolute; left:18px; top:6px; font-size:15px; }
+    .b-stage:hover .pip-mark i:first-child{transform:translateX(3px)}.b-stage:hover .pip-mark i:last-child{transform:translateX(-3px)}
+    .phone-cluster { position:absolute; left:31%; right:2%; top:62px; bottom:36px; perspective:1400px; }
+    .screen { position:absolute; overflow:hidden; background:#070c09; border:5px solid #151c17; box-shadow:0 32px 74px rgba(0,0,0,.58); transition:transform .16s ease-out,filter .24s,box-shadow .24s; will-change:transform; }
+    .screen img { width:100%; height:100%; display:block; object-fit:contain; background:#050907; }
+    .screen:hover { z-index:8; filter:brightness(1.06); box-shadow:0 41px 92px color-mix(in srgb,var(--accent) 20%,transparent); }
+    .screen.ask-pip { left:3%; top:10%; height:74%; aspect-ratio:1290/2225; border-radius:28px; z-index:2; transform:translate3d(calc(var(--mx,0)*-29px),calc(var(--my,0)*-18px),-35px) rotateY(10deg) rotateZ(-5deg); }
+    .screen.profile { left:35%; top:1%; height:92%; aspect-ratio:1290/2796; border-radius:34px; z-index:5; transform:translate3d(calc(var(--mx,0)*43px),calc(var(--my,0)*27px),70px) rotateY(-2deg) rotateZ(1deg); }
+    .screen.accent { right:1%; top:12%; height:76%; aspect-ratio:1290/2796; border-radius:30px; z-index:3; transform:translate3d(calc(var(--mx,0)*70px),calc(var(--my,0)*40px),-12px) rotateY(-10deg) rotateZ(5deg); filter:brightness(.93); }
+    .ask-pip img { object-fit:contain; object-position:center; }
+    .accent-button { position:absolute; right:22px; bottom:20px; z-index:10; border:1px solid color-mix(in srgb,var(--accent) 58%,transparent); background:#0d1510; color:var(--accent); border-radius:999px; padding:10px 13px; cursor:pointer; display:flex; gap:9px; align-items:center; font:500 8px "JetBrains Mono",monospace; letter-spacing:.13em; text-transform:uppercase; }
+    .accent-button i { width:13px; height:13px; border-radius:50%; background:conic-gradient(#ff36d3,#ff4234,#ffde34,#35ef61,#3be4ff,#3054ff,#a332ff,#ff36d3); }
+    .cursor-halo { position:absolute; left:var(--px,-100px); top:var(--py,-100px); width:96px; height:96px; border-radius:50%; border:1px solid color-mix(in srgb,var(--accent) 48%,transparent); transform:translate(-50%,-50%); pointer-events:none; z-index:10; }
+
+    /* Adelante arrow fix: no pre-rendered caps, shifted right. */
+    .a-stage { height:min(650px,66vh); min-height:540px; position:relative; overflow:hidden; isolation:isolate; background:#faf7f0; color:#15130f; }
+    .a-stage::before { content:""; position:absolute; inset:0; z-index:-2; background:radial-gradient(circle at 79% 32%,rgba(233,120,66,.11),transparent 30%),radial-gradient(circle at 43% 95%,rgba(168,191,181,.22),transparent 33%); }
+    .a-head { position:absolute; left:27px; right:27px; top:22px; display:flex; justify-content:space-between; color:#756d63; z-index:8; }.a-head span:first-child{color:#a9512d}
+    .a-word { position:absolute; left:clamp(31px,4.7vw,74px); top:11%; z-index:4; width:69%; }
+    .a-word h2 { margin:0; font:400 clamp(77px,10.4vw,169px)/.9 "Cardo",serif; letter-spacing:-.05em; white-space:nowrap; }
+    .a-word p { margin:10px 0 0 28%; color:#756d63; font:italic clamp(16px,1.6vw,24px) "Cardo",serif; }
+    .quote-card { position:absolute; left:clamp(31px,4.7vw,74px); bottom:9%; width:min(53%,665px); padding:clamp(22px,2.7vw,38px); border:1px solid rgba(96,76,49,.13); border-radius:27px; background:rgba(255,253,248,.8); box-shadow:0 24px 68px rgba(66,54,37,.09); }
+    .quote-card blockquote { margin:0; font:italic clamp(28px,3.35vw,50px)/1.13 "Cardo",serif; letter-spacing:-.022em; text-wrap:balance; transition:opacity .28s,transform .44s cubic-bezier(.22,1,.36,1); }.quote-card blockquote.changing{opacity:0;transform:translateY(8px)}
+    .quote-card p { margin:18px 0 0; color:#756d63; font:500 9px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
+    .a-mark { position:absolute; right:1.5%; top:22%; width:min(40vw,545px); height:min(53vh,495px); border:0; padding:0; background:transparent; color:#15130f; cursor:pointer; }
+    .big-a { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font:italic clamp(230px,26vw,420px)/.78 "Cardo",serif; letter-spacing:-.11em; transition:transform .9s cubic-bezier(.22,1,.36,1); }
+    .a-mark svg { position:absolute; left:0; top:14%; width:106%; overflow:visible; transform:translateX(8%); pointer-events:none; }
+    .a-mark path { fill:none; stroke:var(--orange); stroke-width:17; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; }
+    .a-mark .sweep { stroke-dasharray:560; stroke-dashoffset:560; opacity:0; transition:stroke-dashoffset 1.04s cubic-bezier(.22,1,.36,1),opacity .025s linear; }
+    .a-mark .head { stroke-dasharray:330; stroke-dashoffset:330; opacity:0; transition:stroke-dashoffset .62s cubic-bezier(.22,1,.36,1) .42s,opacity .025s linear .42s; }
+    .a-mark:is(:hover,:focus-visible) .sweep { stroke-dashoffset:0; opacity:1; }
+    .a-mark:is(:hover,:focus-visible) .head { stroke-dashoffset:0; opacity:1; }
+    .a-mark:is(:hover,:focus-visible) .big-a { transform:translate(calc(-50% + 10px),-50%) rotate(-1deg); }
+    .a-mark:not(:hover):not(:focus-visible) .sweep { transition:stroke-dashoffset .48s ease .08s,opacity .025s linear .55s; }
+    .a-mark:not(:hover):not(:focus-visible) .head { transition:stroke-dashoffset .35s ease,opacity .025s linear .36s; }
+    .mark-hint { position:absolute; right:9%; bottom:9%; color:#9b745f; font:500 9px "JetBrains Mono",monospace; letter-spacing:.14em; text-transform:uppercase; }
+
+    .approval { margin:0 clamp(22px,4vw,60px) 50px; padding-top:28px; display:grid; grid-template-columns:1fr repeat(3,auto); gap:10px; align-items:center; }
+    .approval p { margin:0; color:#b0ada5; font-size:13px; }
+    .approval button { border:1px solid var(--line); background:#111214; color:#d7d4cd; padding:12px 15px; cursor:pointer; }.approval button:hover,.approval button.selected{background:var(--green);color:#071009;border-color:var(--green)}
+    @media(max-width:940px){.top{grid-template-columns:1fr}.b-stage{min-height:680px}.b-copy{top:17%;width:48%;transform:none}.b-copy h2{font-size:55px}.phone-cluster{left:12%;top:210px}.screen.ask-pip{height:62%}.screen.profile{height:78%;left:37%}.screen.accent{height:65%}.a-stage{min-height:690px}.a-word{width:90%}.a-word h2{font-size:80px}.quote-card{width:57%;left:24px}.quote-card blockquote{font-size:29px}.a-mark{right:-3%;top:29%;width:47vw}.big-a{font-size:265px}.approval{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div><p class="eyebrow">Surgical fixes / 05</p><h1>Restore, then adjust.</h1></div>
+    <p>Bupples returns to the original clustered composition. Only Ask Pip’s frame, the one-line title, and the unwanted sentence changed. Adelante’s two arrow segments now stay fully hidden until their own draw begins.</p>
+  </header>
+
+  <main class="review">
+    <section class="review-block">
+      <div class="block-label"><strong>Bupples — restored composition</strong><span>Move pointer · try accent</span></div>
+      <div class="b-stage" id="bStage">
+        <div class="b-head mono"><span>01 / Social expense system</span><span>Product depth field</span></div>
+        <div class="b-copy"><h2>Bupples</h2><em>Money, made social.</em><p>Live balances, receipt intelligence, real-time chat, and settle-up plans across iOS, Android, and web.</p><div class="pip-mark" aria-label="Pip"><i></i><i></i></div></div>
+        <div class="phone-cluster">
+          <figure class="screen ask-pip"><img src="http://127.0.0.1:61964/IMG_4702.jpg" alt="Ask Pip assistant screen" /></figure>
+          <figure class="screen profile"><img src="http://127.0.0.1:61964/IMG_4701.PNG" alt="New Bupples profile screen" /></figure>
+          <figure class="screen accent"><img src="http://127.0.0.1:61964/IMG_4700.PNG" alt="Bupples accent editor screen" /></figure>
+        </div>
+        <button class="accent-button" id="accentButton" type="button"><i></i><span>Change accent</span></button>
+        <div class="cursor-halo" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <section class="review-block">
+      <div class="block-label"><strong>Adelante — arrow alignment fix</strong><span>Hover A · press for next quote</span></div>
+      <div class="a-stage">
+        <div class="a-head mono"><span>03 / Widget-first motivation</span><span>Forward-draw interaction</span></div>
+        <section class="a-word"><h2>Adelante</h2><p>Spanish — “go forward.”</p></section>
+        <section class="quote-card"><blockquote id="quote">“Difficulties are things that show what men are.”</blockquote><p id="cite">Epictetus · Discourses, Book I.24</p></section>
+        <button class="a-mark" id="aMark" type="button" aria-label="Draw the Adelante arrow and show the next quote">
+          <span class="big-a">A</span>
+          <svg viewBox="0 0 560 360" aria-hidden="true"><path class="sweep" d="M34 252 C150 182 290 132 458 142" /><path class="head" d="M360 61 L470 141 L370 244" /></svg>
+        </button>
+        <p class="mark-hint">Hover to draw · press to advance</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="approval">
+    <p>Are these two surgical fixes correct now?</p>
+    <button data-choice="lock-both-v5" onclick="toggleSelect(this)">Lock both</button>
+    <button data-choice="revise-bupples-v5" onclick="toggleSelect(this)">Bupples still off</button>
+    <button data-choice="revise-adelante-v5" onclick="toggleSelect(this)">Adelante still off</button>
+  </div>
+
+  <script>
+    const stage=document.getElementById('bStage');
+    stage.addEventListener('pointermove',(event)=>{const r=stage.getBoundingClientRect(),x=(event.clientX-r.left)/r.width,y=(event.clientY-r.top)/r.height;stage.style.setProperty('--mx',(x-.5).toFixed(3));stage.style.setProperty('--my',(y-.5).toFixed(3));stage.style.setProperty('--px',(event.clientX-r.left)+'px');stage.style.setProperty('--py',(event.clientY-r.top)+'px')});
+    stage.addEventListener('pointerleave',()=>{stage.style.setProperty('--mx',0);stage.style.setProperty('--my',0);stage.style.setProperty('--px','-100px');stage.style.setProperty('--py','-100px')});
+    const accents=['#86bd98','#d4eb47','#67b6c0','#d8bd7d','#bf8ce1'];let ai=0;document.getElementById('accentButton').addEventListener('click',()=>{ai=(ai+1)%accents.length;stage.style.setProperty('--accent',accents[ai])});
+    const quotes=[['“Difficulties are things that show what men are.”','Epictetus · Discourses, Book I.24'],['“Be still, and know that I am God.”','King James Version · Psalm 46:10'],['“But lo! with hardship goeth ease.”',"The Qur’an · Ash-Sharh 94:5"]];let qi=0;const quote=document.getElementById('quote'),cite=document.getElementById('cite');document.getElementById('aMark').addEventListener('click',()=>{quote.classList.add('changing');setTimeout(()=>{qi=(qi+1)%quotes.length;quote.textContent=quotes[qi][0];cite.textContent=quotes[qi][1];quote.classList.remove('changing')},285)});
+  </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bupples and Adelante — project polish</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Cardo:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --site:#0a0a0b; --paper:#f2efe9; --green:#9bcfa5; --line:rgba(242,239,233,.14); --orange:#e97842; }
+    * { box-sizing:border-box; }
+    html { background:var(--site); color:var(--paper); font-family:"Space Grotesk",sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 50% -20%,#292726,transparent 40rem),var(--site); }
+    button { font:inherit; }
+    .page-head { padding:28px clamp(22px,4vw,60px) 24px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr minmax(300px,44ch); align-items:end; gap:35px; }
+    .eyebrow,.mono,.cap b,.approval button { font:500 9px/1.45 "JetBrains Mono",monospace; letter-spacing:.15em; text-transform:uppercase; }
+    .eyebrow { color:var(--green); margin:0 0 10px; }
+    h1 { margin:0; font:800 clamp(27px,3.5vw,54px)/.9 "Archivo",sans-serif; font-stretch:120%; letter-spacing:-.025em; text-transform:uppercase; }
+    .page-head p:last-child { margin:0; color:#aaa79f; font-size:13px; line-height:1.55; }
+    .review { padding:28px clamp(18px,3vw,50px) 0; display:grid; gap:34px; }
+    .review-block { border:1px solid var(--line); background:#101012; padding:8px; }
+    .block-label { display:flex; align-items:center; justify-content:space-between; padding:10px 8px 16px; color:#a8a59e; }
+    .block-label strong { color:#e2dfd7; font:700 16px "Archivo",sans-serif; text-transform:uppercase; }
+    .block-label span { font:500 9px "JetBrains Mono",monospace; letter-spacing:.13em; text-transform:uppercase; }
+    .stage { position:relative; height:min(720px,72vh); min-height:610px; overflow:hidden; isolation:isolate; }
+
+    /* Bupples — right-shifted overlap with a safe pull envelope. */
+    .b-stage { --accent:#86bd98; background:#050b07; color:#f4f0e7; }
+    .b-stage::before { content:""; position:absolute; inset:-20px; z-index:-3; background-image:radial-gradient(circle,var(--accent) 1.1px,transparent 1.55px); background-size:38px 38px; opacity:.1; transform:translate(var(--bgx,0px),var(--bgy,0px)); }
+    .b-stage::after { content:""; position:absolute; z-index:-2; width:58vw; height:47vw; left:72%; top:45%; transform:translate(-50%,-50%); background:radial-gradient(circle,color-mix(in srgb,var(--accent) 23%,transparent),transparent 66%); filter:blur(34px); }
+    .stage-head { position:absolute; left:27px; right:27px; top:22px; display:flex; justify-content:space-between; z-index:9; color:#7f8680; }.stage-head span:first-child{color:var(--accent)}
+    .b-copy { position:absolute; left:clamp(26px,3.8vw,60px); top:44%; transform:translateY(-50%); width:30%; z-index:5; }
+    .b-copy h2 { margin:0; font:900 clamp(48px,5.8vw,93px)/.82 "Archivo",sans-serif; font-stretch:125%; letter-spacing:-.06em; text-transform:uppercase; white-space:nowrap; }
+    .b-copy em { display:block; margin:14px 0 0 18%; color:var(--accent); font:italic clamp(17px,1.7vw,26px) "Instrument Serif",serif; }
+    .b-copy p { max-width:28ch;color:#aaa9a2;font-size:11px;line-height:1.62;margin:23px 0 0; }
+    .pip-mark { margin-top:22px;width:43px;height:33px;position:relative;color:var(--accent); }.pip-mark i{width:30px;height:30px;border:2px solid currentColor;border-radius:50%;position:absolute;top:0;transition:transform .3s}.pip-mark i:first-child{left:0}.pip-mark i:last-child{right:0}.pip-mark::after{content:"⌁";position:absolute;left:17px;top:6px;font-size:14px}.b-stage:hover .pip-mark i:first-child{transform:translateX(3px)}.b-stage:hover .pip-mark i:last-child{transform:translateX(-3px)}
+    .phone-envelope { position:absolute; left:33%; right:0; top:4%; bottom:76px; overflow:visible; perspective:1400px; }
+    .phone-stack { --spread:0px; position:absolute; inset:0 5.5% 0 0; }
+    .phone-stack:hover { --spread:43px; }
+    .screen { position:absolute; left:58%; top:49%; overflow:hidden; background:#070c09; border:5px solid #151c17; box-shadow:0 34px 78px rgba(0,0,0,.6); transition:transform .56s cubic-bezier(.16,1,.3,1),filter .25s,box-shadow .25s; will-change:transform; }
+    .screen img { width:100%;height:100%;display:block;object-fit:contain;background:#050907; }
+    .screen.left { height:75%;aspect-ratio:1290/2225;border-radius:29px;z-index:2;transform:translate3d(calc(-50% - 70px - var(--spread) + var(--lpx,0px)),calc(-50% + var(--lpy,0px)),-45px) rotateY(11deg) rotateZ(-6deg);filter:brightness(.87); }
+    .screen.center { height:91%;aspect-ratio:1290/2796;border-radius:34px;z-index:5;transform:translate3d(calc(-50% + var(--cpx,0px)),calc(-50% + var(--cpy,0px)),75px) rotateZ(1deg); }
+    .screen.right { height:77%;aspect-ratio:1290/2796;border-radius:30px;z-index:3;transform:translate3d(calc(-50% + 78px + var(--spread) + var(--rpx,0px)),calc(-50% + var(--rpy,0px)),-25px) rotateY(-10deg) rotateZ(6deg);filter:brightness(.9); }
+    .screen:hover { filter:brightness(1);box-shadow:0 43px 98px color-mix(in srgb,var(--accent) 22%,transparent); }
+    .screen.left:hover { transform:translate3d(calc(-50% - 86px - var(--spread) + var(--lpx,0px)),calc(-50% - 7px + var(--lpy,0px)),18px) rotateY(6deg) rotateZ(-4deg); }
+    .screen.center:hover { transform:translate3d(calc(-50% + var(--cpx,0px)),calc(-50% - 9px + var(--cpy,0px)),100px) rotateZ(0); }
+    .screen.right:hover { transform:translate3d(calc(-50% + 91px + var(--spread) + var(--rpx,0px)),calc(-50% - 7px + var(--rpy,0px)),18px) rotateY(-6deg) rotateZ(4deg); }
+
+    /* Adelante — an actual discardable widget deck. */
+    .a-stage { background:#faf7f0; color:#15130f; }
+    .a-stage::before { content:""; position:absolute; inset:0; z-index:-2; background:radial-gradient(circle at 80% 28%,rgba(233,120,66,.11),transparent 29%),radial-gradient(circle at 42% 92%,rgba(168,191,181,.24),transparent 33%); }
+    .a-stage .stage-head { color:#756d63; }.a-stage .stage-head span:first-child{color:#a9512d}
+    .a-word { position:absolute; left:clamp(30px,4.7vw,74px); top:5%; z-index:4; }.a-word h2{margin:0;font:400 clamp(78px,10vw,162px)/.9 "Cardo",serif;letter-spacing:-.05em;white-space:nowrap}.a-word p{margin:9px 0 0 28%;color:#756d63;font:italic clamp(16px,1.6vw,24px) "Cardo",serif}
+    .quote-deck { position:absolute; left:5%; bottom:84px; width:min(51%,650px); height:46%; perspective:1200px; cursor:pointer; }
+    .quote-card { position:absolute; inset:0; border-radius:27px; padding:clamp(25px,3vw,43px); box-shadow:0 25px 72px rgba(65,52,34,.13); display:flex; flex-direction:column; justify-content:center; transition:transform .62s cubic-bezier(.16,1,.3,1),opacity .38s ease,filter .38s; }
+    .quote-card[data-position="0"] { z-index:5; transform:translate3d(0,0,40px) rotate(0); opacity:1; }
+    .quote-card[data-position="1"] { z-index:4; transform:translate3d(25px,-17px,-30px) rotate(3.2deg); opacity:.86; }
+    .quote-card[data-position="2"] { z-index:3; transform:translate3d(-21px,-15px,-60px) rotate(-3.8deg); opacity:.74; }
+    .quote-card[data-position="3"] { z-index:2; transform:translate3d(8px,-31px,-90px) scale(.94); opacity:.48; }
+    .quote-deck:hover .quote-card[data-position="1"] { transform:translate3d(37px,-25px,-30px) rotate(4deg); }.quote-deck:hover .quote-card[data-position="2"]{transform:translate3d(-33px,-24px,-60px) rotate(-4.6deg)}
+    .quote-card.leaving { z-index:9!important; transform:translate3d(145px,-35px,110px) rotate(10deg) scale(.97)!important; opacity:0!important; pointer-events:none; }
+    .tone-ivory { background:linear-gradient(135deg,#fffaf1,#f0e7d8);color:#17130e; }.tone-black{background:linear-gradient(135deg,#171615,#090908);color:#f8f4ed}.tone-ocean{background:linear-gradient(135deg,#eaf3f3,#d7e7e8);color:#102020}.tone-sand{background:linear-gradient(135deg,#f3e4c7,#e6cda7);color:#211a11}
+    .quote-card blockquote { margin:0;font:italic clamp(28px,3.35vw,51px)/1.12 "Cardo",serif;letter-spacing:-.025em;text-wrap:balance; }.quote-card cite{margin-top:18px;opacity:.64;font:500 9px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;font-style:normal}.quote-card .card-mark{position:absolute;right:21px;bottom:17px;font:italic 24px "Cardo",serif;color:var(--orange)}.quote-card .discard{position:absolute;left:22px;bottom:19px;font:500 8px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;opacity:.5}.quote-card:not([data-position="0"]) .discard{display:none}
+    .deck-count { position:absolute; left:5%; bottom:58px; color:#756d63; font:500 8px "JetBrains Mono",monospace; letter-spacing:.13em; text-transform:uppercase; }
+    .a-mark { position:absolute; right:2%; top:14%; width:min(39vw,525px); height:min(49vh,470px); border:0; padding:0; background:transparent; color:#15130f; cursor:pointer; }
+    .big-a { position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:italic clamp(225px,25vw,410px)/.78 "Cardo",serif;letter-spacing:-.11em;transition:transform .9s cubic-bezier(.22,1,.36,1); }
+    .a-mark svg { position:absolute;left:0;top:14%;width:106%;overflow:visible;transform:translateX(8%);pointer-events:none; }.a-mark path{fill:none;stroke:var(--orange);stroke-width:17;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.a-mark .sweep{stroke-dasharray:560;stroke-dashoffset:560;opacity:0;transition:stroke-dashoffset 1.04s cubic-bezier(.22,1,.36,1),opacity .025s}.a-mark .head{stroke-dasharray:330;stroke-dashoffset:330;opacity:0;transition:stroke-dashoffset .62s cubic-bezier(.22,1,.36,1) .42s,opacity .025s linear .42s}.a-mark:is(:hover,:focus-visible) .sweep,.a-mark:is(:hover,:focus-visible) .head{stroke-dashoffset:0;opacity:1}.a-mark:is(:hover,:focus-visible) .big-a{transform:translate(calc(-50% + 10px),-50%) rotate(-1deg)}
+    .forward-line { position:absolute; right:5.5%; bottom:15%; width:min(34vw,455px); margin:0; color:#9d5c3e; font:italic clamp(18px,2vw,28px)/1.2 "Cardo",serif; text-align:center; opacity:0; transform:translateY(9px); transition:opacity .55s ease .28s,transform .8s cubic-bezier(.22,1,.36,1) .2s; pointer-events:none; }
+    .a-mark:is(:hover,:focus-visible) + .forward-line { opacity:1; transform:none; }
+
+    /* Compact capability rail preserved from the shared project system. */
+    .cap-strip { position:absolute;left:3%;right:3%;bottom:17px;height:54px;display:grid;grid-template-columns:repeat(4,1fr);z-index:12;border:1px solid currentColor;border-color:color-mix(in srgb,currentColor 15%,transparent);backdrop-filter:blur(14px); }
+    .cap { display:flex;align-items:center;gap:9px;padding:8px 12px;border-right:1px solid color-mix(in srgb,currentColor 14%,transparent);min-width:0; }.cap:last-child{border-right:0}.cap svg{width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.cap b{display:block;font-size:8px}.cap small{display:block;margin-top:1px;font-size:9px;opacity:.66;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.b-stage .cap-strip{color:#a9cfb4;background:rgba(12,20,15,.72)}.a-stage .cap-strip{color:#3f382e;background:rgba(255,253,248,.66)}
+    .approval { margin:28px clamp(22px,4vw,60px) 50px;display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center}.approval p{margin:0;color:#b0ada5;font-size:13px}.approval button{border:1px solid var(--line);background:#111214;color:#d7d4cd;padding:12px 15px;cursor:pointer}.approval button:hover,.approval button.selected{background:var(--green);color:#071009;border-color:var(--green)}
+    @media(max-width:950px){.page-head{grid-template-columns:1fr}.b-copy{top:19%;width:48%;transform:none}.b-copy h2{font-size:55px}.phone-envelope{left:8%;top:185px}.screen.left{height:62%}.screen.center{height:75%}.screen.right{height:64%}.a-word h2{font-size:81px}.quote-deck{width:57%;left:3%}.a-mark{right:-4%;top:22%;width:47vw}.big-a{font-size:270px}.cap small{display:none}.approval{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="page-head">
+    <div><p class="eyebrow">Project polish / 07</p><h1>More room. More product.</h1></div>
+    <p>The row-to-project transition from the previous prototype remains unchanged. This screen focuses only on the shifted Bupples stack and Adelante’s interactive quote deck.</p>
+  </header>
+
+  <main class="review">
+    <section class="review-block">
+      <div class="block-label"><strong>Bupples — shifted overlap</strong><span>Hover the stack and individual screens</span></div>
+      <div class="stage b-stage" id="bStage">
+        <div class="stage-head mono"><span>01 / Social expense system</span><span>Safe pull envelope · no clipping</span></div>
+        <section class="b-copy"><h2>Bupples</h2><em>Money, made social.</em><p>Cent-exact expense sharing, AI receipts, live group chat, and settlement plans across iOS, Android, and web.</p><div class="pip-mark"><i></i><i></i></div></section>
+        <div class="phone-envelope"><div class="phone-stack">
+          <figure class="screen left"><img src="http://127.0.0.1:61964/IMG_4702.jpg" alt="Ask Pip assistant screen" /></figure>
+          <figure class="screen center"><img src="http://127.0.0.1:61964/IMG_4701.PNG" alt="Bupples profile screen" /></figure>
+          <figure class="screen right"><img src="http://127.0.0.1:61964/IMG_4700.PNG" alt="Bupples accent editor" /></figure>
+        </div></div>
+        <div class="cap-strip">
+          <div class="cap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M9 9h4.2a2 2 0 0 1 0 4H11a2 2 0 0 0 0 4h4M12 6v12"/></svg><span><b>Ledger</b><small>ISO 4217 exact</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h5M8 16h3"/><path d="M17 14l2 2 3-4"/></svg><span><b>AI receipts</b><small>Gemini extraction</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg><span><b>Realtime</b><small>Chat + sync</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.7-2.8 8.1-7 10-4.2-1.9-7-5.3-7-10V6z"/><path d="M9 12l2 2 4-5"/></svg><span><b>Protected</b><small>Rules + App Check</small></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="review-block">
+      <div class="block-label"><strong>Adelante — quote deck</strong><span>Hover A · click the front quote</span></div>
+      <div class="stage a-stage">
+        <div class="stage-head mono"><span>03 / Widget-first motivation</span><span>Four quotes · discard to advance</span></div>
+        <section class="a-word"><h2>Adelante</h2><p>Spanish — “go forward.”</p></section>
+        <div class="quote-deck" id="quoteDeck" role="button" tabindex="0" aria-label="Discard the current quote and reveal the next one">
+          <article class="quote-card tone-ivory" data-position="0"><blockquote>“Difficulties are things that show what men are.”</blockquote><cite>Epictetus · Discourses, Book I.24</cite><span class="discard">Click to move forward</span><span class="card-mark">A →</span></article>
+          <article class="quote-card tone-black" data-position="1"><blockquote>“Be still, and know that I am God.”</blockquote><cite>King James Version · Psalm 46:10</cite><span class="discard">Click to move forward</span><span class="card-mark">A →</span></article>
+          <article class="quote-card tone-ocean" data-position="2"><blockquote>“But lo! with hardship goeth ease.”</blockquote><cite>The Qur’an · Ash-Sharh 94:5</cite><span class="discard">Click to move forward</span><span class="card-mark">A →</span></article>
+          <article class="quote-card tone-sand" data-position="3"><blockquote>“The journey of a thousand miles begins with one step.”</blockquote><cite>Lao Tzu · Tao Te Ching</cite><span class="discard">Click to move forward</span><span class="card-mark">A →</span></article>
+        </div>
+        <p class="deck-count" id="deckCount">01 / 04 · tap the widget</p>
+        <button class="a-mark" type="button" aria-label="Draw the Adelante forward arrow"><span class="big-a">A</span><svg viewBox="0 0 560 360" aria-hidden="true"><path class="sweep" d="M34 252 C150 182 290 132 458 142"/><path class="head" d="M360 61 L470 141 L370 244"/></svg></button>
+        <p class="forward-line">Even the smallest step is still forward.</p>
+        <div class="cap-strip">
+          <div class="cap"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 9h6M7 12h9"/></svg><span><b>Native widgets</b><small>iOS + Android</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.7-2.8 8.1-7 10-4.2-1.9-7-5.3-7-10V6z"/><path d="M9 12l2 2 4-5"/></svg><span><b>Private</b><small>No accounts or ads</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="M6 19h12M7 16h10V7H7zM9 4h6"/><path d="M9 11h6"/></svg><span><b>Offline-first</b><small>Cached content</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/><path d="M4 5h7M14 19h6"/></svg><span><b>Validated</b><small>80 automated tests</small></span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="approval"><p>Do these two stage refinements lock the Bupples and Adelante compositions?</p><button data-choice="lock-polish-v7" onclick="toggleSelect(this)">Lock both</button><button data-choice="revise-polish-v7" onclick="toggleSelect(this)">Revise again</button></div>
+  <script>
+    const b=document.getElementById('bStage');b.addEventListener('pointermove',e=>{const r=b.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;b.style.setProperty('--lpx',(x*-18)+'px');b.style.setProperty('--lpy',(y*-11)+'px');b.style.setProperty('--cpx',(x*12)+'px');b.style.setProperty('--cpy',(y*8)+'px');b.style.setProperty('--rpx',(x*20)+'px');b.style.setProperty('--rpy',(y*12)+'px');b.style.setProperty('--bgx',(x*-7)+'px');b.style.setProperty('--bgy',(y*-7)+'px')});
+    b.addEventListener('pointerleave',()=>['--lpx','--lpy','--cpx','--cpy','--rpx','--rpy','--bgx','--bgy'].forEach(k=>b.style.removeProperty(k)));
+    const deck=document.getElementById('quoteDeck'),count=document.getElementById('deckCount');let cards=[...deck.querySelectorAll('.quote-card')],busy=false,index=0;
+    const layout=()=>cards.forEach((card,i)=>card.dataset.position=i);
+    const advance=()=>{if(busy)return;busy=true;const front=cards.shift();front.classList.add('leaving');setTimeout(()=>{front.style.transition='none';front.classList.remove('leaving');cards.push(front);layout();front.getBoundingClientRect();requestAnimationFrame(()=>{front.style.transition='';busy=false});index=(index+1)%cards.length;count.textContent=String(index+1).padStart(2,'0')+' / 04 · tap the widget'},560)};
+    deck.addEventListener('click',advance);deck.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();advance()}});
+  </script>
+</body>
+</html>

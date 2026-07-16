@@ -36,20 +36,12 @@
       if (window.ScrollTrigger) ScrollTrigger.refresh();
     }, 150);
   });
-
-  const copyBtn = document.getElementById('copyMail');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText('yousofselim2@gmail.com');
-        copyBtn.textContent = 'COPIED';
-        copyBtn.classList.add('did');
-        setTimeout(() => { copyBtn.textContent = 'COPY'; copyBtn.classList.remove('did'); }, 1600);
-      } catch (err) {
-        window.location.href = 'mailto:yousofselim2@gmail.com';
-      }
+  document.fonts?.addEventListener?.('loadingdone', () => {
+    requestAnimationFrame(() => {
+      fitNames();
+      if (window.ScrollTrigger) ScrollTrigger.refresh();
     });
-  }
+  });
 
   const timeEl = document.getElementById('localTime');
   const phaseEl = document.getElementById('dayPhase');
@@ -97,11 +89,11 @@
     'FREELANCE — FEB 2023', '4 CLIENT APPS SHIPPED', "BSC '27 — SUNWAY × LANCASTER",
     'NOW BUILDING BUPPLES', 'EN / AR — SUBANG JAYA'
   ];
-  const BONUS = ['PHOTOSHOOT — WEBGL FX', 'TASK MANAGER — DRAG & DROP', 'FALLEN ASTERI — GODOT'];
+  const BONUS = ['PHOTOSHOOT — WEBGL FX', 'ADELANTE — NATIVE WIDGETS', 'FALLEN ASTERI — GODOT'];
 
   /* ── Project sigils — dotted-stroke glyphs, one per case file.
      Bupples = Pip (the app's real mark: two overlapping rings, eyes in the lens),
-     Photoshoot = camera, Task = check card, Fallen Asteri = sword. ── */
+     Photoshoot = camera, Adelante = forward mark, Fallen Asteri = sword. ── */
   const SIGIL_GEO = {
     bupples: {
       strokes: [
@@ -122,12 +114,14 @@
       ],
       idle: 'pulse'
     },
-    task: {
+    adelante: {
       strokes: [
-        { pts: [[27, 27], [73, 27], [73, 73], [27, 73]], close: true, step: 6.2 },
-        { pts: [[37, 51], [46, 60], [63, 39]], step: 4.6, accent: true, tag: 'check' }
+        { pts: [[26, 76], [49, 23], [72, 76]], step: 5.2 },
+        { pts: [[36, 55], [62, 55]], step: 5.2 },
+        { pts: [[39, 73], [57, 69], [75, 57]], step: 5.2, accent: true },
+        { pts: [[67, 50], [76, 57], [69, 66]], step: 4.5, accent: true }
       ],
-      idle: 'check'
+      idle: 'sheen'
     },
     asteri: {
       strokes: [
@@ -267,7 +261,7 @@
   };
 
   /* case-file stamps: the same sigils, printed on each work row for touch screens */
-  const SIGIL_ROWS = ['bupples', 'photoshoot', 'task', 'asteri'];
+  const SIGIL_ROWS = ['bupples', 'photoshoot', 'adelante', 'asteri'];
   document.querySelectorAll('#workList .work-link').forEach((link, i) => {
     const name = SIGIL_ROWS[i];
     if (!SIGIL_GEO[name]) return;
@@ -343,9 +337,10 @@
       nctx.globalAlpha = 1;
     };
     const drawStatic = () => {
+      const ink = getComputedStyle(docEl).getPropertyValue('--ink').trim() || '#f2efe9';
       nameCanvases.forEach((t) => {
         t.x.clearRect(0, 0, NW, NH);
-        t.x.fillStyle = '#f2efe9';
+        t.x.fillStyle = ink;
         drawSet(t.x, setB, 1.2);
       });
     };
@@ -385,10 +380,11 @@
           if (namePhase >= 1) { namePhase = 1; nameDir = -1; nameHold = 3.4; }
           if (namePhase <= 0) { namePhase = 0; nameDir = 1; nameHold = 3.4; }
         }
+        const ink = getComputedStyle(docEl).getPropertyValue('--ink').trim() || '#f2efe9';
         nameCanvases.forEach((t) => {
           if (!t.on) return;
           t.x.clearRect(0, 0, NW, NH);
-          t.x.fillStyle = '#f2efe9';
+          t.x.fillStyle = ink;
           drawSet(t.x, setA, 1 - namePhase);
           drawSet(t.x, setB, namePhase);
         });
@@ -495,7 +491,10 @@
       0.75)
     .to(wrap, { opacity: 1, y: 0, duration: 1.3, ease: 'power3.out' }, 0.75)
     .to('#identityPin [data-load]', { opacity: 1, y: 0, duration: 0.9, stagger: 0.09 }, 1.2)
-    .from('.site-head', { opacity: 0, y: -14, duration: 0.8 }, 1.25);
+    .fromTo('.site-head',
+      { opacity: 0, y: -14 },
+      { opacity: 1, y: 0, duration: 0.8, clearProps: 'opacity,transform' },
+      1.25);
 
   gsap.set('#identityPin [data-load]', { y: 22 });
   gsap.set(wrap, { y: -26 });
@@ -531,10 +530,10 @@
   if (roleTop && roleBottom) {
     const ROLES = [
       ['Software Engineering Student', ['Flutter ', { em: '&' }, ' Full-Stack ', { em: 'Developer' }]],
-      ['Mobile', ['Flutter, Dart ', { em: '&' }, ' React Native']],
-      ['Backend & Data', ['Node.js, Supabase ', { em: '&' }, ' Firebase']],
-      ['Frontend', ['TypeScript, Tailwind ', { em: '&' }, ' responsive UI']],
-      ['Game Systems', ['Godot Engine ', { em: '&' }, ' GDScript']]
+      ['Mobile', ['Flutter, SwiftUI ', { em: '&' }, ' Kotlin']],
+      ['Backend & Data', ['Firebase, Node.js ', { em: '&' }, ' Supabase']],
+      ['Cloud & AI', ['Vertex AI, Gemini ', { em: '&' }, ' MediaPipe']],
+      ['Interactive', ['WebGL2, Electron ', { em: '&' }, ' Godot Engine']]
     ];
     const setParts = (el, parts) => {
       el.textContent = '';
@@ -599,7 +598,7 @@
   }
 
   const portraitImgEl = document.getElementById('portrait');
-  if (portraitImgEl && wrap) {
+  if (portraitImgEl && wrap && finePointer) {
     const srcImg = new Image();
     srcImg.src = 'images/yousof-niche.png';
     srcImg.decode().then(() => {
@@ -654,10 +653,11 @@
       slx.fillStyle = '#0b0b0c';
       slx.fillRect(0, 0, sil.width, sil.height);
 
-      let photoReady = false;
-      const photoImg = new Image();
-      photoImg.src = 'images/yousof-photo.png';
-      photoImg.decode().then(() => { photoReady = true; }).catch(() => {});
+      const photoImg = document.getElementById('gardenImg');
+      let photoReady = Boolean(photoImg && photoImg.complete && photoImg.naturalWidth);
+      if (photoImg && !photoReady) {
+        photoImg.decode().then(() => { photoReady = true; }).catch(() => {});
+      }
 
       const cnv = document.createElement('canvas');
       cnv.width = sw * S; cnv.height = sh * S;
@@ -1340,9 +1340,9 @@
       scrollTrigger: {
         trigger: pinEl,
         start: 'top top',
-        end: '+=205%',
+        end: '+=140%',
         pin: true,
-        scrub: 1.2,
+        scrub: 0.85,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
@@ -1351,6 +1351,7 @@
         }
       }
     })
+      .to('#aboutPanel', { opacity: 1, duration: 0.24, ease: 'power1.inOut' }, 0.14)
       .to('#nmStack', { xPercent: 16, opacity: 0.06, ease: 'power1.inOut', duration: 0.5 }, 0)
       .to(heroMeta, { autoAlpha: 0, y: -50, ease: 'power1.in', duration: 0.26 }, 0)
       .to('#halo', { opacity: 0.4, duration: 0.5 }, 0)
@@ -1528,11 +1529,7 @@
       scrollTrigger: { trigger: '.scene-statement', start: 'top 78%', end: 'center 38%', scrub: 1 }
     });
     stWords.forEach((w) => {
-      stl.to(w, {
-        color: w.classList.contains('st-accent') ? '#9bcfa5' : '#f2efe9',
-        duration: 1,
-        ease: 'none'
-      }, '<55%');
+      stl.to(w, { opacity: 1, duration: 1, ease: 'none' }, '<55%');
     });
   }
 
@@ -1554,14 +1551,18 @@
     });
   });
 
-  gsap.fromTo('.contact-mail',
-    { opacity: 0, y: 34 },
-    { opacity: 1, y: 0, duration: 1, ease: 'power3.out',
-      scrollTrigger: { trigger: '.scene-contact', start: 'top 62%', once: true } });
-  gsap.fromTo('.contact-ghost',
-    { opacity: 0, yPercent: 26 },
-    { opacity: 1, yPercent: 0, duration: 1.6, ease: 'power3.out',
-      scrollTrigger: { trigger: '.scene-contact', start: 'top 45%', once: true } });
+  if (document.querySelector('.contact-mail') && document.querySelector('.scene-contact')) {
+    gsap.fromTo('.contact-mail',
+      { opacity: 0, y: 34 },
+      { opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: '.scene-contact', start: 'top 62%', once: true } });
+  }
+  if (document.querySelector('.contact-ghost') && document.querySelector('.scene-contact')) {
+    gsap.fromTo('.contact-ghost',
+      { opacity: 0, yPercent: 26 },
+      { opacity: 1, yPercent: 0, duration: 1.6, ease: 'power3.out',
+        scrollTrigger: { trigger: '.scene-contact', start: 'top 45%', once: true } });
+  }
 
   const prFill = document.getElementById('prFill');
   const prLabel = document.getElementById('prLabel');
@@ -1571,7 +1572,7 @@
       ease: 'none',
       scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.4 }
     });
-    [['#identity', '00 / IDENTITY'], ['#work', '01 / WORK'], ['#stack', '02 / STACK'], ['#record', '03 / RECORD'], ['#contact', '04 / CONTACT']].forEach(([sel, txt]) => {
+    [['#identity', '00 / IDENTITY'], ['#work', '01 / WORK'], ['#skills', '02 / SKILLS'], ['#education', '03 / EDUCATION'], ['#experience', '04 / EXPERIENCE'], ['#contact', '05 / CONTACT']].forEach(([sel, txt]) => {
       ScrollTrigger.create({
         trigger: sel,
         start: 'top 55%',
@@ -1582,7 +1583,7 @@
   }
 
   const workRows = gsap.utils.toArray('.work-row');
-  if (panelScreen && workRows.length) {
+  if (panelScreen && workRows.length && document.getElementById('workPanel') && document.querySelector('.wp-item')) {
     const items = gsap.utils.toArray('.wp-item');
     const ticks = gsap.utils.toArray('.wp-ticks i');
     const wpIndex = document.getElementById('wpIndex');
@@ -1663,7 +1664,7 @@
     });
   }
 
-  if (finePointer) {
+  if (false && finePointer) {
     const cursor = document.getElementById('cursor');
     const dot = document.getElementById('cursorDot');
     const ring = document.getElementById('cursorRing');

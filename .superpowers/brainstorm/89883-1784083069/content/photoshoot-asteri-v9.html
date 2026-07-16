@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photoshoot and Fallen Asteri — project stages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --site:#0a0a0b; --paper:#f2efe9; --green:#9bcfa5; --line:rgba(242,239,233,.14); --shutter:#c8232d; --asteri:#e0a15a; }
+    * { box-sizing:border-box; }
+    html { background:var(--site); color:var(--paper); font-family:"Space Grotesk",sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 50% -20%,#292726,transparent 40rem),var(--site); }
+    button { font:inherit; }
+    .page-head { padding:28px clamp(22px,4vw,60px) 24px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr minmax(300px,45ch); align-items:end; gap:35px; }
+    .eyebrow,.mono,.cap b,.approval button { font:500 9px/1.45 "JetBrains Mono",monospace; letter-spacing:.15em; text-transform:uppercase; }
+    .eyebrow { color:var(--green); margin:0 0 10px; }
+    h1 { margin:0; font:800 clamp(27px,3.5vw,54px)/.9 "Archivo",sans-serif; font-stretch:120%; letter-spacing:-.025em; text-transform:uppercase; }
+    .page-head p:last-child { margin:0; color:#aaa79f; font-size:13px; line-height:1.55; }
+    .review { padding:28px clamp(18px,3vw,50px) 0; display:grid; gap:34px; }
+    .review-block { border:1px solid var(--line); background:#101012; padding:8px; }
+    .block-label { display:flex; align-items:center; justify-content:space-between; padding:10px 8px 16px; color:#a8a59e; }.block-label strong{color:#e2dfd7;font:700 16px "Archivo",sans-serif;text-transform:uppercase}.block-label span{font:500 9px "JetBrains Mono",monospace;letter-spacing:.13em;text-transform:uppercase}
+    .stage { position:relative; height:min(740px,74vh); min-height:630px; overflow:hidden; isolation:isolate; }
+    .stage-head { position:absolute; left:27px; right:27px; top:22px; display:flex; justify-content:space-between; z-index:20; }
+
+    /* Photoshoot — an operable studio window. */
+    .p-stage { background:#e9e3d6; color:#24221f; }
+    .p-stage::before { content:""; position:absolute; inset:0; z-index:-2; background:radial-gradient(circle at 72% 34%,rgba(255,255,255,.82),transparent 31%),repeating-linear-gradient(0deg,rgba(70,62,48,.025) 0,rgba(70,62,48,.025) 1px,transparent 1px,transparent 4px); }
+    .p-stage .stage-head { color:#746e65; }.p-stage .stage-head span:first-child{color:#9a2b30}
+    .p-copy { position:absolute; left:clamp(27px,4vw,63px); top:40%; width:27%; transform:translateY(-50%); z-index:8; }
+    .p-copy h2 { margin:0; font:900 clamp(48px,5.6vw,90px)/.82 "Archivo",sans-serif; font-stretch:125%; letter-spacing:-.058em; text-transform:uppercase; }
+    .p-copy h2 span { display:block; font:italic 31%/1 "Instrument Serif",serif; letter-spacing:0; text-transform:none; color:#a12e34; margin:13px 0 0 22%; }
+    .p-copy p { max-width:29ch; color:#6d675d; font-size:11px; line-height:1.62; margin:22px 0 0; }
+    .camera-app { position:absolute; left:31%; right:7%; top:8%; bottom:77px; background:linear-gradient(180deg,#f2eee6,#d8d3cb); border:1px solid rgba(50,44,36,.18); border-radius:17px; box-shadow:0 35px 80px rgba(61,51,38,.22),inset 0 1px 0 rgba(255,255,255,.85); overflow:visible; transform:rotate(-1deg); }
+    .camera-bar { height:46px; display:flex; align-items:center; justify-content:center; border-bottom:1px solid rgba(40,35,29,.14); color:#777067; font:500 10px "JetBrains Mono",monospace; letter-spacing:.23em; }
+    .lights { position:absolute; left:17px; top:17px; display:flex; gap:8px; }.lights i{width:11px;height:11px;border-radius:50%}.lights i:nth-child(1){background:#de554f}.lights i:nth-child(2){background:#dda938}.lights i:nth-child(3){background:#4faa65}
+    .viewfinder { position:absolute; left:12px; right:12px; top:58px; bottom:68px; overflow:hidden; background:#111; border-radius:5px; cursor:crosshair; }
+    .viewfinder img { width:100%; height:100%; object-fit:cover; object-position:center 33%; display:block; transform:scale(1.04) translate(var(--vx,0px),var(--vy,0px)); transition:filter .55s,transform .18s ease-out; }
+    .viewfinder[data-effect="mono"] img{filter:grayscale(1) contrast(1.13)}.viewfinder[data-effect="sepia"] img{filter:sepia(.82) contrast(1.08) saturate(.9)}.viewfinder[data-effect="pop"] img{filter:saturate(1.8) contrast(1.18) hue-rotate(8deg)}.viewfinder[data-effect="xray"] img{filter:invert(1) grayscale(1) contrast(1.4)}
+    .rec { position:absolute; left:18px; top:15px; z-index:4; color:#fff; font:500 9px "JetBrains Mono",monospace; letter-spacing:.14em; text-shadow:0 1px 4px #000; }.rec i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#e22d33;margin-right:7px;animation:blink 1.4s infinite}@keyframes blink{50%{opacity:.25}}
+    .lens-point { position:absolute; left:var(--lx,50%); top:var(--ly,50%); width:72px; height:72px; border:1px solid rgba(255,255,255,.62); border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 1px rgba(0,0,0,.24),inset 0 0 28px rgba(255,255,255,.1); pointer-events:none; transition:width .2s,height .2s; }.viewfinder:hover .lens-point{width:92px;height:92px}
+    .readout { position:absolute; left:18px; bottom:15px; color:#fff; opacity:.78; font:500 9px "JetBrains Mono",monospace; letter-spacing:.13em; text-shadow:0 1px 4px #000; }
+    .flash { position:absolute; inset:0; z-index:12; background:#fff; opacity:0; pointer-events:none; }.flash.fire{animation:flash .42s ease-out}@keyframes flash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+    .camera-controls { position:absolute; left:0; right:0; bottom:9px; height:50px; display:flex; align-items:center; justify-content:center; }
+    .shutter { width:55px; height:55px; border-radius:50%; border:5px solid rgba(255,255,255,.92); outline:1px solid rgba(50,20,20,.24); background:var(--shutter); box-shadow:0 5px 11px rgba(90,12,18,.28); cursor:pointer; color:#fff; display:grid; place-items:center; transition:transform .14s,box-shadow .14s; }.shutter:hover{transform:scale(1.08)}.shutter:active{transform:scale(.92);box-shadow:0 2px 4px rgba(90,12,18,.3)}.shutter svg{width:22px;fill:currentColor}
+    .effects { position:absolute; left:14px; bottom:15px; display:flex; gap:6px; }.effect{width:27px;height:21px;border:1px solid rgba(50,43,35,.25);border-radius:5px;background:#ebe7df;cursor:pointer}.effect:nth-child(2){background:#333}.effect:nth-child(3){background:#d5b57b}.effect:nth-child(4){background:linear-gradient(135deg,#5ad,#e66)}.effect.active{outline:2px solid #a72b31;outline-offset:2px}
+    .strip { position:absolute; z-index:10; right:-54px; top:-25px; width:123px; padding:10px 9px 42px; background:#f9f5ec; border:1px solid rgba(60,50,40,.13); box-shadow:0 25px 55px rgba(65,52,37,.22); transform:rotate(4.5deg); display:grid; gap:7px; }
+    .strip-slot { height:86px; background:linear-gradient(135deg,#383634,#121212); overflow:hidden; position:relative; }.strip-slot img{width:100%;height:100%;object-fit:cover;display:block;animation:drop .48s cubic-bezier(.16,1,.3,1)}@keyframes drop{from{transform:translateY(-15px);opacity:0}to{transform:none;opacity:1}}.strip::after{content:"PHOTO · SHOOT";position:absolute;left:0;right:0;bottom:14px;text-align:center;color:#8b8479;font:500 7px "JetBrains Mono",monospace;letter-spacing:.16em}
+    .shot-count { position:absolute; right:78px; bottom:19px; color:#827b71; font:500 8px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
+
+    /* Fallen Asteri — a playable-looking scene with a sword cursor. */
+    .f-stage { background:#120909; color:#f4e8d7; cursor:none; }
+    .f-stage::before { content:""; position:absolute; inset:0; z-index:-3; background:radial-gradient(circle at 60% 50%,rgba(149,69,39,.23),transparent 49%),#120909; }
+    .f-stage .stage-head{color:#a37865}.f-stage .stage-head span:first-child{color:#e0a15a}
+    .f-copy { position:absolute; left:clamp(27px,4vw,63px); top:38%; width:29%; transform:translateY(-50%); z-index:8; }
+    .f-copy h2 { margin:0; font:900 clamp(48px,5.3vw,86px)/.78 "Archivo",sans-serif; font-stretch:120%; letter-spacing:-.052em; text-transform:uppercase; }
+    .f-copy h2 span { display:block; color:#e0a15a; }
+    .f-copy p { max-width:29ch; color:#b79882; font-size:11px; line-height:1.62; margin:22px 0 0; }
+    .play-link { display:inline-flex; align-items:center; gap:8px; margin-top:19px; padding:9px 11px; border:1px solid rgba(224,161,90,.45); color:#e0a15a; font:500 8px "Press Start 2P",monospace; text-transform:uppercase; }
+    .game-frame { position:absolute; left:31%; right:3%; top:9%; bottom:76px; border:7px solid #231213; outline:1px solid rgba(224,161,90,.26); background:#1d1014; overflow:hidden; box-shadow:0 35px 85px rgba(0,0,0,.6); }
+    .game-frame img { width:100%; height:100%; object-fit:cover; image-rendering:pixelated; display:block; transform:scale(1.06) translate(var(--gx,0px),var(--gy,0px)); transition:transform .2s ease-out,filter .16s; }.game-frame.hit img{filter:brightness(1.35) saturate(.7)}
+    .game-frame::after { content:""; position:absolute; inset:0; box-shadow:inset 0 0 90px rgba(28,4,4,.58); pointer-events:none; }
+    .hud { position:absolute; top:16px; left:17px; right:17px; z-index:4; display:flex; justify-content:space-between; align-items:center; color:#f3c28f; font:500 7px "Press Start 2P",monospace; text-shadow:2px 2px #1b0809; }.hearts{letter-spacing:4px;color:#d74746}.hint{opacity:.75}
+    .combat-note { position:absolute; z-index:6; top:48px; right:17px; min-width:250px; padding:11px 13px; background:rgba(22,8,9,.84); border:1px solid rgba(224,161,90,.36); color:#e7bb8a; font:500 7px/1.7 "Press Start 2P",monospace; opacity:0; transform:translateY(-7px); transition:opacity .25s,transform .38s cubic-bezier(.16,1,.3,1); }.combat-note.show{opacity:1;transform:none}
+    .sword-cursor { position:absolute; z-index:30; left:var(--sx,-100px); top:var(--sy,-100px); width:44px; height:7px; border-radius:5px 2px 2px 5px; background:linear-gradient(90deg,#8c5a39 0 22%,#e7dfcf 22% 88%,#fff 88%); box-shadow:0 0 8px rgba(255,232,190,.35); transform:translate(-15%,-50%) rotate(-38deg); transform-origin:15% 50%; pointer-events:none; }.sword-cursor::before{content:"";position:absolute;left:7px;top:-6px;width:3px;height:19px;background:#d19a52;border-radius:2px}
+    .slash { position:absolute; z-index:24; width:130px; height:5px; border-radius:50%; background:linear-gradient(90deg,transparent,#fff3cd 40%,#e8a35a 80%,transparent); box-shadow:0 0 16px #f2b86f; transform:translate(-50%,-50%) rotate(-38deg) scaleX(0); transform-origin:left; animation:slash .42s cubic-bezier(.16,1,.3,1) forwards; pointer-events:none; }.slash::after{content:"HIT";position:absolute;right:-7px;top:-15px;color:#ffd59e;font:500 7px "Press Start 2P",monospace}@keyframes slash{0%{transform:translate(-50%,-50%) rotate(-38deg) scaleX(0);opacity:1}55%{transform:translate(-50%,-50%) rotate(-38deg) scaleX(1)}100%{transform:translate(-50%,-50%) rotate(-38deg) scaleX(1.1);opacity:0}}
+
+    /* Shared compact capability rail. */
+    .cap-strip { position:absolute;left:3%;right:3%;bottom:17px;height:54px;display:grid;grid-template-columns:repeat(4,1fr);z-index:12;border:1px solid currentColor;border-color:color-mix(in srgb,currentColor 15%,transparent);backdrop-filter:blur(14px) }
+    .cap { display:flex;align-items:center;gap:9px;padding:8px 12px;border-right:1px solid color-mix(in srgb,currentColor 14%,transparent);min-width:0 }.cap:last-child{border-right:0}.cap svg{width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.cap b{display:block;font-size:8px}.cap small{display:block;margin-top:1px;font-size:9px;opacity:.66;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.p-stage .cap-strip{color:#4f4941;background:rgba(250,247,239,.7)}.f-stage .cap-strip{color:#e0b17e;background:rgba(22,9,10,.74)}
+    .approval { margin:28px clamp(22px,4vw,60px) 50px;display:grid;grid-template-columns:1fr repeat(3,auto);gap:10px;align-items:center}.approval p{margin:0;color:#b0ada5;font-size:13px}.approval button{border:1px solid var(--line);background:#111214;color:#d7d4cd;padding:12px 15px;cursor:pointer}.approval button:hover,.approval button.selected{background:var(--green);color:#071009;border-color:var(--green)}
+    @media(max-width:950px){.page-head{grid-template-columns:1fr}.p-copy,.f-copy{top:19%;width:48%;transform:none}.p-copy h2,.f-copy h2{font-size:52px}.camera-app,.game-frame{left:10%;top:210px}.strip{right:-30px}.cap small{display:none}.approval{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="page-head"><div><p class="eyebrow">Project stages / 09</p><h1>Operate one. Enter the other.</h1></div><p>Both use the approved archive transition and capability rail. Photoshoot becomes a working miniature booth; Fallen Asteri turns its screenshot into a responsive game scene.</p></header>
+  <main class="review">
+    <section class="review-block">
+      <div class="block-label"><strong>Photoshoot — working shutter</strong><span>Move over viewfinder · choose effect · press shutter</span></div>
+      <div class="stage p-stage">
+        <div class="stage-head mono"><span>02 / Local-first photobooth</span><span>Nothing leaves the device</span></div>
+        <section class="p-copy"><h2>Photo<br/>shoot<span>Strike a pose.</span></h2><p>A live-feeling WebGL viewfinder, tactile shutter, effect controls, and a four-frame strip that fills as the visitor shoots.</p></section>
+        <div class="camera-app">
+          <div class="camera-bar"><span class="lights"><i></i><i></i><i></i></span>PHOTOSHOOT</div>
+          <div class="viewfinder" id="viewfinder" data-effect="none"><img id="viewImage" src="http://127.0.0.1:61965/images/yousof-klcc.jpg" alt="Yousof in KLCC Park inside the Photoshoot viewfinder"/><span class="rec"><i></i>REC</span><span class="lens-point"></span><span class="readout" id="effectLabel">ISO 400 · F/1.8 · CLEAN</span><span class="flash" id="flash"></span></div>
+          <div class="camera-controls"><div class="effects" id="effects"><button class="effect active" data-effect="none" aria-label="Clean effect"></button><button class="effect" data-effect="mono" aria-label="Black and white effect"></button><button class="effect" data-effect="sepia" aria-label="Sepia effect"></button><button class="effect" data-effect="pop" aria-label="Pop art effect"></button></div><button class="shutter" id="shutter" type="button" aria-label="Take a photo"><svg viewBox="0 0 24 24"><path d="M7 5.5 8.6 3h6.8L17 5.5h3A2 2 0 0 1 22 7.5v10A2 2 0 0 1 20 19.5H4a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2h3Zm5 2.2a4.6 4.6 0 1 0 0 9.2 4.6 4.6 0 0 0 0-9.2Z"/></svg></button><span class="shot-count" id="shotCount">0 / 4 captured</span></div>
+          <div class="strip" id="strip"><div class="strip-slot"></div><div class="strip-slot"></div><div class="strip-slot"></div><div class="strip-slot"></div></div>
+        </div>
+        <div class="cap-strip">
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zM7 9h10M7 13h7"/></svg><span><b>WebGL2</b><small>Live GPU pipeline</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="M4 18 9 6l3 8 3-5 5 9z"/><circle cx="18" cy="6" r="2"/></svg><span><b>17 effects</b><small>Real-time GLSL</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="7"/><path d="M8 9h.01M16 9h.01M9 14c2 1.5 4 1.5 6 0"/></svg><span><b>8 face FX</b><small>MediaPipe on-device</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.7-2.8 8.1-7 10-4.2-1.9-7-5.3-7-10V6z"/><path d="M9 12l2 2 4-5"/></svg><span><b>Local-only</b><small>No uploads</small></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="review-block">
+      <div class="block-label"><strong>Fallen Asteri — slash to inspect</strong><span>Move through scene · click to attack</span></div>
+      <div class="stage f-stage" id="fStage">
+        <div class="stage-head mono"><span>04 / 2D platformer</span><span>Click the scene to slash</span></div>
+        <section class="f-copy"><h2>Fallen <span>Asteri</span></h2><p>A full-bleed game scene with restrained parallax. The cursor becomes a sword; attacks reveal how the combat state advances under the art.</p><span class="play-link">Play on itch.io ↗</span></section>
+        <div class="game-frame" id="gameFrame"><img src="http://127.0.0.1:61965/images/fallenasteri.png" alt="Fallen Asteri pixel-art cavern scene"/><div class="hud"><span class="hearts">♥ ♥ ♥</span><span class="hint">MOVE · ATTACK</span></div><div class="combat-note" id="combatNote">ATTACK_STATE → HITBOX_ACTIVE</div></div>
+        <div class="sword-cursor" aria-hidden="true"></div>
+        <div class="cap-strip">
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="m5 19 5-5M9 15l-2-2 8-8 4 4-8 8-2-2z"/></svg><span><b>Combat</b><small>Attack + knockback</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><path d="M4 17h5v-5h5V7h6"/><path d="m16 4 4 3-4 3"/></svg><span><b>Movement</b><small>Player controller</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7"/><rect x="14" y="13" width="7" height="7"/><path d="M10 7h4v10"/></svg><span><b>Scenes</b><small>Transitions + state</small></span></div>
+          <div class="cap"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v7M6 8v8a2 2 0 0 0 2 2h8"/></svg><span><b>Team Git</b><small>Repository lead</small></span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="approval"><p>Which stage needs another pass before these join the approved project system?</p><button data-choice="lock-both-v9" onclick="toggleSelect(this)">Lock both</button><button data-choice="revise-photoshoot-v9" onclick="toggleSelect(this)">Revise Photoshoot</button><button data-choice="revise-asteri-v9" onclick="toggleSelect(this)">Revise Asteri</button></div>
+  <script>
+    const viewfinder=document.getElementById('viewfinder'),viewImage=document.getElementById('viewImage'),flash=document.getElementById('flash'),strip=document.getElementById('strip'),slots=[...strip.children],shotCount=document.getElementById('shotCount'),effectLabel=document.getElementById('effectLabel');let shot=0,currentEffect='none';
+    viewfinder.addEventListener('pointermove',e=>{const r=viewfinder.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;viewfinder.style.setProperty('--lx',(x*100)+'%');viewfinder.style.setProperty('--ly',(y*100)+'%');viewfinder.style.setProperty('--vx',((x-.5)*-7)+'px');viewfinder.style.setProperty('--vy',((y-.5)*-5)+'px')});
+    document.getElementById('effects').addEventListener('click',e=>{const btn=e.target.closest('.effect');if(!btn)return;currentEffect=btn.dataset.effect;viewfinder.dataset.effect=currentEffect;document.querySelectorAll('.effect').forEach(x=>x.classList.toggle('active',x===btn));effectLabel.textContent='ISO 400 · F/1.8 · '+currentEffect.toUpperCase()});
+    document.getElementById('shutter').addEventListener('click',()=>{flash.classList.remove('fire');flash.offsetWidth;flash.classList.add('fire');if(shot===4){slots.forEach(s=>s.textContent='');shot=0}const img=document.createElement('img');img.src=viewImage.src;if(currentEffect==='mono')img.style.filter='grayscale(1) contrast(1.13)';if(currentEffect==='sepia')img.style.filter='sepia(.82) contrast(1.08)';if(currentEffect==='pop')img.style.filter='saturate(1.8) contrast(1.18)';slots[shot].appendChild(img);shot++;shotCount.textContent=shot+' / 4 captured'});
+    const fStage=document.getElementById('fStage'),game=document.getElementById('gameFrame'),note=document.getElementById('combatNote'),notes=['ATTACK_STATE → HITBOX_ACTIVE','HIT_CONFIRMED → KNOCKBACK','RECOVERY → INPUT_READY'];let ni=0,nt=null;
+    fStage.addEventListener('pointermove',e=>{const r=fStage.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;fStage.style.setProperty('--sx',x+'px');fStage.style.setProperty('--sy',y+'px');game.style.setProperty('--gx',((x/r.width-.5)*-8)+'px');game.style.setProperty('--gy',((y/r.height-.5)*-5)+'px')});
+    fStage.addEventListener('pointerleave',()=>{fStage.style.setProperty('--sx','-100px');fStage.style.setProperty('--sy','-100px')});
+    game.addEventListener('click',e=>{const r=fStage.getBoundingClientRect(),slash=document.createElement('span');slash.className='slash';slash.style.left=(e.clientX-r.left)+'px';slash.style.top=(e.clientY-r.top)+'px';fStage.appendChild(slash);setTimeout(()=>slash.remove(),460);game.classList.add('hit');setTimeout(()=>game.classList.remove('hit'),130);note.textContent=notes[ni];ni=(ni+1)%notes.length;note.classList.add('show');clearTimeout(nt);nt=setTimeout(()=>note.classList.remove('show'),1100)});
+  </script>
+</body>
+</html>

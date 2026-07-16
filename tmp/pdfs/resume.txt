@@ -1,0 +1,51 @@
+YOUSOF SELIM
+Software Engineering Student | Mobile & Full-Stack Developer
+Available for full-time internship: Jan-Apr 2027 | Subang Jaya / Kuala Lumpur, Malaysia
++60 11-2708 3787 | yousofselim2@gmail.com
+linkedin.com/in/ysf-slm | github.com/yeegz | yeegz.github.io
+SUMMARY
+Software Engineering student graduating in 2027 with 3+ years of experience building and shipping mobile, web, and desktop
+products. Sole developer of cross-platform applications spanning iOS, Android, web, and Windows, with strengths in
+Flutter/Dart, Firebase, TypeScript/Node.js, SQL/NoSQL, native integrations, automated testing, and end-to-end delivery.
+EDUCATION
+Bachelor of Software Engineering (Hons) | Sunway University / Lancaster University                               Expected 2027
+Subang Jaya, Malaysia | Relevant Coursework: Software Architecture, Data Structures, Mobile Development, Databases, UI/UX Design
+Foundation in Information Technology | Multimedia University                                               May 2023 - Jul 2024
+Cyberjaya, Malaysia | Programming, Data Structures, Networking, and Web Fundamentals
+
+TECHNICAL SKILLS
+Languages: Dart, TypeScript, JavaScript, Python, SQL, HTML/CSS
+Mobile & Frontend: Flutter, Riverpod, Swift/SwiftUI, Kotlin, WidgetKit, Android RemoteViews, Electron, WebGL2
+Backend & Data: Firebase, Firestore, Cloud Functions, Node.js, REST APIs, Supabase/PostgreSQL
+Cloud, AI & Services: Vertex AI, Gemini, MediaPipe, RevenueCat, Remote Config, App Check
+Tools: Git/GitHub, Xcode, Figma, Godot Engine
+Spoken Languages: English (Fluent), Arabic (Native)
+SELECTED PROJECTS
+Bupples - Social Expense App | Flutter, Firebase, Vertex AI, RevenueCat | GitHub | Live App                   Feb 2026 - Present
+• Built and launched a social expense-sharing product across iOS, Android, and web as sole developer, owning product design,
+   Flutter development, Firebase backend architecture, security, and release workflows.
+• Engineered a cent-exact ISO 4217 multi-currency ledger with idempotent Cloud Functions and Firestore Security Rules;
+   integrated Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.
+Adelante - Widget-First Motivation App | Flutter, Swift, Kotlin, Firebase | GitHub                            Jun 2026 - Present
+• Built a privacy-first motivation app with native WidgetKit/SwiftUI and Android RemoteViews widgets for Home Screen, Lock
+   Screen, and StandBy - without accounts, analytics, or ads.
+• Designed a Firestore and scheduled Cloud Functions content pipeline with offline caching, deduplication, quality scoring, and
+   strict filtering; validated reliability with 80 automated tests.
+Photoshoot - Photobooth App | TypeScript, Electron, WebGL2 | GitHub | Live App                                Jun 2026 - Present
+• Built and deployed a Windows and browser photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time
+   GLSL effects and 8 on-device MediaPipe face effects.
+• Engineered a local-first Electron/WebGL2 architecture with context isolation, sandboxing, strict CSP, and Firebase Hosting,
+   keeping camera processing and captures on-device.
+Tajweed Interactive Web App | Frontend, UI/UX | GitHub                                                       Sep 2025 - Present
+• Redesigned navigation, information architecture, and lesson flows for a Quranic recitation platform, improving discoverability,
+   accessibility, and visual hierarchy.
+Fallen Asteri - 2D Platformer | Godot Engine, GDScript | GitHub                                             Apr 2024 - Jun 2024
+• Implemented player movement, combat, and scene transitions in a 2D platformer; structured the Git/GitHub repository for
+   team development.
+EXPERIENCE & LEADERSHIP
+Digital Marketing Executive | Sunway Cybersecurity Club | Subang Jaya, Malaysia                            Jan 2026 - Present
+• Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards,
+  and industry activities.
+• Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the
+  committee and external partners.
+

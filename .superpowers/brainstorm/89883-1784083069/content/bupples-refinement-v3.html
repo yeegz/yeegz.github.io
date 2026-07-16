@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bupples case-stage refinement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --site:#0a0a0b; --ink:#f3f0e8; --green:#9bcfa5; --line:rgba(243,240,232,.14); }
+    * { box-sizing:border-box; }
+    html { background:var(--site); color:var(--ink); font-family:"Space Grotesk",sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 50% -20%,#262727,transparent 36rem),var(--site); }
+    button { font:inherit; }
+    .top { padding:28px clamp(22px,4vw,60px) 24px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr minmax(280px,42ch); align-items:end; gap:34px; }
+    .eyebrow,.mono,.project-tab,.meta,.approval button,.system-card span { font:500 9px/1.45 "JetBrains Mono",monospace; letter-spacing:.15em; text-transform:uppercase; }
+    .eyebrow { color:var(--green); margin:0 0 10px; }
+    h1 { font:800 clamp(26px,3.4vw,52px)/.9 "Archivo",sans-serif; font-stretch:120%; letter-spacing:-.025em; text-transform:uppercase; margin:0; }
+    .top p:last-child { margin:0; color:#aaa79f; font-size:13px; line-height:1.55; }
+    .frame { margin:28px clamp(18px,3vw,50px) 0; padding:8px; border:1px solid var(--line); background:#101012; }
+    .case { min-height:min(760px,78vh); display:grid; grid-template-columns:220px 1fr; overflow:hidden; }
+    .shelf { background:#111214; border-right:1px solid rgba(255,255,255,.12); padding:26px 17px; display:flex; flex-direction:column; }
+    .brand { font:800 21px "Archivo",sans-serif; margin-bottom:34px; }.brand i{display:inline-block;width:7px;height:7px;background:var(--green);margin-left:3px}
+    .project-tab { color:#777; border:0; border-top:1px solid rgba(255,255,255,.12); background:none; padding:15px 11px; display:flex; align-items:center; justify-content:space-between; }
+    .project-tab strong { font:700 15px "Archivo",sans-serif; letter-spacing:0; color:#d8d6d0; }
+    .project-tab.active { background:#202521; color:#8dc8a1; margin:0 -8px; padding-left:19px; padding-right:19px; }
+    .shelf-note { margin:auto 8px 0; color:#6f716e; font-size:9px; line-height:1.7; }
+    .stage { --accent:#86bd98; position:relative; overflow:hidden; isolation:isolate; background:#050b07; cursor:crosshair; }
+    .stage::before { content:""; position:absolute; inset:-20px; z-index:-3; background-image:radial-gradient(circle,var(--accent) 1.1px,transparent 1.55px); background-size:38px 38px; opacity:.1; transform:translate(calc(var(--mx,0)*-10px),calc(var(--my,0)*-10px)); }
+    .stage::after { content:""; position:absolute; width:56vw; height:50vw; z-index:-2; left:56%; top:48%; transform:translate(-50%,-50%) translate(calc(var(--mx,0)*30px),calc(var(--my,0)*22px)); background:radial-gradient(circle,color-mix(in srgb,var(--accent) 25%,transparent),transparent 64%); filter:blur(35px); }
+    .stage-head { position:absolute; z-index:8; left:28px; right:28px; top:22px; display:flex; align-items:center; justify-content:space-between; }
+    .stage-head span:first-child { color:var(--accent); }
+    .stage-head span:last-child { color:#888c88; }
+    .title { position:absolute; left:clamp(26px,3.7vw,58px); top:13%; z-index:6; }
+    .title h2 { margin:0; color:#f4f0e7; font:900 clamp(50px,6.1vw,102px)/.8 "Archivo",sans-serif; font-stretch:125%; letter-spacing:-.06em; text-transform:uppercase; white-space:nowrap; }
+    .title em { display:block; color:var(--accent); font:italic clamp(17px,1.8vw,27px) "Instrument Serif",serif; margin:12px 0 0 18%; }
+    .title p { max-width:28ch; margin:20px 0 0; color:#aaa9a2; font-size:11px; line-height:1.6; }
+    .pip-id { display:flex; align-items:center; gap:9px; margin-top:20px; color:var(--accent); }
+    .rings { width:35px; height:28px; position:relative; }
+    .rings i { position:absolute; width:25px; height:25px; border:2px solid currentColor; border-radius:50%; top:0; transition:transform .28s; }.rings i:first-child{left:0}.rings i:last-child{right:0}
+    .rings::after { content:"⌁"; position:absolute; left:14px; top:5px; font-size:13px; }
+    .stage:hover .rings i:first-child { transform:translateX(3px); }.stage:hover .rings i:last-child{transform:translateX(-3px)}
+    .pip-id b { font:500 9px "JetBrains Mono",monospace; letter-spacing:.14em; }
+    .ui-card { position:absolute; overflow:hidden; background:#0d120f; border:4px solid #151c17; box-shadow:0 34px 78px rgba(0,0,0,.58); transition:transform .16s ease-out,filter .24s,box-shadow .24s; will-change:transform; }
+    .ui-card img { width:100%; height:100%; display:block; object-fit:contain; background:#050907; }
+    .ui-card:hover { z-index:7; filter:brightness(1.06); box-shadow:0 42px 95px color-mix(in srgb,var(--accent) 21%,transparent); }
+    .pip-card { left:5%; bottom:-8%; height:min(48vh,475px); aspect-ratio:1290/2225; border-radius:26px; transform:translate3d(calc(var(--mx,0)*-34px),calc(var(--my,0)*-20px),-20px) rotateZ(-4deg); z-index:2; }
+    .profile-card { left:39%; top:10%; height:min(68vh,660px); aspect-ratio:1290/2796; border-radius:34px; transform:translate3d(calc(var(--mx,0)*46px),calc(var(--my,0)*30px),80px) rotateZ(1deg); z-index:5; }
+    .accent-card { right:3%; top:20%; height:min(57vh,560px); aspect-ratio:1290/2796; border-radius:30px; transform:translate3d(calc(var(--mx,0)*76px),calc(var(--my,0)*44px),0) rotateZ(5deg); z-index:3; filter:brightness(.92); }
+    .pip-card::after { content:"ASK PIP"; position:absolute; right:12px; top:12px; background:rgba(5,10,7,.84); color:var(--accent); border:1px solid color-mix(in srgb,var(--accent) 44%,transparent); padding:7px 9px; border-radius:999px; font:500 8px "JetBrains Mono",monospace; letter-spacing:.13em; }
+    .accent-button { position:absolute; right:24px; bottom:24px; z-index:9; border:1px solid color-mix(in srgb,var(--accent) 58%,transparent); background:#0d1510; color:var(--accent); border-radius:999px; padding:10px 13px; cursor:pointer; display:flex; gap:9px; align-items:center; font:500 8px "JetBrains Mono",monospace; letter-spacing:.13em; }
+    .accent-button i { width:13px; height:13px; border-radius:50%; background:conic-gradient(#ff36d3,#ff4234,#ffde34,#35ef61,#3be4ff,#3054ff,#a332ff,#ff36d3); }
+    .cursor-halo { position:absolute; left:var(--px,-100px); top:var(--py,-100px); width:96px; height:96px; border-radius:50%; border:1px solid color-mix(in srgb,var(--accent) 48%,transparent); transform:translate(-50%,-50%); pointer-events:none; z-index:10; }
+    .system { margin:30px clamp(22px,4vw,60px) 0; }
+    .system h3 { margin:0 0 8px; font:800 clamp(22px,2.6vw,39px)/1 "Archivo",sans-serif; font-stretch:115%; text-transform:uppercase; }
+    .system > p { color:#8f8d87; font-size:12px; margin:0 0 18px; }
+    .system-grid { display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--line); }
+    .system-card { padding:18px; background:#101012; }.system-card:first-child{border-right:1px solid var(--line)}
+    .system-card span { color:var(--green); }.system-card h4{margin:13px 0 7px;font:700 17px "Archivo",sans-serif;text-transform:uppercase}.system-card p{margin:0;color:#918e87;font-size:11px;line-height:1.55}
+    .approval { margin:26px clamp(22px,4vw,60px) 48px; display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; }
+    .approval p { margin:0; color:#b0ada5; font-size:13px; }
+    .approval button { border:1px solid var(--line); background:#111214; color:#d7d4cd; padding:12px 15px; cursor:pointer; }.approval button:hover,.approval button.selected{background:var(--green);color:#071009;border-color:var(--green)}
+    @media(max-width:900px){.top{grid-template-columns:1fr}.case{grid-template-columns:1fr;min-height:760px}.shelf{display:none}.title{top:10%}.title h2{font-size:56px}.pip-card{left:4%;height:42vh}.profile-card{left:36%;height:56vh;top:25%}.accent-card{right:-4%;height:46vh;top:31%}.system-grid{grid-template-columns:1fr}.system-card:first-child{border-right:0;border-bottom:1px solid var(--line)}.approval{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div><p class="eyebrow">Bupples / refinement 03</p><h1>Same archive. A stronger lead act.</h1></div>
+    <p>The site keeps one project-section rhythm, while each case changes its composition, product palette, motion physics, and signature interaction. Bupples is now being locked before the next case.</p>
+  </header>
+
+  <div class="frame">
+    <div class="case">
+      <aside class="shelf">
+        <div class="brand">ysf.slm<i></i></div>
+        <div class="project-tab active"><strong>Bupples</strong><span>01</span></div>
+        <div class="project-tab"><strong>Photoshoot</strong><span>02</span></div>
+        <div class="project-tab"><strong>Adelante</strong><span>03</span></div>
+        <div class="project-tab"><strong>Fallen Asteri</strong><span>04</span></div>
+        <p class="shelf-note mono">Shared navigation and editorial rhythm. Different stagecraft inside every open case.</p>
+      </aside>
+      <main class="stage" id="stage">
+        <div class="stage-head mono"><span>01 / Social expense system</span><span>Move pointer · try accent</span></div>
+        <section class="title">
+          <h2>Bupples</h2>
+          <em>Money, made social.</em>
+          <p>Live balances, receipt intelligence, real-time chat, and settle-up plans built across iOS, Android, and web.</p>
+          <div class="pip-id"><span class="rings"><i></i><i></i></span><b>PIP / AI EXPENSE ASSISTANT</b></div>
+        </section>
+        <figure class="ui-card pip-card"><img src="http://127.0.0.1:61964/IMG_4702.jpg" alt="Ask Pip assistant screen" /></figure>
+        <figure class="ui-card profile-card"><img src="http://127.0.0.1:61964/IMG_4701.PNG" alt="New Bupples profile screen" /></figure>
+        <figure class="ui-card accent-card"><img src="http://127.0.0.1:61964/IMG_4700.PNG" alt="Bupples custom accent screen" /></figure>
+        <button class="accent-button" id="accentButton" type="button"><i></i><span>Change accent</span></button>
+        <div class="cursor-halo" aria-hidden="true"></div>
+      </main>
+    </div>
+  </div>
+
+  <section class="system">
+    <h3>Controlled variation</h3>
+    <p>Enough consistency to feel like one portfolio; enough authorship for each project to be remembered.</p>
+    <div class="system-grid">
+      <article class="system-card"><span>Shared across all four</span><h4>Archive frame</h4><p>Case shelf, index language, information hierarchy, typography family, keyboard behavior, reduced-motion behavior, and the same exit/next-project controls.</p></article>
+      <article class="system-card"><span>Unique to each case</span><h4>Lead act</h4><p>Palette, media arrangement, one product-specific interaction, cursor response, and transition choreography. These change without rebuilding the whole page grammar.</p></article>
+    </div>
+  </section>
+
+  <div class="approval">
+    <p>Does this lock the Bupples section, including the revised Ask Pip treatment?</p>
+    <button data-choice="lock-bupples-v3" onclick="toggleSelect(this)">Lock Bupples</button>
+    <button data-choice="revise-ask-pip-again" onclick="toggleSelect(this)">Revise Ask Pip again</button>
+  </div>
+
+  <script>
+    const stage = document.getElementById('stage');
+    stage.addEventListener('pointermove', (event) => {
+      const rect = stage.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width;
+      const y = (event.clientY - rect.top) / rect.height;
+      stage.style.setProperty('--mx',(x-.5).toFixed(3));
+      stage.style.setProperty('--my',(y-.5).toFixed(3));
+      stage.style.setProperty('--px',(event.clientX-rect.left)+'px');
+      stage.style.setProperty('--py',(event.clientY-rect.top)+'px');
+    });
+    stage.addEventListener('pointerleave',()=>{stage.style.setProperty('--mx',0);stage.style.setProperty('--my',0);stage.style.setProperty('--px','-100px');stage.style.setProperty('--py','-100px')});
+    const accents=['#86bd98','#d4eb47','#67b6c0','#d8bd7d','#bf8ce1'];let i=0;
+    document.getElementById('accentButton').addEventListener('click',()=>{i=(i+1)%accents.length;stage.style.setProperty('--accent',accents[i])});
+  </script>
+</body>
+</html>

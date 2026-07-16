@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project stage direction — ysf.slm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#f3f0e8; --muted:#96938c; --line:rgba(243,240,232,.14); --green:#9bcfa5; }
+    * { box-sizing:border-box; }
+    html { background:#09090a; color:var(--ink); font-family:"Space Grotesk",sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 50% -30%,#272329 0,transparent 35rem),#09090a; min-height:100vh; }
+    button { font:inherit; }
+    .top { padding:34px clamp(24px,4vw,64px) 28px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr auto; gap:30px; align-items:end; position:sticky; top:0; z-index:20; background:rgba(9,9,10,.88); backdrop-filter:blur(18px); }
+    .eyebrow,.kicker,.meta,.project-index,.chrome,.swatches { font:500 10px/1.4 "JetBrains Mono",monospace; letter-spacing:.16em; text-transform:uppercase; }
+    .eyebrow { color:var(--green); margin:0 0 12px; }
+    h1 { font:700 clamp(26px,3.3vw,52px)/.92 "Archivo",sans-serif; font-stretch:120%; letter-spacing:-.025em; margin:0; max-width:900px; text-transform:uppercase; }
+    .intro { margin:0; color:#b9b6ae; max-width:42ch; font-size:14px; line-height:1.55; text-align:right; }
+    .choices { display:grid; gap:34px; padding:38px clamp(24px,4vw,64px) 70px; max-width:1680px; margin:auto; }
+    .card { border:1px solid var(--line); background:#101012; padding:10px; cursor:pointer; position:relative; transition:border-color .22s,transform .22s,box-shadow .22s; border-radius:2px; }
+    .card:hover { transform:translateY(-3px); border-color:rgba(155,207,165,.46); }
+    .card.selected { border-color:var(--green); box-shadow:0 0 0 1px var(--green),0 20px 70px rgba(78,120,86,.16); }
+    .badge { position:absolute; z-index:8; right:24px; top:24px; background:#0c0c0d; border:1px solid rgba(255,255,255,.18); color:#ddd9d0; padding:8px 11px; font:500 9px "JetBrains Mono",monospace; letter-spacing:.13em; }
+    .recommended .badge { background:var(--green); color:#08110a; border-color:var(--green); font-weight:700; }
+    .preview { min-height:clamp(460px,56vw,710px); border:1px solid rgba(255,255,255,.08); overflow:hidden; position:relative; }
+    .copy { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,.55fr); gap:36px; padding:22px 14px 12px; align-items:start; }
+    .copy h2 { margin:0 0 7px; font:700 21px/1.05 "Archivo",sans-serif; font-stretch:115%; text-transform:uppercase; }
+    .copy p { margin:0; color:#aaa79f; font-size:13px; line-height:1.55; max-width:62ch; }
+    .trade { border-left:1px solid var(--line); padding-left:24px; }
+    .trade b { color:#dedbd3; font-weight:500; }
+
+    /* A — anthology */
+    .anthology { background:#9f3d2f; color:#fff5e9; display:grid; grid-template-columns:29% 47% 24%; isolation:isolate; }
+    .anthology::after { content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 58% 45%,rgba(255,206,137,.34),transparent 30%),linear-gradient(90deg,rgba(40,10,8,.22),transparent 38%); z-index:-1; }
+    .anthology .chrome { position:absolute; top:24px; left:26px; right:26px; display:flex; justify-content:space-between; color:rgba(255,245,233,.7); z-index:5; }
+    .a-left { padding:clamp(80px,9vw,125px) 10px 28px clamp(24px,4vw,58px); display:flex; flex-direction:column; justify-content:space-between; }
+    .project-index { color:#ffd6ae; }
+    .a-left h3 { font:800 clamp(48px,7vw,112px)/.76 "Archivo",sans-serif; font-stretch:125%; letter-spacing:-.055em; margin:14px 0 20px; text-transform:uppercase; }
+    .a-left .serif { display:block; font:italic 32%/1 "Instrument Serif",serif; letter-spacing:0; text-transform:none; color:#ffd7a9; margin-left:22%; }
+    .a-left p { max-width:27ch; line-height:1.55; font-size:clamp(11px,1vw,14px); color:rgba(255,245,233,.82); }
+    .a-center { display:flex; align-items:center; justify-content:center; position:relative; min-width:0; }
+    .phones { width:94%; height:76%; display:flex; align-items:center; justify-content:center; gap:2.2%; transform:rotate(-2deg); }
+    .phone { position:relative; height:76%; width:28%; background:#15110f; border:5px solid #251713; border-radius:28px; overflow:hidden; box-shadow:0 25px 60px rgba(42,9,5,.42); }
+    .phone:nth-child(2) { height:91%; transform:translateY(-2%); z-index:2; }
+    .phone img { width:100%; height:100%; object-fit:cover; }
+    .a-right { padding:clamp(88px,10vw,140px) clamp(22px,3vw,44px) 30px 12px; border-left:1px solid rgba(255,245,233,.24); display:flex; flex-direction:column; justify-content:space-between; }
+    .spec { display:grid; gap:18px; }
+    .spec div { padding-top:10px; border-top:1px solid rgba(255,245,233,.23); }
+    .spec span { display:block; font:500 9px "JetBrains Mono",monospace; letter-spacing:.14em; color:#ffd6ae; text-transform:uppercase; margin-bottom:6px; }
+    .spec b { font-size:12px; font-weight:500; }
+    .swatches { display:flex; gap:7px; align-items:center; color:rgba(255,255,255,.7); }
+    .swatches i { width:18px; height:18px; border-radius:50%; border:1px solid rgba(255,255,255,.35); }
+    .swatches i:nth-of-type(1){background:#9f3d2f}.swatches i:nth-of-type(2){background:#111217}.swatches i:nth-of-type(3){background:#dce9e9}.swatches i:nth-of-type(4){background:#30335f}
+    .chapter-tabs { position:absolute; left:0; right:0; bottom:0; display:grid; grid-template-columns:repeat(4,1fr); background:#151112; color:#ddd; height:32px; z-index:6; }
+    .chapter-tabs span { display:flex; align-items:center; justify-content:center; border-right:1px solid #343030; font:500 8px "JetBrains Mono",monospace; letter-spacing:.12em; }
+    .chapter-tabs span:first-child { background:#fff1df; color:#5e1e16; }
+
+    /* B — reel */
+    .reel { background:#e4e7e3; color:#171819; display:grid; grid-template-rows:53px 1fr 76px; }
+    .reel .nav { padding:0 25px; border-bottom:1px solid rgba(0,0,0,.18); display:flex; align-items:center; justify-content:space-between; font:600 10px "JetBrains Mono",monospace; letter-spacing:.12em; }
+    .reel-main { display:grid; grid-template-columns:40% 60%; min-height:0; }
+    .reel-copy { padding:clamp(30px,5vw,72px); border-right:1px solid rgba(0,0,0,.16); display:flex; flex-direction:column; justify-content:center; }
+    .reel-copy h3 { margin:0; font:800 clamp(48px,7.7vw,126px)/.75 "Archivo",sans-serif; font-stretch:125%; text-transform:uppercase; letter-spacing:-.06em; }
+    .reel-copy p { max-width:34ch; color:#565a59; font-size:13px; line-height:1.55; margin:26px 0; }
+    .reel-shot { margin:clamp(22px,3vw,48px); border-radius:12px; overflow:hidden; background:#111; box-shadow:0 30px 70px rgba(0,0,0,.22); position:relative; }
+    .reel-shot img { width:100%; height:100%; object-fit:cover; display:block; }
+    .reel-shot::after { content:"DRAG / SCROLL →"; position:absolute; bottom:16px; right:16px; padding:8px 10px; background:#f1f0e9; color:#111; font:500 8px "JetBrains Mono",monospace; letter-spacing:.13em; }
+    .filmstrip { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid rgba(0,0,0,.18); }
+    .filmstrip span { padding:15px 18px; border-right:1px solid rgba(0,0,0,.18); font:600 10px "JetBrains Mono",monospace; letter-spacing:.08em; display:flex; justify-content:space-between; align-items:center; }
+    .filmstrip span:nth-child(2) { background:#141519; color:#f4f3ed; }
+
+    /* C — curtain */
+    .curtain { background:#0f1012; display:grid; grid-template-columns:31% 69%; }
+    .shelf { padding:58px 28px 28px; border-right:1px solid rgba(255,255,255,.12); background:#111214; }
+    .shelf-head { font:700 26px "Archivo",sans-serif; text-transform:uppercase; margin-bottom:28px; }
+    .poster { padding:15px 10px; border-top:1px solid rgba(255,255,255,.15); display:flex; justify-content:space-between; align-items:center; font:600 11px "JetBrains Mono",monospace; letter-spacing:.08em; color:#8c8c8c; }
+    .poster strong { color:#f1eee7; font:700 19px "Archivo",sans-serif; text-transform:uppercase; }
+    .poster.active { background:#2c315e; margin:0 -12px; padding-left:22px; padding-right:22px; color:#cfd5ff; }
+    .case-open { background:#30345f; color:#f4f1ed; position:relative; padding:clamp(70px,8vw,112px) clamp(28px,5vw,76px) 38px; overflow:hidden; }
+    .case-open::before { content:"A"; position:absolute; right:-.04em; bottom:-.25em; font:900 54vw/1 "Archivo",sans-serif; color:rgba(255,255,255,.035); }
+    .case-open h3 { font:800 clamp(54px,10vw,150px)/.72 "Archivo",sans-serif; font-stretch:120%; text-transform:uppercase; letter-spacing:-.055em; margin:0 0 24px; position:relative; }
+    .case-open h3 em { display:block; font:italic 30%/1 "Instrument Serif",serif; text-transform:none; letter-spacing:0; color:#d9dff5; margin-left:28%; }
+    .widgets { position:relative; width:90%; margin:22px auto 0; transform:rotate(-1.5deg); filter:drop-shadow(0 25px 38px rgba(0,0,0,.25)); }
+    .widgets img { width:100%; display:block; }
+    .case-note { position:absolute; top:28px; right:34px; font:500 9px "JetBrains Mono",monospace; letter-spacing:.13em; color:#cbd0ec; }
+
+    .hint { padding:0 clamp(24px,4vw,64px) 55px; max-width:1680px; margin:auto; color:#89867f; font:500 11px "JetBrains Mono",monospace; letter-spacing:.08em; }
+    @media(max-width:850px){
+      .top{position:relative;grid-template-columns:1fr}.intro{text-align:left}.copy{grid-template-columns:1fr}.trade{border-left:0;border-top:1px solid var(--line);padding:16px 0 0}.preview{min-height:500px}.anthology{grid-template-columns:38% 62%}.a-right{display:none}.a-left h3{font-size:54px}.phone{width:36%;height:63%}.phone:first-child{display:none}.reel-main{grid-template-columns:1fr}.reel-copy{position:absolute;z-index:2;background:linear-gradient(90deg,rgba(228,231,227,.96),rgba(228,231,227,.72),transparent);inset:53px 25% 76px 0}.reel-shot{grid-column:1}.curtain{grid-template-columns:1fr}.shelf{display:none}.case-open h3{font-size:68px}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div>
+      <p class="eyebrow">01 / Project-stage direction</p>
+      <h1>How should each project take over the screen?</h1>
+    </div>
+    <p class="intro">All three replace Task Manager with <strong>Adelante</strong> and give every project its own palette. Click the direction that feels most like your site.</p>
+  </header>
+
+  <main class="choices">
+    <article class="card recommended" data-choice="scroll-anthology" onclick="toggleSelect(this)">
+      <span class="badge">Recommended · A</span>
+      <div class="preview anthology">
+        <div class="chrome"><span>YSF.SLM / CASE FILE 01</span><span>SCROLL TO CHANGE CHAPTER ↓</span></div>
+        <section class="a-left">
+          <div>
+            <span class="project-index">01 / Bupples</span>
+            <h3>Bup<br/>ples<span class="serif">money, made social.</span></h3>
+            <p>A full-viewport chapter. Copy, proof, and product sit together while the page borrows this project’s visual world.</p>
+          </div>
+          <div class="swatches">PROJECT THEMES <i></i><i></i><i></i><i></i></div>
+        </section>
+        <section class="a-center">
+          <div class="phones">
+            <div class="phone"><img src="https://yeegz.github.io/images/bupples-home.jpg" alt="" /></div>
+            <div class="phone"><img src="https://yeegz.github.io/images/bupples-bubbles.jpg" alt="" /></div>
+            <div class="phone"><img src="https://yeegz.github.io/images/bupples-session.jpg" alt="" /></div>
+          </div>
+        </section>
+        <aside class="a-right">
+          <div class="spec">
+            <div><span>Role</span><b>Product → release / solo</b></div>
+            <div><span>System</span><b>Flutter · Firebase · Vertex AI</b></div>
+            <div><span>Proof</span><b>Live across iOS, Android &amp; web</b></div>
+          </div>
+          <div class="kicker">Next / Photoshoot</div>
+        </aside>
+        <nav class="chapter-tabs"><span>01 BUPPLES</span><span>02 PHOTOSHOOT</span><span>03 ADELANTE</span><span>04 FALLEN ASTERI</span></nav>
+      </div>
+      <div class="copy">
+        <div><h2>A · Scroll anthology</h2><p>Natural vertical scrolling moves through four 100svh “episodes.” The focused chapter pins briefly; media and evidence choreograph in, then the whole page smoothly changes background, accent, controls, and cursor treatment.</p></div>
+        <p class="trade"><b>Best fit:</b> most cinematic without hijacking navigation. Strong on desktop and easy to linearize on mobile/reduced-motion.</p>
+      </div>
+    </article>
+
+    <article class="card" data-choice="horizontal-reel" onclick="toggleSelect(this)">
+      <span class="badge">B</span>
+      <div class="preview reel">
+        <div class="nav"><span>YSF.SLM</span><span>WORK / 02 OF 04</span><span>OPEN CASE ↗</span></div>
+        <div class="reel-main">
+          <section class="reel-copy"><span class="project-index">02 / LIVE PHOTBOOTH</span><h3>Photo<br/>shoot</h3><p>A wide gallery reel. The interface feels like scrubbing through a title sequence: media first, supporting copy second.</p></section>
+          <div class="reel-shot"><img src="https://yeegz.github.io/images/photoshoot-app.webp" alt="" /></div>
+        </div>
+        <div class="filmstrip"><span>01 BUPPLES <b>↗</b></span><span>02 PHOTOSHOOT <b>●</b></span><span>03 ADELANTE <b>↗</b></span><span>04 ASTERI <b>↗</b></span></div>
+      </div>
+      <div class="copy">
+        <div><h2>B · Horizontal gallery reel</h2><p>The work area becomes one pinned horizontal strip. Wheel, swipe, arrow keys, or drag advance between project worlds; the rest of the homepage remains vertical.</p></div>
+        <p class="trade"><b>Trade-off:</b> strongest “show reel” feeling, but more scroll-jacking risk and more work to keep keyboard and touch behavior obvious.</p>
+      </div>
+    </article>
+
+    <article class="card" data-choice="dossier-curtains" onclick="toggleSelect(this)">
+      <span class="badge">C</span>
+      <div class="preview curtain">
+        <aside class="shelf"><div class="shelf-head">Case files</div><div class="poster"><strong>Bupples</strong><span>01</span></div><div class="poster"><strong>Photoshoot</strong><span>02</span></div><div class="poster active"><strong>Adelante</strong><span>03</span></div><div class="poster"><strong>Fallen Asteri</strong><span>04</span></div></aside>
+        <section class="case-open"><span class="case-note">CASE 03 / PRIVACY-FIRST / NATIVE WIDGETS</span><h3>Adelante<em>go forward.</em></h3><div class="widgets"><img src="https://raw.githubusercontent.com/yeegz/adelante-showcase/main/assets/widgets.svg" alt="Adelante widget designs" /></div></section>
+      </div>
+      <div class="copy">
+        <div><h2>C · Dossier curtains</h2><p>A persistent project index stays on the left; choosing a file opens a full-height themed case stage on the right. It keeps the archive metaphor literal and makes comparison easy.</p></div>
+        <p class="trade"><b>Trade-off:</b> fastest to browse, but it gives each project less of the full-landscape takeover you described.</p>
+      </div>
+    </article>
+  </main>
+  <p class="hint">CLICK ONE OPTION, THEN TELL ME WHAT YOU WANT TO KEEP OR CHANGE IN THE CODEX TASK.</p>
+</body>
+</html>

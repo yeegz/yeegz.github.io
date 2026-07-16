@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project worlds — refined direction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --site:#0a0a0b; --ink:#f2efe9; --muted:#96928b; --line:rgba(242,239,233,.14); --green:#9bcfa5; }
+    * { box-sizing:border-box; }
+    html { background:var(--site); color:var(--ink); font-family:"Space Grotesk",sans-serif; }
+    body { margin:0; background:radial-gradient(circle at 50% -18%,#272728,transparent 34rem),var(--site); }
+    button { font:inherit; }
+    .top { padding:30px clamp(22px,4vw,60px) 24px; display:flex; gap:36px; align-items:end; justify-content:space-between; border-bottom:1px solid var(--line); }
+    .eyebrow,.mono,.world-index,.world-meta,.project-tab,.interaction-card span,.approve-btn { font:500 9px/1.4 "JetBrains Mono",monospace; letter-spacing:.15em; text-transform:uppercase; }
+    .eyebrow { color:var(--green); margin:0 0 10px; }
+    h1 { margin:0; font:800 clamp(27px,3.5vw,54px)/.9 "Archivo",sans-serif; font-stretch:120%; text-transform:uppercase; letter-spacing:-.025em; }
+    .top-copy { max-width:48ch; margin:0; color:#b3afa7; font-size:13px; line-height:1.55; }
+    .canvas { margin:28px clamp(18px,3vw,50px) 0; border:1px solid var(--line); background:#101012; padding:8px; }
+    .experience { min-height:min(760px,76vh); display:grid; grid-template-columns:230px 1fr; overflow:hidden; }
+    .shelf { background:#101113; padding:26px 18px; border-right:1px solid rgba(255,255,255,.13); display:flex; flex-direction:column; position:relative; z-index:10; }
+    .shelf-brand { font:800 21px "Archivo",sans-serif; font-stretch:115%; letter-spacing:-.02em; margin:0 0 34px; }
+    .shelf-brand i { width:7px; height:7px; background:var(--green); display:inline-block; margin-left:3px; }
+    .project-tab { color:#777975; border:0; border-top:1px solid rgba(255,255,255,.12); background:transparent; padding:15px 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; text-align:left; transition:.22s; }
+    .project-tab strong { color:#dcdbd6; font:700 16px "Archivo",sans-serif; letter-spacing:0; }
+    .project-tab.active { background:#202321; color:var(--green); margin:0 -9px; padding-left:21px; padding-right:21px; }
+    .project-tab[data-world="adelante"].active { background:#f6f1e8; color:#181611; }
+    .shelf-note { margin:auto 9px 0; color:#777; font-size:10px; line-height:1.6; }
+    .stage { position:relative; overflow:hidden; display:none; isolation:isolate; }
+    .stage.active { display:block; }
+
+    /* Bupples — real product palette */
+    .bupples { --b-accent:#86bd98; background:#050b07; color:#f4f0e7; cursor:crosshair; }
+    .bupples::before { content:""; position:absolute; inset:0; z-index:-3; background-image:radial-gradient(circle,var(--b-accent) 1.2px,transparent 1.6px); background-size:38px 38px; opacity:.095; transform:translate(calc(var(--mx,0)*-7px),calc(var(--my,0)*-7px)); transition:opacity .3s; }
+    .bupples::after { content:""; position:absolute; width:44vw; height:44vw; border-radius:50%; left:46%; top:50%; z-index:-2; transform:translate(-50%,-50%) translate(calc(var(--mx,0)*22px),calc(var(--my,0)*22px)); background:radial-gradient(circle,color-mix(in srgb,var(--b-accent) 26%,transparent),transparent 66%); filter:blur(30px); transition:background .3s; }
+    .world-top { position:absolute; top:24px; left:28px; right:28px; display:flex; align-items:center; justify-content:space-between; z-index:6; }
+    .world-index { color:var(--b-accent); }
+    .world-meta { opacity:.65; }
+    .b-copy { position:absolute; left:clamp(25px,4vw,62px); top:50%; width:25%; transform:translateY(-52%); z-index:5; }
+    .b-copy h2 { margin:0 0 22px; font:900 clamp(53px,7.8vw,128px)/.72 "Archivo",sans-serif; font-stretch:125%; text-transform:uppercase; letter-spacing:-.06em; }
+    .b-copy h2 em { display:block; margin-left:17%; color:var(--b-accent); font:italic 29%/1 "Instrument Serif",serif; text-transform:none; letter-spacing:0; }
+    .b-copy p { color:#bcbab2; max-width:31ch; font-size:12px; line-height:1.6; }
+    .pip-mark { display:flex; align-items:center; gap:12px; margin-top:24px; color:var(--b-accent); font:500 10px "JetBrains Mono",monospace; }
+    .pip-rings { width:40px; height:30px; position:relative; }
+    .pip-rings i { width:27px; height:27px; border:2px solid currentColor; border-radius:50%; position:absolute; top:0; transition:transform .28s; }
+    .pip-rings i:first-child { left:0; }.pip-rings i:last-child { right:0; }
+    .pip-rings::after { content:"⌁"; position:absolute; left:16px; top:6px; font-size:15px; }
+    .bupples:hover .pip-rings i:first-child { transform:translateX(3px) rotate(-8deg); }
+    .bupples:hover .pip-rings i:last-child { transform:translateX(-3px) rotate(8deg); }
+    .phone-stage { position:absolute; inset:68px 5% 44px 32%; perspective:1300px; display:flex; justify-content:center; align-items:center; }
+    .shot { position:absolute; height:min(65vh,635px); width:auto; aspect-ratio:1290/2796; border-radius:clamp(22px,2.5vw,38px); overflow:hidden; border:5px solid #151b17; background:#0c100d; box-shadow:0 32px 70px rgba(0,0,0,.55); transition:transform .16s ease-out,filter .25s,box-shadow .25s; will-change:transform; }
+    .shot img { width:100%; height:100%; object-fit:cover; display:block; }
+    .shot.s1 { left:8%; z-index:1; transform:translate3d(calc(var(--mx,0)*-27px),calc(var(--my,0)*-17px),-90px) rotateY(14deg) rotateZ(-5deg); filter:brightness(.78); }
+    .shot.s2 { left:37%; z-index:3; transform:translate3d(calc(var(--mx,0)*43px),calc(var(--my,0)*25px),70px) rotateY(-3deg) rotateZ(1deg) scale(1.04); }
+    .shot.s3 { right:1%; z-index:2; transform:translate3d(calc(var(--mx,0)*72px),calc(var(--my,0)*38px),-20px) rotateY(-16deg) rotateZ(5deg); filter:brightness(.86); }
+    .shot:hover { filter:brightness(1); box-shadow:0 38px 92px color-mix(in srgb,var(--b-accent) 24%,transparent); }
+    .accent-switch { position:absolute; right:25px; bottom:26px; z-index:7; border:1px solid color-mix(in srgb,var(--b-accent) 60%,transparent); border-radius:999px; color:var(--b-accent); background:#0d1510; padding:10px 13px; cursor:pointer; display:flex; gap:9px; align-items:center; font:500 9px "JetBrains Mono",monospace; letter-spacing:.12em; }
+    .accent-switch i { width:13px; height:13px; border-radius:50%; background:conic-gradient(#ff36d3,#ff4234,#ffde34,#35ef61,#3be4ff,#3054ff,#a332ff,#ff36d3); }
+    .cursor-halo { position:absolute; width:84px; height:84px; border:1px solid color-mix(in srgb,var(--b-accent) 46%,transparent); border-radius:50%; left:var(--px,-100px); top:var(--py,-100px); transform:translate(-50%,-50%); pointer-events:none; z-index:8; transition:width .15s,height .15s,border-color .25s; }
+    .bupples:hover .cursor-halo { width:112px; height:112px; }
+
+    /* Adelante — actual paper/ink brand */
+    .adelante { background:#faf7f0; color:#15130f; }
+    .adelante::before { content:""; position:absolute; inset:0; z-index:-2; background:radial-gradient(circle at 70% 30%,rgba(182,200,198,.34),transparent 33%),radial-gradient(circle at 43% 74%,rgba(232,218,196,.46),transparent 34%); }
+    .adelante .world-index { color:#756d63; }
+    .adelante .world-meta { color:#756d63; }
+    .a-copy { position:absolute; left:clamp(28px,4.5vw,74px); top:18%; width:42%; z-index:4; }
+    .a-copy h2 { margin:0; font:400 clamp(70px,10.5vw,172px)/.75 "Instrument Serif",serif; letter-spacing:-.045em; }
+    .a-copy .meaning { margin:17px 0 34px 24%; color:#756d63; font:italic clamp(17px,2vw,28px) "Instrument Serif",serif; }
+    .quote { max-width:620px; font:italic clamp(25px,3.6vw,53px)/1.02 "Instrument Serif",serif; letter-spacing:-.02em; margin:0 0 17px; transition:opacity .18s,transform .18s; }
+    .quote.changing { opacity:0; transform:translateY(8px); }
+    .cite { color:#756d63; font:500 10px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
+    .forward { position:absolute; right:6%; top:50%; width:min(30vw,400px); aspect-ratio:1; transform:translateY(-50%); border:0; border-radius:50%; background:rgba(255,252,247,.62); box-shadow:0 30px 90px rgba(81,68,50,.12),inset 0 0 0 1px rgba(90,74,50,.12); cursor:pointer; display:grid; place-items:center; }
+    .forward::after { content:"HOVER / PRESS"; position:absolute; bottom:17%; color:#867e72; font:500 9px "JetBrains Mono",monospace; letter-spacing:.14em; }
+    .forward svg { width:66%; overflow:visible; }
+    .forward path { fill:none; stroke:#15130f; stroke-width:19; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:820; stroke-dashoffset:820; }
+    .forward:hover path,.forward:focus-visible path { animation:draw-forward .82s cubic-bezier(.16,1,.3,1) forwards; }
+    .forward:hover { transform:translateY(-50%) translateX(7px); transition:transform .55s cubic-bezier(.16,1,.3,1); }
+    .forward .ghost-a { position:absolute; font:italic 44px "Instrument Serif",serif; opacity:.12; transform:translate(-35px,-8px); transition:.5s; }
+    .forward:hover .ghost-a { transform:translate(-13px,-8px); opacity:.22; }
+    @keyframes draw-forward { 0%{stroke-dashoffset:820} 70%,100%{stroke-dashoffset:0} }
+    .widget-chip { position:absolute; right:7%; bottom:8%; width:min(31vw,420px); padding:18px 22px; border-radius:22px; background:linear-gradient(135deg,#fffaf1,#dfeceb); box-shadow:0 16px 44px rgba(54,48,38,.12); font:italic 19px "Instrument Serif",serif; transform:rotate(-2deg); }
+    .widget-chip span { display:block; color:#6f7775; margin-top:11px; font:500 8px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
+
+    .interactions { margin:32px clamp(22px,4vw,60px) 0; }
+    .interactions h3 { margin:0 0 14px; font:800 clamp(22px,2.7vw,40px)/1 "Archivo",sans-serif; font-stretch:115%; text-transform:uppercase; }
+    .interactions > p { color:#96938c; font-size:12px; margin:0 0 22px; }
+    .interaction-grid { display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--line); }
+    .interaction-card { padding:18px; min-height:120px; border-right:1px solid var(--line); background:#101012; }
+    .interaction-card:last-child { border-right:0; }
+    .interaction-card span { color:var(--green); }
+    .interaction-card h4 { margin:16px 0 8px; font:700 17px "Archivo",sans-serif; text-transform:uppercase; }
+    .interaction-card p { margin:0; color:#96938c; font-size:11px; line-height:1.55; }
+    .approval { margin:28px clamp(22px,4vw,60px) 50px; display:grid; grid-template-columns:1fr repeat(3,auto); align-items:center; gap:10px; }
+    .approval p { margin:0; color:#b2afa8; font-size:13px; }
+    .approve-btn { border:1px solid var(--line); background:#111214; color:#d8d5ce; padding:12px 15px; cursor:pointer; }
+    .approve-btn:hover,.approve-btn.selected { border-color:var(--green); color:#071008; background:var(--green); }
+    @media(max-width:950px){.experience{grid-template-columns:1fr;min-height:760px}.shelf{display:none}.b-copy{top:12%;left:24px;width:44%;transform:none}.phone-stage{inset:170px 2% 24px 20%}.shot{height:52vh}.a-copy{width:55%;left:28px}.forward{right:2%;width:38vw}.interaction-grid{grid-template-columns:1fr 1fr}.interaction-card:nth-child(2){border-right:0}.interaction-card{border-bottom:1px solid var(--line)}.approval{grid-template-columns:1fr}.top{display:block}.top-copy{margin-top:16px}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div><p class="eyebrow">Refined direction / Dossier curtains</p><h1>Every project becomes its own toy.</h1></div>
+    <p class="top-copy">The archive shelf stays, but the open case takes the full remaining landscape. These two worlds now use the products’ real visual languages. Move your pointer over Bupples; hover or press Adelante’s arrow.</p>
+  </header>
+
+  <div class="canvas">
+    <div class="experience">
+      <aside class="shelf">
+        <div class="shelf-brand">ysf.slm<i></i></div>
+        <button class="project-tab active" data-world="bupples"><strong>Bupples</strong><span>01</span></button>
+        <button class="project-tab" data-world="photoshoot"><strong>Photoshoot</strong><span>02</span></button>
+        <button class="project-tab" data-world="adelante"><strong>Adelante</strong><span>03</span></button>
+        <button class="project-tab" data-world="asteri"><strong>Fallen Asteri</strong><span>04</span></button>
+        <p class="shelf-note mono">The selected file supplies the page palette, motion physics, cursor behavior, and one signature interaction.</p>
+      </aside>
+
+      <section class="stage bupples active" id="bupplesStage">
+        <div class="world-top"><span class="world-index">01 / Social expense system</span><span class="world-meta">MOVE POINTER · CLICK ACCENT</span></div>
+        <div class="b-copy">
+          <h2>Bup<br/>ples<em>split the night.</em></h2>
+          <p>Black-fern product world, dotted spatial field, and the new UI suspended at different depths. The cursor pulls each surface at a different rate.</p>
+          <div class="pip-mark"><span class="pip-rings"><i></i><i></i></span><span>PIP IS WATCHING THE POINTER</span></div>
+        </div>
+        <div class="phone-stage">
+          <figure class="shot s1"><img src="http://127.0.0.1:61964/IMG_4702.jpg" alt="Bupples Pip assistant screen" /></figure>
+          <figure class="shot s2"><img src="http://127.0.0.1:61964/IMG_4701.PNG" alt="New Bupples profile screen" /></figure>
+          <figure class="shot s3"><img src="http://127.0.0.1:61964/IMG_4700.PNG" alt="Bupples custom accent screen" /></figure>
+        </div>
+        <button class="accent-switch" id="accentSwitch" type="button"><i></i><span>TRY ANOTHER ACCENT</span></button>
+        <div class="cursor-halo" aria-hidden="true"></div>
+      </section>
+
+      <section class="stage adelante" id="adelanteStage">
+        <div class="world-top"><span class="world-index">03 / Widget-first motivation</span><span class="world-meta">HOVER ARROW · PRESS FOR NEXT QUOTE</span></div>
+        <div class="a-copy">
+          <h2>Adelante</h2>
+          <p class="meaning">Spanish — “go forward.”</p>
+          <blockquote class="quote" id="quoteText">“Difficulties are things that show what men are.”</blockquote>
+          <p class="cite" id="quoteCite">Epictetus · Discourses, Book I.24</p>
+        </div>
+        <button class="forward" id="forwardButton" type="button" aria-label="Draw the Adelante arrow and show the next quote">
+          <span class="ghost-a">A</span>
+          <svg viewBox="0 0 520 360" aria-hidden="true"><path d="M45 265 C175 175 320 115 455 130 M340 35 L455 130 L345 255" /></svg>
+        </button>
+        <div class="widget-chip">“The quieter you become, the more you are able to hear.”<span>Widget preview · calm preset</span></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="interactions">
+    <h3>One signature joke per case</h3>
+    <p>Small, product-specific interactions—not random animation sprinkled everywhere.</p>
+    <div class="interaction-grid">
+      <article class="interaction-card"><span>01 / BUPPLES</span><h4>Living depth field</h4><p>Phones float at different z-depths; Pip’s rings follow you; the accent control recolors the scene.</p></article>
+      <article class="interaction-card"><span>02 / PHOTOSHOOT</span><h4>Working shutter</h4><p>Press the camera button: flash, shutter sound cue, and a captured frame that cycles through real GLSL effects.</p></article>
+      <article class="interaction-card"><span>03 / ADELANTE</span><h4>Go forward</h4><p>Hover draws the arrow from nothing. Pressing it advances the quote and moves the whole composition one beat forward.</p></article>
+      <article class="interaction-card"><span>04 / FALLEN ASTERI</span><h4>Sword cursor</h4><p>The cursor becomes a restrained sword trail; one deliberate slash reveals the engineering notes beneath the game scene.</p></article>
+    </div>
+  </section>
+
+  <div class="approval">
+    <p>Are these two color worlds and the “one signature interaction per project” rule right?</p>
+    <button class="approve-btn" data-choice="lock-refined-direction" onclick="toggleSelect(this)">Lock this direction</button>
+    <button class="approve-btn" data-choice="tweak-bupples" onclick="toggleSelect(this)">Tweak Bupples</button>
+    <button class="approve-btn" data-choice="tweak-adelante" onclick="toggleSelect(this)">Tweak Adelante</button>
+  </div>
+
+  <script>
+    const tabs = [...document.querySelectorAll('.project-tab')];
+    const stages = { bupples: document.getElementById('bupplesStage'), adelante: document.getElementById('adelanteStage') };
+    tabs.forEach((tab) => tab.addEventListener('click', () => {
+      const world = tab.dataset.world;
+      if (!stages[world]) return;
+      tabs.forEach((item) => item.classList.toggle('active', item === tab));
+      Object.entries(stages).forEach(([key, stage]) => stage.classList.toggle('active', key === world));
+    }));
+
+    const bupples = document.getElementById('bupplesStage');
+    bupples.addEventListener('pointermove', (event) => {
+      const r = bupples.getBoundingClientRect();
+      const x = (event.clientX - r.left) / r.width;
+      const y = (event.clientY - r.top) / r.height;
+      bupples.style.setProperty('--mx', (x - .5).toFixed(3));
+      bupples.style.setProperty('--my', (y - .5).toFixed(3));
+      bupples.style.setProperty('--px', (event.clientX - r.left) + 'px');
+      bupples.style.setProperty('--py', (event.clientY - r.top) + 'px');
+    });
+    bupples.addEventListener('pointerleave', () => {
+      bupples.style.setProperty('--mx', 0); bupples.style.setProperty('--my', 0);
+      bupples.style.setProperty('--px', '-100px'); bupples.style.setProperty('--py', '-100px');
+    });
+    const accents = ['#86bd98','#d4eb47','#66b6bf','#d7bd7e','#bd8be2'];
+    let accentIndex = 0;
+    document.getElementById('accentSwitch').addEventListener('click', () => {
+      accentIndex = (accentIndex + 1) % accents.length;
+      bupples.style.setProperty('--b-accent', accents[accentIndex]);
+    });
+
+    const quotes = [
+      ['“Difficulties are things that show what men are.”','Epictetus · Discourses, Book I.24'],
+      ['“Be still, and know that I am God.”','King James Version · Psalm 46:10'],
+      ['“But lo! with hardship goeth ease.”',"The Qur’an · Ash-Sharh 94:5"]
+    ];
+    let quoteIndex = 0;
+    const quoteText = document.getElementById('quoteText');
+    const quoteCite = document.getElementById('quoteCite');
+    document.getElementById('forwardButton').addEventListener('click', () => {
+      quoteText.classList.add('changing');
+      setTimeout(() => {
+        quoteIndex = (quoteIndex + 1) % quotes.length;
+        quoteText.textContent = quotes[quoteIndex][0];
+        quoteCite.textContent = quotes[quoteIndex][1];
+        quoteText.classList.remove('changing');
+      }, 180);
+    });
+  </script>
+</body>
+</html>

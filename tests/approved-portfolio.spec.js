@@ -145,24 +145,26 @@ test('cursor tracks the pointer exactly and expands with an action verb', async 
   await expect(page.locator('#cursorLabel')).toHaveText('SCROLL');
 });
 
-test('expanded cursor dots stay centered on the action disc', async ({ page }) => {
+test('expanded cursor dots ride the inner edge of the action disc', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('#siteLoader')).toHaveAttribute('aria-hidden', 'true', { timeout: 3500 });
   await page.locator('#themeToggle').hover();
   await expect(page.locator('html')).toHaveClass(/\bcur-view\b/);
-  await page.waitForTimeout(320);
+  await page.waitForTimeout(420);
   const geometry = await page.evaluate(() => {
     const ring = document.querySelector('#cursorRing').getBoundingClientRect();
     const dotsNode = document.querySelector('.ring-dots');
     const circle = dotsNode.querySelector('circle');
-    const disc = document.querySelector('.cursor-disc');
+    const discNode = document.querySelector('.cursor-disc');
     const dots = dotsNode.getBoundingClientRect();
+    const disc = discNode.getBoundingClientRect();
     const dotsStyle = getComputedStyle(dotsNode);
     const circleStyle = getComputedStyle(circle);
-    const discStyle = getComputedStyle(disc);
+    const discStyle = getComputedStyle(discNode);
     return {
       ring: { x: ring.x, y: ring.y, width: ring.width, height: ring.height },
       dots: { x: dots.x, y: dots.y, width: dots.width, height: dots.height },
+      disc: { x: disc.x, y: disc.y, width: disc.width, height: disc.height },
       style: {
         transform: dotsStyle.transform,
         opacity: Number(dotsStyle.opacity),
@@ -185,8 +187,13 @@ test('expanded cursor dots stay centered on the action disc', async ({ page }) =
   };
   expect(Math.abs(dotsCenter.x - ringCenter.x)).toBeLessThan(2);
   expect(Math.abs(dotsCenter.y - ringCenter.y)).toBeLessThan(2);
-  expect(Math.abs(geometry.dots.width - geometry.ring.width)).toBeLessThan(2);
-  expect(Math.abs(geometry.dots.height - geometry.ring.height)).toBeLessThan(2);
+  // The dotted circle spans 92% of the dots box; it must sit fully INSIDE the
+  // filled disc, hugging its inner edge (a 2-8px inset all around).
+  const dotCircleDiameter = geometry.dots.width * 0.92;
+  const insetFromDiscEdge = (geometry.disc.width - dotCircleDiameter) / 2;
+  expect(insetFromDiscEdge).toBeGreaterThan(2);
+  expect(insetFromDiscEdge).toBeLessThan(8);
+  expect(geometry.dots.width).toBeLessThan(geometry.ring.width);
   expect(geometry.style.transform).toBe('none');
   expect(geometry.style.opacity).toBeGreaterThan(0.4);
   expect(geometry.style.dashArray).not.toBe('none');
@@ -396,6 +403,9 @@ test('light mode reaches every portfolio section but preserves authored project 
   await page.goto('/');
   await page.locator('#themeToggle').click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  // Every section now cross-fades its background over .7s on theme change;
+  // let the transition settle before sampling the resolved palette.
+  await page.waitForTimeout(900);
   const titleGradient = await page.locator('.nm-in').first().evaluate(node => getComputedStyle(node).backgroundImage);
   expect(titleGradient).toContain('rgb(32, 35, 31)');
   const palette = await page.evaluate(() => {

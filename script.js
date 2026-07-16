@@ -507,14 +507,18 @@
     ScrollTrigger.refresh();
     entrance.play();
   };
+  /* Hold the entrance until the loader has actually lifted (approved.js exposes
+     window.siteReady) so the name-rise always plays in view, never behind it. */
+  const loaderGone = () => window.siteReady || Promise.resolve();
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => {
+    document.fonts.ready.then(() => loaderGone().then(() => {
       start();
       fitNames();
       ScrollTrigger.refresh();
-    });
+    }));
   }
-  setTimeout(start, 1300);
+  setTimeout(() => loaderGone().then(start), 1300);
+  setTimeout(start, 2600);
 
   const portraitFX = { dev: { v: 0 }, bg: { v: 0 }, ph: { v: 0 } };
   let heroVisible = true;
@@ -1431,13 +1435,33 @@
     });
   });
 
-  if (document.getElementById('lampLine')) {
-    gsap.timeline({
-      scrollTrigger: { trigger: '.scene-statement', start: 'top 72%', once: true }
-    })
-      .fromTo('#lampLine', { scaleX: 0.25, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 1.15, ease: 'power3.out' })
-      .fromTo('#lampGlow', { scaleX: 0.3, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 1.3, ease: 'power3.out' }, 0.05)
-      .fromTo('.lamp-beam', { opacity: 0 }, { opacity: 1, duration: 1.3, ease: 'power2.out' }, 0.2);
+  /* The pipeline statement: the rail draws itself across the scene, each stage
+     comes online in its production state (spec outline -> assembled source ->
+     shipped glow), and the rail's far end ignites once Ship lands. */
+  const pipelineScene = document.querySelector('.scene-statement');
+  if (pipelineScene && pipelineScene.querySelector('.pipe-rail')) {
+    const stl = gsap.timeline({
+      scrollTrigger: { trigger: pipelineScene, start: 'top 76%', end: 'center 32%', scrub: 1 }
+    });
+    stl
+      .fromTo('.pipe-rail', { clipPath: 'inset(-8px 100% -8px 0)' }, { clipPath: 'inset(-8px 0% -8px 0)', duration: 3, ease: 'none' }, 0)
+      .fromTo('.pipe-spark', { left: '0%', opacity: 0 }, { opacity: 1, duration: 0.18, ease: 'none' }, 0)
+      .to('.pipe-spark', { left: '100%', duration: 3, ease: 'none' }, 0)
+      .fromTo('.st-design', { opacity: 0 }, { opacity: 1, duration: 0.1, ease: 'none' }, 0.32)
+      .fromTo('.st-design .st-word', { clipPath: 'inset(-10% 104% -12% -4%)' }, { clipPath: 'inset(-10% -4% -12% -4%)', duration: 0.85, ease: 'power1.inOut' }, 0.32)
+      .fromTo('.st-design .st-tag', { opacity: 0, y: 9 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 0.95)
+      .fromTo('.st-build', { opacity: 0 }, { opacity: 1, duration: 0.1, ease: 'none' }, 1.22)
+      .fromTo('.st-build .st-word', { clipPath: 'inset(102% 0 -12% 0)' }, { clipPath: 'inset(-10% 0 -12% 0)', duration: 0.85, ease: 'power1.inOut' }, 1.22)
+      .fromTo('.st-build .st-tag', { opacity: 0, y: 9 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 1.85)
+      .fromTo('.st-ship', { opacity: 0, x: -30, scale: 0.94 }, { opacity: 1, x: 0, scale: 1, duration: 0.9, ease: 'power2.out' }, 2.05)
+      .fromTo('.st-ship .st-tag', { opacity: 0, y: 9 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 2.6)
+      .fromTo('.pipe-glow', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.in' }, 2.55)
+      .to('.pipe-spark', { scale: 1.8, duration: 0.5, ease: 'power1.inOut' }, 2.55)
+      .fromTo('.st-close .st-serif', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 2.75);
+    gsap.fromTo('.pipe-ghost', { xPercent: -7 }, {
+      xPercent: 5, ease: 'none',
+      scrollTrigger: { trigger: pipelineScene, start: 'top bottom', end: 'bottom top', scrub: true }
+    });
   }
 
   if (!panelScreen) {
@@ -1521,16 +1545,6 @@
         window.addEventListener('resize', resizeShader);
       }
     }
-  }
-
-  const stWords = gsap.utils.toArray('.st-w');
-  if (stWords.length) {
-    const stl = gsap.timeline({
-      scrollTrigger: { trigger: '.scene-statement', start: 'top 78%', end: 'center 38%', scrub: 1 }
-    });
-    stWords.forEach((w) => {
-      stl.to(w, { opacity: 1, duration: 1, ease: 'none' }, '<55%');
-    });
   }
 
   gsap.utils.toArray('.sec-ghost').forEach((g) => {

@@ -23,6 +23,97 @@
   };
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+  /* Synthesized stage audio — built lazily inside user gestures, no asset files.
+     Every voice routes through one soft-limited master so overlapping hits never clip. */
+  const sfx = (() => {
+    let ctx = null, master = null;
+    const ensure = () => {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      if (!ctx) {
+        ctx = new Ctx();
+        master = ctx.createGain();
+        master.gain.value = 0.42;
+        const limiter = ctx.createDynamicsCompressor();
+        limiter.threshold.value = -14; limiter.knee.value = 8; limiter.ratio.value = 9;
+        limiter.attack.value = 0.002; limiter.release.value = 0.16;
+        master.connect(limiter).connect(ctx.destination);
+      }
+      if (ctx.state !== 'running') ctx.resume().catch(() => {});
+      return ctx;
+    };
+    const voice = (play) => (...args) => { try { if (ensure()) play(...args); } catch (_) {} };
+    const tone = (at, { type = 'sine', from = 440, to = from, dur = 0.2, peak = 0.4 }) => {
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(from, at);
+      if (to !== from) osc.frequency.exponentialRampToValueAtTime(Math.max(20, to), at + dur);
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(peak, at + Math.min(0.018, dur * 0.25));
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+      osc.connect(gain).connect(master);
+      osc.start(at); osc.stop(at + dur + 0.03);
+    };
+    const noise = (at, { dur = 0.3, peak = 0.35, filter = 'bandpass', from = 600, to = 1200, q = 1, attack = 0.25, panFrom = 0, panTo = panFrom }) => {
+      const length = Math.max(1, Math.ceil(ctx.sampleRate * dur));
+      const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < length; i += 1) data[i] = Math.random() * 2 - 1;
+      const source = ctx.createBufferSource(); source.buffer = buffer;
+      const shape = ctx.createBiquadFilter();
+      shape.type = filter; shape.Q.value = q;
+      shape.frequency.setValueAtTime(from, at);
+      if (to !== from) shape.frequency.exponentialRampToValueAtTime(Math.max(40, to), at + dur);
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(peak, at + dur * attack);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+      let tail = gain;
+      if (ctx.createStereoPanner && (panFrom || panTo)) {
+        const panner = ctx.createStereoPanner();
+        panner.pan.setValueAtTime(panFrom, at);
+        if (panTo !== panFrom) panner.pan.linearRampToValueAtTime(panTo, at + dur);
+        gain.connect(panner); tail = panner;
+      }
+      source.connect(shape); shape.connect(gain); tail.connect(master);
+      source.start(at); source.stop(at + dur + 0.03);
+    };
+    return {
+      /* Adelante deck — an airy whoosh that sweeps left to right with the card. */
+      whoosh: voice(() => {
+        const at = ctx.currentTime;
+        noise(at, { dur: 0.44, peak: 0.5, filter: 'bandpass', from: 340, to: 2600, q: 0.8, attack: 0.3, panFrom: -0.35, panTo: 0.45 });
+        noise(at + 0.03, { dur: 0.3, peak: 0.16, filter: 'highpass', from: 1400, to: 3600, q: 0.7, attack: 0.35, panFrom: -0.2, panTo: 0.5 });
+      }),
+      /* Photoshoot — mirror clack, shutter blades, and a soft body thump. */
+      shutter: voice(() => {
+        const at = ctx.currentTime;
+        tone(at, { type: 'sine', from: 150, to: 88, dur: 0.09, peak: 0.42 });
+        noise(at, { dur: 0.055, peak: 0.55, filter: 'highpass', from: 2800, to: 1600, q: 0.6, attack: 0.12 });
+        noise(at + 0.082, { dur: 0.05, peak: 0.38, filter: 'highpass', from: 2200, to: 900, q: 0.6, attack: 0.12 });
+        tone(at + 0.082, { type: 'square', from: 1900, to: 1300, dur: 0.03, peak: 0.1 });
+      }),
+      /* Fallen Asteri — an 8-bit zap with a pinch of pitch variance per kill. */
+      kill: voice(() => {
+        const at = ctx.currentTime;
+        const vary = 0.92 + Math.random() * 0.16;
+        tone(at, { type: 'square', from: 640 * vary, to: 105, dur: 0.2, peak: 0.5 });
+        tone(at, { type: 'sawtooth', from: 990 * vary, to: 150, dur: 0.13, peak: 0.2 });
+        noise(at + 0.015, { dur: 0.15, peak: 0.32, filter: 'bandpass', from: 950, to: 210, q: 1.4, attack: 0.15 });
+      }),
+      /* Fallen Asteri — a rising square-wave fanfare, scheduled in-gesture via
+         the audio clock (delay in seconds) so it never needs a later gesture. */
+      levelUp: voice((delay = 0) => {
+        const at = ctx.currentTime + delay;
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, step) => {
+          tone(at + step * 0.072, { type: 'square', from: freq, dur: 0.16, peak: 0.2 });
+        });
+        tone(at + 0.29, { type: 'triangle', from: 1046.5, dur: 0.42, peak: 0.14 });
+        tone(at + 0.29, { type: 'triangle', from: 1318.5, dur: 0.42, peak: 0.1 });
+      })
+    };
+  })();
+
   /* Real, bounded loading sequence. */
   const loader = document.getElementById('siteLoader');
   const critical = [document.getElementById('portrait'), document.getElementById('gardenImg')].filter(Boolean);
@@ -33,7 +124,7 @@
       image.addEventListener('error', resolve, { once: true });
     });
   }));
-  Promise.race([Promise.all([document.fonts?.ready || Promise.resolve(), mediaReady]), wait(1050)]).then(async () => {
+  window.siteReady = Promise.race([Promise.all([document.fonts?.ready || Promise.resolve(), mediaReady]), wait(1050)]).then(async () => {
     await wait(120);
     root.classList.add('is-ready');
     loader?.setAttribute('aria-hidden', 'true');
@@ -304,6 +395,7 @@
     const incoming = theater.querySelector(`[data-project-stage="${nextName}"]`);
     if (!incoming || incoming === outgoing) return;
     theaterBusy = true;
+    theater.style.setProperty('--stage-dir', offset > 0 ? '1' : '-1');
     outgoing?.classList.add('stage-switching', 'stage-out');
     await wait(260);
     outgoing?.classList.remove('stage-switching', 'stage-out');
@@ -338,9 +430,9 @@
   const layoutQuotes = () => quoteCards.forEach((card, index) => card.dataset.position = index);
   const advanceQuote = async () => {
     if (quoteBusy || !quoteCards.length) return;
-    quoteBusy = true; const front = quoteCards.shift(); front.classList.add('leaving');
-    await wait(560); front.style.transition = 'none'; front.classList.remove('leaving'); quoteCards.push(front); layoutQuotes();
-    void front.offsetWidth; requestAnimationFrame(() => { front.style.transition = ''; quoteBusy = false; });
+    quoteBusy = true; sfx.whoosh(); const front = quoteCards.shift(); front.classList.add('leaving');
+    await wait(560); front.style.transition = 'none'; front.style.opacity = '0'; front.classList.remove('leaving'); quoteCards.push(front); layoutQuotes();
+    void front.offsetWidth; requestAnimationFrame(() => { front.style.transition = ''; front.style.opacity = ''; quoteBusy = false; });
   };
   quoteDeck?.addEventListener('click', advanceQuote);
   quoteDeck?.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); advanceQuote(); } });
@@ -366,8 +458,13 @@
     document.querySelectorAll('.effect').forEach((item) => item.classList.toggle('active', item === button));
     document.getElementById('effectLabel').textContent = `ISO 400 · F/1.8 · ${currentEffect === 'none' ? 'CLEAN' : currentEffect.toUpperCase()}`;
   });
+  let lastShutter = 0;
   document.getElementById('shutter')?.addEventListener('click', async () => {
+    const now = performance.now();
+    if (now - lastShutter < 180) return;
+    lastShutter = now;
     const flash = document.getElementById('flash'), slots = [...document.getElementById('strip').children];
+    sfx.shutter();
     flash.classList.remove('fire'); void flash.offsetWidth; flash.classList.add('fire');
     if (shot === 4) { slots.forEach((slot) => slot.replaceChildren()); shot = 0; }
     const capture = document.createElement('img'); capture.src = photos[photoIndex][0]; capture.style.objectPosition = photos[photoIndex][1];
@@ -395,6 +492,7 @@
   };
   const killEnemy = (enemy, event) => {
     event.stopPropagation(); if (enemy.classList.contains('dying')) return;
+    sfx.kill();
     const gameRect = game.getBoundingClientRect(), enemyRect = enemy.getBoundingClientRect();
     const x = enemyRect.left - gameRect.left + enemyRect.width / 2, y = enemyRect.top - gameRect.top + enemyRect.height / 2;
     sword.classList.remove('attack'); void sword.offsetWidth; sword.classList.add('attack'); enemy.classList.add('dying');
@@ -405,7 +503,7 @@
     }
     const pop = document.createElement('b'); pop.className = 'xp-pop'; pop.textContent = '+35 XP'; pop.style.left = `${x + 10}px`; pop.style.top = `${y - 8}px`; game.append(pop); setTimeout(() => pop.remove(), 750);
     kills += 1; xp += 35; document.getElementById('kills').textContent = `${kills} ENEMIES CLEARED`;
-    if (xp >= 100) { xp -= 100; level += 1; document.getElementById('level').textContent = level; const flare = document.getElementById('levelUp'); flare.classList.remove('show'); void flare.offsetWidth; flare.classList.add('show'); }
+    if (xp >= 100) { xp -= 100; level += 1; document.getElementById('level').textContent = level; const flare = document.getElementById('levelUp'); flare.classList.remove('show'); void flare.offsetWidth; flare.classList.add('show'); sfx.levelUp(0.14); }
     document.getElementById('xpFill').style.width = `${xp}%`;
     setTimeout(() => { enemy.remove(); setTimeout(spawnEnemy, 450); }, 520);
   };
@@ -460,5 +558,20 @@
     });
   } else {
     document.getElementById('cursor')?.setAttribute('hidden', '');
+  }
+
+  /* Magnetic pull on the hero CTAs — restored after the legacy cursor block retired. */
+  if (finePointer && !reduceMotion && window.gsap) {
+    document.querySelectorAll('.magnetic').forEach((element) => {
+      const moveX = gsap.quickTo(element, 'x', { duration: 0.45, ease: 'power3.out' });
+      const moveY = gsap.quickTo(element, 'y', { duration: 0.45, ease: 'power3.out' });
+      element.addEventListener('pointermove', (event) => {
+        const rect = element.getBoundingClientRect();
+        const factor = rect.width > 300 ? 0.12 : 0.28;
+        moveX((event.clientX - (rect.left + rect.width / 2)) * factor);
+        moveY((event.clientY - (rect.top + rect.height / 2)) * factor);
+      });
+      element.addEventListener('pointerleave', () => { moveX(0); moveY(0); });
+    });
   }
 })();

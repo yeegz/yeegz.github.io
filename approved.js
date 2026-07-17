@@ -143,9 +143,18 @@
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'light' ? '#eee8db' : '#0a0a0b');
     if (persist) try { localStorage.setItem('ysf-theme', next); } catch (_) {}
   };
+  /* User-initiated switches ride a view transition — one whole-page cross-fade
+     that also carries the gradients and canvases CSS transitions can't. */
+  const switchTheme = (theme) => {
+    if (!reduceMotion && typeof document.startViewTransition === 'function') {
+      document.startViewTransition(() => applyTheme(theme));
+    } else {
+      applyTheme(theme);
+    }
+  };
   applyTheme(root.dataset.theme, false);
-  themeToggle?.addEventListener('click', () => applyTheme(root.dataset.theme === 'light' ? 'dark' : 'light'));
-  themeChoices.forEach((button) => button.addEventListener('click', () => applyTheme(button.dataset.themeChoice)));
+  themeToggle?.addEventListener('click', () => switchTheme(root.dataset.theme === 'light' ? 'dark' : 'light'));
+  themeChoices.forEach((button) => button.addEventListener('click', () => switchTheme(button.dataset.themeChoice)));
 
   /* Exact final Skills behavior: every lane moves; only the selected lane pauses. */
   const skillLanes = [...document.querySelectorAll('[data-skill-lane]')];
@@ -480,14 +489,97 @@
   /* Fallen Asteri micro-combat, bounded to four enemies. */
   const fStage = document.querySelector('[data-project-stage="asteri"]'), game = document.getElementById('gameFrame');
   const sword = document.getElementById('swordCursor');
+
+  /* Pixel sprites in the cavern's own palette — one char per pixel, rendered
+     as crisp SVG rects so the creatures and sword read as real game art. */
+  const PIXEL_INK = {
+    k: '#2b171b', m: '#7b3d4b', M: '#4e2635', r: '#ff604e',
+    a: '#e0a15a', A: '#a05a32', c: '#f0d29b', P: '#3a2440',
+    p: '#5a3a57', w: '#f4ead7', W: '#fff9e9'
+  };
+  const pixelSprite = (rows) => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', `0 0 ${rows[0].length} ${rows.length}`);
+    svg.setAttribute('aria-hidden', 'true');
+    rows.forEach((row, y) => {
+      for (let x = 0; x < row.length; x += 1) {
+        const ink = PIXEL_INK[row[x]];
+        if (!ink) continue;
+        const px = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        px.setAttribute('x', x); px.setAttribute('y', y);
+        px.setAttribute('width', '1.04'); px.setAttribute('height', '1.04');
+        px.setAttribute('fill', ink);
+        svg.appendChild(px);
+      }
+    });
+    return svg;
+  };
+  const ENEMY_SPRITES = {
+    slime: [
+      '...kkkkk...',
+      '..kmmmmmk..',
+      '.kmwmmmmmk.',
+      'kmmmmmmmmmk',
+      'kmrrmmmrrmk',
+      'kmmmkkkmmmk',
+      'kMMMMMMMMMk',
+      '.kkkkkkkkk.'
+    ],
+    bat: [
+      'kk.........kk',
+      'kpk.......kpk',
+      'kppk.k.k.kppk',
+      'kpppppppppppk',
+      'kppprppprpppk',
+      '.kpppppppppk.',
+      '..kppkpkppk..',
+      '...kk.k.kk...'
+    ],
+    eye: [
+      '..kkkkk..',
+      '.kmmmmmk.',
+      'kmcccccmk',
+      'kccPPPcck',
+      'kccPwPcck',
+      'kccPPPcck',
+      'kmcccccmk',
+      '.kmmmmmk.',
+      '..kkkkk..'
+    ]
+  };
+  const SWORD_SPRITE = [
+    '............kkk.',
+    '...........kWWk.',
+    '..........kWWwk.',
+    '.........kWWwk..',
+    '........kWWwk...',
+    '.......kWWwk....',
+    '......kWWwk.....',
+    '..kk.kWWwk......',
+    '..kaakWwk.......',
+    '...kaawk........',
+    '....kaakak......',
+    '...kAkkaakk.....',
+    '..kAAk..kk......',
+    '.kAAk...........',
+    '.kAk............',
+    '..k.............'
+  ];
+  if (sword) {
+    while (sword.firstChild) sword.removeChild(sword.firstChild);
+    sword.append(pixelSprite(SWORD_SPRITE));
+  }
   let xp = 0, level = 1, kills = 0, spawnIndex = 0;
   const spawnPoints = [[18,64],[39,57],[63,65],[82,53],[27,50],[73,58]];
   const spawnEnemy = () => {
     if (!game || game.querySelectorAll('.enemy').length >= 4) return;
     const enemy = document.createElement('button'); const point = spawnPoints[spawnIndex % spawnPoints.length]; const types = ['slime','bat','eye'];
-    enemy.type = 'button'; enemy.className = `enemy ${types[spawnIndex % types.length]}`; spawnIndex += 1;
+    const type = types[spawnIndex % types.length];
+    enemy.type = 'button'; enemy.className = `enemy ${type}`; spawnIndex += 1;
     enemy.setAttribute('aria-label', 'Defeat enemy'); enemy.style.left = `${point[0]}%`; enemy.style.top = `${point[1]}%`;
-    const body = document.createElement('span'); body.className = 'enemy-body'; enemy.append(body); game.append(enemy);
+    const art = pixelSprite(ENEMY_SPRITES[type]);
+    art.style.animationDelay = `${(-Math.random() * 3).toFixed(2)}s`;
+    enemy.append(art); game.append(enemy);
     enemy.addEventListener('click', (event) => killEnemy(enemy, event));
   };
   const killEnemy = (enemy, event) => {
@@ -519,6 +611,35 @@
     root.classList.add('cur');
     let cursorX = -100, cursorY = -100, cursorFrame = 0, actionFrame = 0;
     const paint = () => { cursorFrame = 0; cursor.style.transform = `translate3d(${cursorX}px,${cursorY}px,0)`; };
+
+    /* Case-file sigils riding in the disc: Pip, camera, forward mark, sword.
+       Rendered by script.js's makeSigil; cached per project and per theme so
+       the glyph ink always contrasts with the current disc colour. */
+    const sigilHold = document.getElementById('cursorSigil');
+    const sigilCache = {};
+    let sigilLive = null, sigilName = '';
+    const setCursorSigil = (name) => {
+      if (name === sigilName || !sigilHold) return;
+      sigilName = name;
+      sigilLive?.stop();
+      while (sigilHold.firstChild) sigilHold.removeChild(sigilHold.firstChild);
+      sigilLive = null;
+      if (!name || typeof window.makeSigil !== 'function') return;
+      const theme = root.dataset.theme === 'light' ? 'light' : 'dark';
+      const key = `${name}:${theme}`;
+      if (!(key in sigilCache)) {
+        sigilCache[key] = window.makeSigil(name, 54, theme === 'light'
+          ? { ink: '#eee8db', accent: '#9bcfa5', dotScale: 1.2 }
+          : { ink: '#1a1b1c', accent: '#417a52', dotScale: 1.2 });
+      }
+      sigilLive = sigilCache[key];
+      if (sigilLive) {
+        sigilHold.appendChild(sigilLive.canvas);
+        if (sigilLive.played) sigilLive.idle(); else sigilLive.play();
+      }
+    };
+
+    let sizedAction = null;
     const updateCursorAction = (target) => {
       const element = target instanceof Element ? target : null;
       const inAsteri = !!element?.closest('.f-stage');
@@ -526,6 +647,21 @@
       const action = element?.closest('[data-cursor],a,button,[role="button"]');
       const verb = action?.dataset.cursor || (action?.tagName === 'A' ? 'OPEN' : action ? 'SELECT' : '');
       label.textContent = verb;
+      /* The disc sizes itself to the hovered control so it never swallows it. */
+      if (action && verb && !inAsteri) {
+        if (action !== sizedAction) {
+          sizedAction = action;
+          const rect = action.getBoundingClientRect();
+          const size = clamp(Math.round(Math.min(rect.width, rect.height) * 1.2), 54, 76);
+          cursor.style.setProperty('--cur-size', `${size}px`);
+        }
+      } else {
+        sizedAction = null;
+        cursor.style.removeProperty('--cur-size');
+      }
+      const project = (!inAsteri && action) ? (action.dataset.openProject || action.dataset.cursorSigil || '') : '';
+      setCursorSigil(project);
+      root.classList.toggle('cur-sigil', !!project);
       root.classList.toggle('cur-view', !!verb && !inAsteri);
     };
     const refreshCursorAction = () => {

@@ -259,6 +259,9 @@
     };
     return api;
   };
+  /* The corrected cursor layer (approved.js) mounts these same sigils in the
+     cursor disc when a case-file row is hovered. */
+  window.makeSigil = makeSigil;
 
   /* case-file stamps: the same sigils, printed on each work row for touch screens */
   const SIGIL_ROWS = ['bupples', 'photoshoot', 'adelante', 'asteri'];
@@ -1564,6 +1567,14 @@
       scrollTrigger: { trigger: t, start: 'top 86%', once: true }
     });
   });
+
+  /* Work-head rail: draws itself once the title has risen, tag prints after. */
+  const secRail = document.querySelector('.sec-rail');
+  if (secRail) {
+    gsap.timeline({ scrollTrigger: { trigger: secRail.closest('.sec-head'), start: 'top 74%', once: true } })
+      .fromTo(secRail, { clipPath: 'inset(-8px 100% -8px 0)' }, { clipPath: 'inset(-8px 0% -8px 0)', duration: 1.1, ease: 'power2.inOut' }, 0.35)
+      .fromTo('.sec-tag', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, 1.1);
+  }
 
   if (document.querySelector('.contact-mail') && document.querySelector('.scene-contact')) {
     gsap.fromTo('.contact-mail',

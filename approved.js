@@ -142,6 +142,7 @@
     themeChoices.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.themeChoice === next)));
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'light' ? '#eee8db' : '#0a0a0b');
     if (persist) try { localStorage.setItem('ysf-theme', next); } catch (_) {}
+    document.dispatchEvent(new CustomEvent('ysf-theme'));
   };
   /* User-initiated switches ride a view transition — one whole-page cross-fade
      that also carries the gradients and canvases CSS transitions can't. */
@@ -686,9 +687,48 @@
       }
     };
 
+    /* Surface awareness: sample the effective background under the pointer
+       and flip the cursor's ink so it stays visible over light stages and
+       panels (and over dark ones in light theme). */
+    let lumaElement = null;
+    const surfaceLuma = (element) => {
+      let node = element;
+      while (node && node !== document.documentElement) {
+        const bg = getComputedStyle(node).backgroundColor;
+        const parts = bg && bg !== 'transparent' ? bg.match(/[\d.]+/g) : null;
+        if (parts && parts.length >= 3) {
+          const alpha = parts.length > 3 ? parseFloat(parts[3]) : 1;
+          if (alpha > 0.45) {
+            return (0.2126 * parts[0] + 0.7152 * parts[1] + 0.0722 * parts[2]) / 255;
+          }
+        }
+        node = node.parentElement;
+      }
+      return root.dataset.theme === 'light' ? 0.9 : 0.05;
+    };
+    const applySurface = (element, force) => {
+      /* Pointer-transparent regions (like the camera viewfinder) never become
+         event targets, so declared [data-cursor-surface] zones win by rect. */
+      let zone = null;
+      for (const candidate of document.querySelectorAll('[data-cursor-surface]')) {
+        const rect = candidate.getBoundingClientRect();
+        if (rect.width && cursorX >= rect.left && cursorX <= rect.right && cursorY >= rect.top && cursorY <= rect.bottom) { zone = candidate; break; }
+      }
+      const key = zone || element;
+      if (!force && key === lumaElement) return;
+      lumaElement = key;
+      const luma = zone
+        ? (zone.dataset.cursorSurface === 'light' ? 0.9 : 0.05)
+        : (element ? surfaceLuma(element) : (root.dataset.theme === 'light' ? 0.9 : 0.05));
+      cursor.classList.toggle('on-light', luma > 0.52);
+      cursor.classList.toggle('on-dark', luma <= 0.52);
+    };
+    document.addEventListener('ysf-theme', () => applySurface(lumaElement, true));
+
     let sizedAction = null;
     const updateCursorAction = (target) => {
       const element = target instanceof Element ? target : null;
+      applySurface(element, false);
       const inAsteri = !!element?.closest('.f-stage');
       root.classList.toggle('sword-mode', inAsteri);
       const action = element?.closest('[data-cursor],a,button,[role="button"]');

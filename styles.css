@@ -1116,6 +1116,18 @@ html[data-theme="light"] .nm-egg { background-image: linear-gradient(180deg, #31
 .js:not(.reduced) .mnav-meta i { animation: availPing 2.4s ease-in-out infinite; }
 @keyframes availPing { 50% { opacity: 0.35; } }
 .mnav-list a:active span { color: var(--accent); }
+/* Viewport-unit padding capped so odd embedded viewports can't push the
+   menu's footer out of view. */
+.mobile-nav { padding-top: clamp(4.4rem, 13svh, 8.5rem); }
+/* Short viewports: compact the menu so the theme row and footer always fit. */
+@media (max-width: 900px) and (max-height: 760px) {
+  .mobile-nav { padding-top: max(4.2rem, 8svh); padding-bottom: calc(1.6rem + env(safe-area-inset-bottom)); }
+  .mnav-meta { top: max(4rem, 7.5svh); }
+  .mnav-list a { padding: 0.5rem 0; font-size: clamp(1.4rem, 6vw, 1.9rem); }
+  .mnav-theme { margin-top: 0.9rem; padding-top: 0.8rem; }
+  .mnav-theme button { min-height: 42px; }
+  .mnav-foot { margin-top: 0.9rem; }
+}
 .mnav-theme button[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); }
 .mnav-theme button i { width: 6px; height: 6px; display: inline-block; margin-right: 7px; border-radius: 50%; background: var(--accent); }
 
@@ -1280,12 +1292,16 @@ html[data-theme="light"] .experience-section{background:linear-gradient(to botto
 /* Corrected dotted cursor: one coordinate system, inverse filled action state. */
 .cur .cursor { display:block; position:fixed; inset:0 auto auto 0; width:0; height:0; z-index:700; pointer-events:none; opacity:0; transition:opacity .18s; will-change:transform; }
 .cur .cursor.is-visible { opacity:1; }
-.cursor-dot { position:absolute; left:0; top:0; width:4px; height:4px; margin:0; transform:translate(-50%,-50%); background:var(--cursor-fill); border-radius:50%; opacity:.7; transition:opacity .18s,scale .22s; }
+/* Surface-aware ink: approved.js samples the background under the pointer
+   and picks the pair that stays visible on it. */
+.cursor.on-light { --cursor-fill:#101711; --cursor-text:#eee8db; }
+.cursor.on-dark { --cursor-fill:#f0eee8; --cursor-text:#090a0a; }
+.cursor-dot { position:absolute; left:0; top:0; width:4px; height:4px; margin:0; transform:translate(-50%,-50%); background:var(--cursor-fill); border-radius:50%; opacity:.7; transition:opacity .18s,scale .22s,background-color .25s; }
 .cursor-ring { position:absolute; left:0; top:0; width:46px; height:46px; margin:0; transform:translate(-50%,-50%); display:grid; place-items:center; border-radius:50%; background:transparent; transition:width .34s cubic-bezier(.2,.72,.25,1),height .34s cubic-bezier(.2,.72,.25,1),scale .18s; }
-.cursor-disc { position:absolute; inset:4px; z-index:0; border-radius:50%; background:var(--cursor-fill); opacity:0; scale:.18; transition:scale .34s cubic-bezier(.2,.72,.25,1),opacity .24s; }
+.cursor-disc { position:absolute; inset:4px; z-index:0; border-radius:50%; background:var(--cursor-fill); opacity:0; scale:.18; transition:scale .34s cubic-bezier(.2,.72,.25,1),opacity .24s,background-color .25s; }
 .ring-dots { position:absolute; inset:0; z-index:1; width:100%; height:100%; overflow:visible; stroke:var(--cursor-fill); opacity:.34; transform:none; animation:none; transition:stroke .3s,opacity .25s,inset .34s cubic-bezier(.2,.72,.25,1),width .34s cubic-bezier(.2,.72,.25,1),height .34s cubic-bezier(.2,.72,.25,1); }
 .ring-dots circle{stroke-dashoffset:0}.js:not(.reduced) .ring-dots circle{animation:ringOrbit 14s linear infinite}@keyframes ringOrbit{to{stroke-dashoffset:-1}}
-.cursor-label { position:relative; z-index:2; font:650 7px var(--mono); letter-spacing:.12em; text-transform:uppercase; text-align:center; color:var(--cursor-text); opacity:0; transform:scale(.8); transition:opacity .18s .05s,transform .3s cubic-bezier(.2,.72,.25,1); }
+.cursor-label { position:relative; z-index:2; font:650 7px var(--mono); letter-spacing:.12em; text-transform:uppercase; text-align:center; color:var(--cursor-text); opacity:0; transform:scale(.8); transition:opacity .18s .05s,transform .3s cubic-bezier(.2,.72,.25,1),color .25s; }
 .cursor-sigil { position:relative; z-index:2; display:none; }
 .cursor-sigil canvas { display:block; }
 .cur-view .cursor-ring { width:var(--cur-size,76px); height:var(--cur-size,76px); margin:0; background:transparent; }

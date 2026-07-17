@@ -388,6 +388,8 @@ test('Photoshoot viewfinder is pointer-passive and only the shutter captures', a
 
 test('project destinations use the approved URLs', async ({ page }) => {
   await page.goto('/');
+  // Each destination exists twice: once in the theater stage, once on the
+  // case card's phone link row.
   for (const href of [
     'https://bupples.web.app/',
     'https://github.com/yeegz/Bupples-showcase',
@@ -396,7 +398,7 @@ test('project destinations use the approved URLs', async ({ page }) => {
     'https://github.com/yeegz/adelante-showcase',
     'https://yeegz.itch.io/fallenasteri',
     'https://github.com/yeegz/Fallen-Asteri'
-  ]) await expect(page.locator(`a[href="${href}"]`)).toHaveCount(1);
+  ]) await expect(page.locator(`a[href="${href}"]`)).toHaveCount(2);
 });
 
 test('light mode reaches every portfolio section but preserves authored project palettes', async ({ page }) => {
@@ -457,26 +459,26 @@ test('phone uses native pointer behavior, a usable menu, and a loaded identity p
   await context.close();
 });
 
-test('phone project theater keeps the complete authored stage reachable', async ({ browser }) => {
+test('phone case cards are self-contained: no theater, links and new art on the card', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const page = await context.newPage();
   await page.goto('/');
-  await page.locator('[data-open-project="bupples"]').tap();
-  await page.waitForTimeout(950);
-  const bupplesTitle = await page.locator('.b-copy h2').evaluate(node => ({ clientWidth: node.clientWidth, scrollWidth: node.scrollWidth }));
-  expect(bupplesTitle.scrollWidth).toBeLessThanOrEqual(bupplesTitle.clientWidth);
-  await page.locator('[data-project-nav="next"]').tap();
-  await page.waitForTimeout(750);
-  await page.locator('[data-project-nav="next"]').tap();
-  await page.waitForTimeout(750);
-  await expect(page.locator('#projectTheater')).toHaveAttribute('data-project', 'adelante');
-  const body = page.locator('.theater-body');
-  const metrics = await body.evaluate(node => ({ clientHeight: node.clientHeight, scrollHeight: node.scrollHeight }));
-  expect(metrics.scrollHeight).toBeGreaterThan(metrics.clientHeight);
-  await body.evaluate(node => { node.scrollTop = node.scrollHeight; });
-  const rail = await page.locator('[data-project-stage="adelante"] .cap-strip').boundingBox();
-  expect(rail.y + rail.height).toBeLessThanOrEqual(844);
-  expect(rail.y).toBeGreaterThanOrEqual(56);
+  const opener = page.locator('[data-open-project="bupples"]');
+  await opener.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400);
+  // The card is no longer an opener on phones.
+  expect(await opener.isDisabled()).toBe(true);
+  await page.evaluate(() => document.querySelector('[data-open-project="bupples"]').click());
+  await page.waitForTimeout(600);
+  await expect(page.locator('#projectTheater')).not.toHaveAttribute('open', '');
+  // The project's real destinations sit on the card as comfortable buttons.
+  const links = page.locator('.work-row .work-links a');
+  expect(await links.count()).toBe(7);
+  await expect(links.first()).toBeVisible();
+  const tap = await links.first().boundingBox();
+  expect(tap.height).toBeGreaterThanOrEqual(44);
+  // The card media is the current screenshot set, not the retired one.
+  await expect(page.locator('[data-open-project="bupples"] .phones img').first()).toHaveAttribute('src', /projects\/bupples/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   await context.close();
 });

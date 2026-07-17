@@ -331,6 +331,15 @@
   };
   let currentProject = '', projectOpener = null, projectScroll = 0, theaterBusy = false;
   let pendingProjectSteps = 0, pendingProjectClose = false;
+  /* Phones keep cases self-contained on the card (links included), so the
+     theater never opens there and its openers stop being buttons at all. */
+  const phoneCards = matchMedia('(max-width: 760px)');
+  const syncCardMode = () => {
+    document.querySelectorAll('[data-open-project]').forEach((button) => { button.disabled = phoneCards.matches; });
+  };
+  syncCardMode();
+  if (phoneCards.addEventListener) phoneCards.addEventListener('change', syncCardMode);
+  else if (phoneCards.addListener) phoneCards.addListener(syncCardMode);
   const completeTheaterAction = () => {
     theaterBusy = false;
     if (!theater?.open) { pendingProjectSteps = 0; pendingProjectClose = false; return; }
@@ -350,7 +359,7 @@
     document.getElementById('theaterLabel').textContent = projectMeta[name].label;
   };
   const openProject = async (name, opener) => {
-    if (theaterBusy || theater.open || !projectMeta[name]) return;
+    if (theaterBusy || theater.open || !projectMeta[name] || phoneCards.matches) return;
     theaterBusy = true; pendingProjectSteps = 0; pendingProjectClose = false; projectOpener = opener; projectScroll = scrollY;
     const row = opener.getBoundingClientRect();
     theater.style.setProperty('--wash-top', `${Math.max(0, row.top)}px`);

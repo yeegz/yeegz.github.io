@@ -956,6 +956,7 @@ html.menu-open { overflow: hidden; }
 /* ===== Project sigils: case-file stamps, panel mark, mobile ID strip ===== */
 .work-sigil { display: none; }
 .work-sigil canvas { display: block; }
+.work-links { display: none; }
 @media (max-width: 1024px) {
   .work-sigil {
     display: block; position: absolute;
@@ -1344,8 +1345,18 @@ html.project-open,html.project-open body{overflow:hidden!important}.project-open
   .work-media > img.ps-art{height:212px;object-fit:contain;background:#e9e3d6;padding:0.9rem}
   .work-media > img[src*="fallenasteri"]{image-rendering:pixelated;object-position:center 32%}
   .work-media .adelante-preview{aspect-ratio:auto;width:100%;height:158px;font-size:3.4rem}
-  .work-arrow{position:absolute;right:0.85rem;bottom:3.15rem;z-index:2;margin:0;opacity:1;transform:none;display:grid;place-items:center;width:44px;height:44px;font-size:1.35rem;color:var(--accent);background:rgba(10,10,11,0.82);border:1px solid color-mix(in srgb, var(--accent) 45%, transparent)}
+  .work-arrow{display:none}
   .work-row:active .work-name{transform:none}
+  /* Phones keep the case self-contained: the theater stays closed and the
+     project's real destinations sit right on the card as 48px buttons. */
+  .work-link:disabled{opacity:1;color:inherit;cursor:default}
+  .work-links{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin:0.95rem 0.2rem 2.3rem}
+  .work-links a{display:flex;justify-content:space-between;align-items:center;gap:0.7rem;min-height:48px;padding:0.85rem 0.95rem;border:1px solid var(--line);font:500 0.62rem var(--mono);letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-soft)}
+  .work-links a span{color:var(--accent)}
+  .work-links a.wl-primary{border-color:color-mix(in srgb, var(--accent) 45%, transparent);color:var(--ink)}
+  .work-links a:active{border-color:var(--accent);color:var(--accent)}
+  .work-links a:only-child{grid-column:1 / -1}
+  .work-link{padding-bottom:1.15rem}
 
   /* Hero CTAs become full-width boxed buttons in the 2x2 grid. */
   .hm-ctas{grid-template-columns:1fr 1fr;gap:0.7rem}

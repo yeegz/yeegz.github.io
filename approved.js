@@ -635,7 +635,9 @@
       sigilLive = sigilCache[key];
       if (sigilLive) {
         sigilHold.appendChild(sigilLive.canvas);
-        if (sigilLive.played) sigilLive.idle(); else sigilLive.play();
+        /* Replay the dot assembly on every arrival so the glyph draws itself
+           in smoothly rather than popping in fully formed. */
+        sigilLive.play();
       }
     };
 

@@ -1273,7 +1273,8 @@ html[data-theme="light"] .experience-section{background:linear-gradient(to botto
 .cur-view .cursor-ring { width:var(--cur-size,76px); height:var(--cur-size,76px); margin:0; background:transparent; }
 .cur-view .cursor-disc { opacity:1; scale:1; }.cur-view .ring-dots { inset:5.5px; width:calc(100% - 11px); height:calc(100% - 11px); stroke:var(--cursor-text); opacity:.58; }.cur-view .cursor-label { opacity:1; transform:none; color:var(--cursor-text); }.cur-view .cursor-dot{opacity:0}
 .cur-sigil .cursor-ring { width:104px; height:104px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; }
-.cur-sigil .cursor-sigil { display:block; }
+.cur-sigil .cursor-sigil { display:block; animation:sigilIn .45s cubic-bezier(.2,.72,.25,1); }
+@keyframes sigilIn { from { opacity:0; transform:scale(.5); } to { opacity:1; transform:scale(1); } }
 .cur-sigil .cursor-label { font-size:6.5px; }
 .cursor-press .cursor-ring{scale:.82}.sword-mode .cursor{opacity:0!important}
 @media (pointer:fine) and (hover:hover) {

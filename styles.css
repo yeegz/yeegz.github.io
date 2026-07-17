@@ -1102,7 +1102,19 @@ html[data-theme="light"] .nm-egg { background-image: linear-gradient(180deg, #31
 [data-theme="light"] .theme-icon-moon { opacity: 1; transform: none; }
 .mnav-theme { border-top: 1px solid var(--line); margin-top: 1.6rem; padding-top: 1.1rem; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 18px; color: var(--muted); font: 500 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; }
 .mnav-theme-choices { display: flex; gap: 6px; }
-.mnav-theme button { border: 1px solid var(--line); background: transparent; color: var(--muted); min-height: 44px; padding: 0 12px; }
+.mnav-theme button { border: 1px solid var(--line); background: transparent; color: var(--muted); min-height: 44px; padding: 0 16px; }
+.mnav-meta {
+  /* Pinned to the overlay itself (the inner block is position:relative and
+     vertically centered, so absolute would land on the link list). */
+  position: fixed; left: var(--pad-x); right: var(--pad-x); top: max(5.6rem, 11svh);
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.55rem 1rem;
+  font: 500 0.6rem var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+}
+.mnav-meta p { margin: 0; }
+.mnav-meta i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 8px; }
+.js:not(.reduced) .mnav-meta i { animation: availPing 2.4s ease-in-out infinite; }
+@keyframes availPing { 50% { opacity: 0.35; } }
+.mnav-list a:active span { color: var(--accent); }
 .mnav-theme button[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); }
 .mnav-theme button i { width: 6px; height: 6px; display: inline-block; margin-right: 7px; border-radius: 50%; background: var(--accent); }
 
@@ -1310,15 +1322,61 @@ html.project-open,html.project-open body{overflow:hidden!important}.project-open
   .p-stage{min-height:850px}.p-copy{position:relative;left:auto;top:auto;transform:none;width:auto;padding:70px 20px 0}.p-copy h2{font-size:clamp(48px,16vw,68px)}.p-copy p{margin-top:14px}.p-copy .stage-actions{margin-top:10px}.camera-app{left:22px;right:45px;top:330px;bottom:94px;transform:rotate(-.6deg)}.strip{right:-31px;width:88px}.strip-slot{height:54px}.shot-count{right:18px;bottom:17px;font-size:6px}.effects{left:8px}.effect{width:22px}.viewfinder{bottom:66px}
   .a-stage{min-height:850px}.a-word{left:20px;top:68px}.a-word h2{font-size:clamp(62px,19vw,86px)}.a-mark{right:-15%;top:180px;width:70vw;height:300px}.big-a{font-size:250px}.forward-line{right:4%;top:455px;bottom:auto;width:61vw;font-size:18px}.quote-deck{left:20px;bottom:88px;width:calc(100% - 40px);height:300px}.quote-card blockquote{font-size:clamp(25px,8vw,38px)}.deck-hint{left:20px;bottom:72px}
   .f-stage{min-height:820px}.f-copy{position:relative;left:auto;top:auto;transform:none;width:auto;padding:70px 20px 0}.f-copy h2{font-size:clamp(48px,15vw,66px)}.f-copy p{margin-top:14px}.game-frame{left:20px;right:20px;top:350px;bottom:106px;border-width:5px}.kills{right:20px;bottom:82px}.f-stage .sword-cursor{display:none}.f-stage,.f-stage .enemy{cursor:auto}
-  .work-link{border:0;background:transparent}.work-media{display:none!important}
+  /* ── Case files as designed mobile cards: meta strip, editorial copy, then
+     the project's own artwork closing each card with a tap affordance. ── */
+  .work-link{position:relative;border:0;background:transparent;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"no side" "main main" "media media";gap:0;padding:2rem 0.2rem 2.3rem}
+  .work-no{grid-area:no;font-size:1.35rem;padding:0}
+  .work-sigil{left:3.4rem;right:auto;top:2rem}
+  .work-side{grid-area:side;height:auto;padding:0.15rem 0 0;flex-direction:row;flex-wrap:nowrap;justify-content:flex-end;align-items:center;gap:1rem}
+  .work-year{font-size:0.58rem;white-space:nowrap}
+  .work-status{border:1px solid var(--line);padding:0.42rem 0.55rem;color:var(--accent);border-color:color-mix(in srgb, var(--accent) 36%, transparent);white-space:nowrap}
+  .work-main{grid-area:main;margin-top:1.35rem;padding-right:0}
+  .work-name{font-size:clamp(2.4rem,10.5vw,3.1rem)}
+  .work-kicker{margin-top:0.55rem}
+  .work-case{margin-top:1rem;font-size:0.92rem;line-height:1.68}
+  .work-spec{margin-top:1.25rem;max-width:none}
+  .work-spec div{grid-template-columns:minmax(4.6rem,5.4rem) 1fr;gap:0.9rem;padding:0.6rem 0}
+  .work-spec dd{line-height:1.7}
+  .work-media{display:block!important;grid-area:media;margin-top:1.5rem;position:relative;max-width:none}
+  .work-media .phones{height:216px;padding:1.15rem 1rem 0;gap:0.8rem;align-items:flex-start;overflow:hidden;border:1px solid var(--line)}
+  .work-media .phones img{width:31%;height:auto;border-radius:12px}
+  .work-media > img{display:block;width:100%;height:190px;aspect-ratio:auto;object-fit:cover;border:1px solid var(--line);filter:none}
+  .work-media > img.ps-art{height:212px;object-fit:contain;background:#e9e3d6;padding:0.9rem}
+  .work-media > img[src*="fallenasteri"]{image-rendering:pixelated;object-position:center 32%}
+  .work-media .adelante-preview{aspect-ratio:auto;width:100%;height:158px;font-size:3.4rem}
+  .work-arrow{position:absolute;right:0.85rem;bottom:3.15rem;z-index:2;margin:0;opacity:1;transform:none;display:grid;place-items:center;width:44px;height:44px;font-size:1.35rem;color:var(--accent);background:rgba(10,10,11,0.82);border:1px solid color-mix(in srgb, var(--accent) 45%, transparent)}
+  .work-row:active .work-name{transform:none}
+
+  /* Hero CTAs become full-width boxed buttons in the 2x2 grid. */
+  .hm-ctas{grid-template-columns:1fr 1fr;gap:0.7rem}
+  .cta{border:1px solid var(--line);padding:0.95rem 1rem;justify-content:space-between;background:color-mix(in srgb, var(--ink) 4%, transparent);background-image:none}
+  .cta:active{border-color:var(--accent)}
+
+  /* Project stage links read as buttons under a thumb. */
+  .stage-actions{gap:8px}
+  .stage-actions a{border:1px solid currentColor;padding:11px 13px;opacity:0.92;font-size:8.5px}
+
+  /* Micro-labels lifted off the legibility floor. */
+  .cap b{font-size:7px}
+  .stage-head{font-size:8px}
+  .shot-count{font-size:7px}
+  .kills{font-size:8px}
+  .skills-hint{font-size:8px}
 }
 
 @media (max-width:760px){.theater-controls button:last-child{font-size:8px;letter-spacing:.1em}}
 
 @media (max-width: 430px) {
-  .mnav-list a{padding:.76rem 0;font-size:clamp(1.7rem,8vw,2.5rem)}.mnav-foot{margin-top:1.1rem}.mnav-theme{margin-top:1rem}.about-facts{grid-template-columns:1fr}.about-facts>div:nth-child(odd){border-right:0}.about-facts>div:nth-child(even){padding-left:0}.skill-lane{grid-template-columns:94px 1fr}.lane-label{padding-left:12px}.lane-note{left:94px}.edge.prev{left:94px}.contact-section{padding-inline:20px}.drag-mail{font-size:clamp(18px,7vw,31px)}
+  .mnav-list a{padding:.95rem 0;font-size:clamp(1.7rem,8vw,2.5rem)}.mnav-foot{margin-top:1.1rem}.mnav-theme{margin-top:1rem}.about-facts{grid-template-columns:1fr}.about-facts>div:nth-child(odd){border-right:0}.about-facts>div:nth-child(even){padding-left:0}.skill-lane{grid-template-columns:94px 1fr}.lane-label{padding-left:12px}.lane-note{left:94px}.edge.prev{left:94px}.contact-section{padding-inline:20px}.drag-mail{font-size:clamp(18px,7vw,31px)}
 }
 
+.hint-touch { display: none; }
 @media (hover:none), (pointer:coarse) {
   .cursor{display:none!important}.cur body,.cur a,.cur button{cursor:auto}.skill-lane .edge{opacity:.72;pointer-events:auto}.project-stage .screen:hover{filter:inherit}
+  /* Touch devices: text controls become real buttons with 44px targets. */
+  .filter{padding:12px 14px;min-height:44px}
+  .copy-address{border:1px solid var(--line);padding:0.8rem 1rem;min-height:44px}
+  .copy-address:active{border-color:var(--accent);color:var(--accent)}
+  .hint-fine{display:none}
+  .hint-touch{display:inline}
 }

@@ -254,6 +254,42 @@
 
   /* Experience calendar filter. */
   const calendar = document.getElementById('campaignCalendar');
+
+  /* On narrow screens the calendar overflows sideways: give it a gentle
+     ping-pong drift. The edge arrows (and touch) take over on demand, then
+     the drift resumes after a few idle seconds. */
+  if (calendar) {
+    let calDir = 1, calHoldUntil = 0, calDwellUntil = 0, calLast = performance.now();
+    /* Position accrues in a float — writing fractional deltas straight to
+       scrollLeft rounds back to the same value and the drift never starts. */
+    let calPos = 0;
+    const calTick = (now) => {
+      const delta = Math.min(48, now - calLast);
+      calLast = now;
+      const max = calendar.scrollWidth - calendar.clientWidth;
+      if (max > 8) {
+        if (reduceMotion || document.hidden || now <= calHoldUntil) {
+          calPos = calendar.scrollLeft;
+        } else if (now > calDwellUntil) {
+          calPos = clamp(calPos + calDir * 0.028 * delta, 0, max);
+          calendar.scrollLeft = calPos;
+          if (calDir > 0 && calPos >= max - 1) { calDir = -1; calDwellUntil = now + 1200; }
+          else if (calDir < 0 && calPos <= 1) { calDir = 1; calDwellUntil = now + 1200; }
+        }
+      }
+      requestAnimationFrame(calTick);
+    };
+    requestAnimationFrame(calTick);
+    const calPause = () => { calHoldUntil = performance.now() + 4200; };
+    calendar.addEventListener('pointerdown', calPause);
+    calendar.addEventListener('wheel', calPause, { passive: true });
+    document.querySelectorAll('.cal-edge').forEach((button) => button.addEventListener('click', (event) => {
+      calPause();
+      const direction = event.currentTarget.classList.contains('next') ? 1 : -1;
+      calendar.scrollBy({ left: direction * Math.min(calendar.clientWidth * 0.8, 300), behavior: reduceMotion ? 'auto' : 'smooth' });
+    }));
+  }
+
   document.querySelectorAll('.filter').forEach((button) => button.addEventListener('click', () => {
     const same = calendar.dataset.activeFilter === button.dataset.filter;
     if (same) delete calendar.dataset.activeFilter;

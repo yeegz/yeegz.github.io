@@ -807,7 +807,7 @@ html.gaming { overflow: hidden; }
   .hm-eyebrow { top: 4rem; }
   .hm-role { bottom: auto; top: 6.4rem; left: var(--pad-x); right: var(--pad-x); }
   .role-line { margin-bottom: 0.25rem; }
-  .hm-ctas { left: var(--pad-x); right: var(--pad-x); bottom: 4svh; flex-wrap: wrap; gap: 1.1rem 1.6rem; justify-content: space-between; }
+  .hm-ctas { left: var(--pad-x); right: var(--pad-x); bottom: 4svh; display: grid; grid-template-columns: auto auto; gap: 1.15rem 1.6rem; justify-content: space-between; }
   .hm-scroll { display: none; }
   .reg-bl, .reg-br { display: none; }
   .about-panel { padding: 13vh var(--pad-x) 13vh; }

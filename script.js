@@ -1264,14 +1264,24 @@
           const c = picks[ci];
           if (c.got) continue;
           const pu = 1 + 0.22 * Math.sin(tg * 3.2 + c.x * 0.05);
-          fxc.fillStyle = '#9bcfa5';
-          fxc.globalAlpha = 0.95;
+          /* Dark die-cut rim first, so the dot stays visible over the light
+             glyphs; then a glowing mint core and a soft halo. */
+          fxc.globalAlpha = 0.62;
+          fxc.fillStyle = '#0a0a0b';
           fxc.beginPath();
-          fxc.arc(c.x, c.y, 4.4 * pu, 0, 6.2832);
+          fxc.arc(c.x, c.y, 8.6 * pu, 0, 6.2832);
           fxc.fill();
-          fxc.globalAlpha = 0.22;
+          fxc.globalAlpha = 1;
+          fxc.fillStyle = '#9bcfa5';
+          fxc.shadowColor = '#9bcfa5';
+          fxc.shadowBlur = 16;
           fxc.beginPath();
-          fxc.arc(c.x, c.y, 9.5 * pu, 0, 6.2832);
+          fxc.arc(c.x, c.y, 6 * pu, 0, 6.2832);
+          fxc.fill();
+          fxc.shadowBlur = 0;
+          fxc.globalAlpha = 0.26;
+          fxc.beginPath();
+          fxc.arc(c.x, c.y, 13.5 * pu, 0, 6.2832);
           fxc.fill();
         }
         fxc.globalAlpha = 1;

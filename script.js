@@ -831,6 +831,11 @@
         } catch (err) {}
       };
       return {
+        start: () => {
+          blip(150, 620, 0.18, 'square', 0.035);
+          setTimeout(() => blip(494, 494, 0.1, 'sine', 0.04), 150);
+          setTimeout(() => blip(740, 740, 0.18, 'sine', 0.045), 260);
+        },
         jump: () => blip(190, 340, 0.09, 'square', 0.03),
         air: () => blip(260, 470, 0.09, 'square', 0.028),
         land: () => blip(150, 65, 0.07, 'triangle', 0.045),
@@ -875,6 +880,7 @@
 
     const startGame = () => {
       if (game) return;
+      snd.start();
       if (lenis) lenis.scrollTo(0, { duration: 0.45 });
       else window.scrollTo(0, 0);
       const deadline = performance.now() + 2200;
@@ -927,9 +933,12 @@
             dx: 0, dy: 0, mover: false
           };
           plats.push(p);
+          /* Pickups rise in an arc over each word — low at the word's ends,
+             peaking mid-word — instead of one flat monotonous row. */
+          const arc = 36 + Math.sin((txt.length > 1 ? i / (txt.length - 1) : 0.5) * Math.PI) * 56;
           picks.push({
             x: p.x + p.w / 2,
-            y: p.y - 44,
+            y: p.y - arc,
             fact: FACTS[off + i],
             plat: p,
             got: false
@@ -952,6 +961,7 @@
       const plateRows = document.querySelectorAll('.hm-data > div');
       let plateTop = null;
       let plateLeft = null;
+      let plateRight = null;
       plateRows.forEach((row, i) => {
         const r = row.getBoundingClientRect();
         if (r.width < 40) return;
@@ -959,9 +969,10 @@
         plats.push({ x: r.left - sr.left, w: r.width, y: py, dx: 0, dy: 0, mover: false });
         if (plateTop === null || py < plateTop) plateTop = py;
         plateLeft = r.left - sr.left;
+        if (plateRight === null || r.right - sr.left > plateRight) plateRight = r.right - sr.left;
       });
       if (plateTop !== null) {
-        picks.push({ x: plateLeft + 120, y: plateTop - 48, fact: BONUS[1], plat: null, got: false });
+        picks.push({ x: (plateLeft + plateRight) / 2, y: plateTop - 48, fact: BONUS[1], plat: null, got: false });
       }
       const stackRight = stackR.right - sr.left;
       const selimTopY = plats[6] ? plats[6].y : groundY - 150;

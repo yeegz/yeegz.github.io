@@ -190,9 +190,12 @@ html.gaming { overflow: hidden; }
 
 .portrait-wrap {
   position: absolute;
-  left: calc(var(--pad-x) + var(--nm) * 4.2);
-  bottom: calc(16.5svh + var(--nm) * 0.93);
-  width: calc(var(--nm) * 1.78);
+  /* JS writes --niche-x once it has measured the letters; until then (and with
+     no JS at all) the calc below is a working approximation, so the figure is
+     never left unplaced. */
+  left: var(--niche-x, calc(var(--pad-x) + var(--nm) * 4.2));
+  bottom: calc(16.5svh + var(--nm-2, calc(var(--nm) * 1.83)) * 0.508);
+  width: calc(var(--nm-2, calc(var(--nm) * 1.83)) * 0.98);
   z-index: 12; pointer-events: none;
 }
 .portrait { width: 100%; height: auto; }
@@ -795,9 +798,9 @@ html.gaming { overflow: hidden; }
   :root { --pad-x: 5vw; --nm: clamp(2.9rem, 12.6vw, 6.2rem); }
   .nm-stack { bottom: 26svh; }
   .portrait-wrap {
-    bottom: calc(26svh + var(--nm) * 0.93);
-    width: calc(var(--nm) * 1.78);
-    left: calc(var(--pad-x) + var(--nm) * 3.9);
+    bottom: calc(26svh + var(--nm-2, calc(var(--nm) * 1.83)) * 0.508);
+    width: calc(var(--nm-2, calc(var(--nm) * 1.83)) * 0.98);
+    left: var(--niche-x, calc(var(--pad-x) + var(--nm) * 3.9));
   }
   .halo { left: 50%; top: 50%; width: 120vw; }
   .hm-loc, .hm-data { display: none; }
@@ -829,9 +832,9 @@ html.gaming { overflow: hidden; }
   .hm-role { top: 5.7rem; }
   .nm-stack { bottom: 40svh; }
   .portrait-wrap {
-    width: calc(var(--nm) * 1.78);
-    left: calc(var(--pad-x) + var(--nm) * 4.2);
-    bottom: calc(40svh + var(--nm) * 0.93);
+    width: calc(var(--nm-2, calc(var(--nm) * 1.83)) * 0.98);
+    left: var(--niche-x, calc(var(--pad-x) + var(--nm) * 4.2));
+    bottom: calc(40svh + var(--nm-2, calc(var(--nm) * 1.83)) * 0.508);
   }
   .about-facts .fact { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.1rem 0; }
   .work-link { grid-template-columns: 1fr; gap: 0.6rem; padding: 2rem 0.2rem; }
@@ -1507,7 +1510,7 @@ html.project-open,html.project-open body{overflow:hidden!important}.project-open
   .hm-idstrip { display: none; }
   .reg-tl, .reg-tr { display: none; }
   .nm-stack { bottom: 27svh; }
-  .portrait-wrap { bottom: calc(27svh + var(--nm) * 0.93); }
+  .portrait-wrap { bottom: calc(27svh + var(--nm-2, calc(var(--nm) * 1.83)) * 0.508); }
   /* Landscape has width to spare: one row of actions, not a 2×2 block. */
   .hm-ctas { bottom: 3.5svh; grid-template-columns: repeat(4, auto); gap: 0 1.3rem; }
   .cta { padding: 0.5rem 0.75rem; font-size: 0.6rem; letter-spacing: 0.1em; }
@@ -1520,7 +1523,7 @@ html.project-open,html.project-open body{overflow:hidden!important}.project-open
    pull the block down and let the actions close the composition. */
 @media (max-width: 640px) and (orientation: portrait) {
   .nm-stack { bottom: 31svh; }
-  .portrait-wrap { bottom: calc(31svh + var(--nm) * 0.93); }
+  .portrait-wrap { bottom: calc(31svh + var(--nm-2, calc(var(--nm) * 1.83)) * 0.508); }
   .hm-ctas { bottom: 5.5svh; }
 }
 
@@ -1591,20 +1594,21 @@ html.project-open,html.project-open body{overflow:hidden!important}.project-open
 @supports not (height: 100svh) {
   .hero-stage { height: 100vh; }
   .nm-stack { bottom: 16.5vh; }
-  .portrait-wrap { bottom: calc(16.5vh + var(--nm) * 0.93); }
+  .portrait-wrap { bottom: calc(16.5vh + var(--nm-2, calc(var(--nm) * 1.83)) * 0.508); }
   .hm-eyebrow, .hm-loc { top: clamp(4.6rem, 9vh, 6rem); }
   .hm-role, .hm-ctas { bottom: 5vh; }
+  .hm-scroll { top: auto; bottom: 24vh; }
   .egg-hud { bottom: 3.4vh; }
   .mobile-nav { padding-top: clamp(4.4rem, 13vh, 8.5rem); }
   @media (max-width: 900px) {
     .nm-stack { bottom: 26vh; }
-    .portrait-wrap { bottom: calc(26vh + var(--nm) * 0.93); }
+    .portrait-wrap { bottom: calc(26vh + var(--nm-2, calc(var(--nm) * 1.83)) * 0.508); }
     .hm-ctas { bottom: 4vh; }
     .hm-idstrip { top: 10.6rem; }
   }
   @media (max-width: 640px) {
     .nm-stack { bottom: 31vh; }
-    .portrait-wrap { bottom: calc(31vh + var(--nm) * 0.93); }
+    .portrait-wrap { bottom: calc(31vh + var(--nm-2, calc(var(--nm) * 1.83)) * 0.508); }
     .hm-ctas { bottom: 5.5vh; }
   }
 }
@@ -1656,7 +1660,7 @@ html.reduced .site-loader { opacity: 0; visibility: hidden; pointer-events: none
 .hero-stage { min-height: min(620px, 100svh); }
 @media (max-width: 640px) and (max-height: 620px) {
   .nm-stack { bottom: 25svh; }
-  .portrait-wrap { bottom: calc(25svh + var(--nm) * 0.93); }
+  .portrait-wrap { bottom: calc(25svh + var(--nm-2, calc(var(--nm) * 1.83)) * 0.508); }
   .hm-ctas { bottom: 3svh; gap: 0.5rem; }
   .cta { padding: 0.72rem 0.8rem; }
   .hm-idstrip { display: none; }
@@ -1759,13 +1763,17 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
   .line-shift { margin-left: 1.2rem; }
 }
 
-/* Short laptops: the vertical SCROLL cue was climbing into the data plate's
-   last row instead of clearing it. */
+/* The SCROLL cue sat at a proportional `top` while the data plate above it is
+   a fixed 235px tall, so the gap between them shrank to nothing around 800px
+   of viewport height — they touched exactly at 1440×800. Anchor the cue to the
+   bottom instead: it then clears the plate and the actions at every height. */
+@media (min-width: 901px) {
+  .hm-scroll { top: auto; bottom: 24svh; }
+}
 @media (min-width: 901px) and (max-height: 780px) {
   .hm-data { top: 14svh; }
-  .hm-scroll { top: auto; bottom: 14svh; }
 }
-@media (min-width: 901px) and (max-height: 660px) {
+@media (min-width: 901px) and (max-height: 640px) {
   .hm-scroll { display: none; }
 }
 
@@ -1987,3 +1995,105 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 @media (max-width: 430px) {
   .t-keys { grid-template-columns:1fr; }
 }
+
+/* ========================================================================== */
+/* Header: two controls, one height                                           */
+/* ========================================================================== */
+/* Giving the résumé button a 44px tap target left it 6px taller than the
+   theme toggle sitting next to it. Both are 44 now, at every pointer type. */
+.head-actions { align-items: stretch; }
+.head-resume { min-height: 44px; height: 44px; display: inline-flex; align-items: center; }
+.theme-toggle { width: 44px; height: 44px; }
+
+/* ========================================================================== */
+/* Case-file artwork: beside the copy, and asking to be opened                */
+/* ========================================================================== */
+/* The plate used to drop below the text and float at the bottom-right of a
+   963px row, aligned to nothing, with the whole right half of the copy block
+   empty above it. Put it in its own column beside the copy instead. */
+@media (min-width: 1025px) {
+  .work-archive .work-link {
+    grid-template-columns: minmax(4rem, 5.5rem) minmax(0, 1.02fr) minmax(0, 1fr) minmax(132px, 160px);
+    align-items: start;
+  }
+  .work-main { grid-column: 2; padding-right: clamp(1.5rem, 2.6vw, 3rem); }
+  .work-side { grid-column: 4; }
+  .work-media {
+    display: block; grid-column: 3; grid-row: 1; justify-self: stretch;
+    width: 100%; max-width: none; margin: 0.45rem 0 0;
+    position: relative; isolation: isolate;
+    transition: transform 0.6s var(--ease-out), filter 0.6s var(--ease-out);
+  }
+  .work-media > img,
+  .work-media .phones {
+    width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover;
+    border: 1px solid var(--line);
+    filter: grayscale(0.28) contrast(1.03) brightness(0.88);
+    transition: filter 0.6s var(--ease-out), border-color 0.5s var(--ease-out);
+  }
+  .work-media > img.ps-art { aspect-ratio: 1202 / 956; object-fit: contain; background: #f2ebdb; }
+  .work-media > img.tj-art { aspect-ratio: 1400 / 875; object-fit: cover; object-position: left top; }
+  .work-media .phones { aspect-ratio: 16 / 10; }
+
+  /* Registration corners: the plate belongs to the same archive as the FIG.
+     captions and the dimension lines. */
+  .work-media::before {
+    content: ""; position: absolute; inset: 9px; z-index: 2; pointer-events: none;
+    background:
+      linear-gradient(var(--accent), var(--accent)) left top / 12px 1px no-repeat,
+      linear-gradient(var(--accent), var(--accent)) left top / 1px 12px no-repeat,
+      linear-gradient(var(--accent), var(--accent)) right bottom / 12px 1px no-repeat,
+      linear-gradient(var(--accent), var(--accent)) right bottom / 1px 12px no-repeat;
+    opacity: 0; transition: opacity 0.45s var(--ease-out);
+  }
+  /* The invitation, printed on the plate itself rather than in the gutter. */
+  .work-media::after {
+    content: "OPEN CASE FILE →";
+    position: absolute; left: 50%; bottom: 16px; translate: -50% 10px; z-index: 3;
+    padding: 0.62rem 1.05rem; white-space: nowrap; pointer-events: none;
+    background: var(--ink); color: var(--bg);
+    font: 500 0.6rem var(--mono); letter-spacing: 0.16em; text-transform: uppercase;
+    opacity: 0; transition: opacity 0.4s var(--ease-out), translate 0.5s var(--ease-out);
+  }
+  .work-row:hover .work-media,
+  .work-row:focus-within .work-media { transform: translateY(-5px); }
+  .work-row:hover .work-media > img,
+  .work-row:hover .work-media .phones,
+  .work-row:focus-within .work-media > img,
+  .work-row:focus-within .work-media .phones {
+    filter: grayscale(0) contrast(1.05) brightness(1);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .work-row:hover .work-media::before,
+  .work-row:focus-within .work-media::before { opacity: 0.85; }
+  .work-row:hover .work-media::after,
+  .work-row:focus-within .work-media::after { opacity: 1; translate: -50% 0; }
+
+  /* One invitation, not two: the plate carries it now. */
+  .work-open .wo-label, .work-open .wo-arr { display: none; }
+  .work-link { padding-bottom: clamp(2rem, 4vh, 2.8rem); }
+}
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  @media (min-width: 1025px) {
+    .work-row:hover .work-media > img, .work-row:hover .work-media .phones { border-color: rgba(155, 207, 165, 0.55); }
+  }
+}
+
+/* ========================================================================== */
+/* Theater exit: leave quickly, and on the compositor                         */
+/* ========================================================================== */
+/* Opening and closing both ran for 900ms on the same expressive ease-out.
+   That curve is right for an arrival — it overshoots and settles — but on the
+   way out it reads as the panel refusing to leave. The exit is now half the
+   length on an ease-in, so it accelerates away instead of easing to a stop. */
+.theater-wash { transition: clip-path 0.72s cubic-bezier(0.16, 1, 0.3, 1), background 0.35s; }
+.project-theater.is-closing .theater-wash { transition: clip-path 0.4s cubic-bezier(0.45, 0, 0.85, 0.4); }
+.project-theater.is-closing::backdrop { transition: opacity 0.3s ease-in; }
+/* clip-path on a full-viewport surface repaints the whole screen each frame;
+   promote it for the duration of the move and drop it again at rest. */
+.project-theater.is-open .theater-wash,
+.project-theater.is-closing .theater-wash { will-change: clip-path; }
+.project-theater:not(.is-open):not(.is-closing) .theater-wash { will-change: auto; }
+/* The stage should already be gone by the time the wash finishes. */
+.project-theater.is-closing .project-stage { transition: opacity 0.2s ease, transform 0.28s cubic-bezier(0.45, 0, 0.85, 0.4); }
+.project-theater.is-closing .theater-head { transition: opacity 0.18s ease; }

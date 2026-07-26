@@ -556,7 +556,7 @@
     if (theaterBusy) { pendingProjectClose = true; pendingProjectSteps = 0; return; }
     theaterBusy = true; theater.classList.add('is-closing'); theater.classList.remove('is-open');
     root.classList.remove('project-open');
-    await transitionDone(theaterWash, 'clip-path', 980);
+    await transitionDone(theaterWash, 'clip-path', 460);
     theater.close(); theater.classList.remove('is-closing');
     isolateTheater(false);
     window.lenis?.start?.();

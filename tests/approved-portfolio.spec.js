@@ -63,23 +63,43 @@ test('desktop landing keeps the full name and niche figure visible before scroll
   expect(state.figureOverlap).toBeGreaterThan(1200);
 });
 
+/* The figure has to sit in the step of the name — measured against the box it
+   is actually positioned in, not against the name's own offset parent. */
+const nicheError = (page) => page.evaluate(() => {
+  const first = document.querySelector('#nmFirst');
+  const figure = document.querySelector('#portraitWrap');
+  const stage = figure.offsetParent || document.querySelector('.hero-stage');
+  const fontSize = parseFloat(getComputedStyle(first).fontSize);
+  const expected = first.getBoundingClientRect().right - stage.getBoundingClientRect().left - fontSize * 0.18;
+  return Math.abs(figure.getBoundingClientRect().left - stage.getBoundingClientRect().left - expected);
+});
+
 test('dotted figure realigns when the display font finishes loading', async ({ page }) => {
   await page.goto('/');
+  await page.waitForTimeout(600);
   await page.evaluate(() => {
-    const figure = document.querySelector('#portraitWrap');
-    figure.style.left = '120px';
+    document.querySelector('#portraitWrap').style.setProperty('--niche-x', '120px');
     document.fonts.dispatchEvent(new Event('loadingdone'));
   });
-  await page.waitForTimeout(220);
-  const alignment = await page.evaluate(() => {
-    const first = document.querySelector('#nmFirst');
-    const stack = document.querySelector('#nmStack');
-    const figure = document.querySelector('#portraitWrap');
-    const fontSize = parseFloat(getComputedStyle(first).fontSize);
-    const expected = stack.offsetLeft + first.offsetWidth - fontSize * 0.18;
-    return Math.abs(figure.offsetLeft - expected);
-  });
-  expect(alignment).toBeLessThan(2);
+  await page.waitForTimeout(260);
+  expect(await nicheError(page)).toBeLessThan(2);
+});
+
+test('the figure stays seated in the name at every viewport, and while resizing', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForTimeout(2600);
+  for (const size of [
+    { width: 1440, height: 900 }, { width: 1180, height: 820 }, { width: 1024, height: 1366 },
+    { width: 900, height: 700 }, { width: 768, height: 1024 }, { width: 430, height: 932 },
+    { width: 375, height: 667 }, { width: 320, height: 568 }, { width: 1920, height: 1080 }
+  ]) {
+    await page.setViewportSize(size);
+    // one frame after the resize, before any debounce could have run
+    await page.waitForTimeout(60);
+    expect(await nicheError(page), `mid-resize at ${size.width}x${size.height}`).toBeLessThan(2);
+    await page.waitForTimeout(500);
+    expect(await nicheError(page), `settled at ${size.width}x${size.height}`).toBeLessThan(2);
+  }
 });
 
 test('desktop identity render completes without an excessive pinned scroll distance', async ({ page }) => {

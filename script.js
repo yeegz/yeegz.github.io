@@ -10,11 +10,20 @@
   const nmLast = document.getElementById('nmLast');
   const nmStack = document.getElementById('nmStack');
   const portraitWrapEl = document.getElementById('portraitWrap');
+  /* Seat the figure in the step of the name. It is written as a custom
+     property rather than an inline `left` so the CSS keeps a working fallback
+     before this ever runs, and measured against the same box the figure is
+     positioned in — not against the name's own offset parent, which is a
+     different element the moment anything transforms it. */
   const placeNiche = () => {
     if (!portraitWrapEl || !nmStack || !nmFirst) return;
+    const stage = portraitWrapEl.offsetParent || nmStack.closest('.hero-stage');
+    if (!stage) return;
+    const origin = stage.getBoundingClientRect().left;
     const nmPx = parseFloat(getComputedStyle(nmFirst).fontSize);
-    const left = nmStack.offsetLeft + nmFirst.offsetWidth - nmPx * 0.18;
-    portraitWrapEl.style.left = left + 'px';
+    const first = nmFirst.getBoundingClientRect();
+    const left = first.right - origin - nmPx * 0.18;
+    portraitWrapEl.style.setProperty('--niche-x', left.toFixed(2) + 'px');
   };
 
   /* ── The name block is fitted, not guessed. ──────────────────────────────
@@ -68,6 +77,10 @@
     }
     docEl.style.setProperty('--nm', fsFirst.toFixed(2) + 'px');
     docEl.style.setProperty('--nm-ratio', ratio.toFixed(4));
+    /* The figure rests on SELIM, so its vertical seat is expressed in SELIM's
+       size. Tying it to YOUSOF only held while the two happened to keep a
+       fixed ratio; the height cap on short screens breaks that. */
+    docEl.style.setProperty('--nm-2', fsLast.toFixed(2) + 'px');
     if (portraitWrapEl) portraitWrapEl.style.width = (fsLast * NICHE * 0.98).toFixed(2) + 'px';
     placeNiche();
   };
@@ -79,7 +92,17 @@
     fitNames();
     if (window.ScrollTrigger) ScrollTrigger.refresh();
   };
+  /* Two speeds. The figure is re-seated on the very next frame of any resize —
+     it is two rect reads — so it can never be seen adrift from the letters
+     while a window is being dragged. The full re-fit, which rewrites the type
+     scale, still waits for the drag to settle. */
+  let nicheFrame = 0;
+  const reseatSoon = () => {
+    if (nicheFrame) return;
+    nicheFrame = requestAnimationFrame(() => { nicheFrame = 0; placeNiche(); });
+  };
   window.addEventListener('resize', () => {
+    reseatSoon();
     /* Mobile browsers fire resize when the URL bar collapses; only the width
        (or a real height jump) should cost a relayout. */
     const dw = Math.abs(innerWidth - lastFitW), dh = Math.abs(innerHeight - lastFitH);
@@ -87,7 +110,12 @@
     lastFitW = innerWidth; lastFitH = innerHeight;
     clearTimeout(fitTimer);
     fitTimer = setTimeout(refit, 150);
-  });
+  }, { passive: true });
+  /* Zoom, a font finally arriving, a scrollbar appearing — anything that
+     changes the name's box re-seats the figure without waiting for a resize. */
+  if ('ResizeObserver' in window && nmFirst) {
+    new ResizeObserver(reseatSoon).observe(nmFirst);
+  }
   window.addEventListener('orientationchange', () => {
     clearTimeout(fitTimer);
     fitTimer = setTimeout(() => { lastFitW = innerWidth; lastFitH = innerHeight; refit(); }, 260);

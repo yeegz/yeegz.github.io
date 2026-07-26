@@ -93,6 +93,12 @@
         noise(at + 0.082, { dur: 0.05, peak: 0.38, filter: 'highpass', from: 2200, to: 900, q: 0.6, attack: 0.12 });
         tone(at + 0.082, { type: 'square', from: 1900, to: 1300, dur: 0.03, peak: 0.1 });
       }),
+      /* Tajweed — a dry wooden tick, the sound of turning to the next step. */
+      tick: voice(() => {
+        const at = ctx.currentTime;
+        tone(at, { type: 'triangle', from: 880, to: 520, dur: 0.05, peak: 0.2 });
+        noise(at, { dur: 0.035, peak: 0.16, filter: 'bandpass', from: 2400, to: 1500, q: 1.6, attack: 0.1 });
+      }),
       /* Fallen Asteri — an 8-bit zap with a pinch of pitch variance per kill. */
       kill: voice(() => {
         const at = ctx.currentTime;
@@ -116,16 +122,22 @@
 
   /* Real, bounded loading sequence. */
   const loader = document.getElementById('siteLoader');
-  const critical = [document.getElementById('portrait'), document.getElementById('gardenImg')].filter(Boolean);
-  const mediaReady = Promise.all(critical.map((image) => {
-    if (image.complete && image.naturalWidth) return Promise.resolve();
-    return typeof image.decode === 'function' ? image.decode().catch(() => {}) : new Promise((resolve) => {
-      image.addEventListener('load', resolve, { once: true });
-      image.addEventListener('error', resolve, { once: true });
-    });
-  }));
-  window.siteReady = Promise.race([Promise.all([document.fonts?.ready || Promise.resolve(), mediaReady]), wait(1050)]).then(async () => {
-    await wait(120);
+  /* The loader used to wait on the hero print AND the Melaka photograph — on a
+     slow phone that is most of a megabyte, and the visitor stared at a black
+     screen for nine seconds. Only the hero print is above the fold, and even
+     that loses a short race: an image still decoding is a reason to start
+     without it, not a reason to hold the door shut. */
+  const heroImage = document.getElementById('portrait');
+  const heroReady = !heroImage || (heroImage.complete && heroImage.naturalWidth)
+    ? Promise.resolve()
+    : (typeof heroImage.decode === 'function' ? heroImage.decode().catch(() => {}) : new Promise((resolve) => {
+        heroImage.addEventListener('load', resolve, { once: true });
+        heroImage.addEventListener('error', resolve, { once: true });
+      }));
+  window.siteReady = Promise.race([
+    Promise.all([document.fonts?.ready || Promise.resolve(), heroReady]),
+    wait(700)
+  ]).then(() => {
     root.classList.add('is-ready');
     loader?.setAttribute('aria-hidden', 'true');
   });
@@ -160,9 +172,25 @@
   /* Exact final Skills behavior: every lane moves; only the selected lane pauses. */
   const skillLanes = [...document.querySelectorAll('[data-skill-lane]')];
   const skillPositions = skillLanes.map(() => 0);
+  /* Measured once per resize instead of six querySelector + offsetWidth reads
+     per frame, and a per-lane hold so a tap (or an arrow) really does pause. */
+  const skillParts = skillLanes.map((lane) => ({
+    scroller: lane.querySelector('.skill-scroller'),
+    set: lane.querySelector('.tool-set'),
+    width: 0
+  }));
+  const skillHold = skillLanes.map(() => 0);
+  const measureLanes = () => skillParts.forEach((part) => { part.width = part.set?.offsetWidth || 0; });
+  measureLanes();
+  addEventListener('resize', () => requestAnimationFrame(measureLanes), { passive: true });
   skillLanes.forEach((lane, index) => {
     const scroller = lane.querySelector('.skill-scroller');
     const set = lane.querySelector('.tool-set');
+    lane.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse') return;
+      skillHold[index] = performance.now() + 6000;
+      lane.classList.add('is-held');
+    }, { passive: true });
     const direction = Number(lane.dataset.direction) || 1;
     if (direction < 0) requestAnimationFrame(() => {
       skillPositions[index] = set.offsetWidth;
@@ -177,24 +205,52 @@
       skillPositions[index] = scroller.scrollLeft + dir * step;
     };
     const nudgeFromControl = (event, direction) => {
+      /* Hold the drift off while the browser's smooth scroll plays out —
+         otherwise the next frame writes the destination straight to
+         scrollLeft and the lane teleports instead of gliding. */
+      skillHold[index] = performance.now() + 800;
       nudge(direction);
-      if (event.detail > 0) event.currentTarget.blur();
     };
     lane.querySelector('.prev')?.addEventListener('click', (event) => nudgeFromControl(event, -1));
     lane.querySelector('.next')?.addEventListener('click', (event) => nudgeFromControl(event, 1));
   });
+  /* WCAG 2.2.2: motion that starts on its own and runs for more than five
+     seconds needs a control that stops it. Hover and tap only cover pointers. */
+  let skillsPaused = false;
+  const skillToggle = document.getElementById('skillsPause');
+  if (skillToggle) {
+    skillToggle.hidden = false;
+    skillToggle.addEventListener('click', () => {
+      skillsPaused = !skillsPaused;
+      skillToggle.setAttribute('aria-pressed', String(skillsPaused));
+      skillToggle.querySelector('.sp-label').textContent = skillsPaused ? 'Resume lanes' : 'Pause lanes';
+      document.querySelector('.skill-lanes')?.classList.toggle('is-paused', skillsPaused);
+    });
+  }
+  /* Nothing to animate while the section is off screen. */
+  let skillsOnScreen = true;
+  const skillsRoot = document.querySelector('.skill-lanes');
+  if (skillsRoot && 'IntersectionObserver' in window) {
+    skillsOnScreen = false;
+    new IntersectionObserver(([entry]) => { skillsOnScreen = entry.isIntersecting; }, { rootMargin: '120px' }).observe(skillsRoot);
+  }
   let skillLast = performance.now();
   const moveSkills = (now) => {
     const delta = Math.min(32, now - skillLast);
     skillLast = now;
-    if (!reduceMotion && !document.hidden) skillLanes.forEach((lane, index) => {
-      const scroller = lane.querySelector('.skill-scroller');
-      const width = lane.querySelector('.tool-set')?.offsetWidth || 0;
-      if (!width) return;
-      if (lane.matches(':hover') || lane.contains(document.activeElement)) {
+    if (!reduceMotion && !skillsPaused && skillsOnScreen && !document.hidden) skillLanes.forEach((lane, index) => {
+      const { scroller, width } = skillParts[index];
+      if (!width || !scroller) return;
+      /* Hover pauses; so does *keyboard* focus, because someone stepping
+         through with the arrow keys is reading. A mouse click on an arrow
+         leaves :focus but not :focus-visible, so the lane resumes on its own
+         instead of being frozen by a click that has already finished. */
+      if (now < skillHold[index] || lane.matches(':hover') || lane.querySelector(':focus-visible')) {
         skillPositions[index] = scroller.scrollLeft;
+        if (now >= skillHold[index]) lane.classList.remove('is-held');
         return;
       }
+      lane.classList.remove('is-held');
       const direction = Number(lane.dataset.direction) || 1;
       skillPositions[index] += direction * (.019 + (index % 3) * .003) * delta;
       if (direction > 0 && skillPositions[index] >= width) skillPositions[index] -= width;
@@ -208,10 +264,10 @@
   /* Education chapters. */
   const education = {
     degree: {
-      ghost: '2027', no: 'Chapter 02 / Current', title: 'BSc (Hons) Software Engineering', type: 'Expected 2027',
+      ghost: '2027', no: 'Chapter 02 / Current', title: 'Bachelor of Software Engineering (Hons)', type: 'Expected 2027',
       institutions: [['Sunway University', 'Malaysia'], ['Lancaster University', 'United Kingdom']],
       status: 'Subang Jaya, Malaysia<br>Dual-degree programme<br>In progress',
-      courses: ['Software Architecture', 'Data Structures', 'Mobile Development', 'Databases', 'UI / UX Design']
+      courses: ['Software Architecture', 'Data Structures', 'Mobile Development', 'Databases', 'UI/UX Design']
     },
     foundation: {
       ghost: '2024', no: 'Chapter 01 / Complete', title: 'Foundation in Information Technology', type: 'May 2023 — July 2024',
@@ -245,6 +301,7 @@
       const active = tab.dataset.chapter === key;
       tab.classList.toggle('active', active);
       tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
     });
     chapter?.classList.remove('change');
     void chapter?.offsetWidth;
@@ -264,11 +321,19 @@
     /* Position accrues in a float — writing fractional deltas straight to
        scrollLeft rounds back to the same value and the drift never starts. */
     let calPos = 0;
+    let calOnScreen = true, calMax = 0;
+    const measureCal = () => { calMax = calendar.scrollWidth - calendar.clientWidth; };
+    measureCal();
+    addEventListener('resize', () => requestAnimationFrame(measureCal), { passive: true });
+    if ('IntersectionObserver' in window) {
+      calOnScreen = false;
+      new IntersectionObserver(([entry]) => { calOnScreen = entry.isIntersecting; if (entry.isIntersecting) measureCal(); }, { rootMargin: '120px' }).observe(calendar);
+    }
     const calTick = (now) => {
       const delta = Math.min(48, now - calLast);
       calLast = now;
-      const max = calendar.scrollWidth - calendar.clientWidth;
-      if (max > 8) {
+      const max = calMax;
+      if (calOnScreen && max > 8) {
         if (reduceMotion || document.hidden || now <= calHoldUntil) {
           calPos = calendar.scrollLeft;
         } else if (now > calDwellUntil) {
@@ -295,16 +360,40 @@
     const same = calendar.dataset.activeFilter === button.dataset.filter;
     if (same) delete calendar.dataset.activeFilter;
     else calendar.dataset.activeFilter = button.dataset.filter;
-    document.querySelectorAll('.filter').forEach((item) => item.classList.toggle('active', !same && item === button));
+    document.querySelectorAll('.filter').forEach((item) => {
+      const on = !same && item === button;
+      item.classList.toggle('active', on);
+      item.setAttribute('aria-pressed', String(on));
+    });
   }));
 
   /* Contact drag, bounded and springing home. */
   const contact = document.getElementById('contact');
+  /* Pointer-driven decoration is a per-frame job, not a per-event one. These
+     handlers read a box and write custom properties that repaint large
+     gradients; run raw, a 1000Hz mouse does it hundreds of times a second. */
+  const perFrame = (fn) => {
+    let queued = 0, lastEvent = null;
+    return (event) => {
+      lastEvent = event;
+      if (queued) return;
+      queued = requestAnimationFrame(() => { queued = 0; fn(lastEvent); });
+    };
+  };
+  const boxOf = (element) => {
+    let rect = null;
+    const clear = () => { rect = null; };
+    addEventListener('resize', clear, { passive: true });
+    addEventListener('scroll', clear, { passive: true });
+    return () => (rect || (rect = element.getBoundingClientRect()));
+  };
+
   const mail = document.getElementById('dragMail');
   const mailTrack = document.getElementById('mailTrack');
   let dragging = false, dragMoved = false, suppressMailClick = false, dragStartX = 0, dragStartY = 0;
-  contact?.addEventListener('pointermove', (event) => {
-    const section = contact.getBoundingClientRect();
+  const contactBox = contact ? boxOf(contact) : null;
+  contact?.addEventListener('pointermove', perFrame((event) => {
+    const section = contactBox();
     contact.style.setProperty('--cx', `${(event.clientX - section.left) / section.width * 100}%`);
     contact.style.setProperty('--cy', `${(event.clientY - section.top) / section.height * 100}%`);
     if (!dragging) return;
@@ -317,7 +406,7 @@
     mail.style.setProperty('--dx', `${dx}px`);
     mail.style.setProperty('--dy', `${dy}px`);
     mail.style.setProperty('--rot', `${clamp(dx / 28, -3.2, 3.2)}deg`);
-  });
+  }));
   mail?.addEventListener('pointerdown', (event) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     dragging = true; dragMoved = false; dragStartX = event.clientX; dragStartY = event.clientY;
@@ -359,24 +448,25 @@
   };
   const theaterFocusable = () => [...theater.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')]
     .filter((element) => !element.closest('[hidden]') && element.getClientRects().length);
-  const projectNames = ['bupples', 'photoshoot', 'adelante', 'asteri'];
+  /* The archive's order is the résumé's order; the theater follows it. */
+  const projectNames = ['bupples', 'adelante', 'photoshoot', 'tajweed', 'asteri'];
   const projectMeta = {
     bupples: { label: '01 / Bupples', surface: '#050b07', color: '#f4f0e7' },
-    photoshoot: { label: '02 / Photoshoot', surface: '#e9e3d6', color: '#24221f' },
-    adelante: { label: '03 / Adelante', surface: '#faf7f0', color: '#15130f' },
-    asteri: { label: '04 / Fallen Asteri', surface: '#120909', color: '#f4e8d7' }
+    adelante: { label: '02 / Adelante', surface: '#faf7f0', color: '#15130f' },
+    photoshoot: { label: '03 / Photoshoot', surface: '#e9e3d6', color: '#24221f' },
+    tajweed: { label: '04 / Tajweed', surface: '#0b1220', color: '#eef2f8' },
+    asteri: { label: '05 / Fallen Asteri', surface: '#120909', color: '#f4e8d7' }
   };
   let currentProject = '', projectOpener = null, projectScroll = 0, theaterBusy = false;
+  /* Captured once per opening; every re-aim is measured against these. */
+  let openScroll = 0, openedWith = '', openRowTop = null, projectRow = null;
   let pendingProjectSteps = 0, pendingProjectClose = false;
   /* Phones keep cases self-contained on the card (links included), so the
-     theater never opens there and its openers stop being buttons at all. */
+     theater never opens there. The opener is hidden by CSS at that width — it
+     is no longer a *disabled* button wrapped around the whole card, which used
+     to strand the card's copy in a control assistive tech reports as
+     unavailable. This only guards against a stray programmatic call. */
   const phoneCards = matchMedia('(max-width: 760px)');
-  const syncCardMode = () => {
-    document.querySelectorAll('[data-open-project]').forEach((button) => { button.disabled = phoneCards.matches; });
-  };
-  syncCardMode();
-  if (phoneCards.addEventListener) phoneCards.addEventListener('change', syncCardMode);
-  else if (phoneCards.addListener) phoneCards.addListener(syncCardMode);
   const completeTheaterAction = () => {
     theaterBusy = false;
     if (!theater?.open) { pendingProjectSteps = 0; pendingProjectClose = false; return; }
@@ -386,6 +476,38 @@
     if (pendingProjectSteps) {
       const offset = Math.sign(pendingProjectSteps); pendingProjectSteps -= offset; navigateProject(offset);
     }
+  };
+  /* Re-aims the closing wash, the scroll restore and the focus restore at
+     whichever case file is currently on stage. */
+  const aimAtRow = (name) => {
+    const opener = document.querySelector(`[data-open-project="${name}"]`);
+    const row = opener?.closest('.work-row');
+    if (!row) return;
+    projectOpener = opener;
+    projectRow = row;
+    setWashFrom(row);
+  };
+  /* Where the exited case should sit once the page is back: exactly where the
+     visitor left it if they never navigated, otherwise just under the header.
+     Measured live, after the close has settled — the pinned hero re-measures
+     on the way out and moves every row's document offset, so anything computed
+     earlier is stale by the time it would be applied. */
+  const restoreToRow = () => {
+    const row = projectRow;
+    if (!row) { window.scrollTo(0, projectScroll); return; }
+    const wanted = (currentProject === openedWith && openRowTop != null)
+      ? openRowTop
+      : Math.round(innerHeight * 0.14);
+    const target = Math.max(0, Math.round(scrollY + row.getBoundingClientRect().top - wanted));
+    if (window.lenis?.scrollTo) window.lenis.scrollTo(target, { immediate: true, force: true });
+    else window.scrollTo(0, target);
+  };
+  const setWashFrom = (row) => {
+    const box = row.getBoundingClientRect();
+    theater.style.setProperty('--wash-top', `${Math.max(0, box.top)}px`);
+    theater.style.setProperty('--wash-right', `${Math.max(0, innerWidth - box.right)}px`);
+    theater.style.setProperty('--wash-bottom', `${Math.max(0, innerHeight - box.bottom)}px`);
+    theater.style.setProperty('--wash-left', `${Math.max(0, box.left)}px`);
   };
   const showProject = (name) => {
     theater.querySelectorAll('[data-project-stage]').forEach((stage) => { stage.hidden = stage.dataset.projectStage !== name; });
@@ -397,18 +519,33 @@
   };
   const openProject = async (name, opener) => {
     if (theaterBusy || theater.open || !projectMeta[name] || phoneCards.matches) return;
-    theaterBusy = true; pendingProjectSteps = 0; pendingProjectClose = false; projectOpener = opener; projectScroll = scrollY;
-    const row = opener.getBoundingClientRect();
-    theater.style.setProperty('--wash-top', `${Math.max(0, row.top)}px`);
-    theater.style.setProperty('--wash-right', `${Math.max(0, innerWidth - row.right)}px`);
-    theater.style.setProperty('--wash-bottom', `${Math.max(0, innerHeight - row.bottom)}px`);
-    theater.style.setProperty('--wash-left', `${Math.max(0, row.left)}px`);
+    theaterBusy = true; pendingProjectSteps = 0; pendingProjectClose = false; projectOpener = opener;
+    const rowEl = opener.closest('.work-row') || opener;
+    /* The position the visitor is actually looking at. Taken on pointerdown,
+       because focusing the stretched opener makes the browser scroll it into
+       view before this handler runs. */
+    const scrollBeforeFreeze = pointerScroll ?? scrollY;
+    const pointerRowTop = pointerRowViewportTop ?? rowEl.getBoundingClientRect().top;
     showProject(name);
-    if (typeof theater.show === 'function') theater.show();
-    else theater.setAttribute('open', '');
+    if (typeof theater.showModal === 'function') {
+      try { theater.showModal(); } catch (_) { theater.show?.(); }
+    } else if (typeof theater.show === 'function') { theater.show(); }
+    else { theater.setAttribute('open', ''); }
     isolateTheater(true);
     root.classList.add('project-open');
     window.lenis?.stop?.();
+    /* Freezing the page removes the scrollbar and settles the pinned hero,
+       which shifts the document by a hundred-odd pixels. Everything the close
+       depends on — where the wash starts, where to scroll back to, which row
+       to land on — is measured *after* that, so it is all in one coordinate
+       system and navigating between cases stays exact. */
+    openScroll = scrollBeforeFreeze;
+    projectScroll = scrollBeforeFreeze;
+    openedWith = name;
+    openRowTop = pointerRowTop;
+    projectRow = rowEl;
+    /* The wash grows out of the whole case-file row, not just the opener. */
+    setWashFrom(rowEl);
     requestAnimationFrame(() => requestAnimationFrame(() => theater.classList.add('is-open')));
     await transitionDone(theaterWash, 'clip-path', 980);
     theater.querySelector('[data-close-project]')?.focus({ preventScroll: true });
@@ -422,9 +559,24 @@
     await transitionDone(theaterWash, 'clip-path', 980);
     theater.close(); theater.classList.remove('is-closing');
     isolateTheater(false);
-    window.lenis?.start?.(); window.scrollTo(0, projectScroll); projectOpener?.focus({ preventScroll: true }); completeTheaterAction();
+    window.lenis?.start?.();
+    restoreToRow();
+    projectOpener?.focus({ preventScroll: true });
+    completeTheaterAction();
   };
-  document.querySelectorAll('[data-open-project]').forEach((button) => button.addEventListener('click', () => openProject(button.dataset.openProject, button)));
+  let pointerScroll = null, pointerRowViewportTop = null;
+  document.querySelectorAll('[data-open-project]').forEach((button) => {
+    const mark = () => {
+      pointerScroll = scrollY;
+      pointerRowViewportTop = (button.closest('.work-row') || button).getBoundingClientRect().top;
+    };
+    button.addEventListener('pointerdown', mark, { passive: true });
+    button.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') mark(); });
+    button.addEventListener('click', () => {
+      openProject(button.dataset.openProject, button);
+      pointerScroll = null; pointerRowViewportTop = null;
+    });
+  });
   theater?.querySelector('[data-close-project]')?.addEventListener('click', closeProject);
   theater?.addEventListener('cancel', (event) => { event.preventDefault(); closeProject(); });
   document.addEventListener('keydown', (event) => {
@@ -452,14 +604,15 @@
     theaterBusy = true;
     theater.style.setProperty('--stage-dir', offset > 0 ? '1' : '-1');
     outgoing?.classList.add('stage-switching', 'stage-out');
-    await wait(260);
+    await wait(250);                       /* .stage-out runs for 240ms */
+    showProject(nextName);                 /* swap while both are invisible */
     outgoing?.classList.remove('stage-switching', 'stage-out');
-    showProject(nextName);
     incoming.classList.add('stage-switching', 'stage-in');
     void incoming.offsetWidth;
     requestAnimationFrame(() => incoming.classList.remove('stage-in'));
-    await wait(460);
+    await wait(400);                       /* .stage-in settles at 380ms */
     incoming.classList.remove('stage-switching');
+    aimAtRow(nextName);
     completeTheaterAction();
   };
   theater?.querySelectorAll('[data-project-nav]').forEach((button) => button.addEventListener('click', () => {
@@ -468,15 +621,16 @@
 
   /* Bupples parallax without separating the approved phone overlap. */
   const bupples = document.querySelector('[data-project-stage="bupples"]');
-  bupples?.addEventListener('pointermove', (event) => {
-    const rect = bupples.getBoundingClientRect();
+  const bupplesBox = bupples ? boxOf(bupples) : null;
+  bupples?.addEventListener('pointermove', perFrame((event) => {
+    const rect = bupplesBox();
     const x = (event.clientX - rect.left) / rect.width - .5;
     const y = (event.clientY - rect.top) / rect.height - .5;
     bupples.style.setProperty('--lpx', `${x * -18}px`); bupples.style.setProperty('--lpy', `${y * -11}px`);
     bupples.style.setProperty('--cpx', `${x * 12}px`); bupples.style.setProperty('--cpy', `${y * 8}px`);
     bupples.style.setProperty('--rpx', `${x * 20}px`); bupples.style.setProperty('--rpy', `${y * 12}px`);
     bupples.style.setProperty('--bgx', `${x * -7}px`); bupples.style.setProperty('--bgy', `${y * -7}px`);
-  });
+  }));
   bupples?.addEventListener('pointerleave', () => ['--lpx','--lpy','--cpx','--cpy','--rpx','--rpy','--bgx','--bgy'].forEach((name) => bupples.style.removeProperty(name)));
 
   /* Adelante deck and alternating discovered message. */
@@ -491,6 +645,62 @@
   };
   quoteDeck?.addEventListener('click', advanceQuote);
   quoteDeck?.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); advanceQuote(); } });
+  /* Tajweed: the rule, painted into the letter.
+     The platform's whole idea is that recitation rules live in the colour of
+     the script. Picking a rule here isolates exactly the letters it governs —
+     including the ones this ayah simply does not contain, which is itself the
+     honest answer rather than a dead button. */
+  const tajweedPlate = document.getElementById('tajweedPlate');
+  if (tajweedPlate) {
+    const note = document.getElementById('tajweedNote');
+    const keys = [...document.querySelectorAll('#tajweedKeys .t-rule')];
+    const letters = [...tajweedPlate.querySelectorAll('.tw')];
+    const RULE_NOTE = {
+      wasl: ['Hamzat waṣl', 'The alif is written but swallowed — you slide straight into the lām.'],
+      madd: ['Madd ṭabīʿī', 'A natural stretch: hold the vowel for two counts, no more.'],
+      tafkhim: ['Tafkhīm', 'The rāʾ is heavy here — the back of the tongue lifts and the sound thickens.'],
+      silent: ['Sukūn', 'No vowel rides this letter; it closes and hands over to the next.'],
+      ghunna: ['Ghunna / Ikhfāʾ', 'A nasal hum held for two counts.'],
+      qalqala: ['Qalqala', 'A bounce off a resting qāf, ṭāʾ, bāʾ, jīm or dāl.'],
+      madd4: ['Madd wājib', 'Obligatory stretch — four or five counts.'],
+      madd6: ['Madd lāzim', 'Necessary stretch — a full six counts.']
+    };
+    let active = '';
+    const paint = (rule) => {
+      active = rule;
+      const on = !!rule;
+      tajweedPlate.classList.toggle('is-isolating', on);
+      const colour = keys.find((k) => k.dataset.rule === rule)?.style.getPropertyValue('--rule') || '';
+      let hits = 0;
+      letters.forEach((el) => {
+        const lit = on && el.dataset.rule === rule;
+        el.classList.toggle('is-lit', lit);
+        if (lit) { el.style.setProperty('--lit', colour); hits += 1; }
+        else el.style.removeProperty('--lit');
+      });
+      keys.forEach((k) => k.setAttribute('aria-selected', String(k.dataset.rule === rule)));
+      if (!note) return;
+      if (!on) { note.textContent = 'Every rule is on. Choose one to isolate it.'; return; }
+      const [name, meaning] = RULE_NOTE[rule] || [rule, ''];
+      note.innerHTML = '';
+      const strong = document.createElement('b');
+      strong.textContent = name;
+      note.append(strong, document.createTextNode(' — ' + meaning + ' '));
+      const tail = document.createElement('span');
+      tail.textContent = hits
+        ? `Lit ${hits} ${hits === 1 ? 'place' : 'places'} in this ayah.`
+        : 'This ayah does not contain it — the rule still colours the rest of the Qur’an.';
+      note.append(tail);
+    };
+    keys.forEach((key) => key.addEventListener('click', () => {
+      sfx.tick?.();
+      paint(key.dataset.rule === active ? '' : key.dataset.rule);
+    }));
+    /* Leaving the plate lets the full colouring come back. */
+    tajweedPlate.addEventListener('pointerleave', () => { if (active) return; paint(''); });
+    paint('');
+  }
+
   const adelanteMessages = ['Adelante is Spanish for “go forward.”', 'Even the smallest step is still forward.'];
   let adelanteMessage = 0;
   document.getElementById('aMark')?.addEventListener('pointerenter', async () => {
@@ -500,10 +710,10 @@
 
   /* Photoshoot session, preserving each approved focal point. */
   const photos = [
-    ['images/projects/photoshoot/subject-01.jpg', '50% 56%'],
-    ['images/projects/photoshoot/subject-02.jpg', '50% 35%'],
-    ['images/projects/photoshoot/subject-03.jpg', '50% 37%'],
-    ['images/projects/photoshoot/subject-04.jpg', '50% 40%']
+    ['images/projects/photoshoot/subject-01.webp', '50% 56%'],
+    ['images/projects/photoshoot/subject-02.webp', '50% 35%'],
+    ['images/projects/photoshoot/subject-03.webp', '50% 37%'],
+    ['images/projects/photoshoot/subject-04.webp', '50% 40%']
   ];
   const viewfinder = document.getElementById('viewfinder'), viewImage = document.getElementById('viewImage');
   let photoIndex = 0, shot = 0, currentEffect = 'none';
@@ -651,10 +861,13 @@
   });
   fStage?.addEventListener('pointerleave', () => { fStage.style.setProperty('--sx', '-100px'); fStage.style.setProperty('--sy', '-100px'); });
 
-  /* One corrected cursor system. No second transform or legacy margin math. */
-  if (finePointer) {
+  /* One corrected cursor system. No second transform or legacy margin math.
+     Mounted on any device that *can* drive a fine pointer, then switched on and
+     off live: a hybrid machine (touch laptop, iPad with a trackpad) must never
+     show the drawn cursor and the real one at the same time. */
+  const pointerMQ = matchMedia('(pointer: fine) and (hover: hover)');
+  if (pointerMQ.matches || matchMedia('(any-pointer: fine)').matches) {
     const cursor = document.getElementById('cursor'), label = document.getElementById('cursorLabel');
-    root.classList.add('cur');
     let cursorX = -100, cursorY = -100, cursorFrame = 0, actionFrame = 0;
     const paint = () => { cursorFrame = 0; cursor.style.transform = `translate3d(${cursorX}px,${cursorY}px,0)`; };
 
@@ -691,6 +904,10 @@
        and flip the cursor's ink so it stays visible over light stages and
        panels (and over dark ones in light theme). */
     let lumaElement = null;
+    /* Declared light/dark zones are static markup; hold the list instead of
+       re-querying the document on every pointer sample. */
+    let surfaceZones = null;
+    const zones = () => (surfaceZones || (surfaceZones = [...document.querySelectorAll('[data-cursor-surface]')]));
     const surfaceLuma = (element) => {
       let node = element;
       while (node && node !== document.documentElement) {
@@ -710,7 +927,7 @@
       /* Pointer-transparent regions (like the camera viewfinder) never become
          event targets, so declared [data-cursor-surface] zones win by rect. */
       let zone = null;
-      for (const candidate of document.querySelectorAll('[data-cursor-surface]')) {
+      for (const candidate of zones()) {
         const rect = candidate.getBoundingClientRect();
         if (rect.width && cursorX >= rect.left && cursorX <= rect.right && cursorY >= rect.top && cursorY <= rect.bottom) { zone = candidate; break; }
       }
@@ -758,27 +975,78 @@
         updateCursorAction(document.elementFromPoint(cursorX, cursorY));
       });
     };
-    window.addEventListener('pointermove', (event) => {
-      cursorX = event.clientX; cursorY = event.clientY; if (!cursorFrame) cursorFrame = requestAnimationFrame(paint);
-      cursor.classList.add('is-visible');
-      updateCursorAction(event.target);
-    }, { passive: true });
-    document.addEventListener('pointerover', (event) => updateCursorAction(event.target), true);
-    document.addEventListener('pointerout', refreshCursorAction, true);
-    document.addEventListener('click', refreshCursorAction, true);
-    addEventListener('scroll', refreshCursorAction, { passive: true, capture: true });
-    addEventListener('pointerdown', (event) => {
-      if (event.target instanceof Element && event.target.closest('[data-cursor],a,button,[role="button"]')) root.classList.add('cursor-press');
-    });
+    /* ── Live on/off. ────────────────────────────────────────────────────────
+       The drawn cursor is only ever on while a real mouse is the pointer in
+       use. Touching the screen on a hybrid machine turns it off (and gives the
+       system cursor back); moving the mouse turns it on again. This is what
+       stops the drawn and native cursors being visible at the same time. */
+    let cursorOn = null;
     const releaseCursor = () => root.classList.remove('cursor-press');
-    addEventListener('pointerup', releaseCursor);
-    addEventListener('pointercancel', releaseCursor);
-    addEventListener('blur', releaseCursor);
-    document.documentElement.addEventListener('mouseleave', () => {
+    const setCursorMode = (on) => {
+      if (on === cursorOn) return;
+      cursorOn = on;
+      root.classList.toggle('cur', on);
+      if (on) { cursor.removeAttribute('hidden'); return; }
+      cursor.setAttribute('hidden', '');
       cursor.classList.remove('is-visible');
-      updateCursorAction(null);
+      root.classList.remove('cur-view', 'cur-sigil', 'sword-mode');
       releaseCursor();
+      sizedAction = null; lumaElement = null;
+    };
+    setCursorMode(pointerMQ.matches);
+    if (pointerMQ.addEventListener) pointerMQ.addEventListener('change', (event) => setCursorMode(event.matches));
+    else pointerMQ.addListener?.((event) => setCursorMode(event.matches));
+
+    /* One frame, one update. pointermove fires far faster than the display on
+       high-polling mice, and each update hit-tests and samples the surface
+       under the pointer — doing that per event starved the frame budget and
+       made the cursor lag, stutter and appear to drop out. */
+    let moveTarget = null;
+    const commitMove = () => {
+      cursorFrame = 0;
+      paint();
+      updateCursorAction(moveTarget);
+    };
+    window.addEventListener('pointermove', (event) => {
+      if (event.pointerType && event.pointerType !== 'mouse') { setCursorMode(false); return; }
+      if (!cursorOn && pointerMQ.matches) setCursorMode(true);
+      if (!cursorOn) return;
+      cursorX = event.clientX; cursorY = event.clientY;
+      moveTarget = event.target;
+      cursor.classList.add('is-visible');
+      if (!cursorFrame) cursorFrame = requestAnimationFrame(commitMove);
+    }, { passive: true });
+    document.addEventListener('pointerover', (event) => { if (cursorOn && event.pointerType === 'mouse') refreshCursorAction(); }, true);
+    document.addEventListener('pointerout', (event) => {
+      if (!cursorOn) return;
+      /* No relatedTarget means the pointer left the document entirely. */
+      if (!event.relatedTarget) { cursor.classList.remove('is-visible'); updateCursorAction(null); releaseCursor(); return; }
+      refreshCursorAction();
+    }, true);
+    document.addEventListener('click', () => { if (cursorOn) refreshCursorAction(); }, true);
+    addEventListener('scroll', (event) => {
+      /* Capture phase sees element scrolls too — and the skills marquee writes
+         scrollLeft on six lanes every frame. Only the page moving under the
+         pointer can change what is beneath it. */
+      if (!cursorOn) return;
+      if (event.target !== document && event.target !== document.documentElement && event.target !== window) return;
+      refreshCursorAction();
+    }, { passive: true, capture: true });
+    addEventListener('pointerdown', (event) => {
+      if (event.pointerType && event.pointerType !== 'mouse') { setCursorMode(false); return; }
+      if (cursorOn && event.target instanceof Element && event.target.closest('[data-cursor],a,button,[role="button"]')) root.classList.add('cursor-press');
+    }, { passive: true });
+    addEventListener('pointerup', releaseCursor, { passive: true });
+    addEventListener('pointercancel', releaseCursor, { passive: true });
+    /* Leaving or re-entering the window: WebKit drops `cursor:none` when the
+       window loses focus, so the class is re-asserted on the way back in. */
+    addEventListener('blur', () => { releaseCursor(); cursor.classList.remove('is-visible'); });
+    addEventListener('focus', () => {
+      if (!cursorOn) return;
+      root.classList.remove('cur');
+      requestAnimationFrame(() => root.classList.add('cur'));
     });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) { releaseCursor(); cursor.classList.remove('is-visible'); } });
   } else {
     document.getElementById('cursor')?.setAttribute('hidden', '');
   }

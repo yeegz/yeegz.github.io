@@ -48,7 +48,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 .skip-link {
   position: fixed; top: -100px; left: var(--pad-x); z-index: 500;
   font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
-  background: var(--ink); color: var(--bg); padding: 0.7rem 1.1rem;
+  background: var(--ink); color: var(--bg); padding: 0.95rem 1.3rem; min-height: 44px;
   transition: top 0.3s var(--ease-out);
 }
 .skip-link:focus-visible { top: 0; }
@@ -132,7 +132,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   background: linear-gradient(180deg, #f7f4ed 0%, #cfcbc2 58%, #8f8b83 105%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.nm-line-2 .nm-in { font-size: calc(var(--nm) * 1.16); }
+.nm-line-2 .nm-in { font-size: calc(var(--nm) * var(--nm-ratio, 1.16)); }
 .nm-egg {
   background: linear-gradient(180deg, #c9ead0 0%, #9bcfa5 52%, #618f6b 108%);
   -webkit-background-clip: text; background-clip: text;
@@ -931,10 +931,9 @@ html.gaming { overflow: hidden; }
 }
 .menu-open .mnav-eyebrow { opacity: 1; transform: none; transition-delay: 0.12s; }
 .menu-open .mnav-list li { opacity: 1; transform: none; }
-.menu-open .mnav-list li:nth-child(1) { transition-delay: 0.18s; }
-.menu-open .mnav-list li:nth-child(2) { transition-delay: 0.24s; }
-.menu-open .mnav-list li:nth-child(3) { transition-delay: 0.30s; }
-.menu-open .mnav-list li:nth-child(4) { transition-delay: 0.36s; }
+/* Driven off the item's own index so the list can grow without the last
+   entry racing ahead of the others. */
+.menu-open .mnav-list li { transition-delay: calc(0.18s + var(--i, 0) * 0.06s); }
 .menu-open .mnav-foot { opacity: 1; transform: none; transition-delay: 0.42s; }
 
 html.menu-open { overflow: hidden; }
@@ -1290,6 +1289,7 @@ html[data-theme="light"] .experience-section{background:linear-gradient(to botto
 @media (pointer:fine){.f-stage,.f-stage .enemy{cursor:none}}
 
 /* Corrected dotted cursor: one coordinate system, inverse filled action state. */
+.cursor[hidden] { display:none !important; }
 .cur .cursor { display:block; position:fixed; inset:0 auto auto 0; width:0; height:0; z-index:700; pointer-events:none; opacity:0; transition:opacity .18s; will-change:transform; }
 .cur .cursor.is-visible { opacity:1; }
 /* Surface-aware ink: approved.js samples the background under the pointer
@@ -1411,4 +1411,579 @@ html.project-open,html.project-open body{overflow:hidden!important}.project-open
   .copy-address:active{border-color:var(--accent);color:var(--accent)}
   .hint-fine{display:none}
   .hint-touch{display:inline}
+}
+
+/* ========================================================================== */
+/* Case files, résumé pass — one card, one opener                             */
+/* ========================================================================== */
+/* The card body is plain semantic markup again. What opens the case file is
+   its own button, stretched over the row on pointer devices and stood down on
+   phones where the card carries its real destinations instead. Nothing is a
+   disabled button any more, so the copy stays selectable, focusable and
+   readable to assistive technology at every width. */
+.work-row { position: relative; }
+.work-archive .work-link, .work-link { cursor: default; }
+.work-open {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; align-items: flex-end; justify-content: flex-end;
+  gap: 0.55rem; padding: 0 0.6rem clamp(1.5rem, 3.4vh, 2.2rem);
+  border: 0; background: transparent; color: var(--muted); cursor: pointer;
+  font: 500 0.6rem var(--mono); letter-spacing: 0.16em; text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+}
+.work-open .wo-name {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+.work-open .wo-label, .work-open .wo-arr {
+  opacity: 0; translate: 0 6px;
+  transition: opacity 0.4s var(--ease-out), translate 0.5s var(--ease-out), color 0.4s;
+}
+.work-open .wo-arr { transition-delay: 0.04s; }
+.work-row:hover .work-open .wo-label,
+.work-row:hover .work-open .wo-arr,
+.work-open:focus-visible .wo-label,
+.work-open:focus-visible .wo-arr { opacity: 1; translate: 0 0; }
+.work-row:hover .work-open { color: var(--ink); }
+.work-row:hover .work-open .wo-arr { color: var(--accent); }
+.work-open:focus-visible { outline: 1.5px solid var(--accent); outline-offset: -8px; }
+.reduced .work-open .wo-label, .reduced .work-open .wo-arr { opacity: 1; translate: 0 0; }
+
+/* A case that is finished should not claim to be open. */
+.work-status.is-closed { color: var(--muted-2); }
+
+/* Tajweed artwork keeps the app's own paper ratio. */
+.work-media > img.tj-art { height: auto; aspect-ratio: 1400 / 875; object-fit: cover; object-position: left top; }
+
+.sec-tag i { font-style: normal; margin: 0 0.5em; color: var(--muted-2); }
+
+/* Tablets and phones: the card carries its real destinations. Above the
+   overlay, so a tap on a link is a link and a tap anywhere else opens the case. */
+@media (max-width: 1024px) {
+  .work-links {
+    position: relative; z-index: 3;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem;
+    margin: 0.95rem 0.2rem 2.3rem;
+  }
+  .work-links a {
+    display: flex; justify-content: space-between; align-items: center; gap: 0.7rem;
+    min-height: 48px; padding: 0.85rem 0.95rem; border: 1px solid var(--line);
+    font: 500 0.62rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-soft); transition: color 0.35s, border-color 0.35s;
+  }
+  .work-links a span { color: var(--accent); }
+  .work-links a.wl-primary { border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--ink); }
+  .work-links a:hover, .work-links a:active { border-color: var(--accent); color: var(--accent); }
+  .work-links a:only-child { grid-column: 1 / -1; }
+  .work-link { padding-bottom: 1.15rem; }
+  .work-open { padding-bottom: 6.2rem; }
+}
+@media (max-width: 760px) {
+  /* Phones: the theater stays closed, so there is no opener to stretch. */
+  .work-open { display: none; }
+  .work-media > img.tj-art { height: 190px; object-fit: cover; }
+}
+@media (max-width: 430px) {
+  .work-links { grid-template-columns: 1fr; }
+}
+
+/* ========================================================================== */
+/* Fit: the shapes the layout was never asked about                           */
+/* ========================================================================== */
+
+/* Anchored sections used to come to rest with their eyebrow underneath the
+   fixed header, printing "05 / CONTACT" straight over the brand. Give every
+   scroll target the header's height back. */
+.scene, #top, main > section { scroll-margin-top: clamp(4.6rem, 9vh, 6.2rem); }
+
+/* Landscape phones. 100svh is ~390px there, but the stage carried a hard
+   620px floor, so the hero stood a third of a screen taller than the screen
+   and the name had nowhere to sit. Let the stage be the viewport, and let the
+   fitted name take its cue from the height it actually has. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .hero-stage { min-height: 0; height: 100svh; }
+  .hm-eyebrow, .hm-loc { top: 3.1rem; }
+  .hm-role { top: 5.1rem; }
+  .hm-idstrip { display: none; }
+  .reg-tl, .reg-tr { display: none; }
+  .nm-stack { bottom: 27svh; }
+  .portrait-wrap { bottom: calc(27svh + var(--nm) * 0.93); }
+  /* Landscape has width to spare: one row of actions, not a 2×2 block. */
+  .hm-ctas { bottom: 3.5svh; grid-template-columns: repeat(4, auto); gap: 0 1.3rem; }
+  .cta { padding: 0.5rem 0.75rem; font-size: 0.6rem; letter-spacing: 0.1em; }
+  .dim-top, .dim-right { display: none; }
+  .about-panel { padding: 9vh var(--pad-x) 9vh; }
+  .about-figure { margin-bottom: 2.4rem; }
+}
+
+/* Phones. The name sat at 40svh with a dead third of the screen under it;
+   pull the block down and let the actions close the composition. */
+@media (max-width: 640px) and (orientation: portrait) {
+  .nm-stack { bottom: 31svh; }
+  .portrait-wrap { bottom: calc(31svh + var(--nm) * 0.93); }
+  .hm-ctas { bottom: 5.5svh; }
+}
+
+/* Very small phones: the 2×2 action grid is the tightest thing on the page. */
+@media (max-width: 360px) {
+  .cta { padding: 0.8rem 0.7rem; font-size: 0.6rem; letter-spacing: 0.1em; }
+  .hm-ctas { gap: 0.55rem; }
+  .idstrip-meta { font-size: 0.52rem; }
+  .hm-idstrip canvas { width: 118px; height: 15.3px; }
+}
+
+/* Notched phones: the fixed header and the bottom-anchored hero furniture
+   both need the safe area they were never given. */
+@supports (padding: max(0px)) {
+  .site-head { padding-left: max(var(--pad-x), env(safe-area-inset-left)); padding-right: max(var(--pad-x), env(safe-area-inset-right)); }
+  .hm-ctas { padding-bottom: env(safe-area-inset-bottom); }
+  .site-foot { padding-bottom: max(1.4rem, env(safe-area-inset-bottom)); }
+}
+
+/* Big screens. The composition is fitted now, so the furniture around it
+   should breathe with it instead of hugging 3vw of a 2560px viewport. */
+@media (min-width: 1700px) {
+  :root { --pad-x: clamp(3vw, 3vw, 96px); }
+  .work-case { max-width: 66ch; }
+  .about-lead { max-width: 46ch; }
+}
+
+/* ========================================================================== */
+/* Targets you can actually hit                                               */
+/* ========================================================================== */
+/* Tablets and landscape phones get the desktop navigation, whose links are
+   21px tall — fine for a cursor, not for a thumb. The hit area is grown with
+   a pseudo-element so nothing about the type or the underline moves.
+   (Horizontal growth stays under the smallest gap between neighbours, so no
+   two targets ever overlap.) */
+.site-nav a, .brand, .socials a, .site-foot a, .mnav-social a, .mnav-resume { position: relative; }
+.site-nav a::after, .brand::after, .socials a::after, .site-foot a::after {
+  content: ""; position: absolute; inset: -11px -6px;
+}
+@media (hover: none), (pointer: coarse) {
+  .site-nav a::after, .brand::after, .socials a::after, .site-foot a::after { inset: -17px -8px; }
+  /* Hero actions are plain text links between 641 and 900px; give a thumb
+     something to land on without boxing them the way phones do. */
+  .cta { min-height: 44px; align-items: center; padding: 0.6rem 0; }
+  .cta::after { content: ""; position: absolute; inset: -6px -10px; }
+  .cta { position: relative; }
+  .theme-toggle { width: 44px; height: 44px; }
+  .contact-foot .socials { gap: clamp(1.4rem, 4vw, 2.6rem); }
+  .drag-mail { display: inline-block; min-height: 44px; }
+}
+
+/* ========================================================================== */
+/* Fallbacks: what these rules do when a feature is missing                   */
+/* ========================================================================== */
+
+/* If background-clip:text is not honoured, `color: transparent` erases the
+   name entirely — the largest thing on the page, gone. Paint it first, and
+   only cut it out where the browser can actually do the cutting. */
+.nm-in { color: var(--ink); }
+.nm-egg { color: var(--accent); }
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .nm-in, .nm-egg { color: transparent; }
+}
+
+/* svh is Safari 15.4+ / Chrome 108+ / Firefox 101+. Older engines drop the
+   whole declaration — which for `bottom` means `auto`, and the hero furniture
+   lands at the top of the stage. Every svh position gets a vh floor first. */
+@supports not (height: 100svh) {
+  .hero-stage { height: 100vh; }
+  .nm-stack { bottom: 16.5vh; }
+  .portrait-wrap { bottom: calc(16.5vh + var(--nm) * 0.93); }
+  .hm-eyebrow, .hm-loc { top: clamp(4.6rem, 9vh, 6rem); }
+  .hm-role, .hm-ctas { bottom: 5vh; }
+  .egg-hud { bottom: 3.4vh; }
+  .mobile-nav { padding-top: clamp(4.4rem, 13vh, 8.5rem); }
+  @media (max-width: 900px) {
+    .nm-stack { bottom: 26vh; }
+    .portrait-wrap { bottom: calc(26vh + var(--nm) * 0.93); }
+    .hm-ctas { bottom: 4vh; }
+    .hm-idstrip { top: 10.6rem; }
+  }
+  @media (max-width: 640px) {
+    .nm-stack { bottom: 31vh; }
+    .portrait-wrap { bottom: calc(31vh + var(--nm) * 0.93); }
+    .hm-ctas { bottom: 5.5vh; }
+  }
+}
+
+/* Firefox has never had ::-webkit-scrollbar; give it the standard properties
+   so the scrollbar matches the page instead of the OS. */
+html { scrollbar-width: thin; scrollbar-color: #232325 var(--bg); }
+html[data-theme="light"] { scrollbar-color: #c9c2b2 var(--bg); }
+
+/* color-mix is Safari 16.2+/Chrome 111+. Where it is used for a border or a
+   wash, an unsupported value invalidates the whole declaration. */
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  .theme-toggle { background: transparent; }
+  .work-links a.wl-primary { border-color: rgba(155, 207, 165, 0.45); }
+  .sec-rail-spark { box-shadow: 0 0 12px 3px rgba(155, 207, 165, 0.5), 0 0 36px 9px rgba(155, 207, 165, 0.18); }
+}
+
+/* Windows High Contrast / forced colours: the site is almost entirely
+   background-painted, so opt the decorative layers out and let the OS palette
+   carry the type. */
+@media (forced-colors: active) {
+  .grain, .halo, .stage-bg, .sec-ghost, .pipe-ghost, .contact-ghost, .cursor { display: none; }
+  .nm-in, .nm-egg { color: CanvasText; background: none; -webkit-text-fill-color: CanvasText; }
+  .work-no { -webkit-text-stroke-color: CanvasText; color: CanvasText; }
+  .cta, .work-links a, .head-resume, .theme-toggle, .t-step { border: 1px solid ButtonBorder; }
+  .work-open:focus-visible, :focus-visible { outline: 2px solid Highlight; }
+}
+
+/* ========================================================================== */
+/* Failure modes                                                              */
+/* ========================================================================== */
+
+/* Engines that do not know <dialog> ignore the UA rule that hides it while
+   closed. This one is position:fixed;inset:0;z-index:600 — an invisible sheet
+   over the whole site that swallows every click. Say it explicitly. */
+.project-theater:not([open]) { display: none !important; }
+
+/* The loader is an opaque full-screen sheet dismissed by one line of JS.
+   Without a script it must never appear at all, and even with one it gives up
+   on its own rather than holding the page hostage. */
+html.no-js .site-loader { display: none !important; }
+@keyframes loaderGiveUp { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+.site-loader { animation: loaderGiveUp 0s linear 5s forwards; }
+html.reduced .site-loader { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Short viewports: min-height:620px used to win over 100svh, pushing the whole
+   bottom-anchored hero — name and all four actions — under the fold on a
+   568px phone with no way to scroll to it. */
+.hero-stage { min-height: min(620px, 100svh); }
+@media (max-width: 640px) and (max-height: 620px) {
+  .nm-stack { bottom: 25svh; }
+  .portrait-wrap { bottom: calc(25svh + var(--nm) * 0.93); }
+  .hm-ctas { bottom: 3svh; gap: 0.5rem; }
+  .cta { padding: 0.72rem 0.8rem; }
+  .hm-idstrip { display: none; }
+}
+
+/* Ghost typography is `color: transparent` plus a hairline stroke or 4%
+   opacity. Forced colours honour neither, so every one of these 200–500px
+   decorative words turns into solid CanvasText on top of the real heading. */
+@media (forced-colors: active) {
+  .sec-ghost, .pipe-ghost, .contact-ghost,
+  .pin .about-panel::before, .skills-section::before, .education-section::before,
+  .experience-section::before, .contact-section::before { display: none !important; }
+  .sec-title .t-outline { -webkit-text-stroke: 0; color: CanvasText; }
+}
+
+/* ========================================================================== */
+/* Accessibility pass                                                         */
+/* ========================================================================== */
+
+/* --muted-2 was 2.87:1 on the dark ground — under the 3:1 floor even as large
+   text, and it is the ink of the case numbers, drawn as a 1px hairline where
+   the perceived contrast is worse still. */
+:root { --muted-2: #7a7770; }
+:root[data-theme="light"] { --muted-2: #5f665f; }
+.work-no { -webkit-text-stroke-width: 1.5px; }
+
+/* The focus ring is a single accent colour, but four of the project stages
+   are deliberately light and two deliberately dark — so in each theme the ring
+   goes invisible on half of them. Give the ring a surface-aware pair. */
+:focus-visible {
+  outline: 2px solid var(--focus, var(--accent));
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px var(--focus-halo, rgba(10, 10, 11, 0.55));
+}
+.a-stage, .p-stage { --focus: #1d4a2f; --focus-halo: rgba(255, 255, 255, 0.85); }
+.b-stage, .f-stage, .t-stage { --focus: #9bcfa5; --focus-halo: rgba(6, 10, 8, 0.85); }
+html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
+.shutter:focus-visible, .effect:focus-visible { outline: 2px solid var(--focus, var(--accent)); outline-offset: 3px; }
+
+/* Six lanes were nameless tab stops with their focus ring suppressed. They are
+   groups now; the edge buttons are the controls, and they show themselves the
+   moment either of them takes focus. */
+.skill-lane:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.skill-lane .edge:focus-visible { opacity: 1; pointer-events: auto; outline-offset: -4px; }
+.skill-lanes.is-paused .skill-track { animation-play-state: paused; }
+
+.skills-note { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+.skills-pause {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.55rem;
+  min-height: 44px; padding: 0 0.95rem; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+  font: 500 0.6rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
+  transition: color 0.35s, border-color 0.35s;
+}
+.skills-pause i { width: 7px; height: 9px; border-left: 2px solid currentColor; border-right: 2px solid currentColor; }
+.skills-pause[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); }
+.skills-pause[aria-pressed="true"] i { border: 0; border-left: 7px solid currentColor; border-right: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.skills-pause:hover { color: var(--ink); border-color: rgba(242, 239, 233, 0.4); }
+
+/* Copy that only exists on hover is copy a touch visitor never reads. */
+@media (hover: none), (pointer: coarse) {
+  .lane-note { opacity: 1; transform: none; }
+  .a-mark .sweep, .a-mark .head { opacity: 1; }
+  .forward-line { opacity: 1; transform: none; }
+  .work-open .wo-label, .work-open .wo-arr { opacity: 1; translate: 0 0; }
+}
+
+/* The grain used to animate background-position on a fixed, full-viewport
+   layer — a whole-screen repaint 4.5 times a second, forever. Same texture,
+   same drift, moved onto the compositor. */
+.grain { inset: -25%; width: 150%; height: 150%; animation: none; }
+.js:not(.reduced) .grain { animation: grainDrift 1.1s steps(5) infinite; will-change: transform; }
+@keyframes grainDrift {
+  0%   { transform: translate3d(0, 0, 0); }
+  20%  { transform: translate3d(-64px, 42px, 0); }
+  40%  { transform: translate3d(48px, -60px, 0); }
+  60%  { transform: translate3d(-36px, -48px, 0); }
+  80%  { transform: translate3d(60px, 54px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.cal-caption {
+  margin: 0 0 0.75rem; color: var(--muted);
+  font: 500 0.58rem var(--mono); letter-spacing: 0.17em; text-transform: uppercase;
+}
+.cal-caption i { color: var(--accent); font-style: normal; margin: 0 0.5em; }
+
+/* ========================================================================== */
+/* Layout corrections                                                         */
+/* ========================================================================== */
+
+/* The IDENTITY watermark is bled 0.04em past the right edge of a 400px glyph —
+   16px of real document width on every desktop. body{overflow-x:hidden} hid
+   the scrollbar but the document was genuinely wider than the window. */
+.pin .about-panel { overflow: clip; }
+
+/* "SELECTED" stopped shrinking at 2.8rem and ran off the edge below ~336px. */
+@media (max-width: 360px) {
+  .sec-title { font-size: clamp(2.2rem, 8.6vw, 8.6rem); }
+  .line-shift { margin-left: 1.2rem; }
+}
+
+/* Short laptops: the vertical SCROLL cue was climbing into the data plate's
+   last row instead of clearing it. */
+@media (min-width: 901px) and (max-height: 780px) {
+  .hm-data { top: 14svh; }
+  .hm-scroll { top: auto; bottom: 14svh; }
+}
+@media (min-width: 901px) and (max-height: 660px) {
+  .hm-scroll { display: none; }
+}
+
+/* Desktop showed no project imagery at all — the layout reserved a column for
+   a sticky preview panel that does not exist in the markup. Give the case
+   files their artwork back at every width. */
+@media (min-width: 1025px) {
+  .work-media { display: block; grid-column: 2 / -1; justify-self: end; margin-top: 1.7rem; width: min(42vw, 560px); max-width: 100%; }
+  .work-media > img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border: 1px solid var(--line); filter: grayscale(0.15) contrast(1.04); transition: filter 0.6s var(--ease-out), transform 0.7s var(--ease-out); }
+  .work-media > img.ps-art { aspect-ratio: 1202 / 956; object-fit: contain; background: #f2ebdb; }
+  .work-media > img.tj-art { aspect-ratio: 1400 / 875; object-fit: cover; object-position: left top; }
+  .work-media .phones { aspect-ratio: 16 / 10; border: 1px solid var(--line); }
+  .work-row:hover .work-media > img { filter: grayscale(0) contrast(1.06); transform: scale(1.012); }
+}
+
+/* Tablets: each row ran close to a full viewport, and the artwork was capped
+   131px narrower than the column it sat in. */
+@media (min-width: 761px) and (max-width: 1024px) {
+  .work-media { max-width: none; margin-top: 1.4rem; }
+  .work-media .phones { aspect-ratio: 16 / 9; }
+  .work-media > img { aspect-ratio: 16 / 9; }
+  .work-link { padding: clamp(1.8rem, 3.4vh, 2.6rem) 0.5rem; }
+}
+
+/* Narrow lanes: 7px labels are under this site's own 8px floor, and the edge
+   arrows were drawn on top of the words instead of beside them. */
+@media (max-width: 900px) {
+  .lane-label { font-size: 9px; }
+  .lane-label b { font-size: 8px; }
+}
+@media (hover: none), (pointer: coarse) {
+  .skill-lane .edge { opacity: 1; pointer-events: auto; width: 44px; background: none; }
+  .skill-lane .edge.prev { left: auto; right: 52px; }
+  .skill-lane .edge.next { right: 4px; }
+  .skill-lane .edge.prev::before, .skill-lane .edge.prev::after { left: 10px; }
+  .skill-lane .edge.next::before, .skill-lane .edge.next::after { right: 10px; }
+  .skill-lane.is-held { background: color-mix(in srgb, var(--tone) 10%, transparent); }
+}
+
+.contact-aside .aside-hint { display: block; margin-top: 0.9rem; opacity: 0.62; font-size: 0.92em; }
+
+/* The header résumé button was 36px tall — the only control in the header
+   without a hit area a thumb can find. */
+.head-resume { min-height: 44px; display: inline-flex; align-items: center; }
+
+/* The name game's keyboard entry point is visually hidden, but a focused
+   control the user cannot see is its own problem. Let it surface on focus,
+   the way the skip link does. */
+.egg-key:focus-visible {
+  position: fixed; width: auto; height: auto; margin: 0; clip-path: none; overflow: visible;
+  left: 50%; top: 1.1rem; translate: -50% 0; z-index: 500;
+  padding: 0.75rem 1.1rem; min-height: 44px;
+  background: var(--ink); color: var(--bg); border: 0; cursor: pointer;
+  font: 500 0.66rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
+}
+
+/* ===== Reduced motion: a complete stop ==================================== */
+/* The original block cut durations but left transition-delay and
+   animation-delay intact, so staggered content still arrived late — and
+   several things that are hidden by a clip-path or a stroke-dashoffset were
+   never released at all, leaving real copy invisible. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-delay: -0.01ms !important;
+    transition-delay: 0s !important;
+  }
+  [data-load], [data-reveal], .nm-in, .sec-title .line-in, .portrait-wrap,
+  .nm-ground, .halo, .contact-mail, .contact-ghost, .sec-tag, .lane-note,
+  .forward-line, .work-open .wo-label, .work-open .wo-arr, .st-stage, .pipe-glow {
+    opacity: 1 !important; transform: none !important; translate: none !important;
+  }
+  .sec-rail, .pipe-rail, .work-spec div, .theater-wash { clip-path: none !important; }
+  .a-mark .sweep, .a-mark .head { stroke-dashoffset: 0 !important; opacity: 1 !important; }
+  .grain { animation: none !important; }
+}
+
+/* Six stacked lanes animating `height` on hover reflowed the whole section on
+   every pointer pass — and the row the cursor was aiming at moved. Reserve the
+   box, and let a composited wash and a scale carry the change instead. */
+.skill-lane { transition: background-color .3s var(--ease-out); }
+.skill-lane .skill-track { transition: transform .32s var(--ease-out); }
+.skill-lane:hover .skill-track, .skill-lane:focus-within .skill-track { transform: scale(1.045); }
+
+/* ========================================================================== */
+/* Project theater — a clean open, a clean close                              */
+/* ========================================================================== */
+/* The backdrop was keyed to [open], which showModal() sets in the same frame
+   the backdrop is created — so it snapped to full black instead of fading, at
+   both ends. Key it to .is-open, which is added a frame later and removed a
+   beat before the dialog closes, and it rides with the wash. */
+.project-theater::backdrop {
+  background: rgba(6, 7, 8, 0.78);
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.project-theater[open]::backdrop { opacity: 0; }
+.project-theater.is-open::backdrop { opacity: 1; }
+@starting-style { .project-theater.is-open::backdrop { opacity: 0; } }
+
+/* Closing: the stage should leave before the wash does, not sit at full
+   opacity for 400ms and then cut. */
+.project-theater.is-closing .project-stage { opacity: 0; transform: scale(.994); transition: opacity .26s ease, transform .34s cubic-bezier(.16,1,.3,1); }
+
+/* Stage switching: the outgoing stage was being un-classed at 260ms while its
+   own fade ran for 300ms, so it snapped back into view for a frame before the
+   incoming one arrived. Explicit, matched timings at both ends. */
+.project-stage.stage-switching { transition: opacity .24s ease, transform .38s cubic-bezier(.16,1,.3,1); transition-delay: 0s; }
+.project-stage.stage-out { opacity: 0 !important; transform: translateX(calc(-22px * var(--stage-dir, 1))) scale(.992) !important; }
+.project-stage.stage-in { opacity: 0 !important; transform: translateX(calc(22px * var(--stage-dir, 1))) scale(.992) !important; }
+
+/* ========================================================================== */
+/* Tajweed case file — the rule, painted into the letter                      */
+/* ========================================================================== */
+/* The app's whole idea is that recitation rules live in the text's colour.
+   The case file borrows that: one ayah, the real palette, and a rule key that
+   isolates exactly the letters it governs. */
+.t-stage { background:#070e22; color:#e8eefc; }
+.t-stage::before {
+  content:""; position:absolute; inset:0; z-index:-2;
+  background:
+    radial-gradient(circle at 74% 16%, rgba(96,140,255,.16), transparent 44%),
+    radial-gradient(circle at 18% 88%, rgba(200,164,92,.09), transparent 40%),
+    repeating-linear-gradient(0deg, rgba(232,238,252,.022) 0, rgba(232,238,252,.022) 1px, transparent 1px, transparent 6px);
+}
+.t-stage .stage-head { color:#7d8cad; }
+.t-stage .stage-head span:first-child { color:#c8a45c; }
+
+.t-copy { position:absolute; left:clamp(27px,4vw,63px); top:34%; width:28%; transform:translateY(-50%); z-index:8; }
+.t-copy h2 { margin:0; font:900 clamp(42px,5vw,80px)/.84 var(--disp); font-stretch:125%; letter-spacing:-.055em; text-transform:uppercase; }
+.t-copy h2 span { display:block; margin:14px 0 0 18%; font:italic 32%/1 var(--serif); letter-spacing:0; text-transform:none; color:#c8a45c; }
+.t-copy p { max-width:33ch; margin:22px 0 0; color:#93a2c0; font-size:11px; line-height:1.66; }
+.t-copy .stage-actions { color:#8fb0ff; }
+
+/* The plate and its rule key are one instrument: a single right-hand column,
+   centred against the copy, so the stage has no dead middle. */
+.t-right {
+  position:absolute; right:clamp(24px,4vw,60px); top:50%; translate:0 -50%;
+  width:min(60%,780px); z-index:6; display:grid; gap:14px;
+}
+.t-plate {
+  padding:26px clamp(20px,2.4vw,34px) 22px;
+  border:1px solid rgba(232,238,252,.14); background:rgba(9,17,38,.72);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+}
+.t-plate-tag { display:flex; justify-content:space-between; align-items:center; gap:14px; margin:0 0 18px; font:500 8.5px var(--mono); letter-spacing:.19em; text-transform:uppercase; color:#7d8cad; }
+.t-plate-tag b { color:#c8a45c; font-weight:500; margin-left:.55em; }
+.t-hint { color:#5f6d8c; }
+
+.t-ayah {
+  margin:0; direction:rtl; text-align:center;
+  font-family:"Scheherazade New","Amiri","Noto Naskh Arabic",serif;
+  font-size:clamp(34px,4.4vw,64px); line-height:2.05; color:#e8eefc;
+  text-shadow:0 1px 0 rgba(0,0,0,.4);
+}
+.tw { transition:color .42s var(--ease-out), opacity .42s var(--ease-out), text-shadow .42s var(--ease-out); }
+.tw-sp { display:inline-block; width:.34em; }
+/* Every rule lit — the reading view as the app ships it. */
+.tw[data-rule="wasl"]    { color:#94a3b8; }
+.tw[data-rule="madd"]    { color:#38bdf8; }
+.tw[data-rule="tafkhim"] { color:#e0a13c; }
+.tw[data-rule="silent"]  { color:#8ea0bd; }
+/* One rule chosen: it burns, the rest step back. */
+.t-plate.is-isolating .tw { opacity:.2; color:#e8eefc; }
+.t-plate.is-isolating .tw[data-rule].is-lit {
+  opacity:1; color:var(--lit, #38bdf8);
+  text-shadow:0 0 22px color-mix(in srgb, var(--lit, #38bdf8) 55%, transparent);
+}
+.t-latin { margin:16px 0 0; text-align:center; font:italic 13px/1.5 var(--serif); color:#7d8cad; letter-spacing:.02em; }
+.t-note {
+  margin:16px 0 0; min-height:2.6em; padding-top:14px;
+  border-top:1px solid rgba(232,238,252,.1);
+  font:400 11.5px/1.6 var(--sans); color:#a7b5d0; text-align:center;
+}
+.t-note b { color:#e8eefc; font-weight:500; }
+
+/* The rule key doubles as the legend and the control. */
+.t-keys { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.t-rule {
+  display:grid; grid-template-columns:auto 1fr; grid-template-areas:"dot name" "dot desc";
+  gap:1px 9px; align-items:center; padding:9px 11px; text-align:left; cursor:pointer;
+  border:1px solid rgba(232,238,252,.13); background:rgba(232,238,252,.028); color:inherit;
+  transition:border-color .34s var(--ease-out), background-color .34s var(--ease-out), transform .4s var(--ease-out);
+}
+.t-rule i { grid-area:dot; width:9px; height:9px; border-radius:50%; background:var(--rule); box-shadow:0 0 10px color-mix(in srgb, var(--rule) 60%, transparent); }
+.t-rule b { grid-area:name; font:600 11.5px/1.2 var(--sans); letter-spacing:.005em; }
+.t-rule small { grid-area:desc; font:400 9px/1.4 var(--sans); color:#7d8cad; }
+.t-rule:hover { border-color:color-mix(in srgb, var(--rule) 55%, transparent); background:color-mix(in srgb, var(--rule) 9%, transparent); transform:translateY(-2px); }
+.t-rule[aria-selected="true"] { border-color:var(--rule); background:color-mix(in srgb, var(--rule) 15%, transparent); transform:translateY(-2px); }
+.t-rule[aria-selected="true"] small { color:#c3cfe6; }
+.t-rule.is-absent { opacity:.5; }
+.t-rule.is-absent[aria-selected="true"] { opacity:.85; }
+.t-rule:focus-visible { outline:2px solid var(--rule); outline-offset:3px; }
+
+@media (max-width: 1180px) and (min-width: 761px) {
+  .t-copy { top:19%; width:38%; transform:none; }
+  .t-copy h2 { font-size:54px; }
+  .t-copy p { font-size:10.5px; max-width:none; }
+  .t-right { width:min(56%,560px); gap:10px; }
+  .t-plate { padding:18px 20px 16px; }
+  .t-ayah { font-size:clamp(26px,3.2vw,38px); line-height:1.95; }
+  .t-keys { grid-template-columns:repeat(2,1fr); gap:6px; }
+  .t-rule { padding:7px 9px; }
+  .t-rule small { display:none; }
+  .t-rule b { font-size:10px; }
+}
+@media (max-width: 760px) {
+  .t-stage { min-height:940px; }
+  .t-copy { position:relative; left:auto; top:auto; transform:none; width:auto; padding:70px 20px 0; }
+  .t-copy h2 { font-size:clamp(48px,15vw,66px); }
+  .t-copy p { margin-top:14px; max-width:none; font-size:12px; }
+  .t-right { position:relative; right:auto; top:auto; translate:none; width:auto; margin:26px 20px 0; gap:12px; }
+  .t-plate { padding:20px 16px 18px; }
+  .t-ayah { font-size:clamp(30px,8.6vw,40px); line-height:2; }
+  .t-latin { font-size:12px; }
+  .t-keys { grid-template-columns:1fr 1fr; }
+  .t-rule { min-height:52px; }
+  .t-rule small { display:none; }
+}
+@media (max-width: 430px) {
+  .t-keys { grid-template-columns:1fr; }
 }

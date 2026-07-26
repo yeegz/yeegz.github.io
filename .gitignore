@@ -1,6 +1,8 @@
 .claude/
 .worktrees/
+.superpowers/
 .DS_Store
 node_modules
 test-results/
 playwright-report/
+tmp/

@@ -8,6 +8,26 @@ test('portfolio boots without uncaught runtime errors', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('the h1 announces the name, not the easter egg, and the role line is readable', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#siteLoader')).toHaveAttribute('aria-hidden', 'true', { timeout: 5200 });
+  const state = await page.evaluate(() => ({
+    nmLastRole: document.getElementById('nmLast')?.getAttribute('role'),
+    nmLastLabel: document.getElementById('nmLast')?.getAttribute('aria-label'),
+    roleHidden: document.getElementById('roleTop')?.getAttribute('aria-hidden'),
+    announced: document.querySelector('.hm-role .vh[aria-live]')?.textContent || ''
+  }));
+  expect(state.nmLastRole).toBeNull();
+  expect(state.nmLastLabel).toBeNull();
+  expect(state.roleHidden).toBe('true');
+  expect(state.announced).toContain('Mobile & Full-Stack Developer');
+});
+
+test('the loader always lifts, even if nothing else runs', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#siteLoader')).toHaveAttribute('aria-hidden', 'true', { timeout: 5200 });
+});
+
 test('desktop navigation becomes visible after the entrance', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('#siteLoader')).toHaveAttribute('aria-hidden', 'true', { timeout: 3500 });
@@ -75,15 +95,24 @@ test('desktop identity render completes without an excessive pinned scroll dista
 
 test('resume-synced portfolio structure is present', async ({ page }) => {
   await page.goto('/');
+  // Résumé order, résumé count.
   await expect(page.locator('#work .work-name')).toHaveText([
-    'Bupples', 'Photoshoot', 'Adelante', 'Fallen Asteri'
+    'Bupples', 'Adelante', 'Photoshoot', 'Tajweed', 'Fallen Asteri'
   ]);
+  await expect(page.locator('#work .work-status.is-closed')).toHaveCount(1);
+  await expect(page.locator('#work .sec-tag')).toContainText('05');
   await expect(page.locator('#work')).not.toContainText('Task Management App');
-  await expect(page.locator('#skills [data-skill-lane]')).toHaveCount(6);
+  await expect(page.locator('#skills [data-skill-lane]')).toHaveCount(5);
   await expect(page.locator('#education')).toContainText('Sunway University');
   await expect(page.locator('#education')).toContainText('Multimedia University');
   await expect(page.locator('#experience')).toContainText('Digital Marketing Executive');
   await expect(page.locator('#experience')).not.toContainText('Freelance Software Engineer');
+  // The word the owner asked to be gone, everywhere it used to hide.
+  const source = await page.content();
+  expect(source.toLowerCase()).not.toContain('freelance');
+  expect(source).not.toContain('Client apps');
+  expect(await page.title()).toContain('Mobile & Full-Stack Developer');
+  await expect(page.locator('#identity')).toContainText('Mobile');
   const workControlStyle = await page.locator('#work .work-link').first().evaluate(node => ({
     background: getComputedStyle(node).backgroundColor,
     border: getComputedStyle(node).borderTopWidth
@@ -279,7 +308,7 @@ test('Bupples opens the approved three-screen overlap', async ({ page }) => {
   await page.locator('[data-open-project="bupples"]').click();
   await expect(page.locator('#projectTheater')).toHaveAttribute('open', '');
   await page.waitForTimeout(950);
-  expect(await page.locator('#projectTheater').evaluate(dialog => dialog.matches(':modal'))).toBe(false);
+  expect(await page.locator('#projectTheater').evaluate(dialog => dialog.matches(':modal'))).toBe(true);
   const [bodyBox, stageBox] = await Promise.all([
     page.locator('.theater-body').boundingBox(),
     page.locator('[data-project-stage="bupples"]').boundingBox()
@@ -338,7 +367,7 @@ test('project theater exposes clear previous, next, and exit controls', async ({
   }
 
   await next.click();
-  await expect(theater).toHaveAttribute('data-project', 'photoshoot', { timeout: 2000 });
+  await expect(theater).toHaveAttribute('data-project', 'adelante', { timeout: 2000 });
   await previous.click();
   await expect(theater).toHaveAttribute('data-project', 'bupples', { timeout: 2000 });
   await exit.click();
@@ -397,7 +426,8 @@ test('project destinations use the approved URLs', async ({ page }) => {
     'https://github.com/yeegz/photoshoot',
     'https://github.com/yeegz/adelante-showcase',
     'https://yeegz.itch.io/fallenasteri',
-    'https://github.com/yeegz/Fallen-Asteri'
+    'https://github.com/yeegz/Fallen-Asteri',
+    'https://tajweed-wine.vercel.app/'
   ]) await expect(page.locator(`a[href="${href}"]`)).toHaveCount(2);
 });
 
@@ -464,21 +494,25 @@ test('phone case cards are self-contained: no theater, links and new art on the 
   const page = await context.newPage();
   await page.goto('/');
   const opener = page.locator('[data-open-project="bupples"]');
-  await opener.scrollIntoViewIfNeeded();
+  const card = page.locator('.work-row').first();
+  await card.scrollIntoViewIfNeeded();
   await page.waitForTimeout(400);
-  // The card is no longer an opener on phones.
-  expect(await opener.isDisabled()).toBe(true);
+  // The card is no longer an opener on phones — and it is no longer a disabled
+  // button wrapped around the copy either.
+  await expect(opener).toBeHidden();
+  expect(await page.locator('.work-link').first().evaluate(node => node.tagName)).toBe('DIV');
+  expect(await page.locator('#work button[disabled]').count()).toBe(0);
   await page.evaluate(() => document.querySelector('[data-open-project="bupples"]').click());
   await page.waitForTimeout(600);
   await expect(page.locator('#projectTheater')).not.toHaveAttribute('open', '');
   // The project's real destinations sit on the card as comfortable buttons.
   const links = page.locator('.work-row .work-links a');
-  expect(await links.count()).toBe(7);
+  expect(await links.count()).toBe(8);
   await expect(links.first()).toBeVisible();
   const tap = await links.first().boundingBox();
   expect(tap.height).toBeGreaterThanOrEqual(44);
   // The card media is the current screenshot set, not the retired one.
-  await expect(page.locator('[data-open-project="bupples"] .phones img').first()).toHaveAttribute('src', /projects\/bupples/);
+  await expect(page.locator('.work-row .phones img').first()).toHaveAttribute('src', /projects\/bupples/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   await context.close();
 });

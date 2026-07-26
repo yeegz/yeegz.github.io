@@ -16,25 +16,81 @@
     const left = nmStack.offsetLeft + nmFirst.offsetWidth - nmPx * 0.18;
     portraitWrapEl.style.left = left + 'px';
   };
+
+  /* ── The name block is fitted, not guessed. ──────────────────────────────
+     SELIM is the long line: it is measured and sized to a share of the stage's
+     content width, and YOUSOF is derived back from it so the step the figure
+     sits in stays proportional. Both lines therefore fit by construction at
+     every viewport — 320px phones, landscape phones, and 4K alike — instead of
+     riding a viewport clamp that overflows at the bottom and starves at the top.
+     Only --nm and --nm-ratio are written, so every CSS relationship built on
+     var(--nm) (the step, the figure, the ground rule) keeps holding. ── */
+  const NICHE = 1.0;       /* the step's width, in units of the SELIM size */
+  const PROBE = 100;       /* measure once at a known size, then scale linearly */
+  const unitWidth = (el) => {
+    const had = el.style.fontSize;
+    el.style.fontSize = PROBE + 'px';
+    const w = el.offsetWidth / PROBE;
+    el.style.fontSize = had;
+    return w;
+  };
+  /* How much of the content width the long line claims. The step down at 901px
+     is where the right-hand data plate appears and needs its own column. */
+  const nameFill = (w) => (w <= 760 ? 0.995 : w <= 900 ? 0.95 : 0.78);
   const fitNames = () => {
-    if (!nmFirst || !nmLast) return;
-    nmLast.style.fontSize = '';
-    const w1 = nmFirst.offsetWidth;
-    const w2 = nmLast.offsetWidth;
-    if (!w1 || !w2) return;
-    const nmPx = parseFloat(getComputedStyle(nmFirst).fontSize);
-    const size = parseFloat(getComputedStyle(nmLast).fontSize) * ((w1 + nmPx * 1.82) / w2);
-    nmLast.style.fontSize = size + 'px';
+    if (!nmFirst || !nmLast || !nmStack) return;
+    const stage = nmStack.closest('.hero-stage') || nmStack.offsetParent || docEl;
+    const stageW = stage.clientWidth || docEl.clientWidth;
+    const stageH = stage.clientHeight || docEl.clientHeight;
+    const padLeft = nmStack.offsetLeft || 0;
+    const avail = Math.max(160, stageW - padLeft * 2);
+    const unit1 = unitWidth(nmFirst);
+    const unit2 = unitWidth(nmLast);
+    if (!unit1 || !unit2) return;
+
+    let fsLast = (avail * nameFill(stageW)) / unit2;
+    /* Never let the two lines eat the stage: the pair occupies
+       (1/ratio + 1) * 0.84 line-heights, capped at a share of the stage. */
+    const heightBudget = stageH * (stageH < 520 ? 0.4 : 0.47);
+    fsLast = Math.min(fsLast, heightBudget / ((1 / 1.16 + 1) * 0.84));
+    fsLast = Math.max(fsLast, 30);
+
+    const fsFirst = Math.max(20, (unit2 * fsLast - fsLast * NICHE) / unit1);
+    const ratio = fsLast / fsFirst;
+    /* A measurement taken mid font-swap can come back nonsense. Reject it and
+       try again on the next frame rather than committing a broken lockup. */
+    if (!isFinite(ratio) || ratio < 1.2 || ratio > 3.2) {
+      /* Try again next frame — but still seat the figure against whatever the
+         type currently measures, so a rejected fit never leaves it stranded. */
+      if (!fitRetry) { fitRetry = requestAnimationFrame(() => { fitRetry = 0; fitNames(); }); }
+      placeNiche();
+      return;
+    }
+    docEl.style.setProperty('--nm', fsFirst.toFixed(2) + 'px');
+    docEl.style.setProperty('--nm-ratio', ratio.toFixed(4));
+    if (portraitWrapEl) portraitWrapEl.style.width = (fsLast * NICHE * 0.98).toFixed(2) + 'px';
     placeNiche();
   };
+  let fitRetry = 0;
   fitNames();
   let fitTimer = null;
+  let lastFitW = innerWidth, lastFitH = innerHeight;
+  const refit = () => {
+    fitNames();
+    if (window.ScrollTrigger) ScrollTrigger.refresh();
+  };
   window.addEventListener('resize', () => {
+    /* Mobile browsers fire resize when the URL bar collapses; only the width
+       (or a real height jump) should cost a relayout. */
+    const dw = Math.abs(innerWidth - lastFitW), dh = Math.abs(innerHeight - lastFitH);
+    if (dw < 2 && dh < 120) return;
+    lastFitW = innerWidth; lastFitH = innerHeight;
     clearTimeout(fitTimer);
-    fitTimer = setTimeout(() => {
-      fitNames();
-      if (window.ScrollTrigger) ScrollTrigger.refresh();
-    }, 150);
+    fitTimer = setTimeout(refit, 150);
+  });
+  window.addEventListener('orientationchange', () => {
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(() => { lastFitW = innerWidth; lastFitH = innerHeight; refit(); }, 260);
   });
   document.fonts?.addEventListener?.('loadingdone', () => {
     requestAnimationFrame(() => {
@@ -86,14 +142,15 @@
   const FACTS = [
     'FLUTTER & DART', 'TYPESCRIPT & JS', 'PYTHON & SQL',
     'SUPABASE · POSTGRES', 'FIREBASE · FIRESTORE', 'NODE.JS & REST APIS',
-    'FREELANCE — FEB 2023', '4 CLIENT APPS SHIPPED', "BSC '27 — SUNWAY × LANCASTER",
+    'BUILDING SINCE 2023', 'SOLE DEVELOPER — 5 PRODUCTS', "BSC '27 — SUNWAY × LANCASTER",
     'NOW BUILDING BUPPLES', 'EN / AR — SUBANG JAYA'
   ];
-  const BONUS = ['PHOTOSHOOT — WEBGL FX', 'ADELANTE — NATIVE WIDGETS', 'FALLEN ASTERI — GODOT'];
+  const BONUS = ['PHOTOSHOOT — WEBGL FX', 'ADELANTE — NATIVE WIDGETS', 'TAJWEED — FRONTEND & IA'];
 
   /* ── Project sigils — dotted-stroke glyphs, one per case file.
      Bupples = Pip (the app's real mark: two overlapping rings, eyes in the lens),
-     Photoshoot = camera, Adelante = forward mark, Fallen Asteri = sword. ── */
+     Adelante = forward mark, Photoshoot = camera, Tajweed = open book with its
+     diacritic, Fallen Asteri = sword. ── */
   const SIGIL_GEO = {
     bupples: {
       strokes: [
@@ -120,6 +177,17 @@
         { pts: [[25, 56], [51, 56]], step: 5.2 },
         { pts: [[62, 49], [84, 49]], step: 5, accent: true },
         { pts: [[76, 40], [86, 49], [76, 58]], step: 4.5, accent: true }
+      ],
+      idle: 'sheen'
+    },
+    tajweed: {
+      /* An open book with the mark that sits above a letter — the whole point
+         of tajweed is what the diacritic tells you to do with the sound. */
+      strokes: [
+        { pts: [[50, 38], [24, 44], [24, 74], [50, 69]], step: 5.6 },
+        { pts: [[50, 38], [76, 44], [76, 74], [50, 69]], step: 5.6 },
+        { pts: [[50, 38], [50, 69]], step: 6.4, faint: true },
+        { dot: [50, 25, 2.9], accent: true }
       ],
       idle: 'sheen'
     },
@@ -263,8 +331,10 @@
      cursor disc when a case-file row is hovered. */
   window.makeSigil = makeSigil;
 
-  /* case-file stamps: the same sigils, printed on each work row for touch screens */
-  const SIGIL_ROWS = ['bupples', 'photoshoot', 'adelante', 'asteri'];
+  /* case-file stamps: the same sigils, printed on each work row for touch screens.
+     Keyed off each row's own data-project so reordering the archive can never
+     hand a project someone else's glyph. */
+  const SIGIL_ROWS = [...document.querySelectorAll('#workList .work-row')].map((row) => row.dataset.project || '');
   document.querySelectorAll('#workList .work-link').forEach((link, i) => {
     const name = SIGIL_ROWS[i];
     if (!SIGIL_GEO[name]) return;
@@ -398,13 +468,27 @@
 
   /* touch archive: tapping SELIM pops fact chips (the desktop game's little sibling) */
   const heroStagePre = document.getElementById('heroStage');
+
+  /* The trigger's accessible surface lives outside the <h1> so the heading
+     keeps announcing the name. `eggButton` is a real, labelled control; the
+     word itself stays a pointer/touch shortcut. */
+  const mountEggButton = (label, run) => {
+    const host = document.getElementById('heroName');
+    if (!host || !host.parentNode) return null;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'vh egg-key';
+    button.textContent = label;
+    button.addEventListener('click', run);
+    host.parentNode.insertBefore(button, host.nextSibling);
+    return button;
+  };
+
   const touchEgg = !(matchMedia('(min-width: 1150px)').matches && finePointer);
   if (touchEgg && nmLast && heroStagePre) {
     const eggLineTap = nmLast.closest('.nm-line');
     if (eggLineTap) eggLineTap.style.pointerEvents = 'auto';
-    nmLast.setAttribute('role', 'button');
-    nmLast.setAttribute('tabindex', '0');
-    nmLast.setAttribute('aria-label', 'Selim — tap for a fact from the archive');
+    nmLast.setAttribute('aria-hidden', 'false');
     const ALLFACTS = FACTS.concat(BONUS);
     let fi = 0;
     let chipT = null;
@@ -437,9 +521,7 @@
       chipT = setTimeout(() => chip.classList.remove('on'), 2400);
     };
     nmLast.addEventListener('click', popFact);
-    nmLast.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); popFact(); }
-    });
+    mountEggButton('Reveal a fact from the archive', popFact);
   }
 
   if (reduced || !window.gsap || !window.ScrollTrigger) {
@@ -450,12 +532,27 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
+  /* Two scrub speeds, and a reason for each. SCRUB_UI is anything the visitor
+     should feel they are driving directly; SCRUB_BG is background parallax,
+     where a little lag reads as depth rather than as lag. */
+  const SCRUB_UI = 0.35;
+  const SCRUB_BG = 1;
+  /* A slow boot may have set `.reduced` from the head-script timer. The full
+     animation path is running, so take the class back — otherwise the CSS
+     stays in its motionless state while GSAP animates against it. */
+  docEl.classList.remove('reduced');
+  ScrollTrigger.config({ ignoreMobileResize: true });
+
   let lenis = null;
   if (window.Lenis) {
+    /* `duration: 1.15` with an expo-out ease means a single wheel impulse
+       takes over a second to settle — and ScrollTrigger's scrub then adds its
+       own catch-up on top, so the pinned hero trailed the wheel by more than a
+       second. One lerp, tuned to land inside the perceptual 'instant' band. */
     lenis = new Lenis({
-      duration: 1.15,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true
+      lerp: 0.11,
+      smoothWheel: true,
+      wheelMultiplier: 1
     });
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((t) => lenis.raf(t * 1000));
@@ -483,21 +580,29 @@
   const heroMeta = document.getElementById('heroMeta');
 
   const portraitFilter = '';
+  /* The entrance used to run for well over three seconds, and the thing a
+     visitor came to click — View Work, Résumé, GitHub — arrived tenth of
+     eleven. Same choreography, half the length, and the actions promoted to
+     the third beat: name, face, actions. Everything else fills in behind. */
   const entrance = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
   entrance
-    .to('#halo', { opacity: 1, duration: 1.6, ease: 'power2.out' }, 0)
-    .to('.nm-in', { y: 0, duration: 1.3, ease: 'expo.out', stagger: 0.13 }, 0.15)
-    .to('#nmGround', { scaleX: 1, duration: 1.4, ease: 'power2.inOut' }, 0.5)
+    .to('#halo', { opacity: 1, duration: 0.9, ease: 'power2.out' }, 0)
+    .to('.nm-in', { y: 0, duration: 1.05, ease: 'expo.out', stagger: 0.09 }, 0.06)
+    .to('#nmGround', { scaleX: 1, duration: 0.8, ease: 'power2.inOut' }, 0.26)
     .fromTo('#portrait',
-      { filter: 'blur(10px) ' + portraitFilter },
-      { filter: 'blur(0px) ' + portraitFilter, duration: 1.3, clearProps: 'filter' },
-      0.75)
-    .to(wrap, { opacity: 1, y: 0, duration: 1.3, ease: 'power3.out' }, 0.75)
-    .to('#identityPin [data-load]', { opacity: 1, y: 0, duration: 0.9, stagger: 0.09 }, 1.2)
+      { filter: 'blur(9px) ' + portraitFilter },
+      { filter: 'blur(0px) ' + portraitFilter, duration: 0.72, clearProps: 'filter' },
+      0.34)
+    .to(wrap, { opacity: 1, y: 0, duration: 0.72, ease: 'power3.out' }, 0.34)
     .fromTo('.site-head',
       { opacity: 0, y: -14 },
-      { opacity: 1, y: 0, duration: 0.8, clearProps: 'opacity,transform' },
-      1.25);
+      { opacity: 1, y: 0, duration: 0.44, clearProps: 'opacity,transform' },
+      0.30)
+    .to('.hm-eyebrow, .hm-role', { opacity: 1, y: 0, duration: 0.44, stagger: 0.06 }, 0.40)
+    .to('.hm-ctas', { opacity: 1, y: 0, duration: 0.46 }, 0.56)
+    .to('.hm-scroll', { opacity: 1, y: 0, duration: 0.4 }, 0.62)
+    .to('#identityPin [data-load]:not(.hm-eyebrow):not(.hm-role):not(.hm-ctas):not(.hm-scroll)',
+      { opacity: 1, y: 0, duration: 0.5, stagger: 0.055 }, 0.68);
 
   gsap.set('#identityPin [data-load]', { y: 22 });
   gsap.set(wrap, { y: -26 });
@@ -536,7 +641,7 @@
   const roleBottom = document.getElementById('roleBottom');
   if (roleTop && roleBottom) {
     const ROLES = [
-      ['Software Engineering Student', ['Flutter ', { em: '&' }, ' Full-Stack ', { em: 'Developer' }]],
+      ['Software Engineering Student', ['Mobile ', { em: '&' }, ' Full-Stack ', { em: 'Developer' }]],
       ['Mobile', ['Flutter, SwiftUI ', { em: '&' }, ' Kotlin']],
       ['Backend & Data', ['Firebase, Node.js ', { em: '&' }, ' Supabase']],
       ['Cloud & AI', ['Vertex AI, Gemini ', { em: '&' }, ' MediaPipe']],
@@ -554,7 +659,20 @@
         }
       });
     };
+    /* Each character becomes its own inline-block span so it can be staggered.
+       That shatters the text run: screen readers announce the job title one
+       letter at a time. Hide the animated glyphs from the accessibility tree
+       and publish one clean string beside them instead. */
+    const roleSR = document.createElement('p');
+    roleSR.className = 'vh';
+    roleSR.setAttribute('aria-live', 'polite');
+    roleTop.closest('.hm-role')?.appendChild(roleSR);
+    const flatten = (parts) => parts.map((p) => (typeof p === 'string' ? p : p.em)).join('');
+    const announceRole = (index) => {
+      roleSR.textContent = `${ROLES[index][0]} — ${flatten(ROLES[index][1])}`;
+    };
     const splitChars = (el) => {
+      el.setAttribute('aria-hidden', 'true');
       const spans = [];
       const frag = document.createDocumentFragment();
       const wrapRun = (txt, italic) => {
@@ -578,8 +696,14 @@
     let botSpans = splitChars(roleBottom);
     let ri = 0;
     let swapping = false;
+    announceRole(0);
+    let dwell = 0;
     setInterval(() => {
       if (!heroVisible || document.hidden || swapping) return;
+      /* Index 0 is the résumé's own title. Let it sit for an extra beat so a
+         quick visitor reads the headline, not a random specialism. */
+      if (ri === 0 && dwell < 1) { dwell += 1; return; }
+      dwell = 0;
       swapping = true;
       ri = (ri + 1) % ROLES.length;
       gsap.to(topSpans.concat(botSpans), {
@@ -593,6 +717,7 @@
           setParts(roleBottom, ROLES[ri][1]);
           topSpans = splitChars(roleTop);
           botSpans = splitChars(roleBottom);
+          announceRole(ri);
           gsap.fromTo(topSpans.concat(botSpans),
             { yPercent: 115, opacity: 0 },
             {
@@ -797,9 +922,6 @@
   if (gameScreen && finePointer && nmLast && heroStageEl) {
     const eggLine = nmLast.closest('.nm-line');
     if (eggLine) eggLine.style.pointerEvents = 'auto';
-    nmLast.setAttribute('role', 'button');
-    nmLast.setAttribute('tabindex', '0');
-    nmLast.setAttribute('aria-label', 'Selim — hidden mini game: press three times to explore the name');
     nmLast.dataset.cursor = 'PRESS ×3';
 
     const SPR = {
@@ -872,11 +994,11 @@
       pressTimer = setTimeout(() => { presses = 0; nmLast.dataset.cursor = 'PRESS ×3'; }, 1600);
     };
     nmLast.addEventListener('pointerdown', (e) => {
-      if (e.button === 0) press();
+      /* detail > 1 is a double/triple click — the browser's select-this-line
+         gesture, not an intent to start anything. */
+      if (e.button === 0 && e.detail <= 1) press();
     });
-    nmLast.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); press(); }
-    });
+    mountEggButton('Play the hidden name game', () => { presses = 2; press(); });
 
     const startGame = () => {
       if (game) return;
@@ -1345,6 +1467,21 @@
     };
   }
 
+  /* `wideScreen` was read once at parse time while the CSS media queries stay
+     live, so rotating a tablet from landscape to portrait left the desktop
+     pinned layout — docked portrait and all — running at phone width. The
+     class and the pinned trigger now stand down together when the query does. */
+  const wideMQ = matchMedia('(min-width: 901px)');
+  const standDownPin = () => {
+    if (wideMQ.matches) return;
+    ScrollTrigger.getById('identityPin')?.kill(true);
+    docEl.classList.remove('pin', 'about-active', 'meta-off');
+    gsap.set('#portraitWrap', { clearProps: 'transform,opacity' });
+    ScrollTrigger.refresh();
+  };
+  if (wideMQ.addEventListener) wideMQ.addEventListener('change', standDownPin);
+  else wideMQ.addListener?.(standDownPin);
+
   if (wideScreen) {
     docEl.classList.add('pin');
     gsap.set(wrap, { transformOrigin: '50% 50%' });
@@ -1366,11 +1503,12 @@
     gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: {
+        id: 'identityPin',
         trigger: pinEl,
         start: 'top top',
         end: '+=140%',
         pin: true,
-        scrub: 0.85,
+        scrub: SCRUB_UI,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
@@ -1404,12 +1542,12 @@
     gsap.to('#heroName', {
       yPercent: -7,
       ease: 'none',
-      scrollTrigger: { trigger: '#heroStage', start: 'top top', end: 'bottom top', scrub: true }
+      scrollTrigger: { trigger: '#heroStage', start: 'top top', end: 'bottom top', scrub: SCRUB_BG }
     });
     gsap.to(wrap, {
       yPercent: 10,
       ease: 'none',
-      scrollTrigger: { trigger: '#heroStage', start: 'top top', end: 'bottom top', scrub: true }
+      scrollTrigger: { trigger: '#heroStage', start: 'top top', end: 'bottom top', scrub: SCRUB_BG }
     });
   }
 
@@ -1455,7 +1593,7 @@
     gsap.fromTo(l, { yPercent: 11 }, {
       yPercent: -8,
       ease: 'none',
-      scrollTrigger: { trigger: l.closest('.sec-head'), start: 'top bottom', end: 'bottom top', scrub: true }
+      scrollTrigger: { trigger: l.closest('.sec-head'), start: 'top bottom', end: 'bottom top', scrub: SCRUB_BG }
     });
   });
 
@@ -1465,12 +1603,12 @@
   const pipelineScene = document.querySelector('.scene-statement');
   if (pipelineScene && pipelineScene.querySelector('.pipe-rail')) {
     const stl = gsap.timeline({
-      scrollTrigger: { trigger: pipelineScene, start: 'top 76%', end: 'center 32%', scrub: 1 }
+      scrollTrigger: { trigger: pipelineScene, start: 'top 76%', end: 'center 32%', scrub: SCRUB_UI, invalidateOnRefresh: true }
     });
     stl
       .fromTo('.pipe-rail', { clipPath: 'inset(-8px 100% -8px 0)' }, { clipPath: 'inset(-8px 0% -8px 0)', duration: 3, ease: 'none' }, 0)
-      .fromTo('.pipe-spark', { left: '0%', opacity: 0 }, { opacity: 1, duration: 0.18, ease: 'none' }, 0)
-      .to('.pipe-spark', { left: '100%', duration: 3, ease: 'none' }, 0)
+      .fromTo('.pipe-spark', { x: 0, opacity: 0 }, { opacity: 1, duration: 0.18, ease: 'none' }, 0)
+      .to('.pipe-spark', { x: () => (pipelineScene.querySelector('.pipe-rail')?.offsetWidth || 0), duration: 3, ease: 'none' }, 0)
       .fromTo('.st-design', { opacity: 0 }, { opacity: 1, duration: 0.1, ease: 'none' }, 0.32)
       .fromTo('.st-design .st-word', { clipPath: 'inset(-10% 104% -12% -4%)' }, { clipPath: 'inset(-10% -4% -12% -4%)', duration: 0.85, ease: 'power1.inOut' }, 0.32)
       .fromTo('.st-design .st-tag', { opacity: 0, y: 9 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 0.95)
@@ -1484,7 +1622,7 @@
       .fromTo('.st-close .st-serif', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 2.75);
     gsap.fromTo('.pipe-ghost', { xPercent: -7 }, {
       xPercent: 5, ease: 'none',
-      scrollTrigger: { trigger: pipelineScene, start: 'top bottom', end: 'bottom top', scrub: true }
+      scrollTrigger: { trigger: pipelineScene, start: 'top bottom', end: 'bottom top', scrub: SCRUB_BG }
     });
   }
 
@@ -1575,7 +1713,7 @@
     gsap.fromTo(g, { yPercent: 24 }, {
       yPercent: -18,
       ease: 'none',
-      scrollTrigger: { trigger: g.closest('.sec-head'), start: 'top bottom', end: 'bottom top', scrub: true }
+      scrollTrigger: { trigger: g.closest('.sec-head'), start: 'top bottom', end: 'bottom top', scrub: SCRUB_BG }
     });
   });
 
@@ -1616,7 +1754,7 @@
     gsap.to(prFill, {
       scaleY: 1,
       ease: 'none',
-      scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.4 }
+      scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: SCRUB_UI }
     });
     [['#identity', '00 / IDENTITY'], ['#work', '01 / WORK'], ['#skills', '02 / SKILLS'], ['#education', '03 / EDUCATION'], ['#experience', '04 / EXPERIENCE'], ['#contact', '05 / CONTACT']].forEach(([sel, txt]) => {
       ScrollTrigger.create({
@@ -1682,7 +1820,7 @@
       {
         rotationX: 0, scale: 1, y: 0,
         ease: 'none',
-        scrollTrigger: { trigger: '.scene-work', start: 'top 85%', end: 'top 5%', scrub: 1 }
+        scrollTrigger: { trigger: '.scene-work', start: 'top 85%', end: 'top 5%', scrub: SCRUB_UI }
       });
 
     const list = document.getElementById('workList');
@@ -1793,6 +1931,10 @@
     if (label) label.textContent = open ? 'Close' : 'Menu';
     nav.setAttribute('aria-hidden', open ? 'false' : 'true');
     if (open) nav.removeAttribute('inert'); else nav.setAttribute('inert', '');
+    /* The overlay covers the page but never took it out of the tab order, so
+       Tab walked straight off the menu and into the page behind it. */
+    [document.querySelector('main'), document.querySelector('.site-foot'), document.getElementById('projectTheater')]
+      .forEach((region) => { if (region) region.inert = open; });
     if (window.lenis) { if (open) window.lenis.stop(); else window.lenis.start(); }
     if (open) {
       setTimeout(() => { if (open) (links[0] || nav).focus({ preventScroll: true }); }, 90);
@@ -1800,6 +1942,9 @@
       toggle.focus({ preventScroll: true });
     }
   };
+
+  /* Index each item so the stagger scales with the list. */
+  nav.querySelectorAll('.mnav-list li').forEach((item, i) => item.style.setProperty('--i', String(i)));
 
   toggle.addEventListener('click', () => setOpen(!open));
 

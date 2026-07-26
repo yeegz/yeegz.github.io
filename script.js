@@ -10,19 +10,26 @@
   const nmLast = document.getElementById('nmLast');
   const nmStack = document.getElementById('nmStack');
   const portraitWrapEl = document.getElementById('portraitWrap');
-  /* Seat the figure in the step of the name. It is written as a custom
-     property rather than an inline `left` so the CSS keeps a working fallback
-     before this ever runs, and measured against the same box the figure is
-     positioned in — not against the name's own offset parent, which is a
-     different element the moment anything transforms it. */
+  /* Seat the figure in the step of the name.
+     `left` is a layout property, so it has to be computed from layout — never
+     from getBoundingClientRect(). The name rides a parallax transform, and a
+     rect includes it: measured while scrolled, the seat came out 169px to the
+     right and stayed there, which is what stranded the figure after opening a
+     case file and scrolling back up. Walking offsetLeft to the figure's own
+     offset parent is both transform-free and origin-correct.
+     Written as a custom property so the CSS keeps a usable fallback until
+     this first runs, and with no JS at all. */
+  const offsetWithin = (el, ancestor) => {
+    let x = 0, node = el;
+    while (node && node !== ancestor) { x += node.offsetLeft; node = node.offsetParent; }
+    return x;
+  };
   const placeNiche = () => {
     if (!portraitWrapEl || !nmStack || !nmFirst) return;
     const stage = portraitWrapEl.offsetParent || nmStack.closest('.hero-stage');
-    if (!stage) return;
-    const origin = stage.getBoundingClientRect().left;
+    if (!stage || !nmFirst.offsetWidth) return;
     const nmPx = parseFloat(getComputedStyle(nmFirst).fontSize);
-    const first = nmFirst.getBoundingClientRect();
-    const left = first.right - origin - nmPx * 0.18;
+    const left = offsetWithin(nmFirst, stage) + nmFirst.offsetWidth - nmPx * 0.18;
     portraitWrapEl.style.setProperty('--niche-x', left.toFixed(2) + 'px');
   };
 
@@ -1774,6 +1781,7 @@
 
   const prFill = document.getElementById('prFill');
   const prLabel = document.getElementById('prLabel');
+  let prSwap = null;
   if (prFill && prLabel) {
     gsap.to(prFill, {
       scaleY: 1,
@@ -1785,7 +1793,19 @@
         trigger: sel,
         start: 'top 55%',
         end: 'bottom 55%',
-        onToggle: (self) => { if (self.isActive) prLabel.textContent = txt; }
+        onToggle: (self) => {
+          /* Swap the wording while it is faded out, so the label changes
+             without a hard cut. The box is a fixed size, so nothing moves. */
+          if (!self.isActive || prLabel.textContent === txt) return;
+          const rail = prLabel.closest('.progress-rail');
+          if (!rail || reduced) { prLabel.textContent = txt; return; }
+          rail.classList.add('is-turning');
+          clearTimeout(prSwap);
+          prSwap = setTimeout(() => {
+            prLabel.textContent = txt;
+            rail.classList.remove('is-turning');
+          }, 280);
+        }
       });
     });
   }

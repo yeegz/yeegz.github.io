@@ -304,6 +304,60 @@ test('cursor ink follows the surface under it, including color-mix backgrounds',
   expect(await ink()).toBe('on-light');
 });
 
+test('the figure keeps its seat through scrolling, a case file, and back to the top', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#siteLoader')).toHaveAttribute('aria-hidden', 'true', { timeout: 5200 });
+  const seatError = () => page.evaluate(() => {
+    const first = document.getElementById('nmFirst');
+    const fig = document.getElementById('portraitWrap');
+    const stage = fig.offsetParent || document.querySelector('.hero-stage');
+    const fs = parseFloat(getComputedStyle(first).fontSize);
+    let x = 0, n = first;
+    while (n && n !== stage) { x += n.offsetLeft; n = n.offsetParent; }
+    return Math.round(fig.offsetLeft - (x + first.offsetWidth - fs * 0.18));
+  });
+
+  expect(await seatError(), 'fresh at top').toBeLessThanOrEqual(3);
+  await page.evaluate(() => {
+    const row = document.querySelector('[data-project="bupples"]');
+    window.scrollTo(0, row.getBoundingClientRect().top + scrollY - 200);
+  });
+  await page.waitForTimeout(700);
+  // The name rides a parallax transform down here. A re-seat taken from
+  // getBoundingClientRect() while scrolled baked 169px of that transform into
+  // the figure's layout position and stranded it for the rest of the session.
+  await page.evaluate(() => window.dispatchEvent(new Event('resize')));
+  await page.waitForTimeout(500);
+  expect(await seatError(), 're-seated while scrolled').toBeLessThanOrEqual(3);
+
+  const row = await page.locator('[data-project="bupples"]').boundingBox();
+  await page.mouse.click(1100, row.y + 60);
+  await page.waitForTimeout(1500);
+  await page.locator('[data-close-project]').click();
+  await page.waitForTimeout(1600);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(1200);
+  expect(await seatError(), 'back at the top after a case file').toBeLessThanOrEqual(3);
+});
+
+test('the progress rail does not shift when its label changes length', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForTimeout(1600);
+  const tops = await page.evaluate(() => {
+    const label = document.getElementById('prLabel');
+    const track = document.querySelector('.pr-track');
+    const seen = [];
+    for (const t of ['00 / IDENTITY', '01 / WORK', '02 / SKILLS', '03 / EDUCATION', '04 / EXPERIENCE', '05 / CONTACT']) {
+      label.textContent = t;
+      seen.push({ top: Math.round(track.getBoundingClientRect().top), fits: label.scrollHeight <= label.clientHeight + 1 });
+    }
+    return seen;
+  });
+  expect(tops.every(t => t.fits), 'every label fits its reserved box').toBe(true);
+  const ys = tops.map(t => t.top);
+  expect(Math.max(...ys) - Math.min(...ys), 'the track must not move').toBeLessThanOrEqual(1);
+});
+
 test('the drawn cursor is painted over the modal case file, not behind it', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('#siteLoader')).toHaveAttribute('aria-hidden', 'true', { timeout: 5200 });

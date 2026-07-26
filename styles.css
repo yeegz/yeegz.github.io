@@ -1233,7 +1233,7 @@ html[data-theme="light"] .pin .about-panel { background: radial-gradient(circle 
 /* Contact — the approved typographic sign-off and bare draggable address. */
 .contact-section { position:relative; min-height:940px; padding:220px clamp(24px,5vw,76px) 54px; background:linear-gradient(to bottom,var(--experience-bg) 0,var(--experience-bg) 30px,color-mix(in srgb,var(--experience-bg) 55%,var(--contact-bg)) 105px,var(--contact-bg) 220px,var(--contact-bg) 100%); color:var(--ink); overflow:hidden; }
 .contact-section::before{content:"CONTACT";position:absolute;right:-.04em;bottom:-.18em;color:currentColor;opacity:.055;font:900 clamp(190px,29vw,430px)/1 var(--disp);letter-spacing:-.09em}.contact-section::after{content:"";position:absolute;inset:150px 0 0;background:radial-gradient(circle at var(--cx,72%) var(--cy,30%),color-mix(in srgb,var(--accent) 5.5%,transparent),transparent 26%);pointer-events:none}
-.contact-label{position:absolute;left:clamp(24px,5vw,76px);top:42px;z-index:4;color:var(--accent)}.contact-top,.contact-poster,.mail-track,.contact-foot{position:relative;z-index:4}.contact-top{display:flex;justify-content:space-between;align-items:start;gap:30px;color:var(--muted)}.available,.location{margin:0}.available i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:8px;box-shadow:0 0 13px color-mix(in srgb,var(--accent) 55%,transparent)}
+.contact-label{position:absolute;left:clamp(24px,5vw,76px);top:42px;z-index:4;color:var(--accent)}.contact-top,.contact-poster,.mail-track,.contact-foot{position:relative;z-index:4}.contact-top{display:flex;justify-content:space-between;align-items:start;gap:30px;color:var(--muted)}.available,.location{margin:0}
 .contact-poster{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(230px,.55fr);gap:clamp(40px,8vw,130px);align-items:end;margin-top:62px}.contact-section h2{margin:0;max-width:9ch;font:900 clamp(68px,10.5vw,160px)/.74 var(--disp);font-stretch:124%;letter-spacing:-.075em;text-transform:uppercase}.contact-section h2 em{display:block;margin:12px 0 0 20%;font:italic 31%/1 var(--serif);text-transform:none;letter-spacing:0;color:var(--accent);white-space:nowrap}.contact-aside{border-left:1px solid var(--line);padding:5px 0 6px 26px;color:var(--muted);font-size:12px;line-height:1.65}.contact-aside b{display:block;margin-bottom:15px;color:var(--ink);font:500 9px var(--mono);letter-spacing:.15em;text-transform:uppercase}
 .mail-track{margin-top:72px;min-height:164px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:26px;padding:25px clamp(10px,2.5vw,36px);overflow:hidden;background:repeating-linear-gradient(90deg,transparent 0,transparent 63px,color-mix(in srgb,var(--ink) 4.5%,transparent) 64px)}.track-label{position:absolute;left:11px;top:10px;color:var(--muted);font-size:7px}.drag-mail{--dx:0px;--dy:0px;--rot:0deg;justify-self:center;position:relative;display:inline-block;max-width:100%;padding:8px 0 6px;background:transparent;color:var(--ink);border-bottom:4px solid var(--accent);text-decoration:none;font:720 clamp(17px,4vw,61px)/1 var(--disp);letter-spacing:-.045em;white-space:nowrap;transform:translate3d(var(--dx),var(--dy),0) rotate(var(--rot));transition:transform .65s cubic-bezier(.16,1,.3,1),color .25s,text-shadow .25s,letter-spacing .35s;touch-action:none;user-select:none;will-change:transform}.drag-mail:hover,.drag-mail:focus-visible{color:var(--accent);letter-spacing:-.03em}.drag-mail.dragging{transition:none;text-shadow:9px 9px 0 color-mix(in srgb,var(--accent) 22%,transparent)}.copy-address{position:relative;border:0;background:transparent;color:var(--accent);cursor:pointer;padding:12px 0}.copy-address:hover{color:var(--ink)}
 .contact-foot{margin-top:29px;display:flex;justify-content:space-between;gap:25px;align-items:center}.socials{display:flex;gap:25px}.socials a{color:var(--muted)}.socials a:hover{color:var(--ink)}.signoff{margin:0;color:var(--muted)}
@@ -2107,3 +2107,19 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 .cursor-disc { box-shadow: 0 0 0 1px var(--cursor-text); }
 .ring-dots { filter: drop-shadow(0 0 1.2px var(--cursor-text)); }
 .cursor-label { text-shadow: 0 0 2px var(--cursor-fill); }
+
+/* ========================================================================== */
+/* Progress rail: a line that stays where it is                               */
+/* ========================================================================== */
+/* The rail is a vertically-centred flex column, and the label is set in
+   vertical writing mode — so its *height* is its character count. Every
+   section change resized the column and shoved the track up or down by as
+   much as 22px. Reserve the tallest label's box once, centre the text in it,
+   and the line never moves again. */
+.pr-label {
+  height: 7.4rem;            /* "04 / EXPERIENCE", the longest, is 109px */
+  display: block;
+  text-align: center;        /* vertical writing mode: this centres along the line */
+  transition: opacity 0.28s var(--ease-out);
+}
+.progress-rail.is-turning .pr-label { opacity: 0; }

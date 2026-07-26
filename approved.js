@@ -533,6 +533,7 @@
     else { theater.setAttribute('open', ''); }
     isolateTheater(true);
     root.classList.add('project-open');
+    window.ysfCursorHost?.(theater);
     window.lenis?.stop?.();
     /* Freezing the page removes the scrollbar and settles the pinned hero,
        which shifts the document by a hundred-odd pixels. Everything the close
@@ -559,6 +560,7 @@
     /* The exit rides the panel's own transform, not the wash's clip-path. */
     await transitionDone(theater, 'transform', 420);
     theater.close(); theater.classList.remove('is-closing');
+    window.ysfCursorHost?.(null);
     isolateTheater(false);
     window.lenis?.start?.();
     restoreToRow();
@@ -904,7 +906,7 @@
     /* Surface awareness: sample the effective background under the pointer
        and flip the cursor's ink so it stays visible over light stages and
        panels (and over dark ones in light theme). */
-    let lumaElement = null;
+    let lumaElement = null, lumaCell = '';
     /* Declared light/dark zones are static markup; hold the list instead of
        re-querying the document on every pointer sample. */
     let surfaceZones = null;
@@ -960,8 +962,11 @@
         if (rect.width && cursorX >= rect.left && cursorX <= rect.right && cursorY >= rect.top && cursorY <= rect.bottom) { zone = candidate; break; }
       }
       const key = zone || element;
-      if (!force && key === lumaElement) return;
-      lumaElement = key;
+      /* Sampling keyed only on the element meant crossing from a glyph to the
+         gap beside it — same element — never re-read. Key on the point too. */
+      const cell = ((cursorX / 24) | 0) + ':' + ((cursorY / 24) | 0);
+      if (!force && key === lumaElement && cell === lumaCell) return;
+      lumaElement = key; lumaCell = cell;
       const luma = zone
         ? (zone.dataset.cursorSurface === 'light' ? 0.9 : 0.05)
         : (element ? surfaceLuma(element) : (root.dataset.theme === 'light' ? 0.9 : 0.05));
@@ -1031,6 +1036,14 @@
       root.classList.remove('cur-view', 'cur-sigil', 'sword-mode');
       releaseCursor();
       sizedAction = null; lumaElement = null;
+    };
+    /* A dialog opened with showModal() lives in the top layer, which paints
+       above every z-index there is — so the drawn cursor was behind the case
+       file while `cursor: none` was still hiding the real one. Re-home the
+       cursor into the top-layer element while it is open. */
+    window.ysfCursorHost = (host) => {
+      const parent = host || document.body;
+      if (cursor.parentElement !== parent) parent.appendChild(cursor);
     };
     setCursorMode(pointerMQ.matches);
     if (pointerMQ.addEventListener) pointerMQ.addEventListener('change', (event) => setCursorMode(event.matches));

@@ -1648,10 +1648,6 @@
       .fromTo('.pipe-glow', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.in' }, 2.55)
       .to('.pipe-spark', { scale: 1.8, duration: 0.5, ease: 'power1.inOut' }, 2.55)
       .fromTo('.st-close .st-serif', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 2.75);
-    gsap.fromTo('.pipe-ghost', { xPercent: -7 }, {
-      xPercent: 5, ease: 'none',
-      scrollTrigger: { trigger: pipelineScene, start: 'top bottom', end: 'bottom top', scrub: SCRUB_BG }
-    });
   }
 
   if (!panelScreen) {

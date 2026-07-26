@@ -304,13 +304,51 @@ test('cursor ink follows the surface under it, including color-mix backgrounds',
   expect(await ink()).toBe('on-light');
 });
 
-test('the pipeline arrow does not survive onto phones without its rail', async ({ browser }) => {
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-  const page = await context.newPage();
+test('the drawn cursor is painted over the modal case file, not behind it', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#siteLoader')).toHaveAttribute('aria-hidden', 'true', { timeout: 5200 });
+  await page.evaluate(() => {
+    const row = document.querySelector('[data-project="bupples"]');
+    window.scrollTo(0, row.getBoundingClientRect().top + scrollY - 200);
+  });
+  await page.waitForTimeout(600);
+  const row = await page.locator('[data-project="bupples"]').boundingBox();
+  await page.mouse.click(1100, row.y + 60);
+  await page.waitForTimeout(1500);
+  await page.mouse.move(600, 500);
+  await page.waitForTimeout(400);
+
+  // showModal() promotes the dialog to the top layer, above every z-index.
+  // The cursor has to be re-homed into it or it renders behind — with
+  // `cursor: none` still hiding the real one, leaving no pointer at all.
+  expect(await page.evaluate(() => document.getElementById('projectTheater').matches(':modal'))).toBe(true);
+  expect(await page.evaluate(() =>
+    document.getElementById('cursor').closest('#projectTheater') !== null)).toBe(true);
+
+  const clip = { x: 575, y: 475, width: 50, height: 50 };
+  const shown = await page.screenshot({ clip });
+  await page.evaluate(() => { document.getElementById('cursor').style.visibility = 'hidden'; });
+  await page.waitForTimeout(120);
+  const hidden = await page.screenshot({ clip });
+  await page.evaluate(() => { document.getElementById('cursor').style.visibility = ''; });
+  expect(Buffer.compare(shown, hidden), 'the cursor must change the pixels on screen').not.toBe(0);
+
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(900);
+  expect(await page.evaluate(() => document.getElementById('cursor').parentElement === document.body)).toBe(true);
+});
+
+test('the pipeline arrow watermark is gone, and the rail still is on phones', async ({ page, browser }) => {
   await page.goto('/');
   await page.waitForTimeout(1200);
-  await expect(page.locator('.pipe-ghost')).toBeHidden();
-  await expect(page.locator('.pipe-rail')).toBeHidden();
+  await expect(page.locator('.pipe-ghost')).toHaveCount(0);
+  expect(await page.content()).not.toContain('pipe-ghost');
+
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const phone = await context.newPage();
+  await phone.goto('/');
+  await phone.waitForTimeout(1200);
+  await expect(phone.locator('.pipe-rail')).toBeHidden();
   await context.close();
 });
 

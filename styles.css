@@ -344,15 +344,6 @@ html.gaming { overflow: hidden; }
   text-transform: uppercase; color: var(--muted);
   margin-bottom: clamp(2.6rem, 7vh, 4.4rem);
 }
-.pipe-ghost {
-  position: absolute; right: -1vw; top: -4%; z-index: 0; line-height: 1;
-  font-family: var(--disp); font-weight: 900; font-stretch: 125%;
-  font-size: clamp(9rem, 17vw, 16rem);
-  color: transparent;
-  -webkit-text-stroke: 1px var(--line);
-  -webkit-text-stroke: 1px color-mix(in srgb, var(--ink) 7%, transparent);
-  pointer-events: none; user-select: none;
-}
 .statement {
   position: relative; z-index: 1; display: flex; align-items: flex-start; flex-wrap: wrap;
   gap: clamp(1.6rem, 4.2vw, 4rem);
@@ -420,9 +411,6 @@ html.gaming { overflow: hidden; }
   .st-stage { padding-left: 1.05rem; border-left: 1px solid var(--line); border-left: 1px solid color-mix(in srgb, var(--ink) 22%, transparent); }
   .st-ship { border-left-color: var(--accent); }
   .st-close { text-align: left; margin-top: 2.8rem; }
-  /* The rail it points along is hidden on phones, so the arrow watermark is
-     just a shape bleeding off the edge. It goes with the rail. */
-  .pipe-ghost { display: none; }
 }
 .scene-contact { padding: clamp(6rem, 16vh, 11rem) var(--pad-x) clamp(4rem, 9vh, 7rem); }
 
@@ -1632,7 +1620,7 @@ html[data-theme="light"] { scrollbar-color: #c9c2b2 var(--bg); }
    background-painted, so opt the decorative layers out and let the OS palette
    carry the type. */
 @media (forced-colors: active) {
-  .grain, .halo, .stage-bg, .sec-ghost, .pipe-ghost, .contact-ghost, .cursor { display: none; }
+  .grain, .halo, .stage-bg, .sec-ghost, .contact-ghost, .cursor { display: none; }
   .nm-in, .nm-egg { color: CanvasText; background: none; -webkit-text-fill-color: CanvasText; }
   .work-no { -webkit-text-stroke-color: CanvasText; color: CanvasText; }
   .cta, .work-links a, .head-resume, .theme-toggle, .t-step { border: 1px solid ButtonBorder; }
@@ -1672,7 +1660,7 @@ html.reduced .site-loader { opacity: 0; visibility: hidden; pointer-events: none
    opacity. Forced colours honour neither, so every one of these 200–500px
    decorative words turns into solid CanvasText on top of the real heading. */
 @media (forced-colors: active) {
-  .sec-ghost, .pipe-ghost, .contact-ghost,
+  .sec-ghost, .contact-ghost,
   .pin .about-panel::before, .skills-section::before, .education-section::before,
   .experience-section::before, .contact-section::before { display: none !important; }
   .sec-title .t-outline { -webkit-text-stroke: 0; color: CanvasText; }
@@ -2108,3 +2096,14 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 /* The stage rides out with the panel rather than fading separately. */
 .project-theater.is-closing .project-stage { transition: none; }
 .project-theater.is-closing .theater-head { transition: opacity 0.16s ease; }
+
+/* ========================================================================== */
+/* Cursor: legible on anything, even when the sampling is wrong               */
+/* ========================================================================== */
+/* Two-tone ink handles the common case, but a page made of huge type, photos
+   and gradients will always have surfaces a sampler reads wrongly. A hairline
+   in the opposite tone means the cursor cannot disappear into any of them. */
+.cursor-dot { box-shadow: 0 0 0 1.5px var(--cursor-text); }
+.cursor-disc { box-shadow: 0 0 0 1px var(--cursor-text); }
+.ring-dots { filter: drop-shadow(0 0 1.2px var(--cursor-text)); }
+.cursor-label { text-shadow: 0 0 2px var(--cursor-fill); }

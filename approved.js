@@ -556,7 +556,8 @@
     if (theaterBusy) { pendingProjectClose = true; pendingProjectSteps = 0; return; }
     theaterBusy = true; theater.classList.add('is-closing'); theater.classList.remove('is-open');
     root.classList.remove('project-open');
-    await transitionDone(theaterWash, 'clip-path', 460);
+    /* The exit rides the panel's own transform, not the wash's clip-path. */
+    await transitionDone(theater, 'transform', 420);
     theater.close(); theater.classList.remove('is-closing');
     isolateTheater(false);
     window.lenis?.start?.();
@@ -908,20 +909,47 @@
        re-querying the document on every pointer sample. */
     let surfaceZones = null;
     const zones = () => (surfaceZones || (surfaceZones = [...document.querySelectorAll('[data-cursor-surface]')]));
+    /* Both engines serialize color-mix() as `color(srgb 0.61 0.81 0.65 / .45)`
+       — components 0..1, not 0..255. Reading those as bytes made every
+       colour-mixed surface compute as near-black, so the cursor stayed light
+       on light panels. Parse both forms properly. */
+    const parseColour = (value) => {
+      if (!value || value === 'transparent') return null;
+      let m = value.match(/^color\(\s*(?:srgb|display-p3)\s+([-\d.eE]+)\s+([-\d.eE]+)\s+([-\d.eE]+)(?:\s*\/\s*([-\d.eE]+|none))?/i);
+      if (m) {
+        const a = m[4] === undefined || m[4] === 'none' ? 1 : parseFloat(m[4]);
+        return { r: parseFloat(m[1]) * 255, g: parseFloat(m[2]) * 255, b: parseFloat(m[3]) * 255, a };
+      }
+      m = value.match(/^rgba?\(([^)]+)\)/i);
+      if (m) {
+        const n = m[1].split(/[\s,/]+/).filter(Boolean).map(parseFloat);
+        if (n.length >= 3 && n.every((x) => !isNaN(x))) {
+          return { r: n[0], g: n[1], b: n[2], a: n.length > 3 ? n[3] : 1 };
+        }
+      }
+      return null;
+    };
     const surfaceLuma = (element) => {
       let node = element;
+      /* Composite what we walk past: a 70%-opaque dark panel over a light page
+         is not the same surface as either one alone. */
+      let r = 0, g = 0, b = 0, covered = 0;
       while (node && node !== document.documentElement) {
-        const bg = getComputedStyle(node).backgroundColor;
-        const parts = bg && bg !== 'transparent' ? bg.match(/[\d.]+/g) : null;
-        if (parts && parts.length >= 3) {
-          const alpha = parts.length > 3 ? parseFloat(parts[3]) : 1;
-          if (alpha > 0.45) {
-            return (0.2126 * parts[0] + 0.7152 * parts[1] + 0.0722 * parts[2]) / 255;
-          }
+        const c = parseColour(getComputedStyle(node).backgroundColor);
+        if (c && c.a > 0.02) {
+          const share = c.a * (1 - covered);
+          r += c.r * share; g += c.g * share; b += c.b * share;
+          covered += share;
+          if (covered > 0.96) break;
         }
         node = node.parentElement;
       }
-      return root.dataset.theme === 'light' ? 0.9 : 0.05;
+      if (covered < 0.5) {
+        const base = root.dataset.theme === 'light' ? 238 : 10;
+        const share = 1 - covered;
+        r += base * share; g += base * share; b += base * share;
+      }
+      return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
     };
     const applySurface = (element, force) => {
       /* Pointer-transparent regions (like the camera viewfinder) never become
@@ -940,7 +968,18 @@
       cursor.classList.toggle('on-light', luma > 0.52);
       cursor.classList.toggle('on-dark', luma <= 0.52);
     };
-    document.addEventListener('ysf-theme', () => applySurface(lumaElement, true));
+    let themeSettle = 0;
+    document.addEventListener('ysf-theme', () => {
+      /* The page cross-fades for .7s, so a single reading at t=0 samples the
+         colour it is leaving. Re-read across the fade and once it has landed. */
+      applySurface(lumaElement, true);
+      clearInterval(themeSettle);
+      const until = performance.now() + 900;
+      themeSettle = setInterval(() => {
+        applySurface(lumaElement, true);
+        if (performance.now() > until) clearInterval(themeSettle);
+      }, 120);
+    });
 
     let sizedAction = null;
     const updateCursorAction = (target) => {

@@ -278,6 +278,42 @@ test('custom cursor suppresses native pointers and clears stale action state', a
   await page.mouse.up();
 });
 
+test('cursor ink follows the surface under it, including color-mix backgrounds', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#siteLoader')).toHaveAttribute('aria-hidden', 'true', { timeout: 5200 });
+  const ink = () => page.evaluate(() =>
+    [...document.getElementById('cursor').classList].filter(c => c.startsWith('on-')).join('') || 'none');
+
+  // dark page → light ink
+  await page.mouse.move(700, 480);
+  await page.waitForTimeout(300);
+  expect(await ink()).toBe('on-dark');
+
+  // light theme → dark ink, without the pointer having to move
+  await page.locator('#themeToggle').click();
+  await page.waitForTimeout(1100);
+  expect(await ink()).toBe('on-light');
+
+  // a control whose background is a color-mix(): both engines serialize that as
+  // `color(srgb …)` with 0..1 components, which used to parse as near-black.
+  const toggle = await page.locator('#themeToggle').boundingBox();
+  await page.mouse.move(toggle.x + toggle.width / 2, toggle.y + toggle.height / 2);
+  await page.waitForTimeout(400);
+  expect(await page.evaluate(() => getComputedStyle(document.getElementById('themeToggle')).backgroundColor))
+    .toMatch(/color\(srgb|rgba?\(/);
+  expect(await ink()).toBe('on-light');
+});
+
+test('the pipeline arrow does not survive onto phones without its rail', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await context.newPage();
+  await page.goto('/');
+  await page.waitForTimeout(1200);
+  await expect(page.locator('.pipe-ghost')).toBeHidden();
+  await expect(page.locator('.pipe-rail')).toBeHidden();
+  await context.close();
+});
+
 test('every skill lane auto-scrolls while only the hovered lane pauses', async ({ page }) => {
   await page.goto('/');
   const lanes = page.locator('[data-skill-lane]');

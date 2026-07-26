@@ -420,7 +420,9 @@ html.gaming { overflow: hidden; }
   .st-stage { padding-left: 1.05rem; border-left: 1px solid var(--line); border-left: 1px solid color-mix(in srgb, var(--ink) 22%, transparent); }
   .st-ship { border-left-color: var(--accent); }
   .st-close { text-align: left; margin-top: 2.8rem; }
-  .pipe-ghost { font-size: 8.5rem; top: auto; bottom: 2%; }
+  /* The rail it points along is hidden on phones, so the arrow watermark is
+     just a shape bleeding off the edge. It goes with the rail. */
+  .pipe-ghost { display: none; }
 }
 .scene-contact { padding: clamp(6rem, 16vh, 11rem) var(--pad-x) clamp(4rem, 9vh, 7rem); }
 
@@ -2082,18 +2084,27 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 /* ========================================================================== */
 /* Theater exit: leave quickly, and on the compositor                         */
 /* ========================================================================== */
-/* Opening and closing both ran for 900ms on the same expressive ease-out.
-   That curve is right for an arrival — it overshoots and settles — but on the
-   way out it reads as the panel refusing to leave. The exit is now half the
-   length on an ease-in, so it accelerates away instead of easing to a stop. */
+/* Opening keeps its signature: the wash grows out of the case-file row, which
+   means animating clip-path across the whole viewport. That is a full-screen
+   repaint per frame — affordable once, for a deliberate reveal.
+   Closing cannot afford it. Collapsing the same clip-path back down dropped 6
+   of 27 frames on a 4× throttle, with a 50ms worst frame — exactly the
+   stutter you feel on the way out. So the exit does not touch clip-path at
+   all: the panel recedes on transform and opacity, which the compositor
+   handles without repainting anything. */
 .theater-wash { transition: clip-path 0.72s cubic-bezier(0.16, 1, 0.3, 1), background 0.35s; }
-.project-theater.is-closing .theater-wash { transition: clip-path 0.4s cubic-bezier(0.45, 0, 0.85, 0.4); }
-.project-theater.is-closing::backdrop { transition: opacity 0.3s ease-in; }
-/* clip-path on a full-viewport surface repaints the whole screen each frame;
-   promote it for the duration of the move and drop it again at rest. */
-.project-theater.is-open .theater-wash,
-.project-theater.is-closing .theater-wash { will-change: clip-path; }
+.project-theater { transform: translateZ(0); opacity: 1; }
+.project-theater.is-closing {
+  opacity: 0;
+  transform: scale(0.988) translateZ(0);
+  transition: opacity 0.3s ease-in, transform 0.36s cubic-bezier(0.4, 0, 0.9, 0.4);
+  will-change: transform, opacity;
+}
+/* Hold the wash open while the panel recedes — nothing repaints. */
+.project-theater.is-closing .theater-wash { clip-path: inset(0 0 0 0 round 0); transition: none; will-change: auto; }
+.project-theater.is-closing::backdrop { transition: opacity 0.28s ease-in; }
+.project-theater.is-open .theater-wash { will-change: clip-path; }
 .project-theater:not(.is-open):not(.is-closing) .theater-wash { will-change: auto; }
-/* The stage should already be gone by the time the wash finishes. */
-.project-theater.is-closing .project-stage { transition: opacity 0.2s ease, transform 0.28s cubic-bezier(0.45, 0, 0.85, 0.4); }
-.project-theater.is-closing .theater-head { transition: opacity 0.18s ease; }
+/* The stage rides out with the panel rather than fading separately. */
+.project-theater.is-closing .project-stage { transition: none; }
+.project-theater.is-closing .theater-head { transition: opacity 0.16s ease; }

@@ -519,9 +519,24 @@
       "evidence": "remoteconfig.template.json — 15 parameters; lib/features/remote_control/presentation/ (remote_control_gate.dart, force_update_screen.dart, maintenance_screen.dart, announcement_banner.dart, degraded_states.dart)."
     },
     {
+      "title": "Real usage, not a demo",
+      "body": "146 accounts have signed in and *35 have completed a profile* — the number worth defending, since the rest never named themselves. Those people created 61 hangouts, logged 65 expenses, photographed 30 receipts, claimed 11 items, raised 21 settlement requests and sent 108 chat messages. The backend behind them ran 9,206 Cloud Function executions in thirty days.",
+      "evidence": "Firestore count() aggregation over project bupples, 2026-07-29: users 146 (35 with a handle set), sessions 61, expenses 65, receipts 30, item claims 11, settlement requests 21, chat messages 108, Turbo splits 2. Cloud Monitoring for the same project and date: all functions 9,206 executions over 30 days."
+    },
+    {
+      "title": "The expensive paths are the ones being used",
+      "body": "Over ninety days the receipt reader ran 128 times and the assistant 313, with 43 direct settlements — so the two features that cost money per call are the two people actually reach for, which is the whole argument for gating them on confidence rather than running them on every scan.",
+      "evidence": "Cloud Monitoring, project bupples, 2026-07-29 — scanReceipt 57 invocations over 30 days and 128 over 90; askPip 146 over 30 and 313 over 90; settleDirect 14 over 30 and 43 over 90."
+    },
+    {
+      "title": "What the paid tier actually converts",
+      "body": "Eleven accounts have a subscription record, nine hold a live Pro entitlement, and *three are genuinely paying* — a real store purchase, excluding trials and promotional grants. None are on a free trial. Small numbers, but they are the ones the entitlement server was written to get right.",
+      "evidence": "Evaluated against the app's own entitlement rules over the customers collection, project bupples, 2026-07-29: 11 customer documents with any subscription event, 9 live Pro entitlements, 3 genuinely paying (real store purchase, not trial, not promotional), 0 on a free trial."
+    },
+    {
       "title": "What is not claimed here",
-      "body": "There are no download, revenue, rating or retention figures in this case study. The store listings are public and checkable; the numbers behind them are not something I can evidence, so they are left out rather than rounded into a sentence.",
-      "evidence": "Deliberate omission. The App Store rating at time of writing is drawn from a sample too small to present as evidence, and no traction data exists in the repository."
+      "body": "No retention, daily-active or revenue figures. The usage counts above are a census of what is in the database and what the functions ran, taken on one date — they say the product is used, not that it is growing. Nothing here is a projection.",
+      "evidence": "Deliberate omission. Firestore count() aggregation and Cloud Monitoring give totals and invocation counts, not cohorts or retention curves, and no analytics product is wired into the app to produce them."
     }
   ],
   "lessons": {

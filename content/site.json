@@ -81,6 +81,16 @@
       "evidence": "Bupples, Adelante, Photoshoot. resume.txt line 8: \"Sole developer of cross-platform applications spanning iOS, Android, web, and Windows\"; per-project bullets at lines 24-38. Deliberately 03 and not 05 — Fallen Asteri is a three-person team project and Tajweed is a redesign contribution to another developer's product."
     },
     {
+      "value": "35",
+      "label": "People who completed a profile in Bupples",
+      "evidence": "Firestore count() aggregation over project bupples, 2026-07-29: 146 user documents, 35 of them with a handle set. The smaller number is the one used because the rest never completed a profile."
+    },
+    {
+      "value": "9,206",
+      "label": "Cloud Function executions behind it in 30 days",
+      "evidence": "Cloud Monitoring, project bupples, 2026-07-29 — total executions across all deployed functions over the preceding 30 days."
+    },
+    {
       "value": "iOS · ANDROID · WEB",
       "label": "Platforms with something live and reachable",
       "evidence": "Bupples on the App Store and Google Play (iTunes lookup id6777620291; Play listing com.bupples.bupples). Photoshoot live in the browser at photoshoot-yeegz.web.app (HTTP 200). Windows is NOT claimed: electron-builder.yml targets it, but the only packaged artifact on disk is release/Photoshoot-1.0.0-arm64-mac.zip and no .exe exists."

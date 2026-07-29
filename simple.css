@@ -174,3 +174,84 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
   body { background: #fff; color: #000; }
   .wrap { max-width: none; }
 }
+
+/* ---------- hero ------------------------------------------------- */
+
+.s-top { display: grid; gap: clamp(22px, 3vw, 40px); align-items: start; }
+@media (min-width: 760px) {
+  /* Only reserve the plate's column when there is a plate. Without the guard
+     the intro was squeezed into the remaining track and set as a narrow
+     ribbon. */
+  .s-top:has(.s-portrait) { grid-template-columns: minmax(0, 210px) minmax(0, 1fr); }
+}
+
+/* A framed plate with corner ticks, the way the full site frames a figure —
+   not a circular avatar, which is the one portrait treatment this site has
+   always refused. */
+.s-portrait { position: relative; }
+.s-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: grayscale(1) contrast(1.06);
+  border: 1px solid var(--line);
+}
+.s-portrait figcaption {
+  margin-top: 0.6rem;
+  font: 500 0.52rem var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.s-portrait .pf-c {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--accent);
+  opacity: 0.75;
+}
+.s-portrait .pf-tl { top: -4px; left: -4px; border-right: 0; border-bottom: 0; }
+.s-portrait .pf-tr { top: -4px; right: -4px; border-left: 0; border-bottom: 0; }
+.s-portrait .pf-bl { bottom: 26px; left: -4px; border-right: 0; border-top: 0; }
+.s-portrait .pf-br { bottom: 26px; right: -4px; border-left: 0; border-top: 0; }
+
+/* ---------- section nav ------------------------------------------ */
+
+.s-nav { display: none; gap: 1.1rem; }
+@media (min-width: 900px) { .s-nav { display: flex; } }
+.s-nav a {
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid transparent;
+}
+.s-nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+
+.s-sec { scroll-margin-top: 84px; }
+
+/* ---------- arrival ----------------------------------------------
+   Enough that the page feels alive, little enough that it never gets
+   between a reader and the thing they came for. The hiding class is
+   only ever set by script, and only when motion is allowed. */
+
+.s-anim [data-in] { opacity: 0; transform: translateY(14px); }
+.s-anim [data-in].is-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.s-anim .s-item { opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.s-anim [data-in].is-in .s-item { opacity: 1; transform: none; }
+.s-anim [data-in].is-in .s-item:nth-child(2) { transition-delay: 0.06s; }
+.s-anim [data-in].is-in .s-item:nth-child(3) { transition-delay: 0.12s; }
+.s-anim [data-in].is-in .s-item:nth-child(4) { transition-delay: 0.18s; }
+.s-anim [data-in].is-in .s-item:nth-child(n + 5) { transition-delay: 0.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .s-anim [data-in],
+  .s-anim [data-in].is-in,
+  .s-anim .s-item { opacity: 1; transform: none; transition: none; }
+}

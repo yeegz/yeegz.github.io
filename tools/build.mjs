@@ -640,7 +640,7 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=89" />
+<link rel="stylesheet" href="/styles.css?v=90" />
 <link rel="stylesheet" href="/case.css?v=17" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
@@ -756,7 +756,7 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=89" />
+<link rel="stylesheet" href="/styles.css?v=90" />
 <link rel="stylesheet" href="/case.css?v=17" />
 ${HEAD_BOOT}
 </head>
@@ -800,6 +800,7 @@ ${cards}
 
 function renderSimple(site, projects) {
   const p = site.profile || {};
+  const PORTRAIT = fs.existsSync(path.join(ROOT, 'images/yousof-headshot.jpg'));
   const cred = (site.credibility || [])
     .map((c) => `<li><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`)
     .join('\n      ');
@@ -899,17 +900,31 @@ function renderSimple(site, projects) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/simple.css?v=2" />
+<link rel="stylesheet" href="/simple.css?v=4" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 try { document.documentElement.dataset.theme = localStorage.getItem('ysf-theme') === 'light' ? 'light' : 'dark'; }
 catch (_) { document.documentElement.dataset.theme = 'dark'; }
+addEventListener('DOMContentLoaded', function () {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+  document.documentElement.classList.add('s-anim');
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.02 });
+  document.querySelectorAll('[data-in]').forEach(function (el) { io.observe(el); });
+});
 </script>
 </head>
 <body>
 
 <header class="s-head">
   <a class="s-brand" href="/">ysf.slm</a>
+  <nav class="s-nav" aria-label="Sections">
+    <a href="#work">Work</a>
+    <a href="#skills">Skills</a>
+    <a href="#education">Education</a>
+    <a href="#record">Record</a>
+  </nav>
   <div class="s-actions">
     <a class="s-btn s-btn-lead" href="/">Full portfolio</a>
     <a class="s-btn" href="/Yousof-Selim-Resume.pdf" download>Résumé</a>
@@ -919,34 +934,46 @@ catch (_) { document.documentElement.dataset.theme = 'dark'; }
 
 <main class="wrap">
 
-  <div class="s-top">
-    <h1 class="s-name">${esc(p.name || site.name)}</h1>
-    <p class="s-role">${esc(p.title || site.title)}</p>
-    <p class="s-meta">${esc(p.location || site.location)} <span>·</span> ${esc(p.availability || site.availability)}</p>
-    <p class="s-lede">${rich(p.positioning)}</p>
-    <p class="s-links">
-      <a class="is-store" href="mailto:${esc(p.email)}">${esc(p.email)}</a>
-      ${(p.links || site.links || [])
-        .filter((l) => !/^mailto:/i.test(l.href))
-        .map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`)
-        .join('')}
-    </p>
+  <div class="s-top" data-in>
+    ${
+      PORTRAIT
+        ? `<figure class="s-portrait">
+      <span class="pf-c pf-tl"></span><span class="pf-c pf-tr"></span>
+      <span class="pf-c pf-bl"></span><span class="pf-c pf-br"></span>
+      <img src="/images/yousof-headshot.jpg" alt="Yousof Selim" width="861" height="1280" fetchpriority="high" />
+      <figcaption>FIG. 01 — YOUSOF SELIM</figcaption>
+    </figure>`
+        : ''
+    }
+    <div class="s-intro">
+      <h1 class="s-name">${esc(p.name || site.name)}</h1>
+      <p class="s-role">${esc(p.title || site.title)}</p>
+      <p class="s-meta">${esc(p.location || site.location)} <span>·</span> ${esc(p.availability || site.availability)}</p>
+      <p class="s-lede">${rich(p.positioning)}</p>
+      <p class="s-links">
+        <a class="is-store" href="mailto:${esc(p.email)}">${esc(p.email)}</a>
+        ${(p.links || site.links || [])
+          .filter((l) => !/^mailto:/i.test(l.href))
+          .map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`)
+          .join('')}
+      </p>
+    </div>
   </div>
 
-  ${cred ? `<section class="s-sec"><h2><b>01</b> At a glance</h2><ul class="s-facts">\n      ${cred}\n    </ul></section>` : ''}
+  ${cred ? `<section class="s-sec" data-in><h2><b>01</b> At a glance</h2><ul class="s-facts">\n      ${cred}\n    </ul></section>` : ''}
 
-  <section class="s-sec">
+  <section class="s-sec" id="work" data-in>
     <h2><b>02</b> Work</h2>
     ${work}
   </section>
 
-  ${caps ? `<section class="s-sec"><h2><b>03</b> What I can build</h2>\n    ${caps}\n  </section>` : ''}
+  ${caps ? `<section class="s-sec" id="skills" data-in><h2><b>03</b> What I can build</h2>\n    ${caps}\n  </section>` : ''}
 
-  ${edu ? `<section class="s-sec"><h2><b>04</b> Education</h2>\n    ${edu}\n  </section>` : ''}
+  ${edu ? `<section class="s-sec" id="education" data-in><h2><b>04</b> Education</h2>\n    ${edu}\n  </section>` : ''}
 
-  ${record ? `<section class="s-sec"><h2><b>05</b> The record</h2>\n    ${record}\n  </section>` : ''}
+  ${record ? `<section class="s-sec" id="record" data-in><h2><b>05</b> The record</h2>\n    ${record}\n  </section>` : ''}
 
-  ${now ? `<section class="s-sec"><h2><b>06</b> Right now</h2>${now}</section>` : ''}
+  ${now ? `<section class="s-sec" id="now" data-in><h2><b>06</b> Right now</h2>${now}</section>` : ''}
 
   <p class="s-note">This is the short version. The full portfolio has the case studies — the problem, the architecture, what each decision cost, and how it was tested.</p>
 
@@ -1069,7 +1096,9 @@ function renderCredibility(site) {
             <ul class="cred-scale">
 ${site.credibility
   .map((c) => {
-    const isNumeral = /^[\d.]+$/.test(String(c.value).trim());
+    // A thousands separator is still a numeral — "9,206" was falling through
+    // to the small text treatment meant for values like "iOS · Android · Web".
+    const isNumeral = /^[\d.,]+$/.test(String(c.value).trim());
     return `              <li${isNumeral ? '' : ' class="is-text"'} data-cursor="FACT"><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`;
   })
   .join('\n')}

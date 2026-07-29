@@ -104,12 +104,17 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 }
 .site-nav a:hover { color: var(--ink); background-size: 100% 1px; }
 .site-nav a:hover sup { opacity: 1; transform: translate(0, 0); }
-.head-resume {
+/* Résumé and Simple are a pair and are set as one, so neither reads as louder
+   than the other — the newcomer was sitting at full ink beside a muted
+   sibling. */
+.head-resume,
+.head-simple {
   font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
   border: 1px solid var(--line); padding: 0.55rem 1rem; color: var(--muted);
   transition: color 0.35s, border-color 0.35s;
 }
-.head-resume:hover { color: var(--ink); border-color: rgba(242, 239, 233, 0.4); }
+.head-resume:hover,
+.head-simple:hover { color: var(--ink); border-color: rgba(242, 239, 233, 0.4); }
 
 .scene-identity { position: relative; }
 .identity-pin { position: relative; }
@@ -3615,20 +3620,7 @@ html.egypt .lights i:nth-child(3) { background: var(--eg-gold, #d4a017); }
    toggle because that is where someone looks when they are deciding how much
    time to give this — and it is the one control on the page that offers less
    rather than more. */
-.head-simple {
-  display: inline-flex;
-  align-items: center;
-  min-height: 38px;
-  padding: 0.5rem 0.8rem;
-  border: 1px solid var(--line);
-  color: var(--ink);
-  font: 500 0.56rem var(--mono);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: border-color 0.3s, color 0.3s;
-}
-.head-simple:hover { border-color: var(--accent); color: var(--accent); }
+.head-simple { display: inline-flex; align-items: center; min-height: 38px; text-decoration: none; }
 html.egypt .head-simple:hover { border-color: var(--eg-gold); color: var(--eg-gold); }
 @media (max-width: 900px) {
   /* The mobile drawer already carries it; two doors in one bar is clutter. */

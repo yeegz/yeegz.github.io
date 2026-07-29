@@ -38,9 +38,9 @@
     "availability": "Full-time internship — January to April 2027",
     "email": "yousofselim2@gmail.com",
     "phone": {
-      "value": "+60 11-2708 3787",
+      "value": null,
       "publish": false,
-      "evidence": "resume.txt line 4. Deliberately withheld from the published page — the number appears on the résumé PDF only, and the current site omits it. Set publish to true only on the owner's explicit instruction."
+      "evidence": "Deliberately NOT stored here. content/site.json is served publicly at /content/site.json and the repository itself is public, so a publish:false flag would hide the number from the rendered page while leaving it readable in the source. The number lives on the résumé PDF only."
     },
     "links": [
       {

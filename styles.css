@@ -3596,3 +3596,48 @@ html.egypt .a-stage::before {
 }
 html.egypt .b-stage .stage-head { color: #8a8a8a; }
 html.egypt .lights i:nth-child(3) { background: var(--eg-gold, #d4a017); }
+
+/* ---------- the egg hero, on a phone ---------------------------
+   The flag's hero — figure left, name stacked beside it — was gated
+   entirely to min-width:901px, so a phone under the egg fell back to
+   the default lockup. That lockup seats a LANDSCAPE figure in the
+   step at the end of SELIM, and the egg's figure is now a square
+   portrait of the whole subject, so it landed on top of the name.
+
+   Phones get the same idea as the desktop egg, stacked: the figure
+   above, the name under it, neither on top of the other. */
+
+@media (max-width: 900px) {
+  /* The figure is a SIBLING of the name, not a child of it, so it stays
+     absolutely positioned and is simply moved above the name rather than
+     seated in its step. Sized to the band between the meta rule and the top
+     of the name — the square portrait needs the height that a landscape one
+     did not. */
+  html.egypt .portrait-wrap {
+    left: var(--pad-x) !important;
+    right: auto !important;
+    bottom: 50svh !important;
+    width: min(46vw, 190px) !important;
+  }
+  html.egypt .nm-stack { margin-left: 0 !important; text-align: left !important; }
+  html.egypt .nm-line,
+  html.egypt .nm-line-2 {
+    display: block !important;
+    text-align: left !important;
+    margin-left: 0 !important;
+    line-height: 1.02;
+    padding-bottom: 0.06em;
+  }
+  /* Sized to the full column now that nothing shares the row with it. */
+  html.egypt .nm-in {
+    /* The 5.6rem ceiling made the two lines tall enough at ~600px to reach up
+       into the figure above them. */
+    font-size: min(clamp(2.8rem, 15.4vw, 4.6rem), 13svh) !important;
+    line-height: 1.02 !important;
+  }
+  /* The ground bar and the dimension labels belong to the stepped
+     lockup this replaces. */
+  html.egypt .nm-ground,
+  html.egypt .dim-right,
+  html.egypt .dim-top { display: none !important; }
+}

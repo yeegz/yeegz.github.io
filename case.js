@@ -136,6 +136,29 @@
       announce.t = setTimeout(function () { toast.classList.remove('is-on'); }, 2600);
     }
 
+    /* The same cover the homepage raises, so the egg feels identical whichever
+       route the visitor types it on. These routes carry no `.site-loader` of
+       their own, but the sheet is entirely self-contained — including the 5s
+       `loaderGiveUp` that stops it ever being the last thing on screen. */
+    function raiseVeil() {
+      var el = document.createElement('div');
+      el.className = 'site-loader egg-veil';
+      el.setAttribute('aria-hidden', 'true');
+      var mark = document.createElement('span');
+      mark.className = 'loader-mark';
+      for (var i = 0; i < 4; i++) mark.appendChild(document.createElement('i'));
+      var name = document.createElement('span');
+      name.className = 'loader-name';
+      name.textContent = 'YSF.SLM';
+      el.appendChild(mark);
+      el.appendChild(name);
+      document.body.appendChild(el);
+      void el.offsetWidth;
+      el.classList.add('is-on');
+      // If the reload never lands, the cover takes itself off.
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 2600);
+    }
+
     function apply(on, loud) {
       try {
         on ? localStorage.setItem('ysf-egypt', '1') : localStorage.removeItem('ysf-egypt');
@@ -147,8 +170,12 @@
       /* Reload rather than live-patch. The halftone morph canvas is rendered
          once from the source images, and the name/figure geometry is measured
          once at boot — repainting in place would leave the dots, the seating
-         and the scroll choreography describing the previous photograph. */
+         and the scroll choreography describing the previous photograph.
+
+         The reload goes out behind the flag: a 350ms fade, then the sheet
+         holds through the navigation. A clean cut under reduced motion. */
       announce(on);
+      if (!reduced) raiseVeil();
       setTimeout(function () { location.reload(); }, 820);
     }
 

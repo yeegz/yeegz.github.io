@@ -398,6 +398,83 @@ test.describe('easter egg', () => {
     await expect(page.locator('html')).not.toHaveClass(/egypt/);
   });
 
+  /* The snake lives inside the egg: three quick presses on SELIM, and only
+     under the flag. Every assertion below is a rule the feature promised —
+     that it cannot be reached with the egg off, that it hands the page back
+     intact, and that the keys actually drive the snake. */
+  const flagOn = async (page) => {
+    await page.goto('/');
+    await page.waitForTimeout(1100);
+    await page.keyboard.type('egypt', { delay: 50 });
+    await page.waitForTimeout(1700);          // the egg reloads to repaint
+    await expect(page.locator('html')).toHaveClass(/egypt/);
+  };
+  const openSnake = async (page) => {
+    await page.click('#nmLast', { clickCount: 3 });
+    await expect(page.locator('#snkOverlay')).toBeVisible();
+  };
+
+  test('three presses on SELIM open the eagle snake under the flag', async ({ page }) => {
+    await flagOn(page);
+    await openSnake(page);
+
+    const dialog = page.locator('#snkOverlay');
+    await expect(dialog).toHaveAttribute('role', 'dialog');
+    await expect(dialog).toHaveAttribute('aria-modal', 'true');
+    await expect(dialog).toHaveAttribute('data-state', 'running');
+    // The label is a real element, not a dangling id.
+    const labelled = await dialog.getAttribute('aria-labelledby');
+    await expect(page.locator('#' + labelled)).toHaveText(/eagle of saladin/i);
+
+    // A field with area, painted, and a way out that is visible.
+    const box = await page.locator('#snkCanvas').boundingBox();
+    expect(box.width).toBeGreaterThan(200);
+    expect(box.height).toBeGreaterThan(120);
+    await expect(page.locator('.snk-close')).toBeVisible();
+    // Focus is inside the dialog, not left behind on the page.
+    expect(await page.evaluate(() => document.querySelector('#snkOverlay').contains(document.activeElement))).toBe(true);
+  });
+
+  test('with the egg off the word still belongs to the name game', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(1100);
+    await page.click('#nmLast', { clickCount: 3 });
+    await page.waitForTimeout(1400);
+    await expect(page.locator('#snkOverlay')).toHaveCount(0);
+    // …and what SELIM has always done still happens.
+    await expect(page.locator('html')).toHaveClass(/gaming/);
+  });
+
+  test('Escape closes the snake and hands the page back', async ({ page }) => {
+    await flagOn(page);
+    const before = await page.evaluate(() => window.scrollY);
+    await openSnake(page);
+
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#snkOverlay')).toHaveCount(0);
+    await expect(page.locator('html')).not.toHaveClass(/snake-on/);
+    expect(await page.evaluate(() => document.activeElement && document.activeElement.id)).toBe('nmLast');
+    expect(await page.evaluate(() => window.scrollY)).toBe(before);
+  });
+
+  test('the arrow keys and WASD steer the snake', async ({ page }) => {
+    await flagOn(page);
+    await openSnake(page);
+
+    /* The run starts heading right along the wings. Turning up walks it into
+       the mask's wall within a few steps — which only happens if the key
+       reached the game and the snake is actually moving. */
+    await page.keyboard.press('ArrowUp');
+    await expect(page.locator('#snkOverlay')).toHaveAttribute('data-state', 'over', { timeout: 4000 });
+    await expect(page.locator('.snk-over')).toBeVisible();
+
+    await page.click('.snk-again');
+    await expect(page.locator('#snkOverlay')).toHaveAttribute('data-state', 'running');
+    await expect(page.locator('#snkCanvas')).toHaveAttribute('data-heading', 'right');
+    await page.keyboard.press('w');
+    await expect(page.locator('#snkOverlay')).toHaveAttribute('data-state', 'over', { timeout: 4000 });
+  });
+
   test('the code never steals a keystroke meant for a field', async ({ page }) => {
     await page.goto('/');
     await page.waitForTimeout(900);

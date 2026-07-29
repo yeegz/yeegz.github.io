@@ -3081,3 +3081,373 @@ html.egypt .nm-ground {
 html.egypt .head-egg-off { display: inline-flex; }
 .head-egg-off:hover { background: color-mix(in srgb, var(--eg-red, #ce1126) 26%, transparent); border-color: var(--eg-red, #ce1126); }
 .head-egg-off span { color: var(--eg-red, #ce1126); font-size: 1.05em; }
+
+/* =============================================================
+   Easter egg — snake, in the shape of the eagle
+   -------------------------------------------------------------
+   Reached by triple-clicking SELIM while the flag is on. The
+   chrome is the site's own: mono micro-labels, one hairline
+   rule, no radius anywhere, the display face reserved for the
+   two moments that earn it — the score and the end of a run.
+   The bird itself is painted on the canvas by snake.js; nothing
+   here knows its shape.
+   ============================================================= */
+
+html.snake-on { overflow: hidden; }
+
+.snk {
+  position: fixed;
+  inset: 0;
+  z-index: 995;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 2.4vw, 30px);
+  background: #000;
+}
+/* The flag stays overhead — the game is a room inside the egg, not a
+   different site. */
+.snk::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  pointer-events: none;
+  background: linear-gradient(180deg, #ce1126 0 33.34%, #ffffff 33.34% 66.67%, #000000 66.67% 100%);
+}
+
+.snk-frame {
+  width: min(100%, 1040px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.7rem, 1.6vh, 1.1rem);
+  outline: 0;
+}
+
+.snk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+.snk-kicker,
+.snk-scores,
+.snk-hint {
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.snk-kicker { color: var(--ink); }
+.snk-scores { display: flex; align-items: baseline; gap: 0.5rem; }
+.snk-sep { color: var(--muted-2); }
+/* The two numerals are the only thing on this screen worth a display face. */
+.snk-num {
+  font: 800 1.05rem/1 var(--disp);
+  font-stretch: 112%;
+  letter-spacing: -0.02em;
+  color: var(--eg-gold, #d4a017);
+  font-variant-numeric: tabular-nums;
+}
+
+.snk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 38px;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.3s var(--ease-out), background 0.3s var(--ease-out);
+}
+.snk-btn:hover { border-color: var(--eg-gold, #d4a017); background: rgba(212, 160, 23, 0.1); }
+.snk-btn:focus-visible { outline: 2px solid var(--eg-gold, #d4a017); outline-offset: 2px; }
+.snk-close span { color: var(--eg-red, #ce1126); }
+
+/* The rule hugs the field exactly — snake.js sizes the frame to the canvas,
+   so the bar, the box and the hint all line up on the same two edges. */
+.snk-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  touch-action: none;
+}
+.snk-canvas { display: block; image-rendering: pixelated; }
+
+.snk-over {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 1rem;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.86);
+}
+.snk-over[hidden] { display: none; }
+.snk-over-t {
+  margin: 0;
+  font: 900 clamp(1.9rem, 5.4vw, 3.4rem)/0.88 var(--disp);
+  font-stretch: 118%;
+  letter-spacing: -0.038em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.snk-over-s {
+  margin: 0;
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .snk-bar { flex-wrap: wrap; gap: 0.6rem 0.9rem; }
+  .snk-kicker { flex: 1 1 100%; }
+  .snk-hint { font-size: 0.5rem; letter-spacing: 0.12em; }
+}
+
+/* Nothing here is load-bearing motion: the run itself is the animation. */
+@media (prefers-reduced-motion: reduce) {
+  .snk-btn { transition: none; }
+}
+
+/* =============================================================
+   Easter egg — the flag reaches every ground
+   -------------------------------------------------------------
+   The token layer already carries the flag, but a dozen grounds,
+   washes and swatches were written as literal hex outside it and
+   were all mixed from the default mint. Retuned here, in one
+   place, so the egg reads black / red / white / gold from the
+   hero to the last case-study route.
+
+   The rule the retune follows:
+     · grounds       → black, with a red or gold wash where the
+                       default recipe had a mint one
+     · former mint   → the flag's red (#ce1126)
+     · numerals,
+       marks, sparks → the eagle's gold (#d4a017)
+     · ink           → white
+
+   Every selector below is scoped to html.egypt. With the egg off
+   the site is byte-for-byte the signed-off default.
+   ============================================================= */
+
+/* ---------- contrast: red at body size -------------------------
+   #ce1126 is 3.70:1 against black. That carries the display
+   serifs, which are large text, and falls short of AA for the
+   accent voice wherever it runs at body size — and moving these
+   grounds to pure black is exactly where that shows. These lift
+   to the highlight red the egg's own surname gradient already
+   uses, opened a little: 4.87:1, same band, no vibration. */
+
+html.egypt .chapter-aside,
+html.egypt .lane-note,
+html.egypt .caps-intro,
+html.egypt .work-kicker,
+html.egypt .tl-org,
+html.egypt figcaption,
+html.egypt .now-col p em,
+html.egypt .cs-lead em,
+html.egypt .role-sub em,
+html.egypt .role-sub .ch-em { color: #e5314a !important; }
+
+/* ---------- the hero ground and the figure's glow -------------
+   `.stage-bg::before` and `.halo` are the only things that light
+   the halftone figure, and both were mixed from the mint. The
+   halo also has to move: the egg seats the figure hard left,
+   while the default halo is centred on a figure that is no
+   longer there. */
+
+html.egypt .stage-bg::before {
+  background: radial-gradient(120% 90% at 38% 80%, #100b04 0%, var(--bg) 55%);
+}
+@media (min-width: 901px) {
+  html.egypt .halo {
+    left: 22vw;
+    top: 62%;
+    width: min(50vw, 700px);
+  }
+}
+
+/* The name-game chrome glows too, and it only ever appears over the hero. */
+html.egypt .egg-chip { border-color: color-mix(in srgb, var(--eg-gold) 45%, transparent); }
+html.egypt .egg-strip { box-shadow: 0 0 12px rgba(212, 160, 23, 0.7); }
+
+/* ---------- the hero name --------------------------------------
+   It was set small and squeezed to 0.88 leading so it would clear
+   the plate. It clears it with room to spare: the stack starts at
+   44.5vw, the figure ends at 42vw, and the type is measured to
+   land inside the layer's own right padding at every width from
+   901px up (checked at 901, 1024, 1180, 1280, 1366, 1440, 1512,
+   1680, 1920, 2560). "YOUSOF" sets 5.53em wide, which is what
+   fixes the ceiling at 9.2vw. */
+
+@media (min-width: 901px) {
+  html.egypt .hero-name { padding-right: clamp(16px, 2vw, 56px); }
+  html.egypt .nm-stack { margin-left: min(41.5vw, 622px); }
+  html.egypt .nm-in {
+    font-size: clamp(5rem, 9.2vw, 12rem) !important;
+    line-height: 1.05 !important;
+  }
+  /* `.nm-line` clips its own overflow for the reveal, so its leading has to
+     grow with the type or the taller line boxes are cropped. */
+  html.egypt .nm-line,
+  html.egypt .nm-line-2 { line-height: 1.05; padding-bottom: 0.06em; }
+}
+
+/* ---------- the dot-matrix NAME row ----------------------------
+   `#nameDots` paints the name as a 460×60 dot grid sized for the
+   default quick-facts column. Laid out flat across the egg's row
+   it reads as a broken image rather than as a signature, so the
+   whole entry goes. The remaining five share the row on flex:1. */
+
+html.egypt .hm-data div:has(.dd-name) { display: none; }
+
+/* ---------- identity ------------------------------------------- */
+
+/* `.pin` is written onto <html>, not onto a wrapper — `html.egypt .pin` would
+   be looking for a descendant that does not exist. */
+html.egypt.pin .about-panel {
+  background: radial-gradient(circle at 24% 48%, rgba(206, 17, 38, 0.12), transparent 30%), var(--identity-bg);
+}
+
+/* ---------- work: the media plates ----------------------------- */
+
+html.egypt .media-ph { background: radial-gradient(80% 110% at 50% 0%, #150d0f 0%, #000000 70%); }
+html.egypt .phones { background: radial-gradient(90% 110% at 50% 0%, #150d0f 0%, #000000 70%); }
+
+/* ---------- skills lanes ---------------------------------------
+   The ground, the hover wash and the shaded edge arrows were all
+   mixed from #0c0d0d / #0e1210 — a green-leaning charcoal. */
+
+html.egypt .skills-section { --section-accent: var(--eg-red); background: #000000; }
+html.egypt .skills-section::before { -webkit-text-stroke-color: rgba(255, 255, 255, 0.055); }
+html.egypt .skill-lane { --tone: var(--eg-red); }
+html.egypt .skill-lane:hover,
+html.egypt .skill-lane:focus-within { background: color-mix(in srgb, var(--tone) 6%, #000000); }
+html.egypt .edge.prev { background: linear-gradient(90deg, #000000 7%, rgba(0, 0, 0, 0.86) 38%, transparent 100%); }
+html.egypt .edge.next { background: linear-gradient(270deg, #000000 7%, rgba(0, 0, 0, 0.86) 38%, transparent 100%); }
+html.egypt .skill-lanes { border-color: rgba(255, 255, 255, 0.16); }
+html.egypt .skill-lane { border-bottom-color: rgba(255, 255, 255, 0.14); }
+
+/* ---------- education: the academic chapters -------------------
+   The section the flag missed most: a mint wash over #121312, and
+   every chapter mark — kicker, tab bar, degree serif, institution
+   serif — running the mint accent. */
+
+html.egypt .education-section {
+  --section-accent: var(--eg-red);
+  background: radial-gradient(circle at 77% 18%, rgba(206, 17, 38, 0.13), transparent 34%), #000000;
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+html.egypt .education-section::before { color: rgba(255, 255, 255, 0.035); }
+html.egypt .education-section::after {
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.014) 0, rgba(255, 255, 255, 0.014) 1px, transparent 1px, transparent 5px);
+}
+/* A chapter number is a numeral, so it takes the gold with the rest of them. */
+html.egypt .chapter-no { color: var(--eg-gold); }
+html.egypt .chapter-index,
+html.egypt .chapter-tab,
+html.egypt .institution-lockup { border-color: rgba(255, 255, 255, 0.18); }
+html.egypt .courses span { border-bottom-color: rgba(255, 255, 255, 0.25); }
+
+/* ---------- experience, and its calendar swatches --------------
+   Four categories, and the flag only has three bands — so the
+   fourth takes the neutral the black band leaves behind rather
+   than inventing a colour the flag does not own. */
+
+html.egypt .experience-section {
+  background: linear-gradient(to bottom, #000000 0, var(--experience-bg) 112px, var(--experience-bg) 100%);
+}
+html.egypt .post.recruitment { color: var(--eg-red); }
+html.egypt .post.visit { color: #ffffff; }
+html.egypt .post.award { color: var(--eg-gold); }
+html.egypt .post.recap { color: #9a9a9a; }
+
+/* ---------- current focus: the same three bands ---------------- */
+
+html.egypt .now-col[data-tone="study"] .now-dot { background: #ffffff; }
+html.egypt .now-col[data-tone="seek"] .now-dot { background: var(--eg-red); }
+html.egypt .now-col[data-tone="explore"] .now-dot { background: #9a9a9a; }
+
+/* ---------- the project theater --------------------------------
+   Only the Bupples stage is mint; the other four are authored in
+   oranges, rusts and blues that the flag has no quarrel with, so
+   they are left exactly as designed. */
+
+html.egypt .b-stage { --accent: var(--eg-gold); background: #000000; }
+html.egypt .b-stage .screen { background: #050505; border-color: #191919; }
+html.egypt .b-stage .screen img { background: #050505; }
+html.egypt .b-stage .cap-strip { color: #e7e4de; background: rgba(0, 0, 0, 0.72); }
+html.egypt .b-stage,
+html.egypt .f-stage,
+html.egypt .t-stage { --focus: var(--eg-gold); }
+
+/* ---------- no-color-mix fallbacks -----------------------------
+   These two only fire where color-mix is unsupported, but they
+   are literal mint and would otherwise be the last green left. */
+
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  html.egypt .work-links a.wl-primary { border-color: rgba(212, 160, 23, 0.45); }
+  html.egypt .sec-rail-spark { box-shadow: 0 0 12px 3px rgba(212, 160, 23, 0.5), 0 0 36px 9px rgba(212, 160, 23, 0.18); }
+  @media (min-width: 1025px) {
+    html.egypt .work-row:hover .work-media > img,
+    html.egypt .work-row:hover .work-media .phones { border-color: rgba(212, 160, 23, 0.55); }
+  }
+}
+
+/* =============================================================
+   Easter egg — entering and leaving
+   -------------------------------------------------------------
+   The toggle reloads on purpose (the morph canvas and the name
+   geometry are computed once at boot), so the swap used to look
+   like a plain refresh. It now goes out behind the site's own
+   loader sheet and comes back in behind it too: one cover, one
+   idiom, and the same never-strand guarantees the loader already
+   carries — its 5s `loaderGiveUp` animation, plus a timer in
+   approved.js that removes the veil if the reload never lands.
+   ============================================================= */
+
+/* It carries `.site-loader` as well, for the sheet, the give-up animation and
+   the mark — so these have to out-specify `[aria-hidden="true"]`, which the
+   veil sets to keep itself out of the accessibility tree. */
+.site-loader.egg-veil {
+  z-index: 1200;
+  background: #000000;
+  color: #ffffff;
+  opacity: 0;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.35s var(--ease-out);
+}
+.site-loader.egg-veil.is-on { opacity: 1; }
+.egg-veil .loader-mark i { background: var(--eg-gold, #d4a017); }
+
+/* The flag reads across the sheet in both directions, so the state is
+   already unmistakable before a pixel of the page underneath shows. */
+html.egypt .site-loader::before,
+.egg-veil::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(180deg, #ce1126 0 33.34%, #ffffff 33.34% 66.67%, #000000 66.67% 100%);
+}
+
+/* A clean cut, not a fade. approved.js does not raise the veil at all under
+   reduced motion; this is only here so nothing can be caught mid-transition. */
+@media (prefers-reduced-motion: reduce) {
+  .site-loader.egg-veil { transition: none; }
+}

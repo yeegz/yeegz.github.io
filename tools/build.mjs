@@ -502,8 +502,8 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=79" />
-<link rel="stylesheet" href="/case.css?v=11" />
+<link rel="stylesheet" href="/styles.css?v=81" />
+<link rel="stylesheet" href="/case.css?v=12" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
 </head>
@@ -549,7 +549,7 @@ ${NAV}
   <a href="/#top">Back to top ↑</a>
 </footer>
 
-<script src="/case.js?v=6" defer></script>
+<script src="/case.js?v=7" defer></script>
 </body>
 </html>
 `;
@@ -618,8 +618,8 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=79" />
-<link rel="stylesheet" href="/case.css?v=11" />
+<link rel="stylesheet" href="/styles.css?v=81" />
+<link rel="stylesheet" href="/case.css?v=12" />
 ${HEAD_BOOT}
 </head>
 <body class="cs-body wk-body">
@@ -644,7 +644,7 @@ ${cards}
   <p>DESIGNED AND BUILT BY HAND · 2026</p>
   <a href="/#top">Back to top ↑</a>
 </footer>
-<script src="/case.js?v=6" defer></script>
+<script src="/case.js?v=7" defer></script>
 </body>
 </html>
 `;

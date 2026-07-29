@@ -946,3 +946,36 @@ html[data-theme="light"] .cs-ghost { -webkit-text-stroke-color: rgba(16, 23, 17,
    suppresses horizontal scrolling exactly the same way without creating that
    container. Scoped to the case routes so the homepage is untouched. */
 .cs-body { overflow-x: clip; }
+
+/* =============================================================
+   Easter egg — the flag follows the visitor into a case study
+   -------------------------------------------------------------
+   Everything on these routes is drawn from `--cs-accent`, which
+   build.mjs writes onto <body> as an inline style per project.
+   An inline style outranks any selector, so the egg's override
+   is the one place in this file that has to be !important —
+   otherwise Bupples' mint (#86bd98) survives the repaint and the
+   case study is the only page still reading green.
+
+   Nothing here fires with the egg off: the whole block is scoped
+   to html.egypt, and the authored per-project accents are exactly
+   as they were.
+   ============================================================= */
+
+html.egypt .cs-body,
+html.egypt .wk-card {
+  --cs-accent: var(--eg-gold, #d4a017) !important;
+  --cs-ground: #000000 !important;
+}
+
+/* The serif italic is this site's accent voice and takes the red, here as on
+   the homepage. `.cs-tagline` and the bare `em` are already covered by
+   styles.css; these two set `--cs-accent` at a higher specificity. */
+html.egypt .cs-challenge-t em,
+html.egypt .cs-dec-chose { color: var(--eg-red, #ce1126) !important; }
+
+/* A tier wash mixed from the accent over the page ground. Black, under the
+   flag, is the ground. */
+html.egypt .cs-arch-group[data-tier="client"] {
+  background: color-mix(in srgb, var(--eg-red, #ce1126) 5%, #000000);
+}

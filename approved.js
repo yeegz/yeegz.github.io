@@ -134,9 +134,25 @@
         heroImage.addEventListener('load', resolve, { once: true });
         heroImage.addEventListener('error', resolve, { once: true });
       }));
+  /* Under the egg the arrival is a real wait rather than a 700ms race. The
+     toggle reloads, the departure raised this very sheet, and lifting it on a
+     timer would show the flag site mid-layout — fonts still swapping, the
+     halftone plate not yet decoded. `egypt-niche.png` is the image the dotted
+     figure is sampled from, so it is the one that has to be in before the
+     cover comes off; script.js has already requested it, so this is a cache
+     hit rather than a second download. The 3200ms ceiling stays under the head
+     script's 4500ms release and the sheet's own 5s `loaderGiveUp`, so a stalled
+     image can never strand the page behind the cover. */
+  const eggOn = root.classList.contains('egypt');
+  const eggFigureReady = !(eggOn && finePointer) ? Promise.resolve() : new Promise((resolve) => {
+    const plate = new Image();
+    plate.onload = resolve;
+    plate.onerror = resolve;
+    plate.src = 'images/egypt-niche.png';
+  });
   window.siteReady = Promise.race([
-    Promise.all([document.fonts?.ready || Promise.resolve(), heroReady]),
-    wait(700)
+    Promise.all([document.fonts?.ready || Promise.resolve(), heroReady, eggFigureReady]),
+    wait(eggOn ? 3200 : 700)
   ]).then(() => {
     root.classList.add('is-ready');
     loader?.setAttribute('aria-hidden', 'true');
@@ -371,6 +387,31 @@
       announce.t = setTimeout(function () { toast.classList.remove('is-on'); }, 2600);
     }
 
+    /* The departure cover. It is the arrival loader's own sheet — same class,
+       same mark, same 5s `loaderGiveUp` safety net — so leaving the flag and
+       landing in it read as one motion rather than two designs. */
+    function raiseVeil() {
+      var el = document.createElement('div');
+      el.className = 'site-loader egg-veil';
+      el.setAttribute('aria-hidden', 'true');
+      var mark = document.createElement('span');
+      mark.className = 'loader-mark';
+      for (var i = 0; i < 4; i++) mark.appendChild(document.createElement('i'));
+      var name = document.createElement('span');
+      name.className = 'loader-name';
+      name.textContent = 'YSF.SLM';
+      el.appendChild(mark);
+      el.appendChild(name);
+      document.body.appendChild(el);
+      // Read a layout value so the transition has a start frame to run from.
+      void el.offsetWidth;
+      el.classList.add('is-on');
+      /* Nothing here may be what the visitor is left looking at. If the reload
+         never lands — refused, offline, a script error between here and there —
+         the cover takes itself off, the way the loader gives up on its own. */
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 2600);
+    }
+
     function apply(on, loud) {
       try {
         on ? localStorage.setItem('ysf-egypt', '1') : localStorage.removeItem('ysf-egypt');
@@ -382,8 +423,14 @@
       /* Reload rather than live-patch. The halftone morph canvas is rendered
          once from the source images, and the name/figure geometry is measured
          once at boot — repainting in place would leave the dots, the seating
-         and the scroll choreography describing the previous photograph. */
+         and the scroll choreography describing the previous photograph.
+
+         So the reload is covered: the page fades out behind the flag over
+         350ms, the sheet holds through the navigation, and the loader on the
+         far side keeps holding until the fonts and the figure are really in.
+         Under reduced motion there is no fade — the reload is a clean cut. */
       announce(on);
+      if (!reduceMotion) raiseVeil();
       setTimeout(function () { location.reload(); }, 820);
     }
 

@@ -288,10 +288,17 @@
       idle: 'sheen'
     }
   };
+  /* The same switch the halftone morph makes further down: every accent this
+     file paints — sigil dots, the runner's motes — is hardcoded mint, and
+     under the egg it is the eagle's gold instead. The cursor chip also flips
+     its ink, because under the egg that chip is filled with the flag's red
+     rather than the default bone. */
+  const EGG_ON = docEl.classList.contains('egypt');
+  const EGG_GOLD = '#d4a017';
   const SIGIL_PAL = {
-    cursor: { ink: '#1a1b1c', accent: '#417a52', dotScale: 1.18 },
-    stamp: { ink: '#d8d5ce', accent: '#9bcfa5', dotScale: 1.28 },
-    panel: { ink: '#cfccc4', accent: '#9bcfa5', dotScale: 1.75 }
+    cursor: { ink: EGG_ON ? '#ffffff' : '#1a1b1c', accent: EGG_ON ? EGG_GOLD : '#417a52', dotScale: 1.18 },
+    stamp: { ink: '#d8d5ce', accent: EGG_ON ? EGG_GOLD : '#9bcfa5', dotScale: 1.28 },
+    panel: { ink: '#cfccc4', accent: EGG_ON ? EGG_GOLD : '#9bcfa5', dotScale: 1.75 }
   };
   const sigilDots = (geo) => {
     const dots = [];
@@ -818,7 +825,14 @@
   const portraitImgEl = document.getElementById('portrait');
   if (portraitImgEl && wrap && finePointer) {
     const srcImg = new Image();
-    srcImg.src = 'images/yousof-niche.png';
+    /* The dot field is sampled from THIS image's alpha, not from #portrait —
+       which is why swapping the visible portrait alone changed nothing. Under
+       the egg it samples the halftone plate generated from the Al Ahly
+       photograph, so the dots are an analysis of that photograph and then
+       dissolve into it. */
+    srcImg.src = docEl.classList.contains('egypt')
+      ? 'images/egypt-niche.png'
+      : 'images/yousof-niche.png';
     srcImg.decode().then(() => {
       const sw = srcImg.naturalWidth;
       const sh = srcImg.naturalHeight;
@@ -873,10 +887,17 @@
 
       /* The morph's dot highlight and its travelling edge tint were hardcoded
          mint. Under the easter egg they take the eagle's gold, so the figure
-         glows with the flag rather than the default accent. */
-      const EGY = docEl.classList.contains('egypt');
-      const DOT_HI = EGY ? [246, 216, 138] : [201, 238, 209];
-      const DOT_EDGE = EGY ? [212, 160, 23] : [155, 207, 165];
+         glows with the flag rather than the default accent.
+
+         DOT_RAMP is the same switch for the third and largest one: every dot is
+         mixed down from bone (242,239,233) by its own lit value, and the amount
+         subtracted per channel is what decides where "fully lit" lands. The
+         default triple resolves to #9bcfa5 — the mint accent — which is why the
+         whole figure still read green under the flag. The egg's triple resolves
+         to #d4a017 instead, so the lit dots are the eagle's gold. */
+      const DOT_HI = EGG_ON ? [246, 216, 138] : [201, 238, 209];
+      const DOT_EDGE = EGG_ON ? [212, 160, 23] : [155, 207, 165];
+      const DOT_RAMP = EGG_ON ? [30, 79, 210] : [87, 32, 68];
 
       const photoImg = document.getElementById('gardenImg');
       let photoReady = Boolean(photoImg && photoImg.complete && photoImg.naturalWidth);
@@ -980,7 +1001,7 @@
           if (g > 0.92) {
             rC = DOT_HI[0]; gC = DOT_HI[1]; bC = DOT_HI[2];
           } else {
-            rC = 242 - 87 * g; gC = 239 - 32 * g; bC = 233 - 68 * g;
+            rC = 242 - DOT_RAMP[0] * g; gC = 239 - DOT_RAMP[1] * g; bC = 233 - DOT_RAMP[2] * g;
           }
           if (dq > 0) {
             rC += (d.c0 - rC) * dq;
@@ -1480,15 +1501,16 @@
           if (c.got) continue;
           const pu = 1 + 0.22 * Math.sin(tg * 3.2 + c.x * 0.05);
           /* Dark die-cut rim first, so the dot stays visible over the light
-             glyphs; then a glowing mint core and a soft halo. */
+             glyphs; then a glowing mint core and a soft halo — gold under the
+             egg, like every other accent the hero paints. */
           fxc.globalAlpha = 0.62;
-          fxc.fillStyle = '#0a0a0b';
+          fxc.fillStyle = EGG_ON ? '#000000' : '#0a0a0b';
           fxc.beginPath();
           fxc.arc(c.x, c.y, 8.6 * pu, 0, 6.2832);
           fxc.fill();
           fxc.globalAlpha = 1;
-          fxc.fillStyle = '#9bcfa5';
-          fxc.shadowColor = '#9bcfa5';
+          fxc.fillStyle = EGG_ON ? EGG_GOLD : '#9bcfa5';
+          fxc.shadowColor = EGG_ON ? EGG_GOLD : '#9bcfa5';
           fxc.shadowBlur = 16;
           fxc.beginPath();
           fxc.arc(c.x, c.y, 6 * pu, 0, 6.2832);
@@ -1520,7 +1542,7 @@
           p.y += p.vy * dt;
           const a = 1 - p.age / p.life;
           fxc.globalAlpha = a * 0.9;
-          fxc.fillStyle = p.green ? '#9bcfa5' : '#cfccc4';
+          fxc.fillStyle = p.green ? (EGG_ON ? EGG_GOLD : '#9bcfa5') : '#cfccc4';
           fxc.beginPath();
           fxc.arc(p.x, p.y, p.r * (0.6 + a * 0.4), 0, 6.2832);
           fxc.fill();

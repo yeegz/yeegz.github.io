@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/simple.css?v=9" />
+<link rel="stylesheet" href="/simple.css?v=10" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 try { document.documentElement.dataset.theme = localStorage.getItem('ysf-theme') === 'light' ? 'light' : 'dark'; }
@@ -35,12 +35,26 @@ addEventListener('DOMContentLoaded', function () {
     });
   }, { rootMargin: '-45% 0px -50% 0px' });
   document.querySelectorAll('main section[id]').forEach(function (el) { spy.observe(el); });
+
+  // How far through the page you are. One custom property, written on scroll.
+  var bar = document.querySelector('.s-progress');
+  if (bar) {
+    var tick = function () {
+      var h = document.documentElement.scrollHeight - innerHeight;
+      bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')';
+    };
+    addEventListener('scroll', tick, { passive: true });
+    addEventListener('resize', tick, { passive: true });
+    tick();
+  }
 });
 </script>
 </head>
 <body>
+<div class="s-wash" aria-hidden="true"></div>
 
 <header class="s-head">
+  <i class="s-progress" aria-hidden="true"></i>
   <a class="s-brand" href="/">ysf.slm</a>
   <nav class="s-nav" aria-label="Sections">
     <a href="#work">Work</a>
@@ -59,8 +73,6 @@ addEventListener('DOMContentLoaded', function () {
 
   <section class="s-hero" data-in>
     <figure class="s-portrait">
-      <span class="pf-c pf-tl"></span><span class="pf-c pf-tr"></span>
-      <span class="pf-c pf-bl"></span><span class="pf-c pf-br"></span>
       <picture>
         <source type="image/webp" srcset="/images/yousof-headshot.webp" />
         <img src="/images/yousof-headshot.png" alt="Yousof Selim" width="861" height="991" fetchpriority="high" />
@@ -107,7 +119,7 @@ addEventListener('DOMContentLoaded', function () {
       </div>
     </article>
     <article class="s-card">
-      
+      <div class="s-card-shot"><img src="/images/projects/adelante/today.webp" alt="The Adelante Today screen on a phone. A single quote — &quot;When you hold power over someone, hold it the way you would hold water.&quot; — is set large in italic under a Religious category chip, with its source, Adelante · Original Adelante, beneath it, then share, favourite and reshuffle buttons. A row below reads &quot;Customize your widget — Transparent Glass · style, source, and timing&quot;." width="900" height="1951" loading="lazy" decoding="async" /></div>
       <div class="s-card-body">
         <div class="s-card-head">
           <h3>Adelante</h3>

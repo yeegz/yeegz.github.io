@@ -615,3 +615,122 @@ html:not(.s-anim) .s-stat::before { transform: scaleX(1); }
   .s-rail, .s-stat::before { transform: scaleX(1); transition: none; }
   .s-card:hover { transform: none; }
 }
+
+/* =================================================================
+   Ground, portrait, chrome
+   -----------------------------------------------------------------
+   Three things were wrong at once: the hero wash was a child of the
+   content column, so its tint stopped at a hard vertical edge in the
+   middle of the page instead of reaching the viewport; the corner
+   ticks were bracketing air, because a cut-out has no plate for them
+   to frame; and the bar at the top was three items in a row with
+   nothing to say where you were.
+   ================================================================= */
+
+/* Full-bleed, behind everything, and it does not scroll away — the page's
+   ground rather than a decoration sitting inside one section. */
+.s-wash {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 44% at 18% 0%, color-mix(in srgb, var(--accent) 15%, transparent), transparent 68%),
+    radial-gradient(42% 34% at 88% 6%, rgba(255, 255, 255, 0.055), transparent 70%),
+    radial-gradient(70% 50% at 50% 100%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 72%);
+}
+/* The site's own dotted field, at the density the project stages use. */
+.s-wash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--accent) 40%, transparent) 1px, transparent 1.5px);
+  background-size: 38px 38px;
+  opacity: 0.07;
+  mask-image: linear-gradient(180deg, #000 0%, transparent 62%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 62%);
+}
+.s-hero::before { display: none; }
+
+/* ---------- the portrait, grounded ------------------------------- */
+
+.s-portrait { position: relative; align-self: end; }
+/* A pool of light under the figure so a cut-out reads as placed rather than
+   floating, and a baseline for it to stand on. */
+.s-portrait::before {
+  content: '';
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  bottom: 2.1rem;
+  height: 62%;
+  z-index: -1;
+  border-radius: 50% 50% 0 0;
+  background: radial-gradient(60% 100% at 50% 100%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 72%);
+}
+.s-portrait img { filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.55)); }
+.s-portrait figcaption {
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--line);
+}
+.s-portrait figcaption::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 0.5rem;
+  vertical-align: 0.08em;
+  background: var(--accent);
+}
+@media (min-width: 820px) { .s-hero:has(.s-portrait) { grid-template-columns: minmax(0, 268px) minmax(0, 1fr); align-items: end; } }
+
+/* ---------- the bar ---------------------------------------------- */
+
+.s-head {
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.s-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 35%, transparent));
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.s-nav { position: relative; gap: 1.35rem; }
+.s-nav a { position: relative; padding: 0.45rem 0; border-bottom: 0; }
+.s-nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 0;
+  height: 1px;
+  background: var(--accent);
+  transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.s-nav a:hover::after,
+.s-nav a.is-here::after { right: 0; }
+.s-nav a.is-here { color: var(--ink); }
+/* The section you are in gets the mark, not just the rule. */
+.s-nav a.is-here::before {
+  content: '';
+  position: absolute;
+  left: -0.72rem;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 7px 1px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .s-nav a::after { transition: none; }
+}

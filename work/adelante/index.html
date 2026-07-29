@@ -496,7 +496,24 @@ try {
   <div><h3 class="cs-h3">What I would do next</h3><ul class="cs-points"><li>Compress the library asset and move the parse off the main isolate — after measuring cold start, so the change has a number attached to it.</li><li>Per-widget-instance configuration is specified and not built. The widget still uses StaticConfiguration with no AppIntentConfiguration, and Android declares no configure activity; separate surfaces are handled by a fixed pool offset instead.</li><li>Run the backend against a real Firebase project. Five Cloud Functions, security rules, three composite indexes and a seeding script have been written and never deployed.</li><li>Work the store-readiness checklist: 14 of its 24 items are open, and every item needing a developer account or a signing identity — Apple Developer membership, App Group capability, PrivacyInfo.xcprivacy, distribution signing, a release keystore, and both store listings — is untouched.</li></ul></div>
 </div></div>
 </section>
-    
+    <div class="cs-media" data-shape="portrait">
+  <figure class="cs-fig cs-fig-portrait">
+    <img src="/images/projects/adelante/today.webp" alt="The Adelante Today screen on a phone. A single quote — &quot;When you hold power over someone, hold it the way you would hold water.&quot; — is set large in italic under a Religious category chip, with its source, Adelante · Original Adelante, beneath it, then share, favourite and reshuffle buttons. A row below reads &quot;Customize your widget — Transparent Glass · style, source, and timing&quot;." width="900" height="1951" loading="lazy" decoding="async" />
+    <figcaption><b aria-hidden="true">FIG. 01</b>One quote a day, and <em>the source under every one of them.</em> The row at the bottom is the whole app's second job: the screen you are reading is a preview of the widget.</figcaption>
+  </figure>
+  <figure class="cs-fig cs-fig-portrait">
+    <img src="/images/projects/adelante/discover.webp" alt="The Adelante Discover screen. A search field reads &quot;Search a mood, author, or goal&quot; beside a filter button, above a For you feed of quote cards. Each card carries its category, the quote in italic, and its full attribution — one reads &quot;The Qur'an, Surah Aal-Imran 3:139, Pickthall translation&quot;." width="900" height="1951" loading="lazy" decoding="async" />
+    <figcaption><b aria-hidden="true">FIG. 02</b>Search is by <em>mood, author or goal</em> rather than by keyword. Every entry carries its full citation — surah, verse and translator where it has one — because a library of 12,828 quotations is only worth anything if each one can be traced.</figcaption>
+  </figure>
+  <figure class="cs-fig cs-fig-portrait">
+    <img src="/images/projects/adelante/widgets.webp" alt="The Adelante Widget studio. A live preview of the widget sits above controls to rename or duplicate it, a row of named presets — Soft Ivory, Deep Black, Midnight Focus — and a Content section of category toggles including Religious, Spiritual and Successful people." width="900" height="1951" loading="lazy" decoding="async" />
+    <figcaption><b aria-hidden="true">FIG. 03</b>The widget is <em>configured against a live preview,</em> not guessed at from a settings list. Presets set the surface; the Content toggles decide which of the twenty categories it is allowed to draw from.</figcaption>
+  </figure>
+  <figure class="cs-fig cs-fig-portrait">
+    <img src="/images/projects/adelante/saved.webp" alt="The Adelante Favorites screen, listing saved quotations. Each keeps its category chip and its full source line, such as &quot;The Qur'an, Surah Al-Baqarah 2:152, Pickthall translation&quot;." width="900" height="1951" loading="lazy" decoding="async" />
+    <figcaption><b aria-hidden="true">FIG. 04</b>Saved quotations keep their attribution. <em>Nothing in the app ever shows a line without saying where it came from</em> — the citation travels with the text into favourites and out to the widget.</figcaption>
+  </figure>
+</div>
     
 <nav class="cs-related" aria-label="More work">
   <a class="cs-rel cs-rel-prev" href="/work/bupples/"><span>Previous</span><b>Bupples</b></a>

@@ -444,5 +444,35 @@
     "title": "Adelante — widget-first motivation for iOS and Android",
     "description": "A Flutter motivation app whose content lives in native widgets: WidgetKit and SwiftUI on iOS, RemoteViews on Android, driven from one shared payload with no accounts, analytics or ads.",
     "image": "/images/og-card.jpg"
-  }
+  },
+  "media": [
+    {
+      "src": "/images/projects/adelante/today.webp",
+      "alt": "The Adelante Today screen on a phone. A single quote — \"When you hold power over someone, hold it the way you would hold water.\" — is set large in italic under a Religious category chip, with its source, Adelante · Original Adelante, beneath it, then share, favourite and reshuffle buttons. A row below reads \"Customize your widget — Transparent Glass · style, source, and timing\".",
+      "caption": "One quote a day, and *the source under every one of them.* The row at the bottom is the whole app's second job: the screen you are reading is a preview of the widget.",
+      "width": 900,
+      "height": 1951
+    },
+    {
+      "src": "/images/projects/adelante/discover.webp",
+      "alt": "The Adelante Discover screen. A search field reads \"Search a mood, author, or goal\" beside a filter button, above a For you feed of quote cards. Each card carries its category, the quote in italic, and its full attribution — one reads \"The Qur'an, Surah Aal-Imran 3:139, Pickthall translation\".",
+      "caption": "Search is by *mood, author or goal* rather than by keyword. Every entry carries its full citation — surah, verse and translator where it has one — because a library of 12,828 quotations is only worth anything if each one can be traced.",
+      "width": 900,
+      "height": 1951
+    },
+    {
+      "src": "/images/projects/adelante/widgets.webp",
+      "alt": "The Adelante Widget studio. A live preview of the widget sits above controls to rename or duplicate it, a row of named presets — Soft Ivory, Deep Black, Midnight Focus — and a Content section of category toggles including Religious, Spiritual and Successful people.",
+      "caption": "The widget is *configured against a live preview,* not guessed at from a settings list. Presets set the surface; the Content toggles decide which of the twenty categories it is allowed to draw from.",
+      "width": 900,
+      "height": 1951
+    },
+    {
+      "src": "/images/projects/adelante/saved.webp",
+      "alt": "The Adelante Favorites screen, listing saved quotations. Each keeps its category chip and its full source line, such as \"The Qur'an, Surah Al-Baqarah 2:152, Pickthall translation\".",
+      "caption": "Saved quotations keep their attribution. *Nothing in the app ever shows a line without saying where it came from* — the citation travels with the text into favourites and out to the widget.",
+      "width": 900,
+      "height": 1951
+    }
+  ]
 }

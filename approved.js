@@ -221,6 +221,26 @@
      lane on touch, and they never run while the section is off screen or the
      tab is hidden. */
   const skillsPaused = false;
+  /* Hover should pause a lane you have stopped to read — not one you happen to
+     fly past. While the page is moving quickly the pointer is incidental, so
+     the hover pause is suspended until the scroll settles. */
+  let scrollFastUntil = 0;
+  {
+    let lastY = window.scrollY;
+    let lastT = performance.now();
+    addEventListener('scroll', () => {
+      const t = performance.now();
+      const y = window.scrollY;
+      const dt = t - lastT;
+      if (dt > 0) {
+        const v = Math.abs(y - lastY) / dt;      // px per ms
+        if (v > 0.85) scrollFastUntil = t + 280; // ~850px/s and above
+      }
+      lastY = y;
+      lastT = t;
+    }, { passive: true });
+  }
+
   /* Nothing to animate while the section is off screen. */
   let skillsOnScreen = true;
   const skillsRoot = document.querySelector('.skill-lanes');
@@ -239,7 +259,8 @@
          through with the arrow keys is reading. A mouse click on an arrow
          leaves :focus but not :focus-visible, so the lane resumes on its own
          instead of being frozen by a click that has already finished. */
-      if (now < skillHold[index] || lane.matches(':hover') || lane.querySelector(':focus-visible')) {
+      const hoverCounts = now >= scrollFastUntil;
+      if (now < skillHold[index] || (hoverCounts && lane.matches(':hover')) || lane.querySelector(':focus-visible')) {
         skillPositions[index] = scroller.scrollLeft;
         if (now >= skillHold[index]) lane.classList.remove('is-held');
         return;
@@ -371,6 +392,12 @@
       var said = sessionStorage.getItem('ysf-egypt-said');
       if (said) { sessionStorage.removeItem('ysf-egypt-said'); setTimeout(function () { announce(said === 'on'); }, 420); }
     } catch (_) {}
+
+    var offBtn = document.getElementById('eggOff');
+    if (offBtn) {
+      offBtn.hidden = !document.documentElement.classList.contains('egypt');
+      offBtn.addEventListener('click', function () { apply(false, true); });
+    }
 
     addEventListener('keydown', function (e) {
       // Never swallow a keystroke meant for a field or a shortcut.

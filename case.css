@@ -234,8 +234,12 @@
   z-index: 40;
   padding: 0.85rem var(--cs-gutter);
   border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  /* Was 90% opaque, so section headings showed straight through the contents
+     bar as they scrolled under it. It is a fixed strip over moving copy — it
+     has to be solid. */
+  background: var(--bg);
   backdrop-filter: blur(9px);
+  box-shadow: 0 10px 22px -18px rgba(0, 0, 0, 0.9);
 }
 .cs-toc-l {
   margin-bottom: 0.55rem;
@@ -733,7 +737,7 @@ html[data-theme="light"] .cs-arch-group,
 html[data-theme="light"] .cs-rel,
 html[data-theme="light"] .cs-body { background: var(--bg); }
 html[data-theme="light"] .cs-arch-group[data-tier="server"] { background: var(--bg-2); }
-html[data-theme="light"] .cs-toc { background: color-mix(in srgb, var(--bg) 90%, transparent); }
+html[data-theme="light"] .cs-toc { background: var(--bg); }
 
 /* ---------- responsive ------------------------------------------ */
 

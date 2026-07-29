@@ -158,6 +158,12 @@
       if (said) { sessionStorage.removeItem('ysf-egypt-said'); setTimeout(function () { announce(said === 'on'); }, 420); }
     } catch (_) {}
 
+    var offBtn = document.getElementById('eggOff');
+    if (offBtn) {
+      offBtn.hidden = !document.documentElement.classList.contains('egypt');
+      offBtn.addEventListener('click', function () { apply(false, true); });
+    }
+
     addEventListener('keydown', function (e) {
       // Never swallow a keystroke meant for a field or a shortcut.
       var t = e.target;

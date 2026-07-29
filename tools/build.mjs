@@ -374,6 +374,7 @@ const NAV = `
     <a href="/#contact"><sup>05</sup>Contact</a>
   </nav>
   <div class="head-actions">
+    <button class="head-egg-off" id="eggOff" type="button" data-cursor="EXIT" hidden>Exit Egypt<span aria-hidden="true">×</span></button>
     <a class="head-resume" href="/Yousof-Selim-Resume.pdf" download data-cursor="PDF">Résumé</a>
     <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Switch to light mode" data-cursor="LIGHT">
       <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.25"/><path d="M12 2.2v2.1M12 19.7v2.1M2.2 12h2.1M19.7 12h2.1M5.08 5.08l1.49 1.49M17.43 17.43l1.49 1.49M18.92 5.08l-1.49 1.49M6.57 17.43l-1.49 1.49"/></svg>
@@ -384,6 +385,7 @@ const NAV = `
 
 const HEAD_BOOT = `<script>
 document.documentElement.classList.replace('no-js','js');
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 try {
   var t = localStorage.getItem('ysf-theme');
   document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
@@ -500,8 +502,8 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=72" />
-<link rel="stylesheet" href="/case.css?v=8" />
+<link rel="stylesheet" href="/styles.css?v=75" />
+<link rel="stylesheet" href="/case.css?v=9" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
 </head>
@@ -616,8 +618,8 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=72" />
-<link rel="stylesheet" href="/case.css?v=8" />
+<link rel="stylesheet" href="/styles.css?v=75" />
+<link rel="stylesheet" href="/case.css?v=9" />
 ${HEAD_BOOT}
 </head>
 <body class="cs-body wk-body">

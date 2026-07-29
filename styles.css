@@ -2147,7 +2147,9 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 
   /* One invitation, not two: the plate carries it now. */
   .work-open .wo-label, .work-open .wo-arr { display: none; }
-  .work-link { padding-bottom: clamp(2rem, 4vh, 2.8rem); }
+  /* The media column is taller than the copy, so the grid's own height was
+     leaving a gap between the spec rows and the buttons beneath them. */
+  .work-link { padding-bottom: clamp(0.4rem, 1vh, 0.9rem); }
 }
 @supports not (color: color-mix(in srgb, red 50%, transparent)) {
   @media (min-width: 1025px) {
@@ -2217,7 +2219,7 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 .work-study {
   position: relative;
   z-index: 3;
-  margin: 1.05rem 0.2rem 0;
+  margin: 0.55rem 0.2rem 0;
 }
 @media (min-width: 1025px) {
   .work-study { margin-left: calc(0.5rem + 5.5rem + clamp(1.2rem, 2.4vw, 2.4rem)); }
@@ -2803,12 +2805,9 @@ html[data-theme="light"] .cap-row:hover { background: color-mix(in srgb, var(--a
   background: var(--bg);
 }
 .scene-credibility .cred { margin-top: 0; }
-/* The case study is a route, not one of the project's outbound destinations,
-   so it leads the stage actions and is marked in the stage's own accent. */
-.stage-actions .sa-study {
-  border-color: color-mix(in srgb, var(--accent) 60%, transparent) !important;
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-}
+/* The case-study link sits first among the stage actions but is styled
+   identically to them — it is one destination among several, not a call to
+   action that outranks the others. No box, no tint, same placement. */
 
 /* The divider is its own element so it can be drawn on rather than just
    appearing. The border stays as the no-JS/reduced-motion fallback. */
@@ -3059,3 +3058,24 @@ html.egypt .nm-ground {
   html.egypt .nm-in { font-size: clamp(4.4rem, 8.4vw, 8.6rem) !important; line-height: 0.88 !important; }
   html.egypt .nm-stack { margin-left: min(44vw, 660px); }
 }
+
+/* Only offered while the egg is on — it is the way out of a state you may
+   have entered by accident. */
+.head-egg-off {
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 38px;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--eg-red, #ce1126) 65%, transparent);
+  background: color-mix(in srgb, var(--eg-red, #ce1126) 14%, transparent);
+  color: var(--ink);
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s, border-color 0.3s;
+}
+html.egypt .head-egg-off { display: inline-flex; }
+.head-egg-off:hover { background: color-mix(in srgb, var(--eg-red, #ce1126) 26%, transparent); border-color: var(--eg-red, #ce1126); }
+.head-egg-off span { color: var(--eg-red, #ce1126); font-size: 1.05em; }

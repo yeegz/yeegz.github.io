@@ -25,7 +25,9 @@
   /* The site header is position:fixed, and the contents bar sticks beneath it.
      Both must be accounted for or an in-page jump lands with the section
      heading hidden behind them. */
-  --cs-head-h: 74px;
+  /* Fallback only — case.js measures the header and overwrites this, because
+     the real height changes with the font size and the wrapped nav. */
+  --cs-head-h: 93px;
   --cs-toc-h: 62px;
 }
 
@@ -34,7 +36,12 @@
 .cs-body ::selection { background: var(--cs-accent); color: var(--bg); }
 .cs-body :focus-visible { outline-color: var(--cs-accent); }
 
-.cs-head { background: transparent; }
+/* The homepage header sits over a pinned hero and can afford to be sheer.
+   A case study is a scrolling document, so body copy ran straight through it.
+   These routes get a real backdrop. */
+.cs-head { background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px); }
+.cs-head::before { display: none; }
+.cs-head { border-bottom: 1px solid var(--line); }
 .cs-main { padding-top: clamp(96px, 12vh, 148px); }
 
 /* ---------- shared type ---------------------------------------- */
@@ -926,3 +933,11 @@ html[data-theme="light"] .cs-ghost { -webkit-text-stroke-color: rgba(16, 23, 17,
 @media (forced-colors: active) {
   .cs-ghost { display: none; }
 }
+
+
+/* `body { overflow-x: hidden }` in styles.css makes the body a scroll
+   container, which silently disables position:sticky for anything inside it —
+   the contents bar scrolled away below 1025px instead of sticking. `clip`
+   suppresses horizontal scrolling exactly the same way without creating that
+   container. Scoped to the case routes so the homepage is untouched. */
+.cs-body { overflow-x: clip; }

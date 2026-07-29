@@ -499,8 +499,8 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=52" />
-<link rel="stylesheet" href="/case.css?v=7" />
+<link rel="stylesheet" href="/styles.css?v=58" />
+<link rel="stylesheet" href="/case.css?v=8" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
 </head>
@@ -546,7 +546,7 @@ ${NAV}
   <a href="/#top">Back to top ↑</a>
 </footer>
 
-<script src="/case.js?v=4" defer></script>
+<script src="/case.js?v=5" defer></script>
 </body>
 </html>
 `;
@@ -615,8 +615,8 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=52" />
-<link rel="stylesheet" href="/case.css?v=7" />
+<link rel="stylesheet" href="/styles.css?v=58" />
+<link rel="stylesheet" href="/case.css?v=8" />
 ${HEAD_BOOT}
 </head>
 <body class="cs-body wk-body">
@@ -641,7 +641,7 @@ ${cards}
   <p>DESIGNED AND BUILT BY HAND · 2026</p>
   <a href="/#top">Back to top ↑</a>
 </footer>
-<script src="/case.js?v=4" defer></script>
+<script src="/case.js?v=5" defer></script>
 </body>
 </html>
 `;
@@ -704,36 +704,82 @@ function main() {
 /*                                                                     */
 /* index.html stays hand-authored — its GSAP choreography, pinned      */
 /* identity scene and easter egg are not worth generating. Only the    */
-/* evidence-bearing blocks are injected, between markers, so the       */
-/* résumé-derived content has exactly one source of truth.             */
+/* evidence-bearing blocks are injected, between markers.              */
+/*                                                                     */
+/* Each block gets a layout that suits what it holds, not one shared   */
+/* card grid: the credibility line reads as a measuring scale, the     */
+/* principles as a numbered manifesto, the capabilities as a spec      */
+/* sheet, the record as a rail with nodes, and the current focus as a  */
+/* status board. Dot-matrix glyphs carry the site's existing dotted    */
+/* language into each one.                                             */
 /* ------------------------------------------------------------------ */
+
+/**
+ * Dot-matrix glyph on a 10×10 grid, drawn as SVG circles.
+ * The site draws its sigils as dots on canvas; these are the static
+ * equivalent — no JS, no animation dependency, same visual language.
+ */
+const GLYPHS = {
+  coin:      [[8.4, 5.0], [7.94, 6.7], [6.7, 7.94], [5.0, 8.4], [3.3, 7.94], [2.06, 6.7], [1.6, 5.0], [2.06, 3.3], [3.3, 2.06], [5.0, 1.6], [6.7, 2.06], [7.94, 3.3], [5, 5]],
+  shield:    [[2, 2], [3.5, 2], [5, 2], [6.5, 2], [8, 2], [2, 3.6], [8, 3.6], [2.2, 5.2], [7.8, 5.2], [3.1, 6.6], [6.9, 6.6], [4, 7.7], [6, 7.7], [5, 8.5]],
+  launch:    [[5, 1.4], [3.9, 2.6], [6.1, 2.6], [2.9, 3.8], [7.1, 3.8], [5, 3.1], [5, 4.6], [5, 6.1], [5, 7.6], [5, 9]],
+  proof:     [[1.8, 5], [2.8, 6], [3.8, 7], [4.8, 7.8], [5.8, 6.2], [6.8, 4.6], [7.8, 3], [8.6, 1.8]],
+  lock:      [[3.4, 3.6], [3.3, 2.6], [4, 1.9], [5, 1.7], [6, 1.9], [6.7, 2.6], [6.6, 3.6], [2.4, 4.6], [3.7, 4.6], [5, 4.6], [6.3, 4.6], [7.6, 4.6], [2.4, 6], [7.6, 6], [2.4, 7.6], [3.7, 7.6], [5, 7.6], [6.3, 7.6], [7.6, 7.6], [5, 6.1]],
+  layers:    [[2, 2.6], [3.5, 2.6], [5, 2.6], [6.5, 2.6], [8, 2.6], [2, 5], [3.5, 5], [5, 5], [6.5, 5], [8, 5], [2, 7.4], [3.5, 7.4], [5, 7.4], [6.5, 7.4], [8, 7.4]],
+  mobile:    [[3.6, 1.4], [5, 1.4], [6.4, 1.4], [3, 2.6], [7, 2.6], [3, 4], [7, 4], [3, 5.4], [7, 5.4], [3, 6.8], [7, 6.8], [3.6, 8.2], [5, 8.2], [6.4, 8.2], [5, 7]],
+  widget:    [[2, 2], [4, 2], [6, 2], [8, 2], [2, 4], [8, 4], [2, 6], [8, 6], [2, 8], [4, 8], [6, 8], [8, 8], [4.4, 4.4], [5.6, 4.4], [4.4, 5.6], [5.6, 5.6]],
+  data:      [[3.1, 1.8], [5, 1.5], [6.9, 1.8], [2.6, 2.9], [7.4, 2.9], [3.1, 3.9], [5, 4.2], [6.9, 3.9], [2.6, 5.1], [7.4, 5.1], [3.1, 6.1], [5, 6.4], [6.9, 6.1], [2.6, 7.2], [7.4, 7.2], [3.1, 8.3], [5, 8.6], [6.9, 8.3]],
+  gpu:       [[3.4, 3.4], [5, 3.4], [6.6, 3.4], [3.4, 5], [6.6, 5], [3.4, 6.6], [5, 6.6], [6.6, 6.6], [1.9, 4.2], [1.9, 5.8], [8.1, 4.2], [8.1, 5.8], [4.2, 1.9], [5.8, 1.9], [4.2, 8.1], [5.8, 8.1]],
+  ai:        [[5, 1.6], [2.4, 4], [7.6, 4], [3.5, 7.8], [6.5, 7.8], [5, 4.9], [3.8, 2.7], [6.2, 2.7], [4.1, 4.5], [5.9, 4.5], [4.1, 6.4], [5.9, 6.4]],
+  release:   [[5, 1.2], [3.8, 2.4], [6.2, 2.4], [5, 2.5], [5, 3.7], [5, 4.7], [2.2, 5.8], [3.6, 5.8], [5, 5.8], [6.4, 5.8], [7.8, 5.8], [2.2, 7.1], [7.8, 7.1], [2.2, 8.4], [3.6, 8.4], [5, 8.4], [6.4, 8.4], [7.8, 8.4]],
+};
+
+const GLYPH_ORDER = ['coin', 'shield', 'launch', 'proof', 'lock', 'layers'];
+const CAP_GLYPHS = ['mobile', 'native', 'data', 'gpu', 'ai', 'release'];
+
+function dotGlyph(name, cls = 'dot-glyph') {
+  const pts = GLYPHS[name];
+  if (!pts) return '';
+  const dots = pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="0.62"/>`).join('');
+  return `<svg class="${cls}" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false">${dots}</svg>`;
+}
+
+/* ---------- credibility: a measuring scale, not cards -------------- */
 
 function renderCredibility(site) {
   if (!has(site.credibility)) return '';
-  return `<ul class="cred-strip" data-reveal aria-label="At a glance">
+  return `<div class="cred" data-reveal>
+            <p class="cred-l">FIG. 00.2<span class="slash">/</span>AT A GLANCE</p>
+            <ul class="cred-scale">
 ${site.credibility
   .map((c) => {
-    // The display numeral is sized for "01" or "1.2.5". A longer text value
-    // wraps to three lines at that size and unbalances the whole strip, so it
-    // gets a quieter treatment instead of being forced into the numeral slot.
     const isNumeral = /^[\d.]+$/.test(String(c.value).trim());
-    return `            <li${isNumeral ? '' : ' class="cred-text"'}><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`;
+    return `              <li${isNumeral ? '' : ' class="is-text"'}><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`;
   })
   .join('\n')}
-          </ul>`;
+            </ul>
+          </div>`;
 }
+
+/* ---------- principles: a numbered manifesto ----------------------- */
 
 function renderPrinciples(site) {
   if (!has(site.principles)) return '';
   return `<div class="principles" data-reveal>
-      <p class="sec-label">FIG. 00.6<span class="slash">/</span>HOW I WORK</p>
-      <ol class="principle-list">
+      <header class="pr-head">
+        <p class="sec-label">FIG. 00.6<span class="slash">/</span>HOW I WORK</p>
+        <h2 class="pr-title">Six rules I <em>actually follow.</em></h2>
+      </header>
+      <ol class="pr-list">
 ${site.principles
   .map(
-    (p, i) => `        <li>
+    (p, i) => `        <li class="pr-item">
           <span class="pr-no" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
-          <h3>${rich(p.title)}</h3>
-          <p>${rich(p.body)}</p>
+          ${dotGlyph(GLYPH_ORDER[i % GLYPH_ORDER.length], 'dot-glyph pr-glyph')}
+          <div class="pr-body">
+            <h3>${rich(p.title)}</h3>
+            <p>${rich(p.body)}</p>
+          </div>
           ${has(p.exampleDetail) ? `<p class="pr-eg"><span>In practice</span>${rich(p.exampleDetail)}</p>` : ''}
         </li>`
   )
@@ -742,17 +788,22 @@ ${site.principles
     </div>`;
 }
 
+/* ---------- capabilities: a spec sheet ----------------------------- */
+
 function renderCapabilities(site) {
   if (!has(site.capabilities)) return '';
   return `<div class="caps" data-reveal>
-      <p class="caps-intro">Before the tool list: the things I can take from an empty repository to a release.</p>
-      <ul class="cap-list">
+      <p class="caps-intro">Before the tool list — the things I can take from an empty repository to a release.</p>
+      <ul class="cap-rows">
 ${site.capabilities
   .map(
-    (c) => `        <li>
-          <h3>${esc(c.group)}</h3>
-          <p>${rich(c.lead)}</p>
-          ${has(c.tools) ? `<p class="cap-tools">${c.tools.map((t) => esc(t)).join(' · ')}</p>` : ''}
+    (c, i) => `        <li class="cap-row">
+          <div class="cap-name">
+            ${dotGlyph(CAP_GLYPHS[i % CAP_GLYPHS.length], 'dot-glyph cap-glyph')}
+            <h3>${esc(c.group)}</h3>
+          </div>
+          <p class="cap-lead">${rich(c.lead)}</p>
+          ${has(c.tools) ? `<p class="cap-tools">${c.tools.map((t) => esc(t)).join(' <i aria-hidden="true">·</i> ')}</p>` : ''}
         </li>`
   )
   .join('\n')}
@@ -760,52 +811,86 @@ ${site.capabilities
     </div>`;
 }
 
+/* ---------- the record: a rail with nodes -------------------------- */
+
 function renderExperience(site, projects) {
   if (!has(site.experience)) return '';
   const slugs = new Set(projects.map((p) => p.slug));
+
+  const nested = (e) =>
+    !has(e.projects)
+      ? ''
+      : `<ol class="tl-projects">
+${e.projects
+  .map(
+    (pr) => `              <li class="tl-project">
+                <div class="tl-p-head">
+                  <h4>${esc(pr.name)}</h4>
+                  <p class="tl-p-when">${esc(pr.dates)}</p>
+                </div>
+                ${has(pr.bullets) ? `<ul>${pr.bullets.map((b) => `<li>${rich(b)}</li>`).join('')}</ul>` : ''}
+                ${has(pr.tech) ? `<p class="tl-tech">${pr.tech.map((t) => esc(t)).join(' <i aria-hidden="true">·</i> ')}</p>` : ''}
+                ${
+                  slugs.has(String(pr.slug || '').toLowerCase())
+                    ? `<a class="tl-study" href="work/${esc(String(pr.slug).toLowerCase())}/">Case study<span class="cta-arr" aria-hidden="true">→</span></a>`
+                    : ''
+                }
+              </li>`
+  )
+  .join('\n')}
+            </ol>`;
+
   return `<div class="timeline" data-reveal>
       <p class="sec-label">FIG. 04<span class="slash">/</span>THE RECORD</p>
       <ol class="tl-list">
 ${site.experience
-  .map((e) => {
-    const slug = (e.projectSlug || '').toLowerCase();
-    const study = slugs.has(slug)
-      ? `<a class="tl-study" href="work/${esc(slug)}/">Case study <span class="cta-arr" aria-hidden="true">→</span></a>`
-      : '';
-    return `        <li class="tl-row">
+  .map(
+    (e) => `        <li class="tl-row">
           <p class="tl-when">${esc(e.dates)}</p>
           <div class="tl-what">
             <h3>${esc(e.role)}</h3>
             <p class="tl-org">${esc(e.org)}${has(e.location) ? ` <i aria-hidden="true">·</i> ${esc(e.location)}` : ''}</p>
-            ${has(e.bullets) ? `<ul>${e.bullets.map((b) => `<li>${rich(b)}</li>`).join('')}</ul>` : ''}
-            ${has(e.tech) ? `<p class="tl-tech">${e.tech.map((t) => esc(t)).join(' · ')}</p>` : ''}
-            ${study}
+            ${has(e.lead) ? `<p class="tl-lead">${rich(e.lead)}</p>` : ''}
+            ${has(e.bullets) ? `<ul class="tl-bullets">${e.bullets.map((b) => `<li>${rich(b)}</li>`).join('')}</ul>` : ''}
+            ${has(e.tech) ? `<p class="tl-tech">${e.tech.map((t) => esc(t)).join(' <i aria-hidden="true">·</i> ')}</p>` : ''}
+            ${nested(e)}
           </div>
-        </li>`;
-  })
+        </li>`
+  )
   .join('\n')}
       </ol>
     </div>`;
 }
 
+/* ---------- current focus: a status board -------------------------- */
+
 function renderNow(site) {
   const n = site.now;
   if (!n) return '';
-  const col = (label, items) =>
+  const col = (label, items, tone) =>
     !has(items)
       ? ''
-      : `<div><dt>${esc(label)}</dt><dd><ul>${items
-          .map((i) => `<li>${typeof i === 'string' ? rich(i) : `<b>${esc(i.title)}</b>${rich(i.body || '')}`}</li>`)
-          .join('')}</ul></dd></div>`;
+      : `<section class="now-col" data-tone="${tone}">
+          <h3 class="now-h"><i class="now-dot" aria-hidden="true"></i>${esc(label)}</h3>
+          <ul>${items
+            .map((i) =>
+              typeof i === 'string'
+                ? `<li><p>${rich(i)}</p></li>`
+                : `<li><b>${esc(i.title)}</b><p>${rich(i.body || '')}</p></li>`
+            )
+            .join('')}</ul>
+        </section>`;
   return `<div class="now-block" data-reveal>
-      <p class="sec-label">NOW<span class="slash">/</span>CURRENT FOCUS</p>
-      <dl class="now-grid">
-        ${col('Building', n.building)}
-        ${col('Studying', n.studying)}
-        ${col('Looking for', n.seeking)}
-        ${col('Exploring', n.exploring)}
-      </dl>
-      ${has(n.updated) ? `<p class="now-stamp">LAST UPDATED · ${esc(String(n.updated).toUpperCase())}</p>` : ''}
+      <div class="now-head">
+        <p class="sec-label">NOW<span class="slash">/</span>CURRENT FOCUS</p>
+        ${has(n.updated) ? `<p class="now-stamp"><i aria-hidden="true"></i>LAST UPDATED ${esc(String(n.updated).toUpperCase())}</p>` : ''}
+      </div>
+      <div class="now-grid">
+        ${col('Building', n.building, 'live')}
+        ${col('Studying', n.studying, 'study')}
+        ${col('Looking for', n.seeking, 'seek')}
+        ${col('Exploring', n.exploring, 'explore')}
+      </div>
     </div>`;
 }
 

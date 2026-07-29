@@ -1141,7 +1141,9 @@ html[data-theme="light"] .nm-egg { background-image: linear-gradient(180deg, #31
 .pin .about-title { margin: 0; font: 900 clamp(52px, 6vw, 94px)/.79 var(--disp); font-stretch: 123%; letter-spacing: -.06em; text-transform: uppercase; }
 .pin .about-title em { display: block; margin: 12px 0 0 18%; color: var(--accent); font: italic 34%/1 var(--serif); letter-spacing: 0; text-transform: none; }
 .pin .about-lead { margin: 27px 0 0; max-width: 45ch; color: var(--muted); font-size: 13px; line-height: 1.72; }
-.pin .about-facts { margin-top: 34px; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+.pin .about-facts { margin-top: 34px; display: flex; flex-wrap: wrap; border-top: 1px solid var(--line); }
+/* Flex, not a 2-col grid: five facts in two columns left a dead cell. */
+.pin .about-facts > div { flex: 1 1 min(100%, 46%); }
 .pin .about-facts > div { padding: 15px 12px 15px 0; border-bottom: 1px solid var(--line); }
 .pin .about-facts > div:nth-child(odd) { border-right: 1px solid var(--line); }
 .pin .about-facts > div:nth-child(even) { padding-left: 18px; }
@@ -2223,143 +2225,257 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
   .work-study a { width: 100%; justify-content: space-between; }
 }
 
+/* Anchor targets must clear the fixed header. Without this, every nav jump
+   and every `#work`-style link lands with the section's first line hidden
+   underneath the header bar. */
+#top, #work, #skills, #education, #experience, #contact, #identity {
+  scroll-margin-top: clamp(72px, 9vh, 96px);
+}
+
 /* =============================================================
    Evidence blocks — generated from content/site.json
    -------------------------------------------------------------
-   Credibility strip, engineering principles, capability groups,
-   the experience timeline, and the current-focus block. All use
-   the existing vocabulary: mono micro-labels, one hairline rule,
-   outlined display numerals, serif-italic accents, zero radius.
+   Five blocks, five different structures. They deliberately do
+   NOT share a card grid: a measuring scale, a numbered manifesto,
+   a spec sheet, a rail with nodes, and a status board. Each is
+   built from the vocabulary already in this file — the hairline
+   rule, the outlined display numeral, the mono micro-label, the
+   serif-italic accent, zero radius — plus dot-matrix glyphs that
+   carry the site's dotted sigil language into flat markup.
    ============================================================= */
 
-/* ---------- credibility strip -------------------------------- */
+.dot-glyph {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  fill: var(--accent);
+  opacity: 0.85;
+}
 
-.cred-strip {
+/* ---------- 1. credibility: a measuring scale ----------------- */
+
+.cred { margin-top: clamp(1.8rem, 3.4vh, 2.6rem); }
+.cred-l {
+  margin-bottom: 0.9rem;
+  color: var(--muted-2);
+  font: 500 0.53rem var(--mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.cred-l .slash { color: var(--accent); margin: 0 0.55em; }
+
+/* Values sit ON a rule with tick marks below, like a printed scale —
+   no boxes, so it reads as measurement rather than as more cards. */
+.cred-scale {
   display: flex;
   flex-wrap: wrap;
-  gap: 1px;
-  margin-top: clamp(1.6rem, 3vh, 2.4rem);
+  gap: 0 clamp(1.4rem, 3vw, 2.8rem);
   list-style: none;
-  background: var(--line);
-  border: 1px solid var(--line);
+  padding-top: 0.9rem;
+  border-top: 2px solid color-mix(in srgb, var(--ink) 20%, transparent);
+  background:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--ink) 16%, transparent) 0 1px, transparent 1px 52px)
+    top left / 100% 5px no-repeat;
 }
-.cred-strip li {
-  flex: 1 1 clamp(140px, 16%, 200px);
-  padding: 0.95rem 1rem;
-  background: var(--bg);
+.cred-scale li {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 108px;
+  max-width: 15rem;
+  padding: 0.55rem 0 1.1rem;
 }
-.cred-strip b {
+.cred-scale li::before {
+  content: "";
+  position: absolute;
+  top: -0.9rem;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.cred-scale b {
   display: block;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.3rem;
+  color: var(--ink);
+  font: 800 clamp(1.5rem, 2.6vw, 2.15rem)/1 var(--disp);
+  font-stretch: 118%;
+  letter-spacing: -0.045em;
+}
+.cred-scale .is-text b {
+  font: 500 0.68rem/1.5 var(--mono);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
   color: var(--accent);
-  font: 800 clamp(1.15rem, 2vw, 1.6rem)/1 var(--disp);
-  font-stretch: 116%;
-  letter-spacing: -0.035em;
 }
-.cred-strip span {
+.cred-scale span {
   display: block;
+  max-width: 22ch;
   color: var(--muted);
-  font-size: 0.76rem;
-  line-height: 1.42;
+  font-size: 0.74rem;
+  line-height: 1.45;
 }
 
-/* ---------- engineering principles --------------------------- */
+/* ---------- 2. principles: a numbered manifesto --------------- */
 
 .principles {
   position: relative;
   z-index: 2;
-  margin-top: clamp(3rem, 8vh, 6rem);
-  padding: 0 var(--pad-x);
+  margin-top: clamp(3.4rem, 9vh, 6.5rem);
+  /* No horizontal padding: .scene already applies var(--pad-x), and adding it
+     again indented this past the statement it belongs to. */
 }
-.principle-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 268px), 1fr));
-  gap: 1px;
-  list-style: none;
-  background: var(--line);
-  border: 1px solid var(--line);
-}
-.principle-list > li { padding: 1.5rem 1.35rem; background: var(--bg); }
-.pr-no {
-  display: block;
-  margin-bottom: 0.8rem;
-  color: transparent;
-  -webkit-text-stroke: 1.2px var(--muted-2);
-  font: 900 1.9rem/1 var(--disp);
-  letter-spacing: -0.05em;
-}
-.principle-list h3 {
-  margin-bottom: 0.65rem;
-  font: 500 0.63rem var(--mono);
-  letter-spacing: 0.17em;
+.pr-head { margin-bottom: clamp(1.6rem, 3.4vh, 2.6rem); }
+.pr-head .sec-label { display: inline-block; margin-bottom: 1.2rem; }
+.pr-title {
+  max-width: 16ch;
+  font-family: var(--disp);
+  font-weight: 900;
+  font-stretch: 122%;
+  font-size: clamp(2.1rem, 5.2vw, 4rem);
+  line-height: 0.84;
+  letter-spacing: -0.055em;
   text-transform: uppercase;
 }
-.principle-list h3 em { color: var(--accent); }
-.principle-list > li > p { color: var(--ink-soft); font-size: 0.9rem; line-height: 1.6; }
+.pr-title em {
+  display: block;
+  padding-left: 8%;
+  color: var(--accent);
+  font-family: var(--serif);
+  font-style: italic;
+  font-stretch: normal;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: -0.015em;
+}
+
+/* Rules between entries, never boxes around them. */
+.pr-list { list-style: none; counter-reset: pr; }
+.pr-item {
+  display: grid;
+  grid-template-columns: clamp(3.4rem, 6vw, 5.4rem) 1fr;
+  gap: 0 clamp(1rem, 2.4vw, 2rem);
+  padding: clamp(1.5rem, 3vh, 2.2rem) 0;
+  border-top: 1px solid var(--line);
+}
+.pr-item:last-child { border-bottom: 1px solid var(--line); }
+.pr-no {
+  grid-row: 1 / span 2;
+  color: transparent;
+  -webkit-text-stroke: 1.3px var(--muted-2);
+  font: 900 clamp(2.2rem, 4vw, 3.2rem)/1 var(--disp);
+  letter-spacing: -0.06em;
+  transition: -webkit-text-stroke-color 0.35s var(--ease-out);
+}
+.pr-item:hover .pr-no { -webkit-text-stroke-color: var(--accent); }
+.pr-glyph { grid-column: 1; margin-top: 0.9rem; }
+.pr-body { grid-column: 2; grid-row: 1 / span 2; max-width: 62ch; }
+.pr-body h3 {
+  margin-bottom: 0.6rem;
+  font: 500 0.66rem var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.pr-body > p { color: var(--ink-soft); font-size: 0.98rem; line-height: 1.62; }
 .pr-eg {
   margin-top: 0.9rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--line-soft);
+  padding-left: 1rem;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 40%, transparent);
   color: var(--muted) !important;
-  font-size: 0.84rem !important;
+  font-size: 0.86rem !important;
+  line-height: 1.55;
 }
 .pr-eg span {
   display: block;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
   color: var(--accent);
   font: 500 0.5rem var(--mono);
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
-/* ---------- capability groups -------------------------------- */
+/* ---------- 3. capabilities: a spec sheet --------------------- */
 
-.caps { position: relative; z-index: 2; padding: 0 clamp(24px, 5vw, 76px) clamp(2rem, 5vh, 3.4rem); }
+.caps { position: relative; z-index: 2; padding: 0 clamp(24px, 5vw, 76px) clamp(2.2rem, 5vh, 3.6rem); }
 .caps-intro {
-  max-width: 56ch;
-  margin-bottom: clamp(1.4rem, 3vh, 2.2rem);
+  max-width: 58ch;
+  margin-bottom: clamp(1.5rem, 3vh, 2.3rem);
   color: var(--muted);
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.05rem;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
 }
-.cap-list {
+
+/* Horizontal bands, read left to right: what it is, what it means,
+   what it is made of. A spec sheet, not a set of tiles. */
+.cap-rows { list-style: none; border-top: 1px solid var(--line); }
+.cap-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
-  gap: 1px;
-  list-style: none;
-  background: var(--line);
-  border: 1px solid var(--line);
+  grid-template-columns: minmax(190px, 15rem) minmax(0, 1fr) minmax(180px, 17rem);
+  gap: clamp(0.8rem, 2.2vw, 2.2rem);
+  align-items: start;
+  padding: clamp(1.15rem, 2.4vh, 1.7rem) 0;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.3s;
 }
-.cap-list li { padding: 1.4rem 1.25rem; background: #0c0d0d; }
-.cap-list h3 {
-  margin-bottom: 0.6rem;
-  color: var(--section-accent, var(--accent));
-  font: 500 0.62rem var(--mono);
-  letter-spacing: 0.17em;
+.cap-row:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.cap-name { display: flex; align-items: flex-start; gap: 0.7rem; }
+.cap-glyph { margin-top: 0.05rem; }
+.cap-name h3 {
+  color: var(--ink);
+  font-family: var(--disp);
+  font-weight: 800;
+  font-stretch: 112%;
+  font-size: clamp(0.98rem, 1.6vw, 1.22rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
   text-transform: uppercase;
 }
-.cap-list p { color: var(--ink-soft); font-size: 0.89rem; line-height: 1.58; }
+.cap-lead { color: var(--ink-soft); font-size: 0.93rem; line-height: 1.6; }
 .cap-tools {
-  margin-top: 0.75rem;
-  color: var(--muted) !important;
-  font: 500 0.56rem var(--mono) !important;
-  letter-spacing: 0.1em;
+  color: var(--muted);
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.11em;
   text-transform: uppercase;
+  line-height: 1.9;
 }
+.cap-tools i { color: var(--accent); font-style: normal; margin: 0 0.45em; }
 
-/* ---------- experience timeline ------------------------------ */
+/* ---------- 4. the record: a rail with nodes ------------------ */
 
-.timeline { position: relative; z-index: 2; margin-top: clamp(2.4rem, 6vh, 4rem); padding: 0 clamp(24px, 5vw, 76px); }
-.tl-list { list-style: none; margin-top: clamp(1.4rem, 3vh, 2.2rem); }
+/* The section already pads to the approved gutter — this must not add more. */
+.timeline { position: relative; z-index: 2; margin-top: clamp(2.6rem, 6vh, 4.2rem); }
+.timeline .sec-label { display: inline-block; }
+.tl-list { list-style: none; margin-top: clamp(1.5rem, 3vh, 2.4rem); }
+
 .tl-row {
   display: grid;
-  grid-template-columns: minmax(140px, 190px) 1fr;
-  gap: clamp(1rem, 3vw, 2.4rem);
-  padding: clamp(1.4rem, 3vh, 2.1rem) 0;
-  border-top: 1px solid var(--line);
+  grid-template-columns: minmax(120px, 168px) 1fr;
+  gap: clamp(1rem, 3vw, 2.6rem);
+  padding: 0 0 clamp(1.8rem, 4vh, 3rem);
+}
+/* The rail: a hairline down the gutter with a node at each role. */
+.tl-what {
+  position: relative;
+  padding-left: clamp(1.2rem, 2.4vw, 2rem);
+  border-left: 1px solid var(--line);
+}
+.tl-what::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  width: 9px;
+  height: 9px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px 3px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 .tl-when {
+  padding-top: 0.25rem;
   color: var(--muted);
   font: 500 0.58rem var(--mono);
   letter-spacing: 0.15em;
@@ -2369,9 +2485,9 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
   font-family: var(--disp);
   font-weight: 800;
   font-stretch: 116%;
-  font-size: clamp(1.2rem, 2.3vw, 1.75rem);
+  font-size: clamp(1.3rem, 2.6vw, 1.95rem);
   line-height: 1;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.04em;
   text-transform: uppercase;
 }
 .tl-org {
@@ -2379,72 +2495,127 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
   color: var(--accent);
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.02rem;
+  font-size: 1.04rem;
 }
 .tl-org i { color: var(--muted-2); font-style: normal; }
-.tl-what ul { list-style: none; margin-top: 0.9rem; max-width: 68ch; }
-.tl-what ul li { position: relative; padding-left: 1.4rem; color: var(--ink-soft); font-size: 0.9rem; line-height: 1.6; }
-.tl-what ul li + li { margin-top: 0.55rem; }
-.tl-what ul li::before {
-  content: "";
-  position: absolute;
-  top: 0.66em;
-  left: 0;
-  width: 8px;
-  height: 1.5px;
-  background: var(--accent);
-}
+.tl-lead { max-width: 62ch; margin-top: 0.85rem; color: var(--ink-soft); font-size: 0.95rem; line-height: 1.62; }
+.tl-bullets { list-style: none; margin-top: 0.9rem; max-width: 68ch; }
+.tl-bullets li { position: relative; padding-left: 1.4rem; color: var(--ink-soft); font-size: 0.92rem; line-height: 1.6; }
+.tl-bullets li + li { margin-top: 0.55rem; }
+.tl-bullets li::before { content: ""; position: absolute; top: 0.66em; left: 0; width: 8px; height: 1.5px; background: var(--accent); }
 .tl-tech {
-  margin-top: 0.85rem;
+  margin-top: 0.8rem;
   color: var(--muted);
   font: 500 0.55rem var(--mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+.tl-tech i { color: var(--accent); font-style: normal; margin: 0 0.4em; }
+
+/* Products sit beneath the one role that produced them. */
+.tl-projects { list-style: none; margin-top: clamp(1.2rem, 2.6vh, 1.9rem); }
+.tl-project {
+  position: relative;
+  padding: clamp(1rem, 2.2vh, 1.4rem) 0 clamp(1rem, 2.2vh, 1.4rem) clamp(1.1rem, 2.2vw, 1.7rem);
+  border-top: 1px solid var(--line-soft);
+}
+.tl-project::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.5rem;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--muted-2);
+}
+.tl-project:hover::before { background: var(--accent); }
+.tl-p-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 1rem; }
+.tl-p-head h4 {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-stretch: 112%;
+  font-size: clamp(1.02rem, 1.8vw, 1.3rem);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+.tl-p-when { color: var(--muted-2); font: 500 0.53rem var(--mono); letter-spacing: 0.15em; text-transform: uppercase; }
+.tl-project ul { list-style: none; margin-top: 0.7rem; max-width: 66ch; }
+.tl-project ul li { position: relative; padding-left: 1.3rem; color: var(--ink-soft); font-size: 0.9rem; line-height: 1.58; }
+.tl-project ul li + li { margin-top: 0.5rem; }
+.tl-project ul li::before { content: ""; position: absolute; top: 0.64em; left: 0; width: 7px; height: 1.5px; background: color-mix(in srgb, var(--accent) 70%, transparent); }
 .tl-study {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
   min-height: 44px;
-  margin-top: 0.9rem;
-  padding: 0.55rem 0.95rem;
-  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-  font: 500 0.56rem var(--mono);
+  margin-top: 0.85rem;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  font: 500 0.55rem var(--mono);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   transition: background 0.3s, border-color 0.3s;
 }
 .tl-study:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
 
-/* ---------- current focus ------------------------------------ */
+/* ---------- 5. current focus: a status board ------------------ */
 
-.now-block { position: relative; z-index: 2; margin-top: clamp(2rem, 5vh, 3.2rem); }
-.now-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
-  gap: 1px;
-  margin-top: 1.2rem;
-  background: var(--line);
-  border: 1px solid var(--line);
+.now-block { position: relative; z-index: 2; margin-top: clamp(2.2rem, 5vh, 3.4rem); }
+.now-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.4rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.9rem;
+  border-bottom: 2px solid color-mix(in srgb, var(--ink) 20%, transparent);
 }
-.now-grid > div { padding: 1.3rem 1.2rem; background: var(--contact-bg, var(--bg)); }
-.now-grid dt {
-  margin-bottom: 0.8rem;
-  color: var(--accent);
-  font: 500 0.53rem var(--mono);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-.now-grid ul { list-style: none; }
-.now-grid li { color: var(--ink-soft); font-size: 0.87rem; line-height: 1.55; }
-.now-grid li + li { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--line-soft); }
-.now-grid li b { display: block; margin-bottom: 0.2rem; color: var(--ink); font-weight: 500; }
+.now-head .sec-label { margin-bottom: 0; }
 .now-stamp {
-  margin-top: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   color: var(--muted-2);
   font: 500 0.52rem var(--mono);
   letter-spacing: 0.2em;
 }
+.now-stamp i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.js:not(.reduced) .now-stamp i { animation: nowPulse 2.8s var(--ease-out) infinite; }
+@keyframes nowPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* Columns divided by rules only — a board, not a set of panels. */
+.now-grid { display: flex; flex-wrap: wrap; }
+.now-col {
+  flex: 1 1 min(100%, 15rem);
+  padding: 1.3rem clamp(0.9rem, 1.8vw, 1.5rem) 1.4rem 0;
+  border-right: 1px solid var(--line);
+}
+.now-col:last-child { border-right: 0; }
+.now-h {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--muted);
+  font: 500 0.53rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.now-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+.now-col[data-tone="study"] .now-dot { background: #8db7d7; }
+.now-col[data-tone="seek"] .now-dot { background: #d3c56e; }
+.now-col[data-tone="explore"] .now-dot { background: #cf9bbf; }
+.now-col ul { list-style: none; }
+.now-col li + li { margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--line-soft); }
+.now-col b { display: block; margin-bottom: 0.25rem; color: var(--ink); font-weight: 500; font-size: 0.92rem; }
+.now-col p { color: var(--ink-soft); font-size: 0.84rem; line-height: 1.55; }
 
 /* ---------- route to the archive ------------------------------ */
 
@@ -2466,34 +2637,104 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 
 /* ---------- light theme --------------------------------------- */
 
-html[data-theme="light"] .cred-strip li,
-html[data-theme="light"] .principle-list > li,
-html[data-theme="light"] .now-grid > div { background: var(--bg); }
-html[data-theme="light"] .cap-list li { background: #e7e1d5; }
+html[data-theme="light"] .dot-glyph { fill: var(--accent); }
+html[data-theme="light"] .cap-row:hover { background: color-mix(in srgb, var(--accent) 7%, transparent); }
 
 /* ---------- responsive ---------------------------------------- */
 
+@media (max-width: 900px) {
+  .cap-row { grid-template-columns: 1fr; gap: 0.7rem; }
+  .cap-tools { line-height: 1.7; }
+}
 @media (max-width: 760px) {
-  .tl-row { grid-template-columns: 1fr; gap: 0.55rem; }
-  .principles, .timeline { padding-inline: 20px; }
+  .tl-row { grid-template-columns: 1fr; gap: 0.6rem; }
+  .tl-what { padding-left: 1.1rem; }
   .caps { padding-inline: 20px; }
+  .pr-item { grid-template-columns: 2.8rem 1fr; }
+  .now-col { border-right: 0; border-bottom: 1px solid var(--line); }
+  .now-col:last-child { border-bottom: 0; }
+  .cred-scale li { min-width: 46%; }
 }
 
-/* Anchor targets must clear the fixed header. Without this, every nav jump
-   and every `#work`-style link lands with the section's first line hidden
-   underneath the header bar. */
-#top, #work, #skills, #education, #experience, #contact, #identity {
-  scroll-margin-top: clamp(72px, 9vh, 96px);
+/* ---------- principles: glyph seat + the third column ---------
+   The numeral spanned both rows of column one, so the glyph was
+   pushed past it into a third row and floated at the bottom of a
+   very tall cell. Give each its own row and pin both to the top.
+   On wide screens the "in practice" note takes a third column
+   instead of leaving the right third of every row empty. */
+
+.pr-item {
+  grid-template-rows: auto 1fr;
+  align-items: start;
+}
+.pr-no { grid-column: 1; grid-row: 1; align-self: start; }
+.pr-glyph {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: start;
+  width: 30px;
+  height: 30px;
+  margin-top: 0.85rem;
+  opacity: 0.75;
+}
+.pr-body { grid-column: 2; grid-row: 1 / span 2; }
+.pr-eg { grid-column: 2; grid-row: 3; max-width: 62ch; }
+
+@media (min-width: 1100px) {
+  .pr-item {
+    grid-template-columns: clamp(3.4rem, 5vw, 5rem) minmax(0, 1.15fr) minmax(0, 0.85fr);
+  }
+  .pr-eg {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    max-width: none;
+    margin-top: 0.15rem;
+  }
 }
 
-/* A credibility value that is words rather than a numeral: same weight in the
-   hierarchy, but sized so it sits on one or two lines instead of three. */
-.cred-strip .cred-text { flex-basis: clamp(170px, 20%, 240px); }
-.cred-strip .cred-text b {
-  font-family: var(--mono);
-  font-weight: 500;
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  line-height: 1.5;
-  text-transform: uppercase;
+/* ---------- current focus: rows, not ragged columns -----------
+   Four side-by-side columns with 3, 1, 1 and 3 entries left two
+   tall gaps. As rows — label left, entries flowing right — the
+   board fills whatever each category actually holds. */
+
+.now-grid { display: block; }
+.now-col {
+  display: grid;
+  grid-template-columns: minmax(130px, 11rem) minmax(0, 1fr);
+  gap: 0.6rem clamp(1rem, 2.4vw, 2.2rem);
+  padding: clamp(1rem, 2.2vh, 1.5rem) 0;
+  border-right: 0;
+  border-bottom: 1px solid var(--line);
 }
+.now-col:last-child { border-bottom: 0; }
+.now-h { margin-bottom: 0; padding-top: 0.15rem; align-self: start; }
+.now-col ul { display: flex; flex-wrap: wrap; gap: 0 clamp(1.2rem, 2.6vw, 2.4rem); }
+.now-col li {
+  flex: 1 1 min(100%, 17rem);
+  max-width: 34rem;
+}
+.now-col li + li {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+/* A hairline between entries only when they wrap onto a new line. */
+.now-col li + li { border-left: 1px solid var(--line-soft); padding-left: clamp(0.9rem, 2vw, 1.6rem); }
+
+@media (max-width: 760px) {
+  .now-col { grid-template-columns: 1fr; }
+  .now-col ul { display: block; }
+  .now-col li + li {
+    border-left: 0;
+    padding-left: 0;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--line-soft);
+  }
+}
+/* A category holding one entry should run the width of its row rather
+   than stopping at the shared column measure. */
+.now-col li:only-child { max-width: 62ch; }
+/* Belt and braces for long tool lists: allow a break inside an over-long
+   token rather than letting it run past the column. */
+.cap-tools, .tl-tech { overflow-wrap: anywhere; }

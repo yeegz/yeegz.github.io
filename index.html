@@ -40,7 +40,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" fetchpriority="low" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /><link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="styles.css?v=52" />
+<link rel="stylesheet" href="styles.css?v=58" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 try {
@@ -244,14 +244,17 @@ setTimeout(function () {
             <div><dt>Languages</dt><dd>English · fluent<br />Arabic · native</dd></div>
           </dl>
           <!--build:credibility-->
-          <ul class="cred-strip" data-reveal aria-label="At a glance">
-            <li><b>01</b><span>Product live on the App Store and Google Play</span></li>
-            <li><b>03</b><span>Cross-platform products owned end to end, solo</span></li>
-            <li class="cred-text"><b>iOS · ANDROID · WEB</b><span>Platforms with something live and reachable</span></li>
-            <li><b>1.2.5</b><span>Bupples on the App Store, released 27 July 2026</span></li>
-            <li class="cred-text"><b>AUG 2027</b><span>BSc Software Engineering (Hons) — Sunway University / Lancaster University</span></li>
-            <li class="cred-text"><b>JAN—APR 2027</b><span>Available for a full-time internship</span></li>
-          </ul>
+          <div class="cred" data-reveal>
+            <p class="cred-l">FIG. 00.2<span class="slash">/</span>AT A GLANCE</p>
+            <ul class="cred-scale">
+              <li><b>01</b><span>Product live on the App Store and Google Play</span></li>
+              <li><b>03</b><span>Cross-platform products owned end to end, solo</span></li>
+              <li class="is-text"><b>iOS · ANDROID · WEB</b><span>Platforms with something live and reachable</span></li>
+              <li><b>1.2.5</b><span>Bupples on the App Store, released 27 July 2026</span></li>
+              <li class="is-text"><b>AUG 2027</b><span>BSc Software Engineering (Hons) — Sunway University / Lancaster University</span></li>
+              <li class="is-text"><b>JAN—APR 2027</b><span>Available for a full-time internship</span></li>
+            </ul>
+          </div>
           <!--/build:credibility-->
         </div>
       </div>
@@ -272,42 +275,63 @@ setTimeout(function () {
     <p class="st-close"><span class="st-serif">End to end, and out to the stores.</span></p>
     <!--build:principles-->
           <div class="principles" data-reveal>
-      <p class="sec-label">FIG. 00.6<span class="slash">/</span>HOW I WORK</p>
-      <ol class="principle-list">
-        <li>
+      <header class="pr-head">
+        <p class="sec-label">FIG. 00.6<span class="slash">/</span>HOW I WORK</p>
+        <h2 class="pr-title">Six rules I <em>actually follow.</em></h2>
+      </header>
+      <ol class="pr-list">
+        <li class="pr-item">
           <span class="pr-no" aria-hidden="true">01</span>
-          <h3>Money is integer arithmetic</h3>
-          <p>Currency does not survive floating point, and a shared bill is only trustworthy when every participant's device computes the same figure. Amounts are held and split as integer minor units under their ISO 4217 exponent, with the leftover cent distributed deterministically rather than rounded out of existence.</p>
+          <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="8.4" cy="5" r="0.62"/><circle cx="7.94" cy="6.7" r="0.62"/><circle cx="6.7" cy="7.94" r="0.62"/><circle cx="5" cy="8.4" r="0.62"/><circle cx="3.3" cy="7.94" r="0.62"/><circle cx="2.06" cy="6.7" r="0.62"/><circle cx="1.6" cy="5" r="0.62"/><circle cx="2.06" cy="3.3" r="0.62"/><circle cx="3.3" cy="2.06" r="0.62"/><circle cx="5" cy="1.6" r="0.62"/><circle cx="6.7" cy="2.06" r="0.62"/><circle cx="7.94" cy="3.3" r="0.62"/><circle cx="5" cy="5" r="0.62"/></svg>
+          <div class="pr-body">
+            <h3>Money is integer arithmetic</h3>
+            <p>Currency does not survive floating point, and a shared bill is only trustworthy when every participant's device computes the same figure. Amounts are held and split as integer minor units under their ISO 4217 exponent, with the leftover cent distributed deterministically rather than rounded out of existence.</p>
+          </div>
           <p class="pr-eg"><span>In practice</span>A cent-exact ISO 4217 multi-currency ledger, split by largest remainder — RM51.50 across four people resolves to RM12.875 before the remainder is assigned, not after.</p>
         </li>
-        <li>
+        <li class="pr-item">
           <span class="pr-no" aria-hidden="true">02</span>
-          <h3>Trust the server, not the client</h3>
-          <p>Anything a client can compute, a client can also lie about. The writes that decide who owes whom run in Cloud Functions and are idempotent, so a retried request cannot double a debt, and everything else is bounded by Firestore Security Rules with App Check turning away clients that are not the app.</p>
+          <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="2" cy="2" r="0.62"/><circle cx="3.5" cy="2" r="0.62"/><circle cx="5" cy="2" r="0.62"/><circle cx="6.5" cy="2" r="0.62"/><circle cx="8" cy="2" r="0.62"/><circle cx="2" cy="3.6" r="0.62"/><circle cx="8" cy="3.6" r="0.62"/><circle cx="2.2" cy="5.2" r="0.62"/><circle cx="7.8" cy="5.2" r="0.62"/><circle cx="3.1" cy="6.6" r="0.62"/><circle cx="6.9" cy="6.6" r="0.62"/><circle cx="4" cy="7.7" r="0.62"/><circle cx="6" cy="7.7" r="0.62"/><circle cx="5" cy="8.5" r="0.62"/></svg>
+          <div class="pr-body">
+            <h3>Trust the server, not the client</h3>
+            <p>Anything a client can compute, a client can also lie about. The writes that decide who owes whom run in Cloud Functions and are idempotent, so a retried request cannot double a debt, and everything else is bounded by Firestore Security Rules with App Check turning away clients that are not the app.</p>
+          </div>
           <p class="pr-eg"><span>In practice</span>Idempotent Cloud Functions behind Firestore Security Rules, with App Check and Remote Config.</p>
         </li>
-        <li>
+        <li class="pr-item">
           <span class="pr-no" aria-hidden="true">03</span>
-          <h3>Launch is the start of the work</h3>
-          <p>A store listing is a commitment to keep shipping, not a finish line — the interesting version of a product is the one that survives its first month of real use.</p>
+          <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="5" cy="1.4" r="0.62"/><circle cx="3.9" cy="2.6" r="0.62"/><circle cx="6.1" cy="2.6" r="0.62"/><circle cx="2.9" cy="3.8" r="0.62"/><circle cx="7.1" cy="3.8" r="0.62"/><circle cx="5" cy="3.1" r="0.62"/><circle cx="5" cy="4.6" r="0.62"/><circle cx="5" cy="6.1" r="0.62"/><circle cx="5" cy="7.6" r="0.62"/><circle cx="5" cy="9" r="0.62"/></svg>
+          <div class="pr-body">
+            <h3>Launch is the start of the work</h3>
+            <p>A store listing is a commitment to keep shipping, not a finish line — the interesting version of a product is the one that survives its first month of real use.</p>
+          </div>
           <p class="pr-eg"><span>In practice</span>First released 2 July 2026; version 1.2.5 reached the App Store on 27 July 2026.</p>
         </li>
-        <li>
+        <li class="pr-item">
           <span class="pr-no" aria-hidden="true">04</span>
-          <h3>Reliability claims need a test behind them</h3>
-          <p>&quot;It works&quot; describes one run, not a system. Adelante's content pipeline — caching, deduplication, quality scoring, strict filtering — is covered by automated tests because a scheduled pipeline fails quietly, and the failure shows up on someone's Lock Screen rather than in a crash report.</p>
+          <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="1.8" cy="5" r="0.62"/><circle cx="2.8" cy="6" r="0.62"/><circle cx="3.8" cy="7" r="0.62"/><circle cx="4.8" cy="7.8" r="0.62"/><circle cx="5.8" cy="6.2" r="0.62"/><circle cx="6.8" cy="4.6" r="0.62"/><circle cx="7.8" cy="3" r="0.62"/><circle cx="8.6" cy="1.8" r="0.62"/></svg>
+          <div class="pr-body">
+            <h3>Reliability claims need a test behind them</h3>
+            <p>&quot;It works&quot; describes one run, not a system. Adelante's content pipeline — caching, deduplication, quality scoring, strict filtering — is covered by automated tests because a scheduled pipeline fails quietly, and the failure shows up on someone's Lock Screen rather than in a crash report.</p>
+          </div>
           <p class="pr-eg"><span>In practice</span>117 Dart unit tests over the client's content layer — library loading, deduplication, strict filtering, quality floor and refresh policy — with widget payload parity covered alongside.</p>
         </li>
-        <li>
+        <li class="pr-item">
           <span class="pr-no" aria-hidden="true">05</span>
-          <h3>Keep private data on the device</h3>
-          <p>The safest place for a camera frame is the machine that captured it. Photoshoot runs its entire pipeline locally — Electron with context isolation, sandboxing and a strict CSP, WebGL2 for the effects, MediaPipe for face tracking — so nothing is uploaded in order to be processed.</p>
+          <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="3.4" cy="3.6" r="0.62"/><circle cx="3.3" cy="2.6" r="0.62"/><circle cx="4" cy="1.9" r="0.62"/><circle cx="5" cy="1.7" r="0.62"/><circle cx="6" cy="1.9" r="0.62"/><circle cx="6.7" cy="2.6" r="0.62"/><circle cx="6.6" cy="3.6" r="0.62"/><circle cx="2.4" cy="4.6" r="0.62"/><circle cx="3.7" cy="4.6" r="0.62"/><circle cx="5" cy="4.6" r="0.62"/><circle cx="6.3" cy="4.6" r="0.62"/><circle cx="7.6" cy="4.6" r="0.62"/><circle cx="2.4" cy="6" r="0.62"/><circle cx="7.6" cy="6" r="0.62"/><circle cx="2.4" cy="7.6" r="0.62"/><circle cx="3.7" cy="7.6" r="0.62"/><circle cx="5" cy="7.6" r="0.62"/><circle cx="6.3" cy="7.6" r="0.62"/><circle cx="7.6" cy="7.6" r="0.62"/><circle cx="5" cy="6.1" r="0.62"/></svg>
+          <div class="pr-body">
+            <h3>Keep private data on the device</h3>
+            <p>The safest place for a camera frame is the machine that captured it. Photoshoot runs its entire pipeline locally — Electron with context isolation, sandboxing and a strict CSP, WebGL2 for the effects, MediaPipe for face tracking — so nothing is uploaded in order to be processed.</p>
+          </div>
           <p class="pr-eg"><span>In practice</span>Local-first Electron/WebGL2 architecture; camera processing and captures stay on-device, with Firebase Hosting serving only the app itself.</p>
         </li>
-        <li>
+        <li class="pr-item">
           <span class="pr-no" aria-hidden="true">06</span>
-          <h3>Go native where the platform is the product</h3>
-          <p>Cross-platform tooling is a default, not a rule. When the product surface is a widget rather than a screen, the framework has nothing to render into, so the widget gets written twice — properly — in the platform's own toolkit.</p>
+          <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="2" cy="2.6" r="0.62"/><circle cx="3.5" cy="2.6" r="0.62"/><circle cx="5" cy="2.6" r="0.62"/><circle cx="6.5" cy="2.6" r="0.62"/><circle cx="8" cy="2.6" r="0.62"/><circle cx="2" cy="5" r="0.62"/><circle cx="3.5" cy="5" r="0.62"/><circle cx="5" cy="5" r="0.62"/><circle cx="6.5" cy="5" r="0.62"/><circle cx="8" cy="5" r="0.62"/><circle cx="2" cy="7.4" r="0.62"/><circle cx="3.5" cy="7.4" r="0.62"/><circle cx="5" cy="7.4" r="0.62"/><circle cx="6.5" cy="7.4" r="0.62"/><circle cx="8" cy="7.4" r="0.62"/></svg>
+          <div class="pr-body">
+            <h3>Go native where the platform is the product</h3>
+            <p>Cross-platform tooling is a default, not a rule. When the product surface is a widget rather than a screen, the framework has nothing to render into, so the widget gets written twice — properly — in the platform's own toolkit.</p>
+          </div>
           <p class="pr-eg"><span>In practice</span>WidgetKit/SwiftUI on iOS and Android RemoteViews on Android, for Home Screen, Lock Screen and StandBy, over a shared Flutter app.</p>
         </li>
       </ol>
@@ -322,7 +346,6 @@ setTimeout(function () {
       <h2 class="sec-title"><span class="line"><span class="line-in t-outline">SELECTED</span></span><span class="line line-shift"><span class="line-in">WORK<i class="t-accent" aria-hidden="true">.</i></span></span></h2>
       <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
       <p class="sec-tag"><b>05</b>CASE FILES <i aria-hidden="true">·</i> 02 OPEN</p>
-      <p class="work-all"><a href="work/" data-cursor="READ">All work &amp; archive<span class="cta-arr" aria-hidden="true">→</span></a></p>
     </header>
 
     <div class="work-wrap work-archive">
@@ -490,6 +513,7 @@ setTimeout(function () {
       </ul>
 
     </div>
+  <p class="work-all"><a href="work/" data-cursor="READ">All work &amp; archive<span class="cta-arr" aria-hidden="true">→</span></a></p>
   </section>
 
   <section class="scene skills-section" id="skills" aria-labelledby="skillsTitle">
@@ -499,37 +523,55 @@ setTimeout(function () {
     </header>
     <!--build:capabilities-->
           <div class="caps" data-reveal>
-      <p class="caps-intro">Before the tool list: the things I can take from an empty repository to a release.</p>
-      <ul class="cap-list">
-        <li>
-          <h3>Cross-platform mobile products</h3>
-          <p>Take a Flutter application from an empty repository to a listing on both the App Store and Google Play, including the signing, the store paperwork, and the update cadence afterwards.</p>
-          <p class="cap-tools">Flutter · Dart · Riverpod · Firebase · Xcode</p>
+      <p class="caps-intro">Before the tool list — the things I can take from an empty repository to a release.</p>
+      <ul class="cap-rows">
+        <li class="cap-row">
+          <div class="cap-name">
+            <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="3.6" cy="1.4" r="0.62"/><circle cx="5" cy="1.4" r="0.62"/><circle cx="6.4" cy="1.4" r="0.62"/><circle cx="3" cy="2.6" r="0.62"/><circle cx="7" cy="2.6" r="0.62"/><circle cx="3" cy="4" r="0.62"/><circle cx="7" cy="4" r="0.62"/><circle cx="3" cy="5.4" r="0.62"/><circle cx="7" cy="5.4" r="0.62"/><circle cx="3" cy="6.8" r="0.62"/><circle cx="7" cy="6.8" r="0.62"/><circle cx="3.6" cy="8.2" r="0.62"/><circle cx="5" cy="8.2" r="0.62"/><circle cx="6.4" cy="8.2" r="0.62"/><circle cx="5" cy="7" r="0.62"/></svg>
+            <h3>Cross-platform mobile products</h3>
+          </div>
+          <p class="cap-lead">Take a Flutter application from an empty repository to a listing on both the App Store and Google Play, including the signing, the store paperwork, and the update cadence afterwards.</p>
+          <p class="cap-tools">Flutter <i aria-hidden="true">·</i> Dart <i aria-hidden="true">·</i> Riverpod <i aria-hidden="true">·</i> Firebase <i aria-hidden="true">·</i> Xcode</p>
         </li>
-        <li>
-          <h3>Native iOS and Android surfaces</h3>
-          <p>Leave the framework where the framework cannot go — Home Screen, Lock Screen and StandBy widgets written natively on each platform and wired back into a shared app.</p>
-          <p class="cap-tools">Swift · SwiftUI · WidgetKit · Kotlin · Android RemoteViews</p>
+        <li class="cap-row">
+          <div class="cap-name">
+            
+            <h3>Native iOS and Android surfaces</h3>
+          </div>
+          <p class="cap-lead">Leave the framework where the framework cannot go — Home Screen, Lock Screen and StandBy widgets written natively on each platform and wired back into a shared app.</p>
+          <p class="cap-tools">Swift <i aria-hidden="true">·</i> SwiftUI <i aria-hidden="true">·</i> WidgetKit <i aria-hidden="true">·</i> Kotlin <i aria-hidden="true">·</i> Android RemoteViews</p>
         </li>
-        <li>
-          <h3>Backends, data and rules</h3>
-          <p>Model the data, move the writes that decide anything into server-side functions, and constrain the rest with security rules instead of trusting the client.</p>
-          <p class="cap-tools">Firestore · Cloud Functions · Node.js · REST APIs · App Check</p>
+        <li class="cap-row">
+          <div class="cap-name">
+            <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="3.1" cy="1.8" r="0.62"/><circle cx="5" cy="1.5" r="0.62"/><circle cx="6.9" cy="1.8" r="0.62"/><circle cx="2.6" cy="2.9" r="0.62"/><circle cx="7.4" cy="2.9" r="0.62"/><circle cx="3.1" cy="3.9" r="0.62"/><circle cx="5" cy="4.2" r="0.62"/><circle cx="6.9" cy="3.9" r="0.62"/><circle cx="2.6" cy="5.1" r="0.62"/><circle cx="7.4" cy="5.1" r="0.62"/><circle cx="3.1" cy="6.1" r="0.62"/><circle cx="5" cy="6.4" r="0.62"/><circle cx="6.9" cy="6.1" r="0.62"/><circle cx="2.6" cy="7.2" r="0.62"/><circle cx="7.4" cy="7.2" r="0.62"/><circle cx="3.1" cy="8.3" r="0.62"/><circle cx="5" cy="8.6" r="0.62"/><circle cx="6.9" cy="8.3" r="0.62"/></svg>
+            <h3>Backends, data and rules</h3>
+          </div>
+          <p class="cap-lead">Model the data, move the writes that decide anything into server-side functions, and constrain the rest with security rules instead of trusting the client.</p>
+          <p class="cap-tools">Firestore <i aria-hidden="true">·</i> Cloud Functions <i aria-hidden="true">·</i> Node.js <i aria-hidden="true">·</i> REST APIs <i aria-hidden="true">·</i> App Check</p>
         </li>
-        <li>
-          <h3>Real-time graphics and desktop</h3>
-          <p>Build interfaces that run on the GPU and ship as a desktop binary as readily as a web page, with the process boundaries locked down.</p>
-          <p class="cap-tools">TypeScript · JavaScript · Electron · WebGL2 · GLSL · HTML/CSS · Godot Engine · Python</p>
+        <li class="cap-row">
+          <div class="cap-name">
+            <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="3.4" cy="3.4" r="0.62"/><circle cx="5" cy="3.4" r="0.62"/><circle cx="6.6" cy="3.4" r="0.62"/><circle cx="3.4" cy="5" r="0.62"/><circle cx="6.6" cy="5" r="0.62"/><circle cx="3.4" cy="6.6" r="0.62"/><circle cx="5" cy="6.6" r="0.62"/><circle cx="6.6" cy="6.6" r="0.62"/><circle cx="1.9" cy="4.2" r="0.62"/><circle cx="1.9" cy="5.8" r="0.62"/><circle cx="8.1" cy="4.2" r="0.62"/><circle cx="8.1" cy="5.8" r="0.62"/><circle cx="4.2" cy="1.9" r="0.62"/><circle cx="5.8" cy="1.9" r="0.62"/><circle cx="4.2" cy="8.1" r="0.62"/><circle cx="5.8" cy="8.1" r="0.62"/></svg>
+            <h3>Real-time graphics and desktop</h3>
+          </div>
+          <p class="cap-lead">Build interfaces that run on the GPU and ship as a desktop binary as readily as a web page, with the process boundaries locked down.</p>
+          <p class="cap-tools">TypeScript <i aria-hidden="true">·</i> JavaScript <i aria-hidden="true">·</i> Electron <i aria-hidden="true">·</i> WebGL2 <i aria-hidden="true">·</i> GLSL <i aria-hidden="true">·</i> HTML/CSS <i aria-hidden="true">·</i> Godot Engine <i aria-hidden="true">·</i> Python</p>
         </li>
-        <li>
-          <h3>Applied AI in products</h3>
-          <p>Put a model where it does a job a user can check — reading a receipt into structured line items, tracking a face on-device — rather than where it decides a number.</p>
-          <p class="cap-tools">Vertex AI · Gemini · MediaPipe</p>
+        <li class="cap-row">
+          <div class="cap-name">
+            <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="5" cy="1.6" r="0.62"/><circle cx="2.4" cy="4" r="0.62"/><circle cx="7.6" cy="4" r="0.62"/><circle cx="3.5" cy="7.8" r="0.62"/><circle cx="6.5" cy="7.8" r="0.62"/><circle cx="5" cy="4.9" r="0.62"/><circle cx="3.8" cy="2.7" r="0.62"/><circle cx="6.2" cy="2.7" r="0.62"/><circle cx="4.1" cy="4.5" r="0.62"/><circle cx="5.9" cy="4.5" r="0.62"/><circle cx="4.1" cy="6.4" r="0.62"/><circle cx="5.9" cy="6.4" r="0.62"/></svg>
+            <h3>Applied AI in products</h3>
+          </div>
+          <p class="cap-lead">Put a model where it does a job a user can check — reading a receipt into structured line items, tracking a face on-device — rather than where it decides a number.</p>
+          <p class="cap-tools">Vertex AI <i aria-hidden="true">·</i> Gemini <i aria-hidden="true">·</i> MediaPipe</p>
         </li>
-        <li>
-          <h3>Release and product operations</h3>
-          <p>Run the unglamorous half — versioning, subscriptions, remote flags, design handoff, and the release itself — so a build can be shipped on a schedule rather than when it happens to be ready.</p>
-          <p class="cap-tools">Git/GitHub · RevenueCat · Remote Config · Figma</p>
+        <li class="cap-row">
+          <div class="cap-name">
+            <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="5" cy="1.2" r="0.62"/><circle cx="3.8" cy="2.4" r="0.62"/><circle cx="6.2" cy="2.4" r="0.62"/><circle cx="5" cy="2.5" r="0.62"/><circle cx="5" cy="3.7" r="0.62"/><circle cx="5" cy="4.7" r="0.62"/><circle cx="2.2" cy="5.8" r="0.62"/><circle cx="3.6" cy="5.8" r="0.62"/><circle cx="5" cy="5.8" r="0.62"/><circle cx="6.4" cy="5.8" r="0.62"/><circle cx="7.8" cy="5.8" r="0.62"/><circle cx="2.2" cy="7.1" r="0.62"/><circle cx="7.8" cy="7.1" r="0.62"/><circle cx="2.2" cy="8.4" r="0.62"/><circle cx="3.6" cy="8.4" r="0.62"/><circle cx="5" cy="8.4" r="0.62"/><circle cx="6.4" cy="8.4" r="0.62"/><circle cx="7.8" cy="8.4" r="0.62"/></svg>
+            <h3>Release and product operations</h3>
+          </div>
+          <p class="cap-lead">Run the unglamorous half — versioning, subscriptions, remote flags, design handoff, and the release itself — so a build can be shipped on a schedule rather than when it happens to be ready.</p>
+          <p class="cap-tools">Git/GitHub <i aria-hidden="true">·</i> RevenueCat <i aria-hidden="true">·</i> Remote Config <i aria-hidden="true">·</i> Figma</p>
         </li>
       </ul>
     </div>
@@ -568,8 +610,9 @@ setTimeout(function () {
           <div class="tl-what">
             <h3>Digital Marketing Executive</h3>
             <p class="tl-org">Sunway Cybersecurity Club <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
-            <ul><li>Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.</li><li>Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners.</li></ul>
-            <p class="tl-tech">Canva · LinkedIn</p>
+            
+            <ul class="tl-bullets"><li>Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.</li><li>Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners.</li></ul>
+            <p class="tl-tech">Canva <i aria-hidden="true">·</i> LinkedIn</p>
             
           </div>
         </li>
@@ -577,30 +620,39 @@ setTimeout(function () {
           <p class="tl-when">Feb 2026 — Present</p>
           <div class="tl-what">
             <h3>Sole developer</h3>
-            <p class="tl-org">Bupples — personal product <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
-            <ul><li>Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.</li><li>Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.</li><li>Live on the App Store and Google Play since 2 July 2026; version 1.2.5 shipped on 27 July 2026.</li></ul>
-            <p class="tl-tech">Flutter · Dart · Firebase · Firestore · Cloud Functions · Vertex AI · Gemini · RevenueCat · App Check · Remote Config</p>
-            <a class="tl-study" href="work/bupples/">Case study <span class="cta-arr" aria-hidden="true">→</span></a>
-          </div>
-        </li>
-        <li class="tl-row">
-          <p class="tl-when">Jun 2026 — Present</p>
-          <div class="tl-what">
-            <h3>Sole developer</h3>
-            <p class="tl-org">Adelante — personal product <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
-            <ul><li>Built a privacy-first motivation app with native WidgetKit/SwiftUI and Android RemoteViews widgets for the Home Screen, Lock Screen, and StandBy — without accounts, analytics, or ads.</li><li>Designed a Firestore and scheduled Cloud Functions content pipeline with offline caching, deduplication, quality scoring, and strict filtering; validated reliability with 117 automated tests.</li></ul>
-            <p class="tl-tech">Flutter · Swift · SwiftUI · WidgetKit · Kotlin · Android RemoteViews · Firebase · Cloud Functions</p>
-            <a class="tl-study" href="work/adelante/">Case study <span class="cta-arr" aria-hidden="true">→</span></a>
-          </div>
-        </li>
-        <li class="tl-row">
-          <p class="tl-when">Jun 2026 — Present</p>
-          <div class="tl-what">
-            <h3>Sole developer</h3>
-            <p class="tl-org">Photoshoot — personal product <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
-            <ul><li>Built and deployed a browser and desktop photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time GLSL effects and 8 on-device MediaPipe face effects.</li><li>Engineered a local-first Electron/WebGL2 architecture with context isolation, sandboxing, strict CSP, and Firebase Hosting, keeping camera processing and captures on-device.</li></ul>
-            <p class="tl-tech">TypeScript · Electron · WebGL2 · GLSL · MediaPipe · Firebase Hosting</p>
-            <a class="tl-study" href="work/photoshoot/">Case study <span class="cta-arr" aria-hidden="true">→</span></a>
+            <p class="tl-org">Independent products <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
+            <p class="tl-lead">Three products taken from an empty repository to a release, each owned end to end — product design, client, backend, security rules, store paperwork and the update cadence afterwards.</p>
+            
+            
+            <ol class="tl-projects">
+              <li class="tl-project">
+                <div class="tl-p-head">
+                  <h4>Bupples</h4>
+                  <p class="tl-p-when">Feb 2026 — Present</p>
+                </div>
+                <ul><li>Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.</li><li>Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.</li><li>Live on the App Store and Google Play since 2 July 2026; version 1.2.5 shipped on 27 July 2026.</li></ul>
+                <p class="tl-tech">Flutter <i aria-hidden="true">·</i> Dart <i aria-hidden="true">·</i> Firebase <i aria-hidden="true">·</i> Firestore <i aria-hidden="true">·</i> Cloud Functions <i aria-hidden="true">·</i> Vertex AI <i aria-hidden="true">·</i> Gemini <i aria-hidden="true">·</i> RevenueCat <i aria-hidden="true">·</i> App Check <i aria-hidden="true">·</i> Remote Config</p>
+                <a class="tl-study" href="work/bupples/">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
+              </li>
+              <li class="tl-project">
+                <div class="tl-p-head">
+                  <h4>Adelante</h4>
+                  <p class="tl-p-when">Jun 2026 — Present</p>
+                </div>
+                <ul><li>Built a privacy-first motivation app with native WidgetKit/SwiftUI and Android RemoteViews widgets for the Home Screen, Lock Screen, and StandBy — without accounts, analytics, or ads.</li><li>Designed a Firestore and scheduled Cloud Functions content pipeline with offline caching, deduplication, quality scoring, and strict filtering; validated reliability with 117 automated tests.</li></ul>
+                <p class="tl-tech">Flutter <i aria-hidden="true">·</i> Swift <i aria-hidden="true">·</i> SwiftUI <i aria-hidden="true">·</i> WidgetKit <i aria-hidden="true">·</i> Kotlin <i aria-hidden="true">·</i> Android RemoteViews <i aria-hidden="true">·</i> Firebase <i aria-hidden="true">·</i> Cloud Functions</p>
+                <a class="tl-study" href="work/adelante/">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
+              </li>
+              <li class="tl-project">
+                <div class="tl-p-head">
+                  <h4>Photoshoot</h4>
+                  <p class="tl-p-when">Jun 2026 — Present</p>
+                </div>
+                <ul><li>Built and deployed a browser and desktop photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time GLSL effects and 8 on-device MediaPipe face effects.</li><li>Engineered a local-first Electron/WebGL2 architecture with context isolation, sandboxing, strict CSP, and Firebase Hosting, keeping camera processing and captures on-device.</li></ul>
+                <p class="tl-tech">TypeScript <i aria-hidden="true">·</i> Electron <i aria-hidden="true">·</i> WebGL2 <i aria-hidden="true">·</i> GLSL <i aria-hidden="true">·</i> MediaPipe <i aria-hidden="true">·</i> Firebase Hosting</p>
+                <a class="tl-study" href="work/photoshoot/">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
+              </li>
+            </ol>
           </div>
         </li>
       </ol>
@@ -613,14 +665,28 @@ setTimeout(function () {
     <div class="contact-top" data-reveal><p class="available">AVAILABLE FOR FULL-TIME INTERNSHIP · JAN—APR 2027</p><p class="location">SUBANG JAYA / KUALA LUMPUR · MALAYSIA</p></div>
     <!--build:now-->
           <div class="now-block" data-reveal>
-      <p class="sec-label">NOW<span class="slash">/</span>CURRENT FOCUS</p>
-      <dl class="now-grid">
-        <div><dt>Building</dt><dd><ul><li><b>Bupples</b>Maintaining the shipped product. It reached the App Store and Google Play on 2 July 2026 and was on version 1.2.5 by 27 July.</li><li><b>Adelante</b>Widget-first motivation app for iOS and Android: native WidgetKit and RemoteViews surfaces over a scheduled Firebase content pipeline, with no accounts, analytics or ads.</li><li><b>Photoshoot</b>Shipped in June 2026 and live in the browser: a local-first Electron and WebGL2 photobooth with 17 real-time GLSL effects and 8 on-device MediaPipe face effects. Not under active development.</li></ul></dd></div>
-        <div><dt>Studying</dt><dd><ul><li><b>BSc Software Engineering (Hons) — Sunway University / Lancaster University</b>Software Architecture, Data Structures, Mobile Development, Databases, and UI/UX Design. Expected August 2027.</li></ul></dd></div>
-        <div><dt>Looking for</dt><dd><ul><li><b>A full-time software engineering internship, January to April 2027</b>Subang Jaya or Kuala Lumpur, Malaysia. Mobile, full-stack, or anything that ships to a real store.</li></ul></dd></div>
-        <div><dt>Exploring</dt><dd><ul><li><b>Inference that runs on the device</b>MediaPipe face effects executing locally in Photoshoot, so a camera frame never has to be uploaded to become useful.</li><li><b>Model output as structured data, not prose</b>Gemini receipt extraction in Bupples: the model reads a photographed receipt into line items, and the ledger still does the money.</li><li><b>Widgets as the product surface</b>Home Screen, Lock Screen and StandBy as places a product lives rather than shortcuts into it — which means two native implementations instead of one shared screen.</li></ul></dd></div>
-      </dl>
-      <p class="now-stamp">LAST UPDATED · 2026-07-29</p>
+      <div class="now-head">
+        <p class="sec-label">NOW<span class="slash">/</span>CURRENT FOCUS</p>
+        <p class="now-stamp"><i aria-hidden="true"></i>LAST UPDATED 2026-07-29</p>
+      </div>
+      <div class="now-grid">
+        <section class="now-col" data-tone="live">
+          <h3 class="now-h"><i class="now-dot" aria-hidden="true"></i>Building</h3>
+          <ul><li><b>Bupples</b><p>Maintaining the shipped product. It reached the App Store and Google Play on 2 July 2026 and was on version 1.2.5 by 27 July.</p></li><li><b>Adelante</b><p>Widget-first motivation app for iOS and Android: native WidgetKit and RemoteViews surfaces over a scheduled Firebase content pipeline, with no accounts, analytics or ads.</p></li><li><b>Photoshoot</b><p>Shipped in June 2026 and live in the browser: a local-first Electron and WebGL2 photobooth with 17 real-time GLSL effects and 8 on-device MediaPipe face effects. Not under active development.</p></li></ul>
+        </section>
+        <section class="now-col" data-tone="study">
+          <h3 class="now-h"><i class="now-dot" aria-hidden="true"></i>Studying</h3>
+          <ul><li><b>BSc Software Engineering (Hons) — Sunway University / Lancaster University</b><p>Software Architecture, Data Structures, Mobile Development, Databases, and UI/UX Design. Expected August 2027.</p></li></ul>
+        </section>
+        <section class="now-col" data-tone="seek">
+          <h3 class="now-h"><i class="now-dot" aria-hidden="true"></i>Looking for</h3>
+          <ul><li><b>A full-time software engineering internship, January to April 2027</b><p>Subang Jaya or Kuala Lumpur, Malaysia. Mobile, full-stack, or anything that ships to a real store.</p></li></ul>
+        </section>
+        <section class="now-col" data-tone="explore">
+          <h3 class="now-h"><i class="now-dot" aria-hidden="true"></i>Exploring</h3>
+          <ul><li><b>Inference that runs on the device</b><p>MediaPipe face effects executing locally in Photoshoot, so a camera frame never has to be uploaded to become useful.</p></li><li><b>Model output as structured data, not prose</b><p>Gemini receipt extraction in Bupples: the model reads a photographed receipt into line items, and the ledger still does the money.</p></li><li><b>Widgets as the product surface</b><p>Home Screen, Lock Screen and StandBy as places a product lives rather than shortcuts into it — which means two native implementations instead of one shared screen.</p></li></ul>
+        </section>
+      </div>
     </div>
           <!--/build:now-->
     <div class="contact-poster" data-reveal><h2 id="contactTitle">Let's build <em>something memorable.</em></h2><aside class="contact-aside"><b>Looking for</b>A full-time software engineering internship, January to April 2027, in Subang Jaya or Kuala Lumpur, Malaysia. Mobile, full-stack, or anything that ships to a real store.<span class="aside-hint hint-fine">Nudge the address around — click without dragging to open your mail client.</span><span class="aside-hint hint-touch">Tap the address to open your mail app.</span></aside></div>

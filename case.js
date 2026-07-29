@@ -33,6 +33,25 @@
     });
   }
 
+  /* ---- header height ------------------------------------------------
+   * The contents bar sticks directly beneath the fixed header, and the
+   * header's height depends on the font size and whether the nav has
+   * wrapped. Measuring beats guessing: a stale constant left the bar's
+   * label tucked underneath.
+   */
+  var head = document.querySelector('.site-head');
+
+  function syncHeadHeight() {
+    if (!head) return;
+    // Only offset when the header is actually pinned over the content.
+    var fixed = getComputedStyle(head).position === 'fixed';
+    root.style.setProperty('--cs-head-h', fixed ? Math.round(head.getBoundingClientRect().height) + 'px' : '0px');
+  }
+
+  syncHeadHeight();
+  window.addEventListener('resize', syncHeadHeight, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncHeadHeight).catch(function () {});
+
   /* ---- reveal on scroll --------------------------------------------
    * Mirrors the homepage's ScrollTrigger.batch: fire once when a block
    * reaches 88% of the viewport, lift it from y:40/opacity:0 over 0.95s,

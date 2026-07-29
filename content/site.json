@@ -119,74 +119,73 @@
       "evidence": "resume.txt lines 46-50, verbatim. This is the only employment-style entry in the corpus; no other role is claimed anywhere."
     },
     {
-      "kind": "product",
       "role": "Sole developer",
-      "org": "Bupples — personal product",
+      "org": "Independent products",
       "location": "Subang Jaya, Malaysia",
       "dates": "Feb 2026 — Present",
-      "bullets": [
-        "Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.",
-        "Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.",
-        "Live on the App Store and Google Play since 2 July 2026; version 1.2.5 shipped on 27 July 2026."
-      ],
-      "tech": [
-        "Flutter",
-        "Dart",
-        "Firebase",
-        "Firestore",
-        "Cloud Functions",
-        "Vertex AI",
-        "Gemini",
-        "RevenueCat",
-        "App Check",
-        "Remote Config"
-      ],
-      "projectSlug": "bupples",
-      "evidence": "resume.txt lines 24-28 for the first two bullets; iTunes lookup API for id6777620291 and the Google Play listing for the third. The résumé's phrase \"across iOS, Android, and web\" is narrowed to iOS and Android here: bupples.web.app was verified centrally as the product's landing page, not a running web app. Timeline traces to the résumé (\"Feb 2026 - Present\"), which is the owner's own claim about his own work. The local repository's first commit is 2026-06-07, but it holds 1,131 commits and the tree is at 1.3.0+153 — i.e. it is a rebuild after the original source was lost, not the start of the project. The App Store record is consistent with a longer history: first release 2026-07-02 already at 1.2.x. NOT independently provable from files — see CONTENT_GAPS.md §4.6."
-    },
-    {
       "kind": "product",
-      "role": "Sole developer",
-      "org": "Adelante — personal product",
-      "location": "Subang Jaya, Malaysia",
-      "dates": "Jun 2026 — Present",
-      "bullets": [
-        "Built a privacy-first motivation app with native WidgetKit/SwiftUI and Android RemoteViews widgets for the Home Screen, Lock Screen, and StandBy — without accounts, analytics, or ads.",
-        "Designed a Firestore and scheduled Cloud Functions content pipeline with offline caching, deduplication, quality scoring, and strict filtering; validated reliability with 117 automated tests."
-      ],
-      "tech": [
-        "Flutter",
-        "Swift",
-        "SwiftUI",
-        "WidgetKit",
-        "Kotlin",
-        "Android RemoteViews",
-        "Firebase",
-        "Cloud Functions"
-      ],
-      "projectSlug": "adelante",
-      "evidence": "resume.txt lines 29-33, verbatim. \"Sole developer\" traces to the résumé summary at line 8 covering iOS and Android; no public release exists — the adelante-showcase repository has homepage: null (smaller-projects.md §4)."
-    },
-    {
-      "kind": "product",
-      "role": "Sole developer",
-      "org": "Photoshoot — personal product",
-      "location": "Subang Jaya, Malaysia",
-      "dates": "Jun 2026 — Present",
-      "bullets": [
-        "Built and deployed a browser and desktop photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time GLSL effects and 8 on-device MediaPipe face effects.",
-        "Engineered a local-first Electron/WebGL2 architecture with context isolation, sandboxing, strict CSP, and Firebase Hosting, keeping camera processing and captures on-device."
-      ],
-      "tech": [
-        "TypeScript",
-        "Electron",
-        "WebGL2",
-        "GLSL",
-        "MediaPipe",
-        "Firebase Hosting"
-      ],
-      "projectSlug": "photoshoot",
-      "evidence": "resume.txt lines 34-38, verbatim. \"Sole developer\" traces to the résumé summary at line 8, which is the only source covering Windows."
+      "lead": "Three products taken from an empty repository to a release, each owned end to end — product design, client, backend, security rules, store paperwork and the update cadence afterwards.",
+      "evidence": "resume.txt lines 24-28 for the first two bullets; iTunes lookup API for id6777620291 and the Google Play listing for the third. The résumé's phrase \"across iOS, Android, and web\" is narrowed to iOS and Android here: bupples.web.app was verified centrally as the product's landing page, not a running web app. Timeline traces to the résumé (\"Feb 2026 - Present\"), which is the owner's own claim about his own work. The local repository's first commit is 2026-06-07, but it holds 1,131 commits and the tree is at 1.3.0+153 — i.e. it is a rebuild after the original source was lost, not the start of the project. The App Store record is consistent with a longer history: first release 2026-07-02 already at 1.2.x. NOT independently provable from files — see CONTENT_GAPS.md §4.6. | resume.txt lines 29-33, verbatim. \"Sole developer\" traces to the résumé summary at line 8 covering iOS and Android; no public release exists — the adelante-showcase repository has homepage: null (smaller-projects.md §4). | resume.txt lines 34-38, verbatim. \"Sole developer\" traces to the résumé summary at line 8, which is the only source covering Windows.",
+      "projects": [
+        {
+          "name": "Bupples",
+          "slug": "bupples",
+          "dates": "Feb 2026 — Present",
+          "bullets": [
+            "Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.",
+            "Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.",
+            "Live on the App Store and Google Play since 2 July 2026; version 1.2.5 shipped on 27 July 2026."
+          ],
+          "tech": [
+            "Flutter",
+            "Dart",
+            "Firebase",
+            "Firestore",
+            "Cloud Functions",
+            "Vertex AI",
+            "Gemini",
+            "RevenueCat",
+            "App Check",
+            "Remote Config"
+          ]
+        },
+        {
+          "name": "Adelante",
+          "slug": "adelante",
+          "dates": "Jun 2026 — Present",
+          "bullets": [
+            "Built a privacy-first motivation app with native WidgetKit/SwiftUI and Android RemoteViews widgets for the Home Screen, Lock Screen, and StandBy — without accounts, analytics, or ads.",
+            "Designed a Firestore and scheduled Cloud Functions content pipeline with offline caching, deduplication, quality scoring, and strict filtering; validated reliability with 117 automated tests."
+          ],
+          "tech": [
+            "Flutter",
+            "Swift",
+            "SwiftUI",
+            "WidgetKit",
+            "Kotlin",
+            "Android RemoteViews",
+            "Firebase",
+            "Cloud Functions"
+          ]
+        },
+        {
+          "name": "Photoshoot",
+          "slug": "photoshoot",
+          "dates": "Jun 2026 — Present",
+          "bullets": [
+            "Built and deployed a browser and desktop photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time GLSL effects and 8 on-device MediaPipe face effects.",
+            "Engineered a local-first Electron/WebGL2 architecture with context isolation, sandboxing, strict CSP, and Firebase Hosting, keeping camera processing and captures on-device."
+          ],
+          "tech": [
+            "TypeScript",
+            "Electron",
+            "WebGL2",
+            "GLSL",
+            "MediaPipe",
+            "Firebase Hosting"
+          ]
+        }
+      ]
     }
   ],
   "education": [

@@ -98,17 +98,26 @@ test.describe('case-study routes', () => {
     // auto-fit derives its track count from the container width, so an item
     // count that does not divide evenly used to leave live tracks painted in
     // the rule colour. These containers must never be grid.
+    // What actually made an unfilled track read as a dead rectangle was the
+    // "1px gap over a coloured container" technique: the container's own paint
+    // showed through the empty cell. A grid that paints nothing cannot do that,
+    // so the rule is about the paint, not about `display`.
     await page.goto('/work/bupples/');
     const grids = await page.evaluate(() => {
       const out = [];
+      const clear = (c) => c === 'rgba(0, 0, 0, 0)' || c === 'transparent';
       for (const sel of ['.cs-facts', '.cs-grid', '.cs-decisions', '.cs-metrics', '.cs-flow-steps', '.cs-related']) {
         document.querySelectorAll(sel).forEach((el) => {
-          if (getComputedStyle(el).display === 'grid') out.push(sel);
+          const cs = getComputedStyle(el);
+          if (cs.display !== 'grid') return;
+          if (!clear(cs.backgroundColor) || cs.backgroundImage !== 'none') {
+            out.push(`${sel} is a grid painting ${cs.backgroundColor} / ${cs.backgroundImage}`);
+          }
         });
       }
       return out;
     });
-    expect(grids, 'containers still using auto-fit grid').toEqual([]);
+    expect(grids, 'painted grid containers can show empty tracks').toEqual([]);
   });
 
   test('the architecture board leaves no unclaimed track', async ({ page }) => {

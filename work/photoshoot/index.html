@@ -30,8 +30,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=83" />
-<link rel="stylesheet" href="/case.css?v=13" />
+<link rel="stylesheet" href="/styles.css?v=84" />
+<link rel="stylesheet" href="/case.css?v=14" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -101,7 +101,7 @@ try {
   <ol><li><a href="#overview">Overview</a></li><li><a href="#problem">The problem</a></li><li><a href="#role">My role</a></li><li><a href="#constraints">Constraints</a></li><li><a href="#flow">Product flow</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#challenges">Engineering challenges</a></li><li><a href="#decisions">Technical decisions</a></li><li><a href="#evolution">Design evolution</a></li><li><a href="#testing">Testing</a></li><li><a href="#results">Results</a></li><li><a href="#lessons">Reflection</a></li></ol>
 </nav>
     
-<section class="cs-section" id="overview" aria-labelledby="overview-t">
+<section class="cs-section cs-s-overview" id="overview" aria-labelledby="overview-t">
   <span class="cs-ghost" aria-hidden="true">01</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">01<span class="slash">/</span>EXECUTIVE SUMMARY</p>
@@ -111,7 +111,7 @@ try {
   <div class="cs-sec-body" data-reveal><div class="cs-prose"><p class="cs-lead">Photobooth software normally asks you to hand your camera to somebody's server. Photoshoot does the opposite: the webcam feed is rendered by a hand-written WebGL2 pipeline inside the app, face tracking runs against a model served from the app's own origin, and captures are written to a local folder or to IndexedDB. There is no backend anywhere in the repository. One TypeScript renderer serves both an Electron desktop build and a browser build, talking only to a twenty-method bridge interface that is implemented once per runtime. I built it alone — the twenty-seven fragment shaders, the zero-trust import format for community themes and filters, the Electron hardening, the landing page and the static deploy. It matters because it is the version of this product that does not need to be trusted: the privacy claim is a property of the architecture, not a promise in a policy.</p></div></div>
 </section>
 
-<section class="cs-section" id="problem" aria-labelledby="problem-t">
+<section class="cs-section cs-s-problem" id="problem" aria-labelledby="problem-t">
   <span class="cs-ghost" aria-hidden="true">02</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">02<span class="slash">/</span>THE PROBLEM</p>
@@ -124,7 +124,7 @@ try {
 </div></div>
 </section>
 
-<section class="cs-section" id="role" aria-labelledby="role-t">
+<section class="cs-section cs-s-role" id="role" aria-labelledby="role-t">
   <span class="cs-ghost" aria-hidden="true">03</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">03<span class="slash">/</span>ROLE &amp; OWNERSHIP</p>
@@ -137,7 +137,7 @@ try {
 </div></div>
 </section>
 
-<section class="cs-section" id="constraints" aria-labelledby="constraints-t">
+<section class="cs-section cs-s-constraints" id="constraints" aria-labelledby="constraints-t">
   <span class="cs-ghost" aria-hidden="true">04</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">04<span class="slash">/</span>CONSTRAINTS</p>
@@ -145,28 +145,35 @@ try {
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><div class="cs-grid "><article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">01</p>
     <h3 class="cs-card-t">No backend, by construction</h3>
     <p>There is no server code anywhere in the repository. Every decision downstream — where captures live, how settings persist, how the face model loads — had to resolve locally or not at all.</p>
+    <p class="cs-cite"><span>Evidence</span>firebase.json contains only a `hosting` block: no functions, no firestore, no auth, no storage. No server source exists in the repo.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">02</p>
     <h3 class="cs-card-t">A Content Security Policy with no 'unsafe-inline'</h3>
     <p>Nothing in the app can inject a style tag or an inline script. That single omission is what forced the theming design: tokens are written through the CSSOM with element.style.setProperty, which is governed by script-src rather than style-src.</p>
+    <p class="cs-cite"><span>Evidence</span>CSP declared twice — src/main/main.ts:20-32 (injected via session.webRequest.onHeadersReceived at main.ts:121-128) and src/renderer/index.html:5-8 (meta), which omits frame-ancestors. Rationale comment at src/renderer/themes.ts:1-6.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">03</p>
     <h3 class="cs-card-t">Untrusted input is the normal case, not the exception</h3>
     <p>Community themes and filters are a feature, so the import path is a permanent, expected attack surface rather than an edge case to be handled later.</p>
+    <p class="cs-cite"><span>Evidence</span>src/shared/theme-schema.ts (253 lines) and src/shared/filter-schema.ts (156 lines), each invoked at import time and again in the renderer.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">04</p>
     <h3 class="cs-card-t">One developer, two working days</h3>
     <p>The whole application was written across 13 commits between 14 and 17 June 2026. That budget is why there is one test suite rather than several, and why it was pointed at the validator instead of the UI.</p>
+    <p class="cs-cite"><span>Evidence</span>git log: first commit bb93690 on 2026-06-14, final commit d219ad6 on 2026-06-17; 13 commits, all on main, working tree clean. git log --date=short: 10 commits on 2026-06-14, none on the 15th or 16th, 3 on 2026-06-17 — two working days inside a four-day window.</p>
   </article></div></div>
 </section>
 
-
-<section class="cs-section" id="flow" aria-labelledby="flow-t">
-  <span class="cs-ghost" aria-hidden="true">06</span>
+<section class="cs-section cs-s-flow" id="flow" aria-labelledby="flow-t">
+  <span class="cs-ghost" aria-hidden="true">05</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">06<span class="slash">/</span>PRODUCT FLOW</p>
+    <p class="sec-label">05<span class="slash">/</span>PRODUCT FLOW</p>
     <h2 class="cs-sec-title" id="flow-t">How it <em>works.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -212,10 +219,10 @@ try {
 </figure></div>
 </section>
 
-<section class="cs-section" id="architecture" aria-labelledby="architecture-t">
-  <span class="cs-ghost" aria-hidden="true">07</span>
+<section class="cs-section cs-s-architecture" id="architecture" aria-labelledby="architecture-t">
+  <span class="cs-ghost" aria-hidden="true">06</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">07<span class="slash">/</span>SYSTEM ARCHITECTURE</p>
+    <p class="sec-label">06<span class="slash">/</span>SYSTEM ARCHITECTURE</p>
     <h2 class="cs-sec-title" id="architecture-t">How it <em>fits together.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -273,10 +280,10 @@ try {
 </figure></div>
 </section>
 
-<section class="cs-section" id="challenges" aria-labelledby="challenges-t">
-  <span class="cs-ghost" aria-hidden="true">08</span>
+<section class="cs-section cs-s-challenges" id="challenges" aria-labelledby="challenges-t">
+  <span class="cs-ghost" aria-hidden="true">07</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">08<span class="slash">/</span>ENGINEERING CHALLENGES</p>
+    <p class="sec-label">07<span class="slash">/</span>ENGINEERING CHALLENGES</p>
     <h2 class="cs-sec-title" id="challenges-t">The hard <em>parts.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -291,6 +298,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>44 adversarial assertions run over the filter validator: out-of-range values, NaN, Infinity, wrong types, unknown keys, injected strings, junk manifests, and the renderer's re-clamp of a store that was edited on disk. The invariant is written into the shader file so it survives the next reader: no part of a manifest ever becomes shader source, JavaScript, CSS or HTML.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>An imported filter controls numbers, never code, and an imported theme controls a fixed vocabulary of values. The theme validator follows the same design but has no tests — it is the larger and riskier of the two, and it is the largest known gap in the project.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>src/shared/theme-schema.ts (253 lines; 59 tokens and 24 forbidden substrings, counted programmatically; texture rule at :176-177; magic-byte checks at :228-253). src/shared/filter-schema.ts (156 lines; 11 params at :32-44). Applied at src/main/themeImport.ts, src/main/filterImport.ts, src/web/shim.ts:165-320, src/renderer/themes.ts:43-63, src/renderer/gl/renderer.ts:128-145. Invariant comment at src/renderer/gl/shaders.ts:361-364. Assertion count from `npm run test:filters` → `44 passed, 0 failed`.</p>
 </article>
 <article class="cs-challenge" id="challenge-2">
   <p class="cs-challenge-n" aria-hidden="true">CH.02</p>
@@ -303,6 +311,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>gamma is clamped to a floor of 0.2 so the shader's 1/gamma can never divide by zero, and that floor is asserted directly in the suite. A lookup table must be a real 512×512 PNG, checked by magic bytes and by the width and height read out of the IHDR chunk at byte offsets 16 and 20 — never by file extension. Non-square images, truncated files, oversized files and a JPEG wearing a .png name are all covered.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Switching between imported filters costs uniform writes, not a shader compile, and the security argument for the whole feature collapses to a range check on eleven numbers.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>src/renderer/gl/renderer.ts:106-108 (the key mapping); src/renderer/gl/shaders.ts:365-410 (the customfilter program); src/shared/filter-schema.ts:32-44 (parameter table) and :139-156 (LUT magic bytes and IHDR dimensions); build/filter-schema.test.mjs:111 (gamma floor assertion).</p>
 </article>
 <article class="cs-challenge" id="challenge-3">
   <p class="cs-challenge-n" aria-hidden="true">CH.03</p>
@@ -315,6 +324,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>The debug overlay reports the active backend, which now reads `WebGL2 · rAF`. The fix is a discrete commit rather than a change bundled into unrelated work.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Fixed on 17 June 2026. The README has not caught up — it still describes the rVFC loop that this commit removed, which is documentation drift I have not yet corrected.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>src/renderer/gl/renderer.ts:337-344 (the eight-line comment) and :345 (the rAF call) and :379 (getStats().backend). Commit 3ce3da4, 2026-06-17, &quot;Fix blank webcam preview: drive render loop on rAF, not only rVFC&quot;. Off-screen mount at src/renderer/camera.ts:31-36. README:36 and :154-155 still describe rVFC.</p>
 </article>
 <article class="cs-challenge" id="challenge-4">
   <p class="cs-challenge-n" aria-hidden="true">CH.04</p>
@@ -327,6 +337,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>The cost is bounded by construction rather than by measurement: the loop is fixed at a 192 px sample regardless of camera resolution, and the upscale is the compositor's work, not the CPU's. There is no benchmark in the repository, so I have no frame-rate figure to publish for it and will not quote one.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Background replacement composites in a single pass ahead of the effect pipeline, with one bounded CPU loop and no second model to load.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>src/renderer/backgroundReplace.ts (154 lines; rationale comment at :5-9, threshold at :121-130, destination-in composite at :141-148). src/renderer/backgrounds.ts:16-210 with the per-size cache at :193-209.</p>
 </article>
 <article class="cs-challenge" id="challenge-5">
   <p class="cs-challenge-n" aria-hidden="true">CH.05</p>
@@ -339,13 +350,14 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>`tsc --noEmit` runs clean with strict mode on, zero diagnostics, which is what actually enforces that both implementations satisfy the interface. The deployed web app references exactly the hashed filenames produced by the local build, so the two runtimes are demonstrably built from the same renderer source.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>34 TypeScript files and 5,902 lines produce one renderer and two shipping runtimes, with the platform difference isolated to two files totalling 486 lines.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>src/shared/ipc-contract.ts:7-28 (20 channels) and :157-178 (PhotoshootBridge). src/preload/preload.ts (38 lines, contextBridge only, no ipcRenderer or require reaches the page). src/web/shim.ts (448 lines). web/build-web.mjs:63 and :85-93. `npm run typecheck` (tsc --noEmit) exits 0 with zero diagnostics; tsconfig.json:3-19.</p>
 </article></div>
 </section>
 
-<section class="cs-section" id="decisions" aria-labelledby="decisions-t">
-  <span class="cs-ghost" aria-hidden="true">09</span>
+<section class="cs-section cs-s-decisions" id="decisions" aria-labelledby="decisions-t">
+  <span class="cs-ghost" aria-hidden="true">08</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">09<span class="slash">/</span>TECHNICAL DECISIONS</p>
+    <p class="sec-label">08<span class="slash">/</span>TECHNICAL DECISIONS</p>
     <h2 class="cs-sec-title" id="decisions-t">Why <em>this way.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -357,6 +369,7 @@ try {
     <p>The renderer's job is to hold a live camera feed and apply visual data that may have come from a stranger. Everything it does not need, it should not have. The window is created with contextIsolation: true, nodeIntegration: false, sandbox: true, webgl: true, spellcheck: false and devTools: isDev, so production builds ship without dev tools. The preload is the only seam and exposes exactly twenty methods — no ipcRenderer, no require and no Node reaches the page. The CSP exists as two hand-maintained copies — the header injected from main.ts:20-32 and the meta tag in index.html:5-8. They are deliberately not identical, because frame-ancestors is ignored in a meta tag, and that divergence is also the drift risk. Only the media permission is ever granted; geolocation, notifications and MIDI are refused by both the request and the check handler. Every new window is denied and http(s) links are routed to the OS browser instead. And onBeforeRequest cancels any request whose URL does not begin with app:, file:, devtools:, blob:, data: or chrome-extension: — the desktop app cannot make a network call at all.</p>
     <p class="cs-dec-alt"><span>Instead of</span> Electron's defaults with contextIsolation left on and nothing else touched, which is what most desktop wrappers ship.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Because 'unsafe-inline' is absent, nothing can inject a style tag, so themes had to be applied through the CSSOM instead of by writing CSS. Disabling dev tools in production means a user-reported rendering bug has to be reproduced locally before it can be looked at.</p>
+    <p class="cs-cite"><span>Where to look</span>src/main/main.ts:20-33 (CSP), :78-86 (webPreferences), :121-128 (header injection), :131-134 (permission handlers), :138-148 (request cancellation), :95-106 and :178-180 (navigation and window-open denial), :151-160 (single-instance lock). src/preload/preload.ts:1-4 and :14-38. The deployed web build carries the same CSP meta tag, verified against the live /app/ document.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">02</p>
@@ -365,6 +378,7 @@ try {
     <p>MediaPipe's FaceLandmarker fetches its WASM runtime and its model file at startup. Chromium blocks fetch() of file:// resources but allows it for a standard scheme, so a file:// app cannot load an on-device model without reaching for the network — which would defeat the entire point of the product. A real origin also gives 'self' in the CSP something to resolve to. The scheme is registered as standard, secure, supportFetchAPI and stream, and its handler rejects anything resolving outside dist/. The reason is written into the code above the constant, not left in a commit message.</p>
     <p class="cs-dec-alt"><span>Instead of</span> Loading dist/index.html straight from file://, or running a local HTTP server inside the desktop app.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> A scheme handler is code I own and have to keep correct. A path-containment mistake in it would be a file-read primitive, which is why it is one of the places isInside() is applied.</p>
+    <p class="cs-cite"><span>Where to look</span>src/main/main.ts:16-18 (the rationale, in a comment), :39-44 (scheme registration), :49-65 (the handler and its containment check). Model and WASM paths at src/renderer/faceTracker.ts:63-68.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">03</p>
@@ -373,6 +387,7 @@ try {
     <p>The entire app is one quad with a different fragment shader on it. A scene-graph library would have added a dependency, a bundle and an abstraction whose value — meshes, cameras, lighting, material systems — is entirely unused here. CSS filter functions cannot express the seven pointer-driven warps or the face-tracked distortions, and a Canvas2D pixel loop cannot run them at display refresh. Writing the shaders directly is also what made the single fixed custom-filter program possible, which is the thing that makes untrusted filters safe.</p>
     <p class="cs-dec-alt"><span>Instead of</span> three.js or PixiJS for the pipeline, or CSS filter functions and Canvas2D for the effects.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Everything a library would have handled is mine: compilation, linking, VAO setup, uniform plumbing and context loss. Programs are compiled lazily and cached per effect id; webglcontextlost and webglcontextrestored handlers clear and rebuild every program and re-upload every LUT texture; a shader that fails to compile falls back to the pass-through effect once and raises a toast rather than crashing the app.</p>
+    <p class="cs-cite"><span>Where to look</span>src/renderer/gl/shaders.ts (411 lines, 27 fragment sources), glcore.ts (compile/link/VAO), renderer.ts (395 lines) — one reusable video texture and one quad created once at :95-96, lazy program cache at :104-124, context-loss handlers at :63-79, compile fallback at :112-123. package.json:29-31 — @mediapipe/tasks-vision is the only runtime dependency.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">04</p>
@@ -381,6 +396,7 @@ try {
     <p>The interface is a viewfinder, a control bar, a 3×3 effects grid and a few sheets. Reconciliation buys nothing when the thing changing sixty times a second is a GPU texture rather than a DOM tree. esbuild produces the main, preload and renderer bundles from one script with no plugin system to learn, and type checking is deliberately a separate command — esbuild does none, so a type error can never stop the app from building and running while I am debugging something unrelated.</p>
     <p class="cs-dec-alt"><span>Instead of</span> React or Svelte on Vite, with a store library for shared state.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> There is no component model, so UI code is imperative, and shared state is a singleton any module can mutate. That is workable at 5,902 lines and would not be at five times that.</p>
+    <p class="cs-cite"><span>Where to look</span>package.json:23-26 (esbuild, Electron, electron-builder, TypeScript as devDependencies). esbuild.mjs:1-4 (the rationale) and :30-66 (three targets: main and preload as cjs/node20, renderer as iife/chrome120). src/renderer/settings.ts:1-3 (built with createElement, no innerHTML). src/renderer/app.ts (43 lines). tsconfig.json:3-19 — strict, ES2021, isolatedModules, noEmit.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">05</p>
@@ -389,59 +405,66 @@ try {
     <p>Every bundle and stylesheet is emitted with an eight-character content hash and Cache-Control: public, max-age=31536000, immutable, while the HTML and the /, /app and /app/ routes revalidate on every load. A push therefore reaches users on their next page load without anyone clearing a cache, and a stale HTML document can never pair with a mismatched bundle, because the document names the exact files it needs. There is no backend to version alongside it.</p>
     <p class="cs-dec-alt"><span>Instead of</span> Query-string cache busting, or a short max-age on everything and hoping.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Every deploy writes new filenames, so the hosting bucket accumulates the old ones.</p>
+    <p class="cs-cite"><span>Where to look</span>web/build-web.mjs:1-11 (rationale) and :26-53 (sha256-8 hashing of bundles and stylesheets); firebase.json:9-33 (cache headers); commit 0797177, 2026-06-17. Verified live: the deployed /app/ references shim-E227B433.js and main-NDNDSI2B.js, byte-identical to the local web-dist/ build, and Firebase reports last-modified 2026-06-17 15:04:23 GMT, thirteen seconds after the final commit (d219ad6, 2026-06-17 23:04:10 +0800 = 15:04:10 GMT) — it is the deploy timestamp, not the commit timestamp.</p>
   </article>
 </div></div>
 </section>
 
-<section class="cs-section" id="evolution" aria-labelledby="evolution-t">
-  <span class="cs-ghost" aria-hidden="true">10</span>
+<section class="cs-section cs-s-evolution" id="evolution" aria-labelledby="evolution-t">
+  <span class="cs-ghost" aria-hidden="true">09</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">10<span class="slash">/</span>DESIGN EVOLUTION</p>
+    <p class="sec-label">09<span class="slash">/</span>DESIGN EVOLUTION</p>
     <h2 class="cs-sec-title" id="evolution-t">How it <em>changed.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><div class="cs-grid "><article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">01</p>
     <h3 class="cs-card-t">14 June 2026 — the app, in one sitting</h3>
     <p>Ten commits: the Electron and web shell with the landing page and Firebase Hosting config, then the effects registry with drag-to-move distortion centres, print-to-tray capture, the MediaPipe face-mesh effects, the community filter format with lookup tables, a redesigned landing page, and the Darkroom theme.</p>
+    <p class="cs-cite"><span>Evidence</span>git log 2026-06-14: bb93690, c07abd1, ba16e86, 76298f0, 5655825, 70bb1b2, bbbffbe, cff0e83, be3d8eb, 2e0e4ce.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">02</p>
     <h3 class="cs-card-t">17 June 2026 — the three fixes that only appear once you run it</h3>
     <p>Nothing on the 15th or 16th; three commits on the 17th, each one a defect that reading the code would not have found. The render loop moved from requestVideoFrameCallback to requestAnimationFrame. The web build started content-hashing its assets so deploys propagate. And a saved camera deviceId stopped being able to permanently break the app.</p>
+    <p class="cs-cite"><span>Evidence</span>3ce3da4, 0797177, d219ad6 — all 2026-06-17. d219ad6 is the latest commit; camera fallback at src/renderer/camera.ts:70-87 with isDeviceSpecificError at :163-173.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">03</p>
     <h3 class="cs-card-t">Where it stands</h3>
     <p>Version 1.0.0, 13 commits, no git tags and no GitHub release. The web deployment is current with HEAD. The README carries two statements the code has since contradicted, and the landing page still says four themes where the app ships five — small drift, but drift I can point at rather than pretend away.</p>
+    <p class="cs-cite"><span>Evidence</span>package.json:3 (1.0.0). `git tag` returns empty; /repos/yeegz/photoshoot/releases returns an empty array. src/renderer/themes.ts:18-22 lists five built-in themes (Studio, Classic Metal, Studio Dark, Retro Film, Darkroom) against web/landing/index.html:9 and :134.</p>
   </article></div></div>
 </section>
 
-<section class="cs-section" id="testing" aria-labelledby="testing-t">
-  <span class="cs-ghost" aria-hidden="true">11</span>
+<section class="cs-section cs-s-testing" id="testing" aria-labelledby="testing-t">
+  <span class="cs-ghost" aria-hidden="true">10</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">11<span class="slash">/</span>TESTING &amp; RELIABILITY</p>
+    <p class="sec-label">10<span class="slash">/</span>TESTING &amp; RELIABILITY</p>
     <h2 class="cs-sec-title" id="testing-t">How it is <em>proven.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><div class="cs-testing">
   <p class="cs-lead">There is one test file and no continuous integration. What it covers is the part that matters most — the validator standing between a downloaded file and the GPU — and it is written as adversarial cases rather than happy paths. Stating its scope exactly is more useful than implying the project is tested end to end, so the gap is listed alongside the coverage.</p>
-  <dl class="cs-metrics"><div><dt>Adversarial assertions passing</dt><dd>44</dd></div><div><dt>Test files in the repository</dt><dd>1</dd></div><div><dt>Type errors under strict mode</dt><dd>0</dd></div><div><dt>CI pipelines</dt><dd>None</dd></div></dl>
+  <dl class="cs-metrics"><div><dt>Adversarial assertions passing</dt><dd>44</dd><p class="cs-cite"><span>How it was counted</span>`npm run test:filters` → `44 passed, 0 failed`. These are assertions, not test cases: build/filter-schema.test.mjs hand-rolls ok(cond, msg) with pass and fail counters and process.exit(fail ? 1 : 0) at :13-17 and :122-123. There is no test framework.</p></div><div><dt>Test files in the repository</dt><dd>1</dd><p class="cs-cite"><span>How it was counted</span>A find over the repository excluding node_modules for *.test.* and *.spec.* returns exactly one result: build/filter-schema.test.mjs, 123 lines (wc -l, 2026-07-29).</p></div><div><dt>Type errors under strict mode</dt><dd>0</dd><p class="cs-cite"><span>How it was counted</span>`npm run typecheck` (tsc --noEmit) exits 0 with zero diagnostics. tsconfig.json:3-19 sets strict: true, target ES2021, isolatedModules and noEmit.</p></div><div><dt>CI pipelines</dt><dd>None</dd><p class="cs-cite"><span>How it was counted</span>No .github/ directory exists in the repository. Both commands are run locally.</p></div></dl>
   <div class="cs-cases"><h3 class="cs-h3">Representative cases</h3><ul class="cs-points"><li>Numeric clamping across all eleven filter parameters: values below the minimum, above the maximum, NaN, Infinity, and the wrong type entirely.</li><li>Manifest hygiene: unknown keys dropped, injected strings sanitized, and a junk manifest rejected outright rather than partially applied.</li><li>Lookup-table filename traversal: ../../etc/passwd, absolute paths, backslashes, double extensions, dotfiles, overlong names and control characters.</li><li>Lookup-table bytes: PNG magic numbers, a 512×512 IHDR, non-square images, a JPEG wearing a .png name, truncated files and oversized files.</li><li>Tamper recovery: the renderer's clampParams re-clamps a filter store that was edited on disk after import, which is the second half of the validate-twice rule.</li><li>Not covered, stated plainly: the theme validator, the Electron main process, filesystem path containment, the renderer and the GL layer. The theme validator is the larger of the two — 59 tokens, 24 forbidden substrings and four regular expressions — and it is the untested one.</li></ul></div>
 </div></div>
 </section>
 
-<section class="cs-section" id="results" aria-labelledby="results-t">
-  <span class="cs-ghost" aria-hidden="true">12</span>
+<section class="cs-section cs-s-results" id="results" aria-labelledby="results-t">
+  <span class="cs-ghost" aria-hidden="true">11</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">12<span class="slash">/</span>RESULTS</p>
+    <p class="sec-label">11<span class="slash">/</span>RESULTS</p>
     <h2 class="cs-sec-title" id="results-t">What <em>shipped.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><dl class="cs-metrics cs-metrics-lg"><div><dt>Deployed, and current with the source</dt><dd>The web app is live and the deployment matches HEAD exactly: the served document references the same content-hashed filenames the local build produces, and the host's last-modified timestamp is thirteen seconds after the final commit.</dd></div><div><dt>Seventeen effects and eight face effects, all on-device</dt><dd>The registry holds 26 entries: one pass-through, 17 GLSL effects and 8 MediaPipe face effects, plus a 27th shader for the audited custom-filter program. Seven of the seventeen are warps whose centre follows the pointer, mirror-corrected so it lines up with the cursor; two are time-animated. Face tracking runs with numFaces: 1 against a model served from the app's own origin, throttled to roughly 22 fps so the render loop keeps its own cadence — and if the model fails to load, face effects render the plain image instead of failing.</dd></div><div><dt>One runtime dependency, and no shipped assets</dt><dd>@mediapipe/tasks-vision is the only entry under dependencies; everything else is a devDependency. Nothing else is downloaded and nothing is bundled that was not written for this project: the app icon is generated by a build script using only node:zlib deflate, the six backdrops are drawn procedurally, and all eight sound cues are synthesized from oscillators and band-passed noise. There are no audio files in the repository at all.</dd></div></dl></div>
 </section>
 
-<section class="cs-section" id="lessons" aria-labelledby="lessons-t">
-  <span class="cs-ghost" aria-hidden="true">13</span>
+<section class="cs-section cs-s-lessons" id="lessons" aria-labelledby="lessons-t">
+  <span class="cs-ghost" aria-hidden="true">12</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">13<span class="slash">/</span>REFLECTION</p>
+    <p class="sec-label">12<span class="slash">/</span>REFLECTION</p>
     <h2 class="cs-sec-title" id="lessons-t">What I <em>learned.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>

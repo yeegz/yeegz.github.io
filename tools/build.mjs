@@ -228,6 +228,13 @@ function linkRow(p) {
 </nav>`;
 }
 
+/**
+ * A citation for a claim. Deliberately esc() and not rich(): these strings hold
+ * shell globs like '*_test.dart', and the emphasis pass would eat the asterisks.
+ */
+const cite = (text, kicker) =>
+  has(text) ? `<p class="cs-cite"><span>${esc(kicker)}</span>${esc(text)}</p>` : '';
+
 function problem(p) {
   if (!has(p.problem)) return '';
   const { lead, points } = p.problem;
@@ -263,9 +270,11 @@ const itemGrid = (arr, cls = '') =>
     ? ''
     : `<div class="cs-grid ${cls}">${arr
         .map(
-          (c) => `<article class="cs-card">
+          (c, i) => `<article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</p>
     <h3 class="cs-card-t">${rich(c.title)}</h3>
     <p>${rich(c.body)}</p>
+    ${cite(c.evidence, 'Evidence')}
   </article>`,
         )
         .join('\n')}</div>`;
@@ -380,6 +389,7 @@ function challenges(p) {
     ${has(c.validation) ? `<div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>${rich(c.validation)}</p></div>` : ''}
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>${rich(c.result)}</p></div>
   </div>
+  ${cite(c.evidence, 'Where to look')}
 </article>`,
     )
     .join('\n');
@@ -397,6 +407,7 @@ function decisions(p) {
     <p>${rich(d.because)}</p>
     ${has(d.instead) ? `<p class="cs-dec-alt"><span>Instead of</span> ${rich(d.instead)}</p>` : ''}
     ${has(d.cost) ? `<p class="cs-dec-cost"><span>Trade-off</span> ${rich(d.cost)}</p>` : ''}
+    ${cite(d.evidence, 'Where to look')}
   </article>`,
     )
     .join('\n  ')}
@@ -411,7 +422,7 @@ function testing(p) {
   ${
     has(t.stats)
       ? `<dl class="cs-metrics">${t.stats
-          .map((s) => `<div><dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd></div>`)
+          .map((s) => `<div><dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd>${cite(s.evidence, 'How it was counted')}</div>`)
           .join('')}</dl>`
       : ''
   }
@@ -555,11 +566,20 @@ function renderProject(p, all) {
     lessons: ['13', 'REFLECTION', 'What I *learned.*'],
   };
 
+  /* Numbering follows what actually rendered. The numbers used to be a fixed
+     column in LABELS, and since no project declares `research`, every case
+     study's ghost numerals ran 01-04 then jumped to 06 — a gap in a signature
+     device reads as a bug, not as a missing chapter.
+
+     The className is what makes a per-section design possible at all: section()
+     always accepted one and no call site ever passed it, so all thirteen
+     sections shared one anonymous container and case.css had nothing to hang a
+     bespoke layout on. */
   const body = parts
-    .map((x) => {
-      if (!x.html) return '';
-      const [n, label, title] = LABELS[x.id];
-      return section(x.id, n, label, title, x.html);
+    .filter((x) => x.html)
+    .map((x, i) => {
+      const [, label, title] = LABELS[x.id];
+      return section(x.id, String(i + 1).padStart(2, '0'), label, title, x.html, { className: 'cs-s-' + x.id });
     })
     .join('\n');
 
@@ -617,8 +637,8 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=83" />
-<link rel="stylesheet" href="/case.css?v=13" />
+<link rel="stylesheet" href="/styles.css?v=84" />
+<link rel="stylesheet" href="/case.css?v=14" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
 </head>
@@ -733,8 +753,8 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=83" />
-<link rel="stylesheet" href="/case.css?v=13" />
+<link rel="stylesheet" href="/styles.css?v=84" />
+<link rel="stylesheet" href="/case.css?v=14" />
 ${HEAD_BOOT}
 </head>
 <body class="cs-body wk-body">

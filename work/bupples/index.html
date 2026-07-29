@@ -30,8 +30,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=83" />
-<link rel="stylesheet" href="/case.css?v=13" />
+<link rel="stylesheet" href="/styles.css?v=84" />
+<link rel="stylesheet" href="/case.css?v=14" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -102,7 +102,7 @@ try {
   <ol><li><a href="#overview">Overview</a></li><li><a href="#problem">The problem</a></li><li><a href="#role">My role</a></li><li><a href="#constraints">Constraints</a></li><li><a href="#flow">Product flow</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#challenges">Engineering challenges</a></li><li><a href="#decisions">Technical decisions</a></li><li><a href="#evolution">Design evolution</a></li><li><a href="#testing">Testing</a></li><li><a href="#results">Results</a></li><li><a href="#lessons">Reflection</a></li></ol>
 </nav>
     
-<section class="cs-section" id="overview" aria-labelledby="overview-t">
+<section class="cs-section cs-s-overview" id="overview" aria-labelledby="overview-t">
   <span class="cs-ghost" aria-hidden="true">01</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">01<span class="slash">/</span>EXECUTIVE SUMMARY</p>
@@ -112,7 +112,7 @@ try {
   <div class="cs-sec-body" data-reveal><div class="cs-prose"><p class="cs-lead">Bupples is a social expense app for the people who actually have to settle up afterwards — housemates, trip groups, a table of friends splitting one receipt. A group creates a hangout, adds expenses, photographs the bill, taps the items each person had, and the app tracks who owes whom until the debts are cleared. I built it as sole developer: product design, the Flutter client, the Firestore data model and security rules, ninety-nine Cloud Functions, the receipt-reading pipeline, the subscription server, the native iOS and Android widgets, and the release tooling. The engineering that matters is the money. Every amount is stored as an integer number of minor units and every split runs through one shared kernel, so a remainder always lands somewhere deterministic instead of disappearing between two screens. It is live on the App Store and Google Play.</p></div></div>
 </section>
 
-<section class="cs-section" id="problem" aria-labelledby="problem-t">
+<section class="cs-section cs-s-problem" id="problem" aria-labelledby="problem-t">
   <span class="cs-ghost" aria-hidden="true">02</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">02<span class="slash">/</span>THE PROBLEM</p>
@@ -125,7 +125,7 @@ try {
 </div></div>
 </section>
 
-<section class="cs-section" id="role" aria-labelledby="role-t">
+<section class="cs-section cs-s-role" id="role" aria-labelledby="role-t">
   <span class="cs-ghost" aria-hidden="true">03</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">03<span class="slash">/</span>ROLE &amp; OWNERSHIP</p>
@@ -138,7 +138,7 @@ try {
 </div></div>
 </section>
 
-<section class="cs-section" id="constraints" aria-labelledby="constraints-t">
+<section class="cs-section cs-s-constraints" id="constraints" aria-labelledby="constraints-t">
   <span class="cs-ghost" aria-hidden="true">04</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">04<span class="slash">/</span>CONSTRAINTS</p>
@@ -146,28 +146,35 @@ try {
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><div class="cs-grid "><article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">01</p>
     <h3 class="cs-card-t">One developer, no reviewer</h3>
     <p>Every layer is mine, which means nothing is caught by someone else reading it. The response was to write the rules down rather than remember them: standing engineering rules, a design contract that locks the type, radius, shadow and motion ladders, and five performance budgets that block a release build. Rules in a file outlast the memory of why they existed.</p>
+    <p class="cs-cite"><span>Evidence</span>CLAUDE.md and AGENTS.md standing rules; DESIGN.md &quot;anti-slop contract&quot;; docs/PERF.md five budgets. Git shows 1,131 commits, all authored by one person (git rev-list --count HEAD, 2026-07-29).</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">02</p>
     <h3 class="cs-card-t">Money cannot be eventually correct</h3>
     <p>A social app can tolerate a stale avatar. A ledger cannot tolerate a stale balance, and it certainly cannot tolerate a payment that applies twice or not at all. This ruled out floating point, ruled out client-authored balances, and made idempotency a requirement of every operation that moves money rather than a refinement.</p>
+    <p class="cs-cite"><span>Evidence</span>functions/src/balance.ts header: the persisted server-side preference &quot;and ONLY that value&quot; decides what contributes; &quot;anything a client sends … is NEVER read for financial computation&quot;. 69 runTransaction call sites across functions/src, re-derived NUL-safely 2026-07-29: grep -rao &quot;runTransaction(&quot; functions/src | wc -l -&gt; 69 (the bare identifier appears 77 times including comments). -a matters: functions/src/balance.ts contains NUL bytes, so a plain grep treats it as binary and silently skips it.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">03</p>
     <h3 class="cs-card-t">The iOS build stays pure Swift Package Manager</h3>
     <p>No Podfile. Two plugins had already broken this build the same way, so any dependency that drags CocoaPods back in is a dependency that has to justify itself or be written by hand instead. It is a self-imposed constraint that costs native code and buys a build that keeps working.</p>
+    <p class="cs-cite"><span>Evidence</span>pubspec.yaml SPM comment naming mobile_scanner and workmanager as the two plugins that broke the build; ios/Runner/QrScannerPlugin.swift written as a platform channel because of it.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">04</p>
     <h3 class="cs-card-t">Every scan has a marginal cost</h3>
     <p>The app is free with an optional subscription, and a cloud model call is billed per scan. A pipeline that always runs its most expensive read is a pipeline whose feature eventually gets switched off to save money. Accuracy had to be earned per receipt, not paid for on all of them.</p>
+    <p class="cs-cite"><span>Evidence</span>functions/src/receipt_scan.ts SCAN_FALLBACK_ITEM_CONFIDENCE 0.7, whose comment says paying for a second call on every scan &quot;is how a feature gets switched off&quot; (receipt_scan.ts:112-118). SCAN_TRUST_THRESHOLD 0.85 at line 110 carries only &quot;Field confidence at or above this reads cleanly.&quot;.</p>
   </article></div></div>
 </section>
 
-
-<section class="cs-section" id="flow" aria-labelledby="flow-t">
-  <span class="cs-ghost" aria-hidden="true">06</span>
+<section class="cs-section cs-s-flow" id="flow" aria-labelledby="flow-t">
+  <span class="cs-ghost" aria-hidden="true">05</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">06<span class="slash">/</span>PRODUCT FLOW</p>
+    <p class="sec-label">05<span class="slash">/</span>PRODUCT FLOW</p>
     <h2 class="cs-sec-title" id="flow-t">How it <em>works.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -218,10 +225,10 @@ try {
 </figure></div>
 </section>
 
-<section class="cs-section" id="architecture" aria-labelledby="architecture-t">
-  <span class="cs-ghost" aria-hidden="true">07</span>
+<section class="cs-section cs-s-architecture" id="architecture" aria-labelledby="architecture-t">
+  <span class="cs-ghost" aria-hidden="true">06</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">07<span class="slash">/</span>SYSTEM ARCHITECTURE</p>
+    <p class="sec-label">06<span class="slash">/</span>SYSTEM ARCHITECTURE</p>
     <h2 class="cs-sec-title" id="architecture-t">How it <em>fits together.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -284,10 +291,10 @@ try {
 </figure></div>
 </section>
 
-<section class="cs-section" id="challenges" aria-labelledby="challenges-t">
-  <span class="cs-ghost" aria-hidden="true">08</span>
+<section class="cs-section cs-s-challenges" id="challenges" aria-labelledby="challenges-t">
+  <span class="cs-ghost" aria-hidden="true">07</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">08<span class="slash">/</span>ENGINEERING CHALLENGES</p>
+    <p class="sec-label">07<span class="slash">/</span>ENGINEERING CHALLENGES</p>
     <h2 class="cs-sec-title" id="challenges-t">The hard <em>parts.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -302,6 +309,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>The invariants are asserted rather than assumed: shares always sum to the expense total, and within each currency the members' net balances sum to zero. The rule is written into the repository's standing rules as law, so a later feature cannot quietly reintroduce a float on an amount.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Balances agree across every screen and every device, and a rounding remainder always lands somewhere deterministic instead of vanishing. Multi-currency groups work without an exchange-rate feed, because nothing is ever converted.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>lib/core/utils/money.dart (Money.parseToCents string arithmetic, with the failing float cases named in-comment; scaleFor for ISO exponents); lib/features/settlement/domain/cents.dart (distributeCents / splitEvenCents, header quoted above); lib/features/session/domain/session_expense.dart:266 shares(); lib/features/session/domain/custom_split.dart; ledger.dart _byCurrency and netBalancesByCurrency; docs/APP_OVERVIEW.md §1 &quot;there is no FX conversion&quot;; CLAUDE.md money law.</p>
 </article>
 <article class="cs-challenge" id="challenge-2">
   <p class="cs-challenge-n" aria-hidden="true">CH.02</p>
@@ -314,6 +322,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>A dedicated backend unit test covers the routed case. Under the repository's standing test doctrine, a behavioural fix does not count until its test has been verified red against the pre-fix code by reverting the fix and re-running it.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Shipped in the 1.3.0 programme under financial and state integrity. The rule that came out of it is now written down: pair-level balance and settle-up UI always reads the direct ledger, and the simplified solver is only ever the fewest-payments plan view.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>lib/features/settlement/domain/simplified_decomposition.dart (226 lines; the comment states the defect and the conservation argument); lib/features/settlement/domain/ledger.dart _pairwiseOwes and validCoveredEdgeFlow; functions/src/balance.ts pairwiseOwes (&quot;EXACT mirror … keep the two apply loops line-for-line comparable&quot;); functions/test-unit/routed_settlement.test.mjs; docs/releases/1.3.0_program_report.md, &quot;Financial and state integrity (Priority 0)&quot;; docs/audits/perf-rework-2026-07/COMPLETION_REPORT.md for the red-first doctrine.</p>
 </article>
 <article class="cs-challenge" id="challenge-3">
   <p class="cs-challenge-n" aria-hidden="true">CH.03</p>
@@ -326,6 +335,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>The same invariants written down once and property-tested on the Dart side, with a deterministic pseudo-random sweep over the tax-and-service allocation on the TypeScript side, plus targeted unit tests for reconciliation and handwritten tip inference.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>The share a person watches change while they tap items is the share the ledger stores. A receipt whose printed total genuinely disagrees with its own lines surfaces that as a residual instead of quietly absorbing it into someone's balance.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>functions/src/receipt_math.ts (1,000 lines) and lib/features/session/domain/receipt_claims.dart (615 lines), whose headers state the shared contract — receipt_math.ts says verbatim &quot;Invariants (property-tested on the Dart side)&quot;, and on the TypeScript side only allocate_tax_service.test.mjs runs a sweep (&quot;Deterministic pseudo-random sweep (mulberry32)&quot;), the other two suites being example-based; CASH_ROUNDING_STEPS at receipt_math.ts:673 and the &quot;no general fuzz factor&quot; design rule; functions/test-unit/receipt_reconcile.test.mjs, allocate_tax_service.test.mjs, tip_inference.test.mjs.</p>
 </article>
 <article class="cs-challenge" id="challenge-4">
   <p class="cs-challenge-n" aria-hidden="true">CH.04</p>
@@ -338,6 +348,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>25 Firestore rules test files run against the emulator alongside 45 backend unit test files. I also ran an eight-domain static adversarial review of my own shipped code at version 1.1.1 in July 2026; it scored the app five out of ten at that point and produced a register of findings.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>The audit's highest finding — a member could rewrite the authorised-uid list through the self-leave branch and evict the host — is closed in the current rules, with the attack it prevents named in the comment above the guard. The register is not fully closed, and what is still open is stated in the lessons below rather than left out.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>firestore.rules — 2,254 lines / 128 KB, 26 helpers; header comment lines 3–25 for the authorisation model; the hasAll subset guard on authedUids; clientEquippableFrame and the equipProFrame callable; hostUid server-only via transferOwnership (~line 210). functions/src: 69 runTransaction call sites and 168 mentions of idempotency across 14 files, re-derived NUL-safely 2026-07-29 (grep -rao &quot;runTransaction(&quot; functions/src | wc -l -&gt; 69; grep -raio &quot;idempoten[a-z]*&quot; functions/src | wc -l -&gt; 168; grep -rail idempoten -&gt; 14 files). -a is required because functions/src/balance.ts contains NUL bytes; offline_claim.ts returning {kind:'already'}. docs/audits/SECURITY_AUDIT.md, committed 2026-07-16 at 1.1.1+119.</p>
 </article>
 <article class="cs-challenge" id="challenge-5">
   <p class="cs-challenge-n" aria-hidden="true">CH.05</p>
@@ -350,13 +361,14 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>Extraction is not trusted on its own: the lines land in the reconciler, which checks the line arithmetic against the printed totals and refuses to absorb an unexplained difference. Scanning is also behind a Remote Config flag, so it can be switched off in production without shipping a build.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Real text appears on screen within about a second of the shutter, and the expensive read is paid for only on the receipts that need it — which is what keeps the feature switched on.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>functions/src/receipt_scan.ts: SCAN_MODEL_PRIMARY / SCAN_MODEL_ACCURATE (both gemini-2.5-flash today, with an in-file note to point the accurate tier at a stronger model once provisioned), SCAN_TRUST_THRESHOLD 0.85, SCAN_FALLBACK_ITEM_CONFIDENCE 0.7, PAGE_MAX_EDGE 1600, MAX_SCAN_PAGES 4, BLUR_SHARPNESS 2.2, LOW_CONTRAST_STDEV 28; functions/src/receipt_merchant.ts for template learning; functions/src/index.ts:226–230 Vertex AI init with Application Default Credentials; pubspec.yaml ML Kit comment; remoteconfig.template.json parameter receipt_scan_enabled.</p>
 </article></div>
 </section>
 
-<section class="cs-section" id="decisions" aria-labelledby="decisions-t">
-  <span class="cs-ghost" aria-hidden="true">09</span>
+<section class="cs-section cs-s-decisions" id="decisions" aria-labelledby="decisions-t">
+  <span class="cs-ghost" aria-hidden="true">08</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">09<span class="slash">/</span>TECHNICAL DECISIONS</p>
+    <p class="sec-label">08<span class="slash">/</span>TECHNICAL DECISIONS</p>
     <h2 class="cs-sec-title" id="decisions-t">Why <em>this way.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -368,6 +380,7 @@ try {
     <p>A purchase state the client reports is a purchase state the client can be persuaded to lie about, and the paid cosmetics are the visible reward, so they are the obvious target. The rules deny a client-written frame id outright; the only route onto one is a callable that reads the live entitlement document first. The webhook is authenticated with a shared secret held in Secret Manager. Scheduled jobs then handle the parts a purchase SDK does not: lapse enforcement, expiring perks, grace status, trial reminders and gifting between subscribers.</p>
     <p class="cs-dec-alt"><span>Instead of</span> Trusting the purchase SDK's cached entitlement on the device</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Entitlement changes take a network round trip and depend on a webhook being reachable, so a subscriber who upgrades in a tunnel sees their perks a moment after the server hears about it.</p>
+    <p class="cs-cite"><span>Where to look</span>firestore.rules clientEquippableFrame comment, verbatim: &quot;Pro frame ids are DENIED here on purpose: the ONLY route onto a Pro frame is the equipProFrame Cloud Function (admin SDK bypasses rules), which re-checks the live customers/{uid} entitlement first.&quot;; functions/src/index.ts revenueCatWebhook with REVENUECAT_WEBHOOK_AUTH from Secret Manager; resetExpiredProPerks, getProLapseGraceStatus, trialReminderNotifier, winBackChurnedPro, giftProFromSubscriber, moveProEntitlementLink; lib/features/pro/data/billing_service.dart.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">02</p>
@@ -376,6 +389,7 @@ try {
     <p>Two plugins had already broken this build the same way, so the QR scanner is a hand-written AVFoundation platform channel instead of a dependency. The tab bar follows the same reasoning from the other direction: iOS 26 draws its own material, so the app embeds a genuine UITabBar as a platform view and lets the operating system draw it, rather than imitating the material in Dart and getting it subtly wrong on every OS update.</p>
     <p class="cs-dec-alt"><span>Instead of</span> Adding the published plugin and accepting a Podfile</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Native code I own on two platforms and have to maintain across OS releases. One dependency had to come back regardless — the on-device OCR is CocoaPods-based — so it ships with a written three-step rollback in case it stops surviving an iOS build.</p>
+    <p class="cs-cite"><span>Where to look</span>pubspec.yaml SPM comment naming mobile_scanner and workmanager; ios/Runner/QrScannerPlugin.swift (&quot;Deliberately native (AVFoundation) so the project keeps its SPM Firebase setup free of a CocoaPods camera plugin&quot;); ios/Runner/BupplesNativeTabBar.swift (&quot;Nothing here imitates the material; the OS draws it&quot;); the ML Kit rollback steps in pubspec.yaml.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">03</p>
@@ -384,6 +398,7 @@ try {
     <p>The app was built in Malaysia and its first bills were in ringgit, which is precisely how a currency becomes a hardcoded fallback and a group in Singapore ends up looking at RM. Region resolution has a documented provenance ladder, currency and cash-rounding behaviour are per-currency tables, and the standing rule forbids hardcoding the local currency as a fallback in new code. Multi-currency then falls out of the same discipline: each currency is its own independent ledger and nothing is ever converted, because a wrong exchange rate inside a shared bill is worse than no exchange rate at all.</p>
     <p class="cs-dec-alt"><span>Instead of</span> Shipping the local currency as the default and generalising later</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Every money surface has to carry a currency and know its exponent, and the display contract now has four hand-maintained mirrors — the Dart formatter, the Cloud Functions copy, the iOS widget and the Android widget provider — which have to change together.</p>
+    <p class="cs-cite"><span>Where to look</span>CLAUDE.md: &quot;Any country-specific system (MYR, DuitNow, Malaysian examples) is a regional adapter behind the country-neutral core — never the default … Never hardcode RM/MYR as a fallback in new code&quot;; lib/core/region/region_source.dart provenance ladder; lib/core/utils/currencies.dart (466 lines); the four-mirror format note in CLAUDE.md. docs/APP_OVERVIEW.md §1 is deliberately NOT cited here: line 12 argues the opposite (&quot;Currency: Ringgit (RM) is the default and the whole app is designed around it&quot;) and is stale. It is still cited in challenges[0], where it is used only for &quot;there is no FX conversion&quot;, which §1 does say.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">04</p>
@@ -392,6 +407,7 @@ try {
     <p>An offset is only correct until daylight saving moves. A London account that reported +0 in February had its nine o'clock reminder land at ten for the whole of March. A zone name resolves the exact local hour on Node, which has full ICU data, at the moment the job runs.</p>
     <p class="cs-dec-alt"><span>Instead of</span> Sending the device's UTC offset along with the preferred time</p>
     <p class="cs-dec-cost"><span>Trade-off</span> A platform dependency on the client purely to read the zone name, and a set of DST-boundary tests that have to be kept honest.</p>
+    <p class="cs-cite"><span>Where to look</span>pubspec.yaml flutter_timezone justification, which names the bug verbatim; functions/src/just_you_zone.ts (DST_SEARCH_MARGIN_MINUTES, HOURLY_TICK_MS); functions/test-unit/just_you_dst.test.mjs, just_you_timezone.test.mjs, just_you_zone.test.mjs.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">05</p>
@@ -400,63 +416,72 @@ try {
     <p>There are 99 handlers in one codebase. A bare functions deploy treats the deployed set as something to reconcile against the local build, so anything the build does not emit that day is removed — on a backend that moves money, that is a live outage rather than a tidy-up. The rule is written into the repository's standing rules; rules and index deploys are exempt because they are whole-file replacements anyway. Release steps live in scripts that verify build freshness and signing configuration rather than in someone's memory.</p>
     <p class="cs-dec-alt"><span>Instead of</span> The one-line deploy that every Firebase tutorial teaches</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Long deploy commands, and a new function has to be named explicitly or it silently never ships. The checklist trades a loud failure for a quiet one, so the runbook has to list the order.</p>
+    <p class="cs-cite"><span>Where to look</span>CLAUDE.md standing rules, verbatim: &quot;Never deploy Cloud Functions with a bare `--only functions`&quot;; 99 handlers enumerated from functions/src/*.ts; tool/verify_build_freshness.sh, scripts/check_release_config.sh, SHIP_CHECKLIST.md, docs/RELEASE.md, docs/releases/1.3.0_deploy_runbook.md.</p>
   </article>
 </div></div>
 </section>
 
-<section class="cs-section" id="evolution" aria-labelledby="evolution-t">
-  <span class="cs-ghost" aria-hidden="true">10</span>
+<section class="cs-section cs-s-evolution" id="evolution" aria-labelledby="evolution-t">
+  <span class="cs-ghost" aria-hidden="true">09</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">10<span class="slash">/</span>DESIGN EVOLUTION</p>
+    <p class="sec-label">09<span class="slash">/</span>DESIGN EVOLUTION</p>
     <h2 class="cs-sec-title" id="evolution-t">How it <em>changed.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><div class="cs-grid "><article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">01</p>
     <h3 class="cs-card-t">First release changed the failure mode</h3>
     <p>The app went public on the App Store on 2 July 2026 and on Google Play, and from that point a bug stopped being a hot reload and became a release. Build numbers are bumped per shipped cut rather than per commit, and the cadence since has been steady: 1.1.0 in mid-July, 1.1.1 the week after, 1.2.0, then 1.2.5 in the store on 27 July 2026, with 1.3.0 in the working tree.</p>
+    <p class="cs-cite"><span>Evidence</span>iTunes lookup API: first released 2026-07-02, current store version 1.2.5 released 2026-07-27. git log -p -- pubspec.yaml shows 1.1.0+109 (2026-07-12) through 1.3.0+153, which is the version in the working tree as of 2026-07-29.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">02</p>
     <h3 class="cs-card-t">Audited my own shipped code, then fixed what it found</h3>
     <p>At version 1.1.1 I ran an eight-domain static adversarial review of the live code rather than against the design. It scored five out of ten and produced a register. The highest finding was a membership-privilege escape through the self-leave branch; the current rules carry the subset guard that closes it, with the attack it prevents written above the guard so the reason survives the next edit.</p>
+    <p class="cs-cite"><span>Evidence</span>docs/audits/SECURITY_AUDIT.md, committed 2026-07-16 at 1.1.1+119 (commit 44ff9ffd); firestore.rules now carries resource.data.authedUids.hasAll(request.resource.data.authedUids) with the comment naming the swap attack.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">03</p>
     <h3 class="cs-card-t">A performance rework driven by measurement, not by feel</h3>
     <p>Eleven read-only per-domain audits produced three named root causes rather than a list of impressions: a dead wake gate that diffed around fifty widgets per framed bubble per frame at up to 120 Hz while the screen was idle, a cached still image that never re-armed, and photo decodes keyed on an animating radius — roughly forty full decodes per photo bubble per ease, fixed by quantising the radius into buckets. The same pass found seven provider families leaking Firestore listeners and the settlement solver inlined in three providers, re-running on every unrelated document change.</p>
+    <p class="cs-cite"><span>Evidence</span>docs/audits/perf-rework-2026-07/ (11 domain audits + COMPLETION_REPORT.md); docs/PERF.md.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">04</p>
     <h3 class="cs-card-t">Budgets that block a build, not guidelines</h3>
     <p>The performance work ended in five written budgets rather than a fixed list: one shared background-ambience clock; fixed-rate bubble physics with vsync-interpolated presentation and a cached still when idle; frame-time ceilings measured on a mid-range Android baseline rather than on my own phone; at most four app-lifetime listeners per joined hangout with route-scoped listeners released within thirty seconds; and thermal discipline, where a self-heating audit lowers that device's ambience ceiling with a fourteen-day expiry so one hot session never caps a device forever.</p>
+    <p class="cs-cite"><span>Evidence</span>docs/PERF.md — the five budgets, stated as blocking a release build; integration_test/perf_soak_test.dart with on-device FrameTiming.</p>
   </article></div></div>
 </section>
 
-<section class="cs-section" id="testing" aria-labelledby="testing-t">
-  <span class="cs-ghost" aria-hidden="true">11</span>
+<section class="cs-section cs-s-testing" id="testing" aria-labelledby="testing-t">
+  <span class="cs-ghost" aria-hidden="true">10</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">11<span class="slash">/</span>TESTING &amp; RELIABILITY</p>
+    <p class="sec-label">10<span class="slash">/</span>TESTING &amp; RELIABILITY</p>
     <h2 class="cs-sec-title" id="testing-t">How it is <em>proven.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><div class="cs-testing">
   <p class="cs-lead">Tests here exist to fail first. The repository's standing rule is that a behavioural fix does not count as done until its test has been verified red against the pre-fix code — by reverting the fix and re-running it. A test written after a fix and green on the first run proves nothing about the bug it claims to cover.</p>
-  <dl class="cs-metrics"><div><dt>Dart test files</dt><dd>558</dd></div><div><dt>Dart test declarations</dt><dd>4,812</dd></div><div><dt>Grouped suites</dt><dd>895</dd></div><div><dt>Backend test files</dt><dd>25 rules + 45 unit</dd></div><div><dt>Backend test declarations</dt><dd>965</dd></div><div><dt>On-device journeys</dt><dd>3</dd></div></dl>
+  <dl class="cs-metrics"><div><dt>Dart test files</dt><dd>558</dd><p class="cs-cite"><span>How it was counted</span>find test -name '*_test.dart' -type f | wc -l → 558 (566 total .dart files under test/).</p></div><div><dt>Dart test declarations</dt><dd>4,812</dd><p class="cs-cite"><span>How it was counted</span>Static count of test()/testWidgets() call sites: grep -rhoE '^[[:space:]]*(test|testWidgets)\(' --include='*.dart' test | wc -l → 4812, re-derived 2026-07-29. The 1.3.0 programme report claims 5,288 executed Flutter tests at build 150, higher because some cases are generated inside loops; the static count is the one used here because it can be re-derived from the tree.</p></div><div><dt>Grouped suites</dt><dd>895</dd><p class="cs-cite"><span>How it was counted</span>grep -rhoE '^[[:space:]]*group\(' --include='*.dart' test | wc -l → 895, re-derived 2026-07-29.</p></div><div><dt>Backend test files</dt><dd>25 rules + 45 unit</dd><p class="cs-cite"><span>How it was counted</span>functions/test-rules/*.test.mjs → 25 files against the Firestore rules emulator; functions/test-unit/*.test.mjs → 45 files under node --test. Re-derived 2026-07-29.</p></div><div><dt>Backend test declarations</dt><dd>965</dd><p class="cs-cite"><span>How it was counted</span>grep -rhoE '^[[:space:]]*(test|it)\(' across functions/test-rules and functions/test-unit → 965, re-derived 2026-07-29.</p></div><div><dt>On-device journeys</dt><dd>3</dd><p class="cs-cite"><span>How it was counted</span>integration_test/: perf_overhaul_journey_test.dart, perf_smoke_test.dart, perf_soak_test.dart, using FrameTiming through the integration_test package.</p></div></dl>
   <div class="cs-cases"><h3 class="cs-h3">Representative cases</h3><ul class="cs-points"><li>A payment on a rerouted plan row — The routed-settlement test covers the case that used to lose money: a payment recorded against a fewest-payments row where the payer and receiver share no direct debt must reduce the debts the payment actually covers, and must never create a reverse one.</li><li>Receipts that do not add up — Reconciliation, tax and service allocation, and handwritten tip inference each have their own suite, exercising named bounded tolerances — including per-currency cash rounding — rather than a general fuzz factor.</li><li>Reminders across a daylight-saving boundary — Three suites cover zone resolution and the DST boundary specifically, because the bug that motivated the design only appears in the weeks after a clock change.</li><li>The rules themselves, against a real emulator — Twenty-five suites run against the Firestore rules emulator rather than reasoning about the rules on paper — including the membership subset guard that closes the audit's highest finding.</li></ul></div>
 </div></div>
 </section>
 
-<section class="cs-section" id="results" aria-labelledby="results-t">
-  <span class="cs-ghost" aria-hidden="true">12</span>
+<section class="cs-section cs-s-results" id="results" aria-labelledby="results-t">
+  <span class="cs-ghost" aria-hidden="true">11</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">12<span class="slash">/</span>RESULTS</p>
+    <p class="sec-label">11<span class="slash">/</span>RESULTS</p>
     <h2 class="cs-sec-title" id="results-t">What <em>shipped.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><dl class="cs-metrics cs-metrics-lg"><div><dt>Shipped, on both stores</dt><dd>Live on the App Store as a Finance app, free, minimum iOS 15.5, first released 2 July 2026, and on Google Play under com.bupples.bupples. Universal Links and App Links are configured, so a join code, a Turbo split or a profile handle opens the installed app and falls back to the web page when it is not installed.</dd></div><div><dt>The scope one person carried</dt><dd>656 Dart files and around 250,000 lines under lib/, roughly 30,000 lines of TypeScript in the functions codebase, 99 deployed Cloud Function handlers, 25 top-level Firestore collections with 30 nested rule blocks, 2,254 lines of security rules and 16 composite indexes. Twenty-four features, each with its own domain, data, application and presentation layers, and a money kernel with no Flutter import at all, so the money maths can be tested without a widget tree.</dd></div><div><dt>Operational control without a store release</dt><dd>Fifteen Remote Config parameters gate the assistant, receipt scanning, nudges, the paywall, maintenance mode, a version gate and update prompts, with a client-side gate that renders maintenance, force-update and degraded states. An expensive or misbehaving feature can be switched off in minutes rather than in a review cycle.</dd></div><div><dt>What is not claimed here</dt><dd>There are no download, revenue, rating or retention figures in this case study. The store listings are public and checkable; the numbers behind them are not something I can evidence, so they are left out rather than rounded into a sentence.</dd></div></dl></div>
 </section>
 
-<section class="cs-section" id="lessons" aria-labelledby="lessons-t">
-  <span class="cs-ghost" aria-hidden="true">13</span>
+<section class="cs-section cs-s-lessons" id="lessons" aria-labelledby="lessons-t">
+  <span class="cs-ghost" aria-hidden="true">12</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">13<span class="slash">/</span>REFLECTION</p>
+    <p class="sec-label">12<span class="slash">/</span>REFLECTION</p>
     <h2 class="cs-sec-title" id="lessons-t">What I <em>learned.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>

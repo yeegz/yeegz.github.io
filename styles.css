@@ -3094,6 +3094,12 @@ html.egypt .head-egg-off { display: inline-flex; }
    ============================================================= */
 
 html.snake-on { overflow: hidden; }
+/* The game's room is an opaque sheet at z-index 995 and the custom cursor sits
+   at 700, so the cursor was painted underneath it — and since `.cur` hides the
+   native pointer, the eagle game had no visible cursor at all. It lifts over
+   the room here but stays under the loader at 1000, which is meant to cover
+   everything. The cursor is pointer-events:none, so nothing else changes. */
+html.snake-on .cursor { z-index: 996; }
 
 .snk {
   position: fixed;
@@ -3407,6 +3413,105 @@ html.egypt .t-stage { --focus: var(--eg-gold); }
     html.egypt .work-row:hover .work-media .phones { border-color: rgba(212, 160, 23, 0.55); }
   }
 }
+
+/* ---------- the flag's own bands -------------------------------
+   Everything above repaints the egg's GREEN away, which left the
+   whole site black — correct as far as it went, and the reason the
+   flag still could not be seen. A flag is bands, so the scroll gets
+   them: two red grounds and two bone ones among the black, in the
+   order they are met.
+
+   Each band is a token swap rather than a pile of per-element
+   colours. Every descendant already reads --bg / --ink / --line /
+   --accent, so overriding those ON the section repaints the whole
+   thing, including --eg-gold and --eg-red themselves, which is how
+   the gold stays legible on bone and on oxblood alike. The rules
+   above hardcode `background`, so these come later in the file to
+   win on source order at equal specificity. */
+
+html.egypt .scene-credibility,
+html.egypt .education-section {
+  /* A deep oxblood, not the flag red at full strength. The band has to be
+     unmistakably red without shouting over the type sitting on it — the flag
+     red belongs on marks and rules, where it is small and loud on purpose. */
+  --bg: #26050a;
+  --bg-2: #1b0306;
+  --ink: #ffffff;
+  --ink-soft: #f6e2e5;
+  --line: rgba(255, 255, 255, 0.18);
+  --line-soft: rgba(255, 255, 255, 0.09);
+  /* Gold at flag strength disappears into red; this is the eagle's
+     gold lifted until it reads clearly on this ground. */
+  --eg-gold: #f3c95c;
+  --accent: #f3c95c;
+  --section-accent: #f3c95c;
+  background: radial-gradient(circle at 77% 16%, rgba(206, 17, 38, 0.16), transparent 46%), #26050a;
+  color: var(--ink);
+}
+
+html.egypt .skills-section,
+html.egypt .contact-section {
+  --bg: #f2efe9;
+  --bg-2: #e7e3da;
+  --ink: #0b0b0c;
+  --ink-soft: #24262a;
+  --muted: #55585e;
+  --muted-2: #74777d;
+  --line: rgba(11, 11, 12, 0.18);
+  --line-soft: rgba(11, 11, 12, 0.08);
+  /* Both flag colours darkened to hold their contrast on bone. */
+  --eg-gold: #8a6a12;
+  --eg-red: #b60f21;
+  --accent: #b60f21;
+  --section-accent: #b60f21;
+  background: #f2efe9;
+  color: var(--ink);
+}
+
+/* The rules further up paint these against black by name, so they
+   have to be told about the bone ground explicitly. */
+html.egypt .skills-section::before { -webkit-text-stroke-color: rgba(11, 11, 12, 0.09); }
+html.egypt .skills-section .skill-lane:hover,
+html.egypt .skills-section .skill-lane:focus-within { background: color-mix(in srgb, var(--tone) 8%, #f2efe9); }
+html.egypt .skills-section .edge.prev {
+  background: linear-gradient(90deg, #f2efe9 7%, rgba(242, 239, 233, 0.86) 38%, transparent 100%);
+}
+html.egypt .skills-section .edge.next {
+  background: linear-gradient(270deg, #f2efe9 7%, rgba(242, 239, 233, 0.86) 38%, transparent 100%);
+}
+html.egypt .skills-section .skill-lanes { border-color: rgba(11, 11, 12, 0.18); }
+html.egypt .skills-section .skill-lane { border-bottom-color: rgba(11, 11, 12, 0.14); }
+/* Lane 2 and 5 were white-on-black; on bone they would be invisible. */
+html.egypt .skills-section .skill-lane:nth-child(2),
+html.egypt .skills-section .skill-lane:nth-child(5) { --tone: #0b0b0c; }
+html.egypt .skills-section .skill-lane:nth-child(3),
+html.egypt .skills-section .skill-lane:nth-child(6) { --tone: #8a6a12; }
+
+/* The accent voice — every italic aside, kicker and caption — is forced to the
+   flag red with !important further up. On a red band that is red on red, which
+   is how the education aside became unreadable. Inside a red band the accent
+   voice is the eagle's gold instead; on the bone bands the red is right and is
+   left alone. */
+html.egypt .scene-credibility em,
+html.egypt .scene-credibility figcaption,
+html.egypt .scene-credibility .caps-intro,
+html.egypt .education-section em,
+html.egypt .education-section figcaption,
+html.egypt .education-section .chapter-aside,
+html.egypt .education-section .lane-note,
+html.egypt .education-section .tl-org { color: var(--eg-gold) !important; }
+/* Rose at 4.1:1 was too dim to sit under white on this ground. */
+html.egypt .scene-credibility,
+html.egypt .education-section { --muted: #eec6ca; --muted-2: #d9a3aa; }
+
+/* The education ghost numeral and scanline were tuned for black. */
+html.egypt .education-section::before { color: rgba(255, 255, 255, 0.07); }
+html.egypt .education-section::after {
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0, rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 5px);
+}
+/* The contact scene's shader ring is drawn for a dark ground; on bone
+   it reads as grey haze, so it steps aside for the band. */
+html.egypt .contact-section canvas.ring-gl { opacity: 0.1; mix-blend-mode: multiply; }
 
 /* =============================================================
    Easter egg — entering and leaving

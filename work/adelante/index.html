@@ -30,8 +30,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=83" />
-<link rel="stylesheet" href="/case.css?v=13" />
+<link rel="stylesheet" href="/styles.css?v=84" />
+<link rel="stylesheet" href="/case.css?v=14" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -99,7 +99,7 @@ try {
   <ol><li><a href="#overview">Overview</a></li><li><a href="#problem">The problem</a></li><li><a href="#role">My role</a></li><li><a href="#constraints">Constraints</a></li><li><a href="#flow">Product flow</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#challenges">Engineering challenges</a></li><li><a href="#decisions">Technical decisions</a></li><li><a href="#evolution">Design evolution</a></li><li><a href="#testing">Testing</a></li><li><a href="#results">Results</a></li><li><a href="#lessons">Reflection</a></li></ol>
 </nav>
     
-<section class="cs-section" id="overview" aria-labelledby="overview-t">
+<section class="cs-section cs-s-overview" id="overview" aria-labelledby="overview-t">
   <span class="cs-ghost" aria-hidden="true">01</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">01<span class="slash">/</span>EXECUTIVE SUMMARY</p>
@@ -109,7 +109,7 @@ try {
   <div class="cs-sec-body" data-reveal><div class="cs-prose"><p class="cs-lead">A motivation app only helps on the day nobody feels like opening a motivation app. Adelante puts the writing on the surfaces a phone already shows — Home Screen, Lock Screen and — because every view applies containerBackground — StandBy on iOS 17+ — instead of behind a launch. I built the Flutter application, both native widget renderers (WidgetKit and SwiftUI on iOS, RemoteViews on Android), the deterministic content pipeline behind a 12,828-entry library that ships inside the binary, and the Firebase content backend that the shipped build deliberately does not need. It matters because the hard part of a widget product is not the app: it is three separate processes that never talk to each other agreeing, offline, on what to show right now.</p></div></div>
 </section>
 
-<section class="cs-section" id="problem" aria-labelledby="problem-t">
+<section class="cs-section cs-s-problem" id="problem" aria-labelledby="problem-t">
   <span class="cs-ghost" aria-hidden="true">02</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">02<span class="slash">/</span>THE PROBLEM</p>
@@ -122,7 +122,7 @@ try {
 </div></div>
 </section>
 
-<section class="cs-section" id="role" aria-labelledby="role-t">
+<section class="cs-section cs-s-role" id="role" aria-labelledby="role-t">
   <span class="cs-ghost" aria-hidden="true">03</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">03<span class="slash">/</span>ROLE &amp; OWNERSHIP</p>
@@ -135,7 +135,7 @@ try {
 </div></div>
 </section>
 
-<section class="cs-section" id="constraints" aria-labelledby="constraints-t">
+<section class="cs-section cs-s-constraints" id="constraints" aria-labelledby="constraints-t">
   <span class="cs-ghost" aria-hidden="true">04</span>
   <header class="cs-sec-head" data-reveal>
     <p class="sec-label">04<span class="slash">/</span>CONSTRAINTS</p>
@@ -143,32 +143,41 @@ try {
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><div class="cs-grid "><article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">01</p>
     <h3 class="cs-card-t">No accounts, analytics, or off-device tracking</h3>
     <p>Written as a non-goal in the design spec before implementation, which meant no auth layer, no attribution SDK and no crash reporting could be added later for convenience. The claim is checkable from the manifest rather than asserted: the complete set of direct runtime dependencies is cupertino_icons, flutter_riverpod, shared_preferences, home_widget, uuid, share_plus, http and auto_size_text, and pubspec.lock contains no analytics, auth, attribution, crash-reporting or advertising package at any depth. Absence in the manifest is evidence about what the build contains, not an audit of runtime behaviour.</p>
+    <p class="cs-cite"><span>Evidence</span>docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:165 (Non-goals). pubspec.yaml:38-48 cross-checked against pubspec.lock `dependency: &quot;direct main&quot;`. Repo-wide grep for analytics|firebase_auth|firebase_core|admob|google_mobile_ads|facebook|mixpanel|amplitude|sentry|crashlytics|tracking|idfa|advertis across lib/, pubspec.yaml and pubspec.lock returns 2 hits, both non-SDK (a letter-spacing comment in lib/app/theme.dart:106 and the user-facing string in adelante_shell.dart:1528).</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">02</p>
     <h3 class="cs-card-t">The widget must work with nothing but the local store</h3>
     <p>Neither native provider is allowed to reach the network. Both read only the shared local container — the App Group UserDefaults suite on iOS, SharedPreferences on Android — so everything a widget needs has to be serialised into the payload before it is written, including pre-tiered text and the rotation anchor.</p>
+    <p class="cs-cite"><span>Evidence</span>AdelanteWidgetShared.swift and AdelanteWidgetProvider.kt contain no networking calls; the invariant is documented at lib/features/content/data/content_sync_controller.dart:34-35. App Group group.com.adelanteapp.adelante declared in both Runner.entitlements and AdelanteWidgets.entitlements.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">03</p>
     <h3 class="cs-card-t">RemoteViews is a description of a view, not a view</h3>
     <p>No gradients, no arbitrary corner radius, and uniform auto-size text that is silently disabled the moment any code calls setTextViewTextSize. The payload also crosses a process boundary with a hard size limit, so anything drawn on the app side has to be small enough to survive the trip.</p>
+    <p class="cs-cite"><span>Evidence</span>android/app/src/main/kotlin/com/adelanteapp/adelante/AdelanteWidgetProvider.kt (390 lines; wc -l, 2026-07-29), bitmap path at lines 230-270 with the 480 px longest-edge cap; the no-setTextViewTextSize rule is written as a comment at lines 129-130.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">04</p>
     <h3 class="cs-card-t">Fonts do not cross the iOS extension boundary</h3>
     <p>A widget extension is its own bundle. Fonts registered by the host app are invisible to it, and `Font.custom` with a family name fails silently — it falls back to system with no error and no crash, so the failure only shows up as a widget that looks wrong.</p>
+    <p class="cs-cite"><span>Evidence</span>ios/AdelanteWidgets/Info.plist:24-34 re-declares all eight .ttf files in the extension's own UIAppFonts; the failure mode is written into the code comment at AdelanteWidgetViews.swift:148-157.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">05</p>
     <h3 class="cs-card-t">Ship without a backend</h3>
     <p>The delivery decision was hybrid: the full library ships as a bundled asset and the Firebase sync is a growth channel, not a dependency. Blaze activation is optional and a build with no endpoint configured still has to run.</p>
+    <p class="cs-cite"><span>Evidence</span>docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:17-20; lib/app/backend_config.dart:17 makes the endpoint a String.fromEnvironment with an empty default and isContentSyncEnabled false when empty.</p>
   </article></div></div>
 </section>
 
-
-<section class="cs-section" id="flow" aria-labelledby="flow-t">
-  <span class="cs-ghost" aria-hidden="true">06</span>
+<section class="cs-section cs-s-flow" id="flow" aria-labelledby="flow-t">
+  <span class="cs-ghost" aria-hidden="true">05</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">06<span class="slash">/</span>PRODUCT FLOW</p>
+    <p class="sec-label">05<span class="slash">/</span>PRODUCT FLOW</p>
     <h2 class="cs-sec-title" id="flow-t">How it <em>works.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -209,10 +218,10 @@ try {
 </figure></div>
 </section>
 
-<section class="cs-section" id="architecture" aria-labelledby="architecture-t">
-  <span class="cs-ghost" aria-hidden="true">07</span>
+<section class="cs-section cs-s-architecture" id="architecture" aria-labelledby="architecture-t">
+  <span class="cs-ghost" aria-hidden="true">06</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">07<span class="slash">/</span>SYSTEM ARCHITECTURE</p>
+    <p class="sec-label">06<span class="slash">/</span>SYSTEM ARCHITECTURE</p>
     <h2 class="cs-sec-title" id="architecture-t">How it <em>fits together.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -270,10 +279,10 @@ try {
 </figure></div>
 </section>
 
-<section class="cs-section" id="challenges" aria-labelledby="challenges-t">
-  <span class="cs-ghost" aria-hidden="true">08</span>
+<section class="cs-section cs-s-challenges" id="challenges" aria-labelledby="challenges-t">
+  <span class="cs-ghost" aria-hidden="true">07</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">08<span class="slash">/</span>ENGINEERING CHALLENGES</p>
+    <p class="sec-label">07<span class="slash">/</span>ENGINEERING CHALLENGES</p>
     <h2 class="cs-sec-title" id="challenges-t">The hard <em>parts.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -288,6 +297,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>test/widget_parity_test.dart (17 declarations) and test/widget_text_and_payload_test.dart (12) assert the shared contract, and the parity suite reads the native sources off disk so a change to the Swift or Kotlin copy fails a Dart test.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>The independent-cursor version was shipped first and then removed: commit 82c8e51 (2026-06-21) is titled 'remove independent pool rotation + anchor drift', which deleted rotation outright to stop the drift. Rotation returned in fd47846 and fb80270 (2026-07-18) only once it was one deterministic index rather than three clocks.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>lib/features/widgets/domain/widget_rotation.dart:6; ios/AdelanteWidgets/AdelanteWidgetShared.swift:96; android/app/src/main/kotlin/com/adelanteapp/adelante/AdelanteWidgetProvider.kt:373; lib/core/home_widget/widget_payload.dart:31-32; ios/AdelanteWidgets/AdelanteWidgetProvider.swift:21-36. Commits 82c8e51 (2026-06-21), fd47846 and fb80270 (2026-07-18). Test counts from `grep -rE &quot;^\s*(test|testWidgets)\(&quot; test/*.dart`.</p>
 </article>
 <article class="cs-challenge" id="challenge-2">
   <p class="cs-challenge-n" aria-hidden="true">CH.02</p>
@@ -300,6 +310,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>test/widget_text_and_payload_test.dart (12 declarations) pins the caps and the boundary behaviour; test/widget_parity_test.dart (17) asserts the tier gate is still present in both native sources.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>The truncation rules exist once, in the language that has the tests. Both native renderers only choose from a pool they were handed; neither one cuts a sentence.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:41-43 (baseline defect); lib/features/widgets/domain/widget_text.dart:32; lib/core/home_widget/widget_payload.dart:107; ios/AdelanteWidgets/AdelanteWidgetViews.swift:38-44; AdelanteWidgetProvider.kt:74-79.</p>
 </article>
 <article class="cs-challenge" id="challenge-3">
   <p class="cs-challenge-n" aria-hidden="true">CH.03</p>
@@ -312,6 +323,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>Both targets build for release — build/ios/Release-iphoneos holds Runner.app and AdelanteWidgets.appex, both dated 2026-07-18 — and the eight .ttf files are declared in two places that have to agree: pubspec.yaml's fonts block and the extension's Info.plist.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Four typefaces are selectable on both platforms, and the two Xcode mutations that are easy to lose in a regenerated project are scripts rather than remembered clicks.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>ios/AdelanteWidgets/Info.plist:24-34; ios/AdelanteWidgets/AdelanteWidgetViews.swift:148-157; ios/setup_widget_target.rb (86 lines); ios/add_widget_fonts.rb (29 lines); AdelanteWidgetProvider.kt:113-121; pubspec.yaml fonts block, 4 OFL families as 8 .ttf files; build artifacts dated 2026-07-18 15:09.</p>
 </article>
 <article class="cs-challenge" id="challenge-4">
   <p class="cs-challenge-n" aria-hidden="true">CH.04</p>
@@ -324,6 +336,7 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>test/android_widget_remote_views_test.dart reads android/app/src/main/res/layout/adelante_widget.xml off disk and asserts that autoSizeTextType=&quot;uniform&quot; is present and android:textSize= is absent from the quote TextView.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Both widgets render the same gradient, radius and metadata layout from one payload. The guard is a source-text assertion, which catches the stray line being reintroduced but would not catch a subtler rendering regression — a limit worth naming rather than counting as coverage.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>AdelanteWidgetProvider.kt:230-270 (bitmap path and 480 px cap), :129-130 (the no-setTextViewTextSize comment); test/android_widget_remote_views_test.dart (2 declarations); android/app/src/main/res/layout/adelante_widget.xml.</p>
 </article>
 <article class="cs-challenge" id="challenge-5">
   <p class="cs-challenge-n" aria-hidden="true">CH.05</p>
@@ -336,13 +349,14 @@ try {
     <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>The shipped asset holds 12,828 entries with 12,828 unique ids and 12,828 unique texts — zero exact duplicates, verified by loading library.json and counting. test/content_foundation_test.dart (21 declarations), test/content_library_test.dart (9) and test/content_asset_floor_test.dart (7) hold the floors and the shape against the real asset rather than a fixture.</p></div>
     <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>The library grew from 96 curated entries to 12,828 across 20 categories, with five faith traditions each above 550 entries, and no duplicate text reached the asset. 12,732 of those entries are original text produced through the pipeline and 72 are public domain: 45 attributed quotes (Emerson, Seneca, Epictetus, Thoreau, Keller) and 27 scripture verses, 36 of which carry an explicit citation — the gate exists because the first number is that large, not in spite of it. The recorded run rejected 9 of 12,741 candidates — 2 filler, 6 exact duplicates, 1 near-duplicate. The value is that the rule runs identically every time over the whole library, not that it caught a lot.</p></div>
   </div>
+  <p class="cs-cite"><span>Where to look</span>tool/generate_library/gate.dart (396 lines; dedup layers at :309-312, filter lists at :133-173, seedCurated at :191, id derivation at :376-395); functions/src/model.ts (217 lines) and functions/src/index.ts:132; assets/content/library.json verified with json.load — 11,837,788 bytes, 12,828 entries, 12,828 unique ids, 12,828 unique texts, 20 categories; faith counts islam 599, judaism 559, christianity 559, hinduism 558, buddhism 552, generalSpiritual 3, null 9,998; contentType original 12,732, reflection 19, affirmation 5, quote 45, verse 15, ayah 12 — the 12,732 is the generator figure; licenseStatus original is 12,756 because it folds in the 24 hand-written seed entries, which is why it is not the number published. tool/generate_library/report.txt (git-tracked) records the run: 139 raw batch files, 12,741 raw records read, 9 rejected (2 slop, 6 exactDuplicate, 1 nearDuplicate, and zero invalidLicense or missingCitation). All re-verified with json.load on 2026-07-29.</p>
 </article></div>
 </section>
 
-<section class="cs-section" id="decisions" aria-labelledby="decisions-t">
-  <span class="cs-ghost" aria-hidden="true">09</span>
+<section class="cs-section cs-s-decisions" id="decisions" aria-labelledby="decisions-t">
+  <span class="cs-ghost" aria-hidden="true">08</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">09<span class="slash">/</span>TECHNICAL DECISIONS</p>
+    <p class="sec-label">08<span class="slash">/</span>TECHNICAL DECISIONS</p>
     <h2 class="cs-sec-title" id="decisions-t">Why <em>this way.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
@@ -354,6 +368,7 @@ try {
     <p>The delivery decision was written as hybrid before it was built: ship the full generated library as an offline asset and keep getContent delta-sync as the growth and correction channel, with Blaze activation optional and not required to ship. A widget product whose first frame depends on a network call has a bad first frame.</p>
     <p class="cs-dec-alt"><span>Instead of</span> Fetching the library on first run and caching it</p>
     <p class="cs-dec-cost"><span>Trade-off</span> The asset is bundled uncompressed and parsed on the main isolate at boot. The design spec called for a gzipped library.json.gz produced with dart:io GZipCodec; the shipped asset is plain JSON, and the cold-start cost of parsing it has not been measured.</p>
+    <p class="cs-cite"><span>Where to look</span>docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:17-20 and :61; pubspec.yaml asset comment; assets/content/library.json is 11,837,788 bytes and git-tracked; ContentLibraryLoader.load parses it at boot.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">02</p>
@@ -362,6 +377,7 @@ try {
     <p>Stated in the source: an empty endpoint means sync is disabled and the app stays purely local, which is the safe default so a build with no backend configured still ships and runs. It also makes the privacy posture structural rather than a promise — a build with no endpoint cannot phone anywhere.</p>
     <p class="cs-dec-alt"><span>Instead of</span> A runtime feature flag, or an endpoint compiled in and toggled in settings</p>
     <p class="cs-dec-cost"><span>Trade-off</span> The backend is fully written and exercised by client-side tests but has never run against a live project: .firebaserc still contains the placeholder adelante-REPLACE-WITH-YOUR-PROJECT-ID, and there is no google-services.json, GoogleService-Info.plist or firebase_options.dart anywhere in the repo. Infrastructure that has never run is infrastructure that has not been proven.</p>
+    <p class="cs-cite"><span>Where to look</span>lib/app/backend_config.dart:6-8 (the quoted comment) and :17; .firebaserc; absence of Firebase config files verified across the repository.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">03</p>
@@ -370,6 +386,7 @@ try {
     <p>Written at the loader: this is what lets the library grow to thousands of entries without ballooning the compiled binary or the parse time of a giant source file. Any load or parse failure falls back to the compiled seedMotivationQuotes, so the app is never contentless.</p>
     <p class="cs-dec-alt"><span>Instead of</span> Keeping the content as compiled Dart, which is what the 1,498-line seed file used to be</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Two representations of the content now have to stay compatible, and the fallback path is the one least likely to be exercised. The related 'no local database' decision was written with a note to revisit past roughly 10,000 entries; the library is 12,828 and it was not revisited.</p>
+    <p class="cs-cite"><span>Where to look</span>lib/features/content/data/content_library_loader.dart:9-12 (the quoted comment and the fallback); lib/features/content/data/seed_content.dart (1,498 lines); design spec lines 166-168 (Non-goals: no local DB migration, revisit past ~10k).</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">04</p>
@@ -378,6 +395,7 @@ try {
     <p>It was written as a product non-goal before implementation, so it shaped the architecture rather than being retrofitted. The only sync call is a single GET with an accept header and an optional ?since= version, carrying no body, identifiers or preferences, and its docstring says so; the client re-checks the approved, reviewed and active flags anyway as defence in depth. The only authentication anywhere in the system is a server-side admin custom claim that gates the operator, not users.</p>
     <p class="cs-dec-alt"><span>Instead of</span> An account layer, which would have let favourites, presets and widget configurations follow a user between devices</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Nothing syncs — all 18 preference keys live on one device, so a reinstall loses favourites, presets and widget configurations. There is also no crash reporting and no analytics, which means a field failure is completely invisible.</p>
+    <p class="cs-cite"><span>Where to look</span>design spec line 165 (Non-goals); lib/features/content/data/remote_content_source.dart docstring :21-23; lib/app/local_store.dart (18 SharedPreferences keys, no upload path in the codebase); android/app/src/main/AndroidManifest.xml declares zero uses-permission entries; ios/Runner/Info.plist has no NSUserTrackingUsageDescription; firestore.rules requires request.auth.token.admin == true for all writes.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">05</p>
@@ -386,67 +404,78 @@ try {
     <p>Recorded in docs/backend/content-system.md under 'Backend Choice': mobile SDKs, offline persistence, security rules, scheduled functions, and a console-based admin path that meant the curation workflow did not need a custom API and review UI built first.</p>
     <p class="cs-dec-alt"><span>Instead of</span> Supabase and Postgres</p>
     <p class="cs-dec-cost"><span>Trade-off</span> The shipped client never uses the Firestore SDK at all — it calls one HTTPS function, which uses the Admin SDK and bypasses rules entirely, as the rules file's own header states. Most of what won the comparison is unused by the path the app actually takes.</p>
+    <p class="cs-cite"><span>Where to look</span>docs/backend/content-system.md ('Backend Choice'); functions/package.json (Node 20, firebase-functions ^6.1.0, firebase-admin ^12.6.0); firestore.rules (41 lines, header comment; wc -l, 2026-07-29); functions/src/index.ts:47 (getContent); firestore.indexes.json (3 composite indexes).</p>
   </article>
 </div></div>
 </section>
 
-<section class="cs-section" id="evolution" aria-labelledby="evolution-t">
-  <span class="cs-ghost" aria-hidden="true">10</span>
+<section class="cs-section cs-s-evolution" id="evolution" aria-labelledby="evolution-t">
+  <span class="cs-ghost" aria-hidden="true">09</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">10<span class="slash">/</span>DESIGN EVOLUTION</p>
+    <p class="sec-label">09<span class="slash">/</span>DESIGN EVOLUTION</p>
     <h2 class="cs-sec-title" id="evolution-t">How it <em>changed.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><div class="cs-grid "><article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">01</p>
     <h3 class="cs-card-t">The baseline was written down before it was fixed</h3>
     <p>The overhaul spec opens with a 'Baseline facts (from codebase audit)' section naming the defects in the author's own code: every iOS family rendered full text regardless of size, and search was a substring scan over a recomputed 13-field blob with no index, ranking, debounce or diacritic folding — and it was caged inside the user's selected categories, so nothing outside them was discoverable.</p>
+    <p class="cs-cite"><span>Evidence</span>docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:37-43.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">02</p>
     <h3 class="cs-card-t">Rotation was deleted before it was rebuilt</h3>
     <p>Independent per-renderer rotation shipped first and drifted. Commit 82c8e51 removed it outright rather than patching it, and the shared deterministic index arrived a month later as its replacement.</p>
+    <p class="cs-cite"><span>Evidence</span>Commit 82c8e51 (2026-06-21) 'remove independent pool rotation + anchor drift'; fd47846 and fb80270 (2026-07-18).</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">03</p>
     <h3 class="cs-card-t">Search became an index</h3>
     <p>lib/features/content/data/search_index.dart maps token to quote id to accumulated field weight — text 3.0, author 2.0, category 1.5, tag 1.0, mood and tone 0.75 — with AND semantics across tokens and the last, still-being-typed token prefix-matched so live typing works without a trie. Incremental add and remove keep it consistent with sync upserts, and searchRanked is deliberately not preference-filtered, with the reason written in its docstring: search is how you find something outside your own categories.</p>
+    <p class="cs-cite"><span>Evidence</span>lib/features/content/data/search_index.dart (weights, _prefixScores at :116); lib/features/content/data/quote_repository.dart:75 (searchRanked docstring), :16-22 and :47-63 (cached unmodifiable view; favourite and markShown skip reindexing).</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">04</p>
     <h3 class="cs-card-t">The library grew in two jumps</h3>
     <p>96 curated seed entries, then 10,047 at commit b22474d, then 12,828 after the faith fill at 3e0d06d, which is where it stands. One commit message in that stretch (b22474d, &quot;10,051 quotes&quot;) is four entries off the file at that SHA, which is why the citable number is the one read back out of the shipped asset.</p>
+    <p class="cs-cite"><span>Evidence</span>git show &lt;sha&gt;:assets/content/library.json piped through json.load — b22474d = 10,047 against a commit message claiming 10,051; 476346c = 10,056 and 3e0d06d = 12,828 are both exact; HEAD = 12,828.</p>
   </article>
 <article class="cs-card">
+    <p class="cs-card-n" aria-hidden="true">05</p>
     <h3 class="cs-card-t">The tab bar was reverted twice before it was native</h3>
     <p>A Flutter approximation of the iOS 26 Liquid Glass tab bar was built and reverted twice on 2026-06-21 — the commit message says a native UIVisualEffect renders flat inside Flutter. It was finally solved by registering a real UITabBar as a Flutter platform view, using configureWithDefaultBackground() specifically to keep the system glass while tinting selected and unselected items to the app palette. It is iOS-only; Android keeps the Flutter bar.</p>
+    <p class="cs-cite"><span>Evidence</span>Commits f4535e9 and 1c3343b (2026-06-21), c974605 (2026-07-18); ios/Runner/AppDelegate.swift:26-147 (adelante/native_tab_bar platform view factory, comment at :106-111); lib/features/app/presentation/native_tab_bar.dart.</p>
   </article></div></div>
 </section>
 
-<section class="cs-section" id="testing" aria-labelledby="testing-t">
-  <span class="cs-ghost" aria-hidden="true">11</span>
+<section class="cs-section cs-s-testing" id="testing" aria-labelledby="testing-t">
+  <span class="cs-ghost" aria-hidden="true">10</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">11<span class="slash">/</span>TESTING &amp; RELIABILITY</p>
+    <p class="sec-label">10<span class="slash">/</span>TESTING &amp; RELIABILITY</p>
     <h2 class="cs-sec-title" id="testing-t">How it is <em>proven.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><div class="cs-testing">
   <p class="cs-lead">18 test files, 1,898 lines, 117 test declarations and 284 assertions — and no Flutter widget tests at all. The suite is aimed at data, contracts and cross-platform invariants rather than UI, and three of its suites do something unusual: they read the Swift, Kotlin and XML sources off disk from Dart and assert on their text, which pins invariants a Dart test cannot otherwise reach. Those are source-text guards, not behavioural tests, and they are worth naming as such.</p>
-  <dl class="cs-metrics"><div><dt>Test files</dt><dd>18</dd></div><div><dt>Test declarations</dt><dd>117</dd></div><div><dt>Assertions</dt><dd>284</dd></div><div><dt>Flutter widget tests</dt><dd>0</dd></div><div><dt>Backend tests</dt><dd>0</dd></div></dl>
+  <dl class="cs-metrics"><div><dt>Test files</dt><dd>18</dd><p class="cs-cite"><span>How it was counted</span>find test -name '*_test.dart' -type f | wc -l → 18; find test -type f -name '*.dart' | xargs wc -l → 1898.</p></div><div><dt>Test declarations</dt><dd>117</dd><p class="cs-cite"><span>How it was counted</span>grep -rE &quot;^\\s*(test|testWidgets)\\(&quot; test/*.dart | wc -l → 117, across 20 groups. Two of the 117 sit inside generating loops (5 and 17 iterations), so the executed count is higher than the declared one. At commit 6bc4715 (2026-06-21) the same command returned 60 across 13 files.</p></div><div><dt>Assertions</dt><dd>284</dd><p class="cs-cite"><span>How it was counted</span>grep -rEo &quot;expect\\(&quot; test/*.dart | wc -l → 284.</p></div><div><dt>Flutter widget tests</dt><dd>0</dd><p class="cs-cite"><span>How it was counted</span>grep -rE &quot;^\\s*testWidgets\\(&quot; test/*.dart | wc -l → 0.</p></div><div><dt>Backend tests</dt><dd>0</dd><p class="cs-cite"><span>How it was counted</span>functions/ contains no test files, verified by listing the directory recursively. The five Cloud Functions are exercised only from the client side.</p></div></dl>
   <div class="cs-cases"><h3 class="cs-h3">Representative cases</h3><ul class="cs-points"><li>A user who picks one tradition is never shown another — Faith filtering is a hard predicate applied before any scoring, in two places that both switch exhaustively over the ReligiousPreference enum. The tests generate one case per faith asserting both a minimum count and that no other tradition appears, plus a case that Islam-only never surfaces another faith and one that secular categories never leak scripture when no faith has been chosen.</li><li>A Dart test that asserts on Swift — test/ios_widget_source_test.dart reads ios/AdelanteWidgets/AdelanteWidgetViews.swift and asserts the containerBackground modifier is applied outside the family switch. Moving it inside compiles perfectly and breaks the surfaces that require a container background — the exact class of bug a compiler cannot see.</li><li>A Dart test that asserts on Android XML — test/android_widget_remote_views_test.dart reads the widget layout and asserts autoSizeTextType=&quot;uniform&quot; is present and android:textSize= is absent from the quote TextView. Both halves guard the same one-line regression: any runtime text size silently disables uniform auto-sizing.</li><li>Content floors asserted against the shipped asset — test/content_asset_floor_test.dart and test/content_library_test.dart load the real 12,828-entry library rather than a fixture and assert per-category and per-faith minimums, so a regenerated library that thins a category fails a test run instead of quietly shrinking a widget's pool.</li></ul></div>
 </div></div>
 </section>
 
-<section class="cs-section" id="results" aria-labelledby="results-t">
-  <span class="cs-ghost" aria-hidden="true">12</span>
+<section class="cs-section cs-s-results" id="results" aria-labelledby="results-t">
+  <span class="cs-ghost" aria-hidden="true">11</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">12<span class="slash">/</span>RESULTS</p>
+    <p class="sec-label">11<span class="slash">/</span>RESULTS</p>
     <h2 class="cs-sec-title" id="results-t">What <em>shipped.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><dl class="cs-metrics cs-metrics-lg"><div><dt>iOS builds current; the Android artifact is stale</dt><dd>build/ios/Release-iphoneos holds Runner.app and AdelanteWidgets.appex with dSYMs, both dated 2026-07-18. build/app/outputs/flutter-apk holds a release APK, but it is dated 2026-06-21 — before the nineteen commits of 2026-07-18 that rewrote the payload, tiering, rotation and the Android provider — so nothing on disk demonstrates the current Android code compiles. The hand-built WidgetKit extension target compiles and embeds, which is the part of a Flutter widget project most likely not to.</dd></div><div><dt>Seven widget families from one set of views</dt><dd>The bundle declares systemSmall, systemMedium, systemLarge and systemExtraLarge plus accessoryInline, accessoryCircular and accessoryRectangular, and applies containerBackground(for: .widget) with a pre-iOS-17 fallback — which is what makes the same views legal in StandBy, since iOS 17 and later reuse those families there. There is no StandBy-specific code path: the accurate claim is StandBy-safe, not a separately built StandBy widget.</dd></div><div><dt>12,828 entries, no duplicate text</dt><dd>The shipped library holds 12,828 entries with 12,828 unique ids and 12,828 unique texts across 20 categories, and five traditions clearing the 500-per-category floor the pipeline was built to reach: islam 599, judaism 559, christianity 559, hinduism 558, buddhism 552.</dd></div><div><dt>Eight runtime dependencies, none of them tracking</dt><dd>The complete set of direct runtime dependencies is cupertino_icons, flutter_riverpod, shared_preferences, home_widget, uuid, share_plus, http and auto_size_text. There is no analytics, auth, attribution, crash-reporting or advertising package at any depth in the lockfile, the Android release manifest declares zero permissions, and Info.plist carries no tracking usage description. That is evidence from the manifest about what the build contains — it is not a runtime audit, and it is stated that way on purpose.</dd></div></dl></div>
 </section>
 
-<section class="cs-section" id="lessons" aria-labelledby="lessons-t">
-  <span class="cs-ghost" aria-hidden="true">13</span>
+<section class="cs-section cs-s-lessons" id="lessons" aria-labelledby="lessons-t">
+  <span class="cs-ghost" aria-hidden="true">12</span>
   <header class="cs-sec-head" data-reveal>
-    <p class="sec-label">13<span class="slash">/</span>REFLECTION</p>
+    <p class="sec-label">12<span class="slash">/</span>REFLECTION</p>
     <h2 class="cs-sec-title" id="lessons-t">What I <em>learned.</em></h2>
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>

@@ -1110,3 +1110,388 @@ html.egypt .cs-dec-chose { color: var(--eg-red, #ce1126) !important; }
 html.egypt .cs-arch-group[data-tier="client"] {
   background: color-mix(in srgb, var(--eg-red, #ce1126) 5%, #000000);
 }
+
+/* =================================================================
+   Per-section design
+   -----------------------------------------------------------------
+   Every one of the thirteen sections used to render into the same
+   anonymous container, and three of them (constraints, research,
+   evolution) shared the literal same renderer — so a case study read
+   as one box grid repeated thirteen times. That is the "stressful"
+   part: nothing told you what kind of thing you were looking at.
+
+   section() now stamps each one with .cs-s-<id>, and each gets the
+   homepage instrument that suits what it holds — the measuring
+   scale, the numbered manifesto, the spec sheet, the rail with
+   nodes, the status board. No new visual language: these are the
+   devices already on the homepage, ported.
+   ================================================================= */
+
+/* ---------- evidence, wherever a claim is made ------------------ */
+
+.cs-cite {
+  margin-top: 1rem;
+  padding-left: 0.95rem;
+  border-left: 2px solid color-mix(in srgb, var(--cs-accent) 42%, transparent);
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.cs-cite span {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--cs-accent);
+  font: 500 0.5rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* ---------- 01 overview: the executive plate -------------------- */
+
+.cs-s-overview .cs-lead {
+  max-width: 30ch;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: clamp(1.35rem, 2.9vw, 2.15rem);
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+/* ---------- 02 the problem: the numbered manifesto -------------- */
+
+.cs-s-problem .cs-points { max-width: none; counter-reset: fault; }
+.cs-s-problem .cs-points li {
+  counter-increment: fault;
+  display: grid;
+  grid-template-columns: minmax(0, 3.4rem) minmax(0, 1fr);
+  gap: 0 1.4rem;
+  padding: 1.15rem 0;
+  margin: 0;
+  max-width: none;
+  border-top: 1px solid var(--line);
+  font-size: 1rem;
+}
+.cs-s-problem .cs-points li:last-child { border-bottom: 1px solid var(--line); }
+/* The shared dash marker is replaced by the ordinal, so it goes. */
+.cs-s-problem .cs-points li::before {
+  content: counter(fault, decimal-leading-zero);
+  position: static;
+  width: auto;
+  height: auto;
+  background: none;
+  color: transparent;
+  -webkit-text-stroke: 1.1px var(--cs-accent);
+  font: 900 1.55rem/1 var(--disp);
+  letter-spacing: -0.04em;
+}
+
+/* ---------- 03 my role: the ledger ------------------------------ */
+
+.cs-s-role .cs-split { grid-template-columns: minmax(0, 1fr); gap: clamp(30px, 4vh, 46px); }
+.cs-s-role .cs-h3 {
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+.cs-s-role .cs-ticks { margin-top: 0.2rem; }
+.cs-s-role .cs-ticks li {
+  display: grid;
+  grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr);
+  gap: 0 1.2rem;
+  align-items: baseline;
+  padding: 0.95rem 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.cs-s-role .cs-ticks li::before {
+  content: 'Owned';
+  position: static;
+  width: auto;
+  height: auto;
+  transform: none;
+  border: 0;
+  color: var(--cs-accent);
+  font: 500 0.53rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cs-s-role .cs-ticks-muted li::before { content: 'Not mine'; color: var(--muted-2); }
+
+/* ---------- 04 constraints, 10 evolution: the rail -------------- */
+/* Both used the shared itemGrid, whose cards took their width from
+   their prose and so each claimed a whole flex line anyway. A
+   constraint is a boundary and an evolution is a timeline; both are
+   a rail with nodes on it. */
+
+.cs-s-constraints .cs-grid,
+.cs-s-evolution .cs-grid {
+  display: block;
+  gap: 0;
+  background: none;
+  border: 0;
+}
+.cs-s-constraints .cs-card,
+.cs-s-evolution .cs-card {
+  display: grid;
+  grid-template-columns: minmax(0, 9.5rem) minmax(0, 1fr);
+  gap: 0.3rem 1.6rem;
+  position: relative;
+  padding: 1.5rem 0 1.5rem 1.6rem;
+  border-left: 1px solid var(--line);
+  background: none;
+}
+.cs-s-constraints .cs-card::before,
+.cs-s-evolution .cs-card::before {
+  content: '';
+  position: absolute;
+  left: -4.5px;
+  top: 2.05rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cs-accent);
+  box-shadow: 0 0 11px 2px color-mix(in srgb, var(--cs-accent) 40%, transparent);
+}
+.cs-card-n {
+  /* Both tracks must be explicit. With only the row pinned, auto-placement put
+     the stamp in column 2 on top of the title it was meant to label. */
+  grid-column: 1;
+  grid-row: 1;
+  color: var(--muted);
+  font: 500 0.53rem var(--mono);
+  letter-spacing: 0.2em;
+  line-height: 1.5;
+}
+.cs-s-constraints .cs-card-n::after { content: ' · CONSTRAINT'; }
+.cs-s-evolution .cs-card-n::after { content: ' · REVISION'; }
+.cs-s-constraints .cs-card-t,
+.cs-s-evolution .cs-card-t {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  margin: 0;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: clamp(1rem, 1.7vw, 1.25rem);
+  letter-spacing: -0.01em;
+  text-transform: none;
+  line-height: 1.2;
+}
+.cs-s-constraints .cs-card p:not(.cs-cite),
+.cs-s-evolution .cs-card p:not(.cs-cite) {
+  grid-column: 2;
+  max-width: 62ch;
+  margin-top: 0.55rem;
+}
+.cs-s-constraints .cs-cite,
+.cs-s-evolution .cs-cite { grid-column: 2; }
+
+/* ---------- 06 product flow: one continuous line ---------------- */
+/* Eight steps in a wrapping flex row rendered five wide and short,
+   then three wide and tall — the tail of a sequence looking more
+   important than its head. A flow is a line. */
+
+.cs-s-flow .cs-flow-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 0;
+  background: none;
+  border: 0;
+}
+.cs-s-flow .cs-step {
+  padding: 1.5rem 1.2rem 1.6rem 0;
+  background: none;
+  /* The rule belongs to the step, not the container: on the container it drew
+     across the first row only, leaving the wrapped steps' nodes floating with
+     no rail under them. */
+  border-top: 1px solid var(--line);
+}
+.cs-s-flow .cs-step::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -4.5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cs-accent);
+  box-shadow: 0 0 11px 2px color-mix(in srgb, var(--cs-accent) 40%, transparent);
+}
+.cs-s-flow .cs-step-n { font-size: 1.5rem; margin-bottom: 0.6rem; }
+@media (max-width: 640px) {
+  /* Vertical rail, the way the homepage pipeline falls back. */
+  .cs-s-flow .cs-flow-steps { border-top: 0; }
+  .cs-s-flow .cs-step { padding: 1.2rem 0 1.2rem 1.5rem; border-left: 1px solid var(--line); }
+  .cs-s-flow .cs-step::before { left: -4.5px; top: 1.7rem; }
+}
+
+/* ---------- 09 technical decisions: the fork -------------------- */
+
+.cs-s-decisions .cs-decisions {
+  display: block;
+  gap: 0;
+  background: none;
+  border: 0;
+}
+.cs-s-decisions .cs-decision {
+  padding: clamp(26px, 4vh, 40px) 0;
+  background: none;
+  border-top: 1px solid var(--line);
+}
+.cs-s-decisions .cs-decision:last-child { border-bottom: 1px solid var(--line); }
+.cs-s-decisions .cs-h3 {
+  max-width: 30ch;
+  margin: 0.5rem 0 1.2rem;
+  font-family: var(--disp);
+  font-weight: 800;
+  font-stretch: 112%;
+  font-size: clamp(1.2rem, 2.3vw, 1.75rem);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  text-transform: none;
+}
+.cs-s-decisions .cs-dec-chose,
+.cs-s-decisions .cs-dec-alt {
+  display: grid;
+  grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
+  gap: 0 1.1rem;
+  align-items: baseline;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--line-soft);
+  max-width: 74ch;
+}
+.cs-s-decisions .cs-dec-chose { color: var(--ink); }
+.cs-s-decisions .cs-dec-alt { color: var(--muted); text-decoration: none; }
+
+/* ---------- 11 testing: the measuring scale --------------------- */
+
+.cs-s-testing .cs-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: clamp(20px, 2.6vw, 34px);
+  padding-top: 1.5rem;
+  border-top: 2px solid color-mix(in srgb, var(--cs-accent) 55%, transparent);
+  background: none;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+.cs-s-testing .cs-metrics > div {
+  position: relative;
+  padding: 0;
+  background: none;
+}
+.cs-s-testing .cs-metrics > div::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: calc(-1.5rem - 5px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cs-accent);
+  box-shadow: 0 0 11px 2px color-mix(in srgb, var(--cs-accent) 40%, transparent);
+}
+
+/* ---------- 12 results: the status board ------------------------ */
+
+.cs-s-results .cs-metrics {
+  display: block;
+  background: none;
+  border: 0;
+}
+.cs-s-results .cs-metrics > div {
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  gap: 0.4rem 1.8rem;
+  padding: 1.35rem 0;
+  background: none;
+  border-top: 1px solid var(--line);
+}
+.cs-s-results .cs-metrics > div:last-child { border-bottom: 1px solid var(--line); }
+.cs-s-results .cs-metrics dt {
+  position: relative;
+  padding-left: 1.1rem;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.02rem;
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+}
+.cs-s-results .cs-metrics dt::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cs-accent);
+}
+.cs-s-results .cs-metrics dd {
+  max-width: 66ch;
+  font-family: var(--sans);
+  font-size: 0.93rem;
+  line-height: 1.62;
+  color: var(--ink-soft);
+}
+
+/* ---------- 13 reflection: rows, not three columns -------------- */
+/* Three semantically opposite lists were set in identical ink with
+   identical marks, in columns whose uneven counts left tall gaps —
+   the same failure the homepage "Now" board abandoned columns over. */
+
+.cs-s-lessons .cs-lessons { display: block; }
+.cs-s-lessons .cs-lessons > div {
+  display: grid;
+  grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+  gap: 0.6rem 1.8rem;
+  padding: 1.4rem 0;
+  border-top: 1px solid var(--line);
+}
+.cs-s-lessons .cs-lessons > div:last-child { border-bottom: 1px solid var(--line); }
+.cs-s-lessons .cs-h3 { margin: 0; }
+.cs-s-lessons .cs-points { margin-top: 0; max-width: none; }
+.cs-s-lessons .cs-points li { padding-left: 1.4rem; }
+/* Each list gets its own mark, so "worked" and "underestimated" no
+   longer read as the same kind of statement. */
+.cs-s-lessons .cs-lessons > div:nth-child(1) .cs-points li::before { background: var(--cs-accent); }
+.cs-s-lessons .cs-lessons > div:nth-child(2) .cs-points li::before {
+  background: none;
+  border: 1px solid var(--muted);
+  height: 8px;
+  border-radius: 50%;
+  width: 8px;
+  top: 0.55em;
+}
+.cs-s-lessons .cs-lessons > div:nth-child(3) .cs-points li::before {
+  background: none;
+  border-left: 5px solid var(--muted-2);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  width: 0;
+  height: 0;
+  top: 0.52em;
+}
+
+/* ---------- 08 challenges: the argument spine ------------------- */
+
+.cs-s-challenges .cs-challenge-body {
+  display: block;
+  border-left: 1px solid var(--line);
+  padding-left: clamp(16px, 2.4vw, 30px);
+}
+.cs-s-challenges .cs-cbeat {
+  display: grid;
+  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
+  gap: 0.35rem 1.5rem;
+  padding: 0.85rem 0;
+}
+.cs-s-challenges .cs-cbeat + .cs-cbeat { border-top: 1px solid var(--line-soft); }
+.cs-s-challenges .cs-cbeat > :not(.cs-beat-l) { grid-column: 2; max-width: 66ch; }
+.cs-s-challenges .cs-beat-l { grid-row: 1; margin: 0; }
+@media (max-width: 700px) {
+  .cs-s-challenges .cs-cbeat { grid-template-columns: minmax(0, 1fr); }
+  .cs-s-challenges .cs-cbeat > :not(.cs-beat-l) { grid-column: 1; }
+}

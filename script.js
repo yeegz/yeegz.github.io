@@ -65,6 +65,10 @@
   };
   const placeNiche = () => {
     if (!portraitWrapEl || !nmStack || !nmFirst) return;
+    /* The egg seats the figure on the left with the name beside it, so the
+       default lockup's "just past the end of YOUSOF" measurement points at the
+       wrong side of the screen. The egg's own CSS places the figure. */
+    if (docEl.classList.contains('egypt')) return;
     const stage = portraitWrapEl.offsetParent || nmStack.closest('.hero-stage');
     if (!stage || !nmFirst.offsetWidth) return;
     const nmPx = parseFloat(getComputedStyle(nmFirst).fontSize);
@@ -198,7 +202,7 @@
   try {
     console.log(
       '%c YSF.SLM %c SPECIMEN ARCHIVE — 2026 ',
-      'background:#9bcfa5;color:#0a0a0b;font-family:monospace;font-weight:bold;padding:4px 7px;',
+      'background:' + (docEl.classList.contains('egypt') ? '#d4a017' : '#9bcfa5') + ';color:#0a0a0b;font-family:monospace;font-weight:bold;padding:4px 7px;',
       'background:#141415;color:#f2efe9;font-family:monospace;padding:4px 7px;'
     );
     console.log(
@@ -512,7 +516,9 @@
       nctx.globalAlpha = 1;
     };
     const drawStatic = () => {
-      const ink = getComputedStyle(docEl).getPropertyValue('--ink').trim() || '#f2efe9';
+      const ink = docEl.classList.contains('egypt')
+          ? '#d4a017'
+          : getComputedStyle(docEl).getPropertyValue('--ink').trim() || '#f2efe9';
       nameCanvases.forEach((t) => {
         t.x.clearRect(0, 0, NW, NH);
         t.x.fillStyle = ink;
@@ -555,7 +561,9 @@
           if (namePhase >= 1) { namePhase = 1; nameDir = -1; nameHold = 3.4; }
           if (namePhase <= 0) { namePhase = 0; nameDir = 1; nameHold = 3.4; }
         }
-        const ink = getComputedStyle(docEl).getPropertyValue('--ink').trim() || '#f2efe9';
+        const ink = docEl.classList.contains('egypt')
+          ? '#d4a017'
+          : getComputedStyle(docEl).getPropertyValue('--ink').trim() || '#f2efe9';
         nameCanvases.forEach((t) => {
           if (!t.on) return;
           t.x.clearRect(0, 0, NW, NH);
@@ -1131,6 +1139,12 @@
 
     const press = () => {
       if (game) return;
+      /* Under the flag SELIM belongs to the eagle game, and that one intercepts
+         the third press in the capture phase. It does NOT intercept the first
+         two, so this counter still climbed to 2 behind it — and one stray click
+         afterwards was enough to start the wrong game for a moment. Owning the
+         word outright in one mode each makes the ordering irrelevant. */
+      if (docEl.classList.contains('egypt')) return;
       if (window.scrollY > 8) {
         if (lenis) lenis.scrollTo(0, { duration: 0.9 });
         else window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1155,7 +1169,11 @@
          gesture, not an intent to start anything. */
       if (e.button === 0 && e.detail <= 1) press();
     });
-    mountEggButton('Play the hidden name game', () => { presses = 2; press(); });
+    /* snake.js mounts the equivalent key under the flag; two hidden buttons on
+       one word would offer a keyboard visitor a game they cannot reach. */
+    if (!docEl.classList.contains('egypt')) {
+      mountEggButton('Play the hidden name game', () => { presses = 2; press(); });
+    }
 
     const startGame = () => {
       if (game) return;
@@ -1370,8 +1388,11 @@
         rctx.clearRect(0, 0, 24, 36);
         const map = SPR[frame];
         const g = greenT;
+        /* Same ramp switch the morph uses: the default triple resolves a lit
+           dot to the mint accent, which left the runner green under the flag. */
+        const RUN_RAMP = EGG_ON ? [30, 79, 210] : [87, 32, 68];
         rctx.fillStyle = g > 0.04
-          ? 'rgb(' + (242 - 87 * g | 0) + ',' + (239 - 32 * g | 0) + ',' + (233 - 68 * g | 0) + ')'
+          ? 'rgb(' + (242 - RUN_RAMP[0] * g | 0) + ',' + (239 - RUN_RAMP[1] * g | 0) + ',' + (233 - RUN_RAMP[2] * g | 0) + ')'
           : '#f2efe9';
         for (let r = 0; r < map.length; r++) {
           for (let c = 0; c < 8; c++) {

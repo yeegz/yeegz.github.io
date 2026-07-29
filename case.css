@@ -1208,14 +1208,29 @@ html.egypt .cs-arch-group[data-tier="client"] {
   position: static;
   width: auto;
   height: auto;
+  /* The base mark is turned with `rotate:`, an individual transform property —
+     `transform: none` does not reset it, which left the word lying on its side. */
+  rotate: none;
   transform: none;
   border: 0;
+  background: none;
   color: var(--cs-accent);
   font: 500 0.53rem var(--mono);
   letter-spacing: 0.2em;
   text-transform: uppercase;
+  line-height: 1.5;
 }
-.cs-s-role .cs-ticks-muted li::before { content: 'Not mine'; color: var(--muted-2); }
+.cs-s-role .cs-ticks-muted li::before {
+  content: 'Not mine';
+  /* The muted marker is a filled bar; every one of its properties has to be
+     unset here or the stamp renders as that bar stretched across the track. */
+  width: auto;
+  height: auto;
+  background: none;
+  border: 0;
+  rotate: none;
+  color: var(--muted-2);
+}
 
 /* ---------- 04 constraints, 10 evolution: the rail -------------- */
 /* Both used the shared itemGrid, whose cards took their width from
@@ -1495,3 +1510,56 @@ html.egypt .cs-arch-group[data-tier="client"] {
   .cs-s-challenges .cs-cbeat { grid-template-columns: minmax(0, 1fr); }
   .cs-s-challenges .cs-cbeat > :not(.cs-beat-l) { grid-column: 1; }
 }
+
+/* ---------- the flag's bands, on the case-study routes ----------
+   The homepage got two oxblood bands and two bone ones; these routes
+   got gold and nothing else, so a case study opened under the flag
+   read as the dark site with gold numerals. Same token-swap idiom,
+   same reason: a section repaints whole, including its own gold and
+   its own accent voice.
+
+   These come after the per-section designs so they win on source
+   order, and they set --cs-accent, which every section design above
+   already draws its marks and rules from. */
+
+html.egypt .cs-s-problem,
+html.egypt .cs-s-results {
+  --bg: #26050a;
+  --bg-2: #1b0306;
+  --ink: #ffffff;
+  --ink-soft: #f6e2e5;
+  --muted: #eec6ca;
+  --muted-2: #d9a3aa;
+  --line: rgba(255, 255, 255, 0.18);
+  --line-soft: rgba(255, 255, 255, 0.09);
+  --cs-accent: #f3c95c !important;
+  background: #26050a;
+  color: var(--ink);
+}
+
+html.egypt .cs-s-role,
+html.egypt .cs-s-lessons {
+  --bg: #f2efe9;
+  --bg-2: #e7e3da;
+  --ink: #0b0b0c;
+  --ink-soft: #24262a;
+  --muted: #55585e;
+  --muted-2: #74777d;
+  --line: rgba(11, 11, 12, 0.18);
+  --line-soft: rgba(11, 11, 12, 0.08);
+  --cs-accent: #b60f21 !important;
+  background: #f2efe9;
+  color: var(--ink);
+}
+
+/* The ghost numeral behind each head is drawn for a dark ground. */
+html.egypt .cs-s-role .cs-ghost,
+html.egypt .cs-s-lessons .cs-ghost { color: rgba(11, 11, 12, 0.055); }
+html.egypt .cs-s-problem .cs-ghost,
+html.egypt .cs-s-results .cs-ghost { color: rgba(255, 255, 255, 0.05); }
+/* The accent voice is forced red with !important further up; on the oxblood
+   band that is red on red, exactly as it was on the homepage. */
+html.egypt .cs-s-problem .cs-sec-title em,
+html.egypt .cs-s-results .cs-sec-title em,
+html.egypt .cs-s-problem em,
+html.egypt .cs-s-results em { color: #f3c95c !important; }

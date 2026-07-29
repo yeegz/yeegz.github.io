@@ -663,7 +663,15 @@
     theater.querySelectorAll('[data-project-stage]').forEach((stage) => { stage.hidden = stage.dataset.projectStage !== name; });
     currentProject = name;
     theater.dataset.project = name;
-    theater.style.setProperty('--project-surface', projectMeta[name].surface);
+    /* The surface is written inline, so it outranks every html.egypt rule in
+       the stylesheet — which is why the Bupples stage kept its green-black
+       ground under the flag while everything around it had been repainted.
+       Only that one surface is green; the others are bone, cream, navy and a
+       dark red the flag has no quarrel with. */
+    const surface = document.documentElement.classList.contains('egypt') && name === 'bupples'
+      ? '#050505'
+      : projectMeta[name].surface;
+    theater.style.setProperty('--project-surface', surface);
     theater.style.color = projectMeta[name].color;
     document.getElementById('theaterLabel').textContent = projectMeta[name].label;
   };

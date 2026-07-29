@@ -3540,6 +3540,17 @@ html.egypt .contact-section canvas.ring-gl { opacity: 0.1; mix-blend-mode: multi
 .site-loader.egg-veil.is-on { opacity: 1; }
 .egg-veil .loader-mark i { background: var(--eg-gold, #d4a017); }
 
+/* The cover under the flag holds for 3.2s rather than 700ms — it waits on the
+   halftone plate decoding — so it had four and a half times as long to be
+   looked at, and all it carried was the default dot row plus a 3px hairline.
+   The dots become the flag's own three bands with the eagle's gold leading. */
+html.egypt .loader-mark { width: 96px; }
+html.egypt .loader-mark i { width: 18px; height: 5px; border-radius: 0; }
+html.egypt .loader-mark i:nth-child(1) { background: var(--eg-gold, #d4a017); }
+html.egypt .loader-mark i:nth-child(2) { background: #ce1126; }
+html.egypt .loader-mark i:nth-child(3) { background: #ffffff; }
+html.egypt .loader-mark i:nth-child(4) { background: #4a4a4a; }
+
 /* The flag reads across the sheet in both directions, so the state is
    already unmistakable before a pixel of the page underneath shows. */
 html.egypt .site-loader::before,

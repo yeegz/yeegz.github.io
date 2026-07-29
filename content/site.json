@@ -2,7 +2,7 @@
   "name": "Yousof Selim",
   "title": "Mobile & Full-Stack Developer",
   "location": "Subang Jaya / Kuala Lumpur, Malaysia",
-  "availability": "Full-time internship \u2014 January to April 2027",
+  "availability": "Full-time internship — January to April 2027",
   "email": "yousofselim2@gmail.com",
   "links": [
     {
@@ -18,7 +18,7 @@
       "evidence": "resume.txt line 5: linkedin.com/in/ysf-slm"
     },
     {
-      "label": "R\u00e9sum\u00e9 (PDF)",
+      "label": "Résumé (PDF)",
       "href": "/Yousof-Selim-Resume.pdf",
       "kind": "resume",
       "evidence": "File present at repository root: /Users/yousofselim/Documents/yeegz.github.io/Yousof-Selim-Resume.pdf; index.html links it from the header, hero, mobile menu and contact."
@@ -33,14 +33,14 @@
   "profile": {
     "name": "Yousof Selim",
     "title": "Mobile & Full-Stack Developer",
-    "positioning": "Software Engineering student at Sunway University and Lancaster University, building products that reach real stores rather than demos that reach a repository. The work runs across a Flutter expense app live on the App Store and Google Play, native iOS and Android widget extensions written outside the framework, a local-first Electron and WebGL2 photobooth for Windows and the browser, and the Firebase backends \u2014 Cloud Functions, Firestore Security Rules, App Check \u2014 sitting behind them. The through-line is end-to-end ownership: the data model, the rules that guard it, the interface, the tests, and the release that puts it in someone's hands.",
+    "positioning": "Software Engineering student at Sunway University and Lancaster University, building products that reach real stores rather than demos that reach a repository. The work runs across a Flutter expense app live on the App Store and Google Play, native iOS and Android widget extensions written outside the framework, a local-first Electron and WebGL2 photobooth for Windows and the browser, and the Firebase backends — Cloud Functions, Firestore Security Rules, App Check — sitting behind them. The through-line is end-to-end ownership: the data model, the rules that guard it, the interface, the tests, and the release that puts it in someone's hands.",
     "location": "Subang Jaya / Kuala Lumpur, Malaysia",
-    "availability": "Full-time internship \u2014 January to April 2027",
+    "availability": "Full-time internship — January to April 2027",
     "email": "yousofselim2@gmail.com",
     "phone": {
       "value": "+60 11-2708 3787",
       "publish": false,
-      "evidence": "resume.txt line 4. Deliberately withheld from the published page \u2014 the number appears on the r\u00e9sum\u00e9 PDF only, and the current site omits it. Set publish to true only on the owner's explicit instruction."
+      "evidence": "resume.txt line 4. Deliberately withheld from the published page — the number appears on the résumé PDF only, and the current site omits it. Set publish to true only on the owner's explicit instruction."
     },
     "links": [
       {
@@ -56,7 +56,7 @@
         "evidence": "resume.txt line 5"
       },
       {
-        "label": "R\u00e9sum\u00e9 (PDF)",
+        "label": "Résumé (PDF)",
         "href": "/Yousof-Selim-Resume.pdf",
         "kind": "resume",
         "evidence": "Yousof-Selim-Resume.pdf at the repository root; already linked four times from index.html."
@@ -73,17 +73,17 @@
     {
       "value": "01",
       "label": "Product live on the App Store and Google Play",
-      "evidence": "Bupples. iTunes lookup API for id6777620291 \u2014 seller \"Yousof Selim\", Finance/Utilities, free, minimum iOS 15.5. Google Play listing com.bupples.bupples verified reachable, title \"Bupples\". Verified centrally 2026-07-29."
+      "evidence": "Bupples. iTunes lookup API for id6777620291 — seller \"Yousof Selim\", Finance/Utilities, free, minimum iOS 15.5. Google Play listing com.bupples.bupples verified reachable, title \"Bupples\". Verified centrally 2026-07-29."
     },
     {
       "value": "03",
       "label": "Cross-platform products built solo, end to end",
-      "evidence": "Bupples, Adelante, Photoshoot. resume.txt line 8: \"Sole developer of cross-platform applications spanning iOS, Android, web, and Windows\"; per-project bullets at lines 24-38. Deliberately 03 and not 05 \u2014 Fallen Asteri is a three-person team project and Tajweed is a redesign contribution to another developer's product."
+      "evidence": "Bupples, Adelante, Photoshoot. resume.txt line 8: \"Sole developer of cross-platform applications spanning iOS, Android, web, and Windows\"; per-project bullets at lines 24-38. Deliberately 03 and not 05 — Fallen Asteri is a three-person team project and Tajweed is a redesign contribution to another developer's product."
     },
     {
-      "value": "04",
-      "label": "Platforms shipped to \u2014 iOS, Android, web, Windows",
-      "evidence": "iOS + Android: Bupples store listings (verified centrally). Windows + web: Photoshoot, resume.txt lines 34-38, live at photoshoot-yeegz.web.app."
+      "value": "iOS · ANDROID · WEB",
+      "label": "Platforms with something live and reachable",
+      "evidence": "Bupples on the App Store and Google Play (iTunes lookup id6777620291; Play listing com.bupples.bupples). Photoshoot live in the browser at photoshoot-yeegz.web.app (HTTP 200). Windows is NOT claimed: electron-builder.yml targets it, but the only packaged artifact on disk is release/Photoshoot-1.0.0-arm64-mac.zip and no .exe exists."
     },
     {
       "value": "1.2.5",
@@ -91,12 +91,12 @@
       "evidence": "iTunes lookup API for id6777620291: first release 2026-07-02, current version 1.2.5 released 2026-07-27. Verified centrally 2026-07-29."
     },
     {
-      "value": "2027",
-      "label": "BSc Software Engineering (Hons) \u2014 Sunway University / Lancaster University",
-      "evidence": "resume.txt lines 11-12: \"Bachelor of Software Engineering (Hons) | Sunway University / Lancaster University \u2014 Expected 2027\". No graduation month is stated on the r\u00e9sum\u00e9; the site's existing \"August 2027\" is unsupported and is not repeated here."
+      "value": "AUG 2027",
+      "label": "BSc Software Engineering (Hons) — Sunway University / Lancaster University",
+      "evidence": "resume.txt lines 11-12: \"Bachelor of Software Engineering (Hons) | Sunway University / Lancaster University — Expected 2027\". No graduation month is stated on the résumé; the site's existing \"August 2027\" is unsupported and is not repeated here."
     },
     {
-      "value": "JAN\u2014APR 2027",
+      "value": "JAN—APR 2027",
       "label": "Available for a full-time internship",
       "evidence": "resume.txt line 3: \"Available for full-time internship: Jan-Apr 2027 | Subang Jaya / Kuala Lumpur, Malaysia\"."
     }
@@ -107,7 +107,7 @@
       "role": "Digital Marketing Executive",
       "org": "Sunway Cybersecurity Club",
       "location": "Subang Jaya, Malaysia",
-      "dates": "Jan 2026 \u2014 Present",
+      "dates": "Jan 2026 — Present",
       "bullets": [
         "Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.",
         "Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners."
@@ -121,9 +121,9 @@
     {
       "kind": "product",
       "role": "Sole developer",
-      "org": "Bupples \u2014 personal product",
+      "org": "Bupples — personal product",
       "location": "Subang Jaya, Malaysia",
-      "dates": "Feb 2026 \u2014 Present",
+      "dates": "Feb 2026 — Present",
       "bullets": [
         "Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.",
         "Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.",
@@ -142,16 +142,16 @@
         "Remote Config"
       ],
       "projectSlug": "bupples",
-      "evidence": "resume.txt lines 24-28 for the first two bullets; iTunes lookup API for id6777620291 and the Google Play listing for the third. The r\u00e9sum\u00e9's phrase \"across iOS, Android, and web\" is narrowed to iOS and Android here: bupples.web.app was verified centrally as the product's landing page, not a running web app."
+      "evidence": "resume.txt lines 24-28 for the first two bullets; iTunes lookup API for id6777620291 and the Google Play listing for the third. The résumé's phrase \"across iOS, Android, and web\" is narrowed to iOS and Android here: bupples.web.app was verified centrally as the product's landing page, not a running web app."
     },
     {
       "kind": "product",
       "role": "Sole developer",
-      "org": "Adelante \u2014 personal product",
+      "org": "Adelante — personal product",
       "location": "Subang Jaya, Malaysia",
-      "dates": "Jun 2026 \u2014 Present",
+      "dates": "Jun 2026 — Present",
       "bullets": [
-        "Built a privacy-first motivation app with native WidgetKit/SwiftUI and Android RemoteViews widgets for the Home Screen, Lock Screen, and StandBy \u2014 without accounts, analytics, or ads.",
+        "Built a privacy-first motivation app with native WidgetKit/SwiftUI and Android RemoteViews widgets for the Home Screen, Lock Screen, and StandBy — without accounts, analytics, or ads.",
         "Designed a Firestore and scheduled Cloud Functions content pipeline with offline caching, deduplication, quality scoring, and strict filtering; validated reliability with 117 automated tests."
       ],
       "tech": [
@@ -165,16 +165,16 @@
         "Cloud Functions"
       ],
       "projectSlug": "adelante",
-      "evidence": "resume.txt lines 29-33, verbatim. \"Sole developer\" traces to the r\u00e9sum\u00e9 summary at line 8 covering iOS and Android; no public release exists \u2014 the adelante-showcase repository has homepage: null (smaller-projects.md \u00a74)."
+      "evidence": "resume.txt lines 29-33, verbatim. \"Sole developer\" traces to the résumé summary at line 8 covering iOS and Android; no public release exists — the adelante-showcase repository has homepage: null (smaller-projects.md §4)."
     },
     {
       "kind": "product",
       "role": "Sole developer",
-      "org": "Photoshoot \u2014 personal product",
+      "org": "Photoshoot — personal product",
       "location": "Subang Jaya, Malaysia",
-      "dates": "Jun 2026 \u2014 Present",
+      "dates": "Jun 2026 — Present",
       "bullets": [
-        "Built and deployed a Windows and browser photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time GLSL effects and 8 on-device MediaPipe face effects.",
+        "Built and deployed a browser and desktop photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time GLSL effects and 8 on-device MediaPipe face effects.",
         "Engineered a local-first Electron/WebGL2 architecture with context isolation, sandboxing, strict CSP, and Firebase Hosting, keeping camera processing and captures on-device."
       ],
       "tech": [
@@ -186,7 +186,7 @@
         "Firebase Hosting"
       ],
       "projectSlug": "photoshoot",
-      "evidence": "resume.txt lines 34-38, verbatim. \"Sole developer\" traces to the r\u00e9sum\u00e9 summary at line 8, which is the only source covering Windows."
+      "evidence": "resume.txt lines 34-38, verbatim. \"Sole developer\" traces to the résumé summary at line 8, which is the only source covering Windows."
     }
   ],
   "education": [
@@ -204,14 +204,14 @@
         "Databases",
         "UI/UX Design"
       ],
-      "evidence": "resume.txt lines 11-12, verbatim. No start date and no graduation month appear on the r\u00e9sum\u00e9 \u2014 the site's existing \"2024\u201427\" chapter range and its \"August 2027\" are both inferred and are not restated here."
+      "evidence": "resume.txt lines 11-12, verbatim. No start date and no graduation month appear on the résumé — the site's existing \"2024—27\" chapter range and its \"August 2027\" are both inferred and are not restated here."
     },
     {
       "credential": "Foundation in Information Technology",
       "institution": "Multimedia University",
       "programme": "Foundation programme",
       "location": "Cyberjaya, Malaysia",
-      "dates": "May 2023 \u2014 Jul 2024",
+      "dates": "May 2023 — Jul 2024",
       "status": "Completed",
       "coursework": [
         "Programming",
@@ -237,7 +237,7 @@
     },
     {
       "group": "Native iOS and Android surfaces",
-      "lead": "Leave the framework where the framework cannot go \u2014 Home Screen, Lock Screen and StandBy widgets written natively on each platform and wired back into a shared app.",
+      "lead": "Leave the framework where the framework cannot go — Home Screen, Lock Screen and StandBy widgets written natively on each platform and wired back into a shared app.",
       "tools": [
         "Swift",
         "SwiftUI",
@@ -278,17 +278,17 @@
     },
     {
       "group": "Applied AI in products",
-      "lead": "Put a model where it does a job a user can check \u2014 reading a receipt into structured line items, tracking a face on-device \u2014 rather than where it decides a number.",
+      "lead": "Put a model where it does a job a user can check — reading a receipt into structured line items, tracking a face on-device — rather than where it decides a number.",
       "tools": [
         "Vertex AI",
         "Gemini",
         "MediaPipe"
       ],
-      "evidence": "resume.txt line 20 (skills), line 28 (Gemini receipt extraction), line 36 (8 on-device MediaPipe face effects). The \"does not decide a number\" framing is the Bupples showcase README's own money law, quoted in smaller-projects.md \u00a74."
+      "evidence": "resume.txt line 20 (skills), line 28 (Gemini receipt extraction), line 36 (8 on-device MediaPipe face effects). The \"does not decide a number\" framing is the Bupples showcase README's own money law, quoted in smaller-projects.md §4."
     },
     {
       "group": "Release and product operations",
-      "lead": "Run the unglamorous half \u2014 versioning, subscriptions, remote flags, design handoff, and the release itself \u2014 so a build can be shipped on a schedule rather than when it happens to be ready.",
+      "lead": "Run the unglamorous half — versioning, subscriptions, remote flags, design handoff, and the release itself — so a build can be shipped on a schedule rather than when it happens to be ready.",
       "tools": [
         "Git/GitHub",
         "RevenueCat",
@@ -303,8 +303,8 @@
       "title": "Money is integer arithmetic",
       "body": "Currency does not survive floating point, and a shared bill is only trustworthy when every participant's device computes the same figure. Amounts are held and split as integer minor units under their ISO 4217 exponent, with the leftover cent distributed deterministically rather than rounded out of existence.",
       "exampleProject": "bupples",
-      "exampleDetail": "A cent-exact ISO 4217 multi-currency ledger, split by largest remainder \u2014 RM51.50 across four people resolves to RM12.875 before the remainder is assigned, not after.",
-      "evidence": "resume.txt lines 27-28; the RM51.50 \u00f7 4 largest-remainder diagram is assets/split.svg in the public Bupples-showcase repository (smaller-projects.md \u00a74)."
+      "exampleDetail": "A cent-exact ISO 4217 multi-currency ledger, split by largest remainder — RM51.50 across four people resolves to RM12.875 before the remainder is assigned, not after.",
+      "evidence": "resume.txt lines 27-28; the RM51.50 ÷ 4 largest-remainder diagram is assets/split.svg in the public Bupples-showcase repository (smaller-projects.md §4)."
     },
     {
       "title": "Trust the server, not the client",
@@ -315,31 +315,31 @@
     },
     {
       "title": "Launch is the start of the work",
-      "body": "A store listing is a commitment to keep shipping, not a finish line \u2014 the interesting version of a product is the one that survives its first month of real use.",
+      "body": "A store listing is a commitment to keep shipping, not a finish line — the interesting version of a product is the one that survives its first month of real use.",
       "exampleProject": "bupples",
       "exampleDetail": "First released 2 July 2026; version 1.2.5 reached the App Store on 27 July 2026.",
       "evidence": "iTunes lookup API for id6777620291, verified centrally 2026-07-29: releaseDate 2026-07-02, version 1.2.5 released 2026-07-27."
     },
     {
       "title": "Reliability claims need a test behind them",
-      "body": "\"It works\" describes one run, not a system. Adelante's content pipeline \u2014 caching, deduplication, quality scoring, strict filtering \u2014 is covered by automated tests because a scheduled pipeline fails quietly, and the failure shows up on someone's Lock Screen rather than in a crash report.",
+      "body": "\"It works\" describes one run, not a system. Adelante's content pipeline — caching, deduplication, quality scoring, strict filtering — is covered by automated tests because a scheduled pipeline fails quietly, and the failure shows up on someone's Lock Screen rather than in a crash report.",
       "exampleProject": "adelante",
       "exampleDetail": "117 automated tests over the Firestore and scheduled Cloud Functions content pipeline.",
-      "evidence": "Counted in the Adelante repo: 117 test declarations across 18 files (grep of test( declarations). The r\u00e9sum\u00e9, the showcase README and ARCHITECTURE.md all still say ~80 and are stale \u2014 see CONTENT_GAPS.md."
+      "evidence": "Counted in the Adelante repo: 117 test declarations across 18 files (grep of test( declarations). The résumé, the showcase README and ARCHITECTURE.md all still say ~80 and are stale — see CONTENT_GAPS.md."
     },
     {
       "title": "Keep private data on the device",
-      "body": "The safest place for a camera frame is the machine that captured it. Photoshoot runs its entire pipeline locally \u2014 Electron with context isolation, sandboxing and a strict CSP, WebGL2 for the effects, MediaPipe for face tracking \u2014 so nothing is uploaded in order to be processed.",
+      "body": "The safest place for a camera frame is the machine that captured it. Photoshoot runs its entire pipeline locally — Electron with context isolation, sandboxing and a strict CSP, WebGL2 for the effects, MediaPipe for face tracking — so nothing is uploaded in order to be processed.",
       "exampleProject": "photoshoot",
       "exampleDetail": "Local-first Electron/WebGL2 architecture; camera processing and captures stay on-device, with Firebase Hosting serving only the app itself.",
       "evidence": "resume.txt lines 34-38."
     },
     {
       "title": "Go native where the platform is the product",
-      "body": "Cross-platform tooling is a default, not a rule. When the product surface is a widget rather than a screen, the framework has nothing to render into, so the widget gets written twice \u2014 properly \u2014 in the platform's own toolkit.",
+      "body": "Cross-platform tooling is a default, not a rule. When the product surface is a widget rather than a screen, the framework has nothing to render into, so the widget gets written twice — properly — in the platform's own toolkit.",
       "exampleProject": "adelante",
       "exampleDetail": "WidgetKit/SwiftUI on iOS and Android RemoteViews on Android, for Home Screen, Lock Screen and StandBy, over a shared Flutter app.",
-      "evidence": "resume.txt lines 29-31; the adelante-showcase README states \"the main product isn't a feed or a dashboard \u2014 it's the widgets\" (smaller-projects.md \u00a74)."
+      "evidence": "resume.txt lines 29-31; the adelante-showcase README states \"the main product isn't a feed or a dashboard — it's the widgets\" (smaller-projects.md §4)."
     }
   ],
   "now": {
@@ -353,17 +353,17 @@
       {
         "title": "Adelante",
         "body": "Widget-first motivation app for iOS and Android: native WidgetKit and RemoteViews surfaces over a scheduled Firebase content pipeline, with no accounts, analytics or ads.",
-        "evidence": "resume.txt lines 29-33 (\"Jun 2026 - Present\"). Not publicly released \u2014 the adelante-showcase repository has no homepage (smaller-projects.md \u00a74)."
+        "evidence": "resume.txt lines 29-33 (\"Jun 2026 - Present\"). Not publicly released — the adelante-showcase repository has no homepage (smaller-projects.md §4)."
       },
       {
         "title": "Photoshoot",
-        "body": "Windows and browser photobooth on a local-first Electron and WebGL2 architecture, with 17 real-time GLSL effects and 8 on-device MediaPipe face effects.",
-        "evidence": "resume.txt lines 34-38 (\"Jun 2026 - Present\")."
+        "body": "browser and desktop photobooth on a local-first Electron and WebGL2 architecture, with 17 real-time GLSL effects and 8 on-device MediaPipe face effects.",
+        "evidence": "resume.txt lines 34-38 (\"Jun 2026 - Present\"). Windows is not claimed: electron-builder.yml targets it, but the only packaged artifact is release/Photoshoot-1.0.0-arm64-mac.zip and no .exe exists. The browser build is live at photoshoot-yeegz.web.app/app/ (verified 200 with a canvas and the bundled renderer)."
       }
     ],
     "studying": [
       {
-        "title": "BSc Software Engineering (Hons) \u2014 Sunway University / Lancaster University",
+        "title": "BSc Software Engineering (Hons) — Sunway University / Lancaster University",
         "body": "Software Architecture, Data Structures, Mobile Development, Databases, and UI/UX Design. Expected 2027.",
         "evidence": "resume.txt lines 11-12."
       }
@@ -372,7 +372,7 @@
       {
         "title": "A full-time software engineering internship, January to April 2027",
         "body": "Subang Jaya or Kuala Lumpur, Malaysia. Mobile, full-stack, or anything that ships to a real store.",
-        "evidence": "resume.txt line 3. The site's existing contact aside adds \"or remote\", which the r\u00e9sum\u00e9 does not say; it is left out until confirmed."
+        "evidence": "resume.txt line 3. The site's existing contact aside adds \"or remote\", which the résumé does not say; it is left out until confirmed."
       }
     ],
     "exploring": [
@@ -384,12 +384,12 @@
       {
         "title": "Model output as structured data, not prose",
         "body": "Gemini receipt extraction in Bupples: the model reads a photographed receipt into line items, and the ledger still does the money.",
-        "evidence": "resume.txt line 28 (\"integrated Gemini receipt extraction\"); the money-law framing is the Bupples-showcase README's own \u2014 \"Pip can talk about your money, but Pip is structurally incapable of producing a figure\" (smaller-projects.md \u00a74)."
+        "evidence": "resume.txt line 28 (\"integrated Gemini receipt extraction\"); the money-law framing is the Bupples-showcase README's own — \"Pip can talk about your money, but Pip is structurally incapable of producing a figure\" (smaller-projects.md §4)."
       },
       {
         "title": "Widgets as the product surface",
-        "body": "Home Screen, Lock Screen and StandBy as places a product lives rather than shortcuts into it \u2014 which means two native implementations instead of one shared screen.",
-        "evidence": "resume.txt lines 29-31; adelante-showcase README (smaller-projects.md \u00a74)."
+        "body": "Home Screen, Lock Screen and StandBy as places a product lives rather than shortcuts into it — which means two native implementations instead of one shared screen.",
+        "evidence": "resume.txt lines 29-31; adelante-showcase README (smaller-projects.md §4)."
       }
     ]
   },
@@ -398,10 +398,10 @@
       "slug": "tajweed",
       "name": "Tajweed",
       "year": "2026",
-      "category": "Learning platform \u2014 redesign contribution",
-      "status": "Live \u00b7 repository private",
-      "blurb": "A Quranic recitation platform that paints tajweed rules into the script itself, so a learner sees a rule before having to remember it. Working inside another developer's Next.js codebase, I rebuilt the navigation and information architecture around a staged learning path, replaced a progress model that returned unlocked for every lesson with real gating, and added the model layer test-first \u2014 the repository had no test harness before. The recitation reader, the speech analysis and the curriculum already existed and stayed.",
-      "role": "Collaborator on someone else's product \u2014 15 of the repository's 31 commits; the redesign branch was merged to main on 20 June 2026, changing 51 files.",
+      "category": "Learning platform — redesign contribution",
+      "status": "Live · repository private",
+      "blurb": "A Quranic recitation platform that paints tajweed rules into the script itself, so a learner sees a rule before having to remember it. Working inside another developer's Next.js codebase, I rebuilt the navigation and information architecture around a staged learning path, replaced a progress model that returned unlocked for every lesson with real gating, and added the model layer test-first — the repository had no test harness before. The recitation reader, the speech analysis and the curriculum already existed and stayed.",
+      "role": "Collaborator on someone else's product — 15 of the repository's 31 commits; the redesign branch was merged to main on 20 June 2026, changing 51 files.",
       "tech": [
         "Next.js",
         "React",
@@ -414,16 +414,16 @@
       "href": "https://tajweed-wine.vercel.app/",
       "hrefLabel": "Visit the live platform",
       "why": "The deployed site is the only public evidence there is: the repository belongs to its owner and is private, so there is no code link to offer.",
-      "evidence": "smaller-projects.md \u00a71. Remote is github.com/HatemSamad/Tajweed, private (gh api returns private: true; unauthenticated fetch 404s). Authorship 16/15 across 31 commits. Merge commit 57a67cb, 2026-06-20, authored by Yousof Selim; git diff --shortstat 3c72c02..50788ed = 51 files, +5,034/-1,216. Stack read from web/package.json: Next.js 16.2.7, React 19.2.4, TypeScript 5, Tailwind v4, shadcn/ui, Zustand 5.0.14, Vitest 2.1.9. Tests: 5 Vitest files, 43 it() cases; commit f65cbf2 \"Add Vitest test harness\" proves none existed before. The isUnlocked: () => true before/after is documented in the same section. Live URL verified reachable (title \"Tajweed \u2014 Learn\"). NOTE: the r\u00e9sum\u00e9 and the current site date this \"Sep 2025 \u2014 Present\"; git shows the repository's first commit on 2026-02-06 and Yousof's earliest on 2026-02-10, so the year here follows git and needs owner confirmation."
+      "evidence": "smaller-projects.md §1. Remote is github.com/HatemSamad/Tajweed, private (gh api returns private: true; unauthenticated fetch 404s). Authorship 16/15 across 31 commits. Merge commit 57a67cb, 2026-06-20, authored by Yousof Selim; git diff --shortstat 3c72c02..50788ed = 51 files, +5,034/-1,216. Stack read from web/package.json: Next.js 16.2.7, React 19.2.4, TypeScript 5, Tailwind v4, shadcn/ui, Zustand 5.0.14, Vitest 2.1.9. Tests: 5 Vitest files, 43 it() cases; commit f65cbf2 \"Add Vitest test harness\" proves none existed before. The isUnlocked: () => true before/after is documented in the same section. Live URL verified reachable (title \"Tajweed — Learn\"). NOTE: the résumé and the current site date this \"Sep 2025 — Present\"; git shows the repository's first commit on 2026-02-06 and Yousof's earliest on 2026-02-10, so the year here follows git and needs owner confirmation."
     },
     {
       "slug": "fallen-asteri",
       "name": "Fallen Asteri",
       "year": "2024",
-      "category": "2D souls-like platformer \u2014 team project",
-      "status": "Released \u00b7 playable in the browser",
-      "blurb": "A stamina-based souls-like where you grow stronger by beating the enemy in front of you, built in Godot by three people between April and June 2024 and released on itch.io. My share was the level and camera work across the game's scenes, player and boss sprite animation, the title, pause, options and death screens with the health and stamina HUD, and combat tuning \u2014 hitboxes, slash timing, and a life-steal system on kill.",
-      "role": "One of three contributors \u2014 179 of 491 commits. The repository lived on my account and I ran the branch-and-merge workflow the team worked through.",
+      "category": "2D souls-like platformer — team project",
+      "status": "Released · playable in the browser",
+      "blurb": "A stamina-based souls-like where you grow stronger by beating the enemy in front of you, built in Godot by three people between April and June 2024 and released on itch.io. My share was the level and camera work across the game's scenes, player and boss sprite animation, the title, pause, options and death screens with the health and stamina HUD, and combat tuning — hitboxes, slash timing, and a life-steal system on kill.",
+      "role": "One of three contributors — 179 of 491 commits. The repository lived on my account and I ran the branch-and-merge workflow the team worked through.",
       "tech": [
         "Godot Engine",
         "GDScript"
@@ -431,15 +431,15 @@
       "href": "https://yeegz.itch.io/fallenasteri",
       "hrefLabel": "Play it in the browser",
       "why": "The first thing built with other people: roughly a hundred feature branches merged through one repository, and a public release at the end of it.",
-      "evidence": "smaller-projects.md \u00a72. gh api repos/yeegz/Fallen-Asteri: public, not a fork, GDScript 100%, created 2024-04-04, pushed 2024-06-20 \u2014 the r\u00e9sum\u00e9's Apr\u2013Jun 2024 is exact. Contributors: The-silver-ghost 251, yeegz 179, Yoshenan 58 (491 total). Merge log lists 29 named \"Merge pull request #N\" commits by yeegz. Per-file blame at pre-reorg tree 27c339a. itch.io page verified live: Godot, HTML5, Released, tags Fighting/Platformer/Souls-like. Source repository is public at github.com/yeegz/Fallen-Asteri (the archive shape carries one href, so the playable build is linked here). IMPORTANT: the r\u00e9sum\u00e9 line \"implemented player movement, combat, and scene transitions\" is not supported \u2014 he has zero commits on scene_transition.gd, 15 of 92 on the player controller and 5 of 48 on the enemy script. This entry states what the commit record supports instead. The site's \"repository lead\" title is not used."
+      "evidence": "smaller-projects.md §2. gh api repos/yeegz/Fallen-Asteri: public, not a fork, GDScript 100%, created 2024-04-04, pushed 2024-06-20 — the résumé's Apr–Jun 2024 is exact. Contributors: The-silver-ghost 251, yeegz 179, Yoshenan 58 (491 total). Merge log lists 29 named \"Merge pull request #N\" commits by yeegz. Per-file blame at pre-reorg tree 27c339a. itch.io page verified live: Godot, HTML5, Released, tags Fighting/Platformer/Souls-like. Source repository is public at github.com/yeegz/Fallen-Asteri (the archive shape carries one href, so the playable build is linked here). IMPORTANT: the résumé line \"implemented player movement, combat, and scene transitions\" is not supported — he has zero commits on scene_transition.gd, 15 of 92 on the player controller and 5 of 48 on the enemy script. This entry states what the commit record supports instead. The site's \"repository lead\" title is not used."
     },
     {
       "slug": "chess-training-page",
       "name": "Chess Training Page",
       "year": "2025",
-      "category": "Multi-page website \u2014 team project",
+      "category": "Multi-page website — team project",
       "status": "Public repository",
-      "blurb": "A site for a chess training service \u2014 home, services, about, registration, login and checkout pages \u2014 written in plain HTML, CSS and JavaScript with no framework and no build step.",
+      "blurb": "A site for a chess training service — home, services, about, registration, login and checkout pages — written in plain HTML, CSS and JavaScript with no framework and no build step.",
       "role": "One of four contributors, and the largest: 19 of the recorded contributions across 32 commits.",
       "tech": [
         "JavaScript",
@@ -448,23 +448,23 @@
       ],
       "href": "https://github.com/yeegz/Chess-Training-Page",
       "hrefLabel": "View the repository",
-      "why": "Here because it is public and honest about its scale \u2014 a multi-page site built with three other people, a year before the Flutter products.",
+      "why": "Here because it is public and honest about its scale — a multi-page site built with three other people, a year before the Flutter products.",
       "evidence": "gh api repos/yeegz/Chess-Training-Page: public, not a fork, description \"Chess Training Service Page\", created 2025-07-10, pushed 2025-07-31. Languages: JavaScript 39,768 / HTML 34,497 / CSS 29,278 bytes. Root contents: about.html, checkout.html, index.html, login.html, registration.html, services.html, css/, js/, png/. 32 commits. Contributors: yeegz 19, nshamporov 4, Ravvioli 1, devshamilg 1."
     },
     {
       "slug": "pokemon-java",
-      "name": "Pok\u00e9mon (Java)",
+      "name": "Pokémon (Java)",
       "year": "2025",
-      "category": "Console game \u2014 object-oriented exercise",
+      "category": "Console game — object-oriented exercise",
       "status": "Public repository",
-      "blurb": "A turn-based battler in Java, laid out the way a larger system would be: model classes for Pok\u00e9mon and attacks, separate services for combat, capture, levelling and scoring, a controller, a console UI, a repository for data, and an isolated random-number utility.",
-      "role": "Solo \u2014 all four commits.",
+      "blurb": "A turn-based battler in Java, laid out the way a larger system would be: model classes for Pokémon and attacks, separate services for combat, capture, levelling and scoring, a controller, a console UI, a repository for data, and an isolated random-number utility.",
+      "role": "Solo — all four commits.",
       "tech": [
         "Java"
       ],
       "href": "https://github.com/yeegz/pokemon-java",
       "hrefLabel": "View the repository",
-      "why": "The clearest small example of layering on the account \u2014 the combat rules live in a service, not in the screen that prints them.",
+      "why": "The clearest small example of layering on the account — the combat rules live in a service, not in the screen that prints them.",
       "evidence": "gh api repos/yeegz/pokemon-java: public, not a fork, Java 15,215 bytes, created 2025-07-11, 4 commits, sole contributor yeegz. Tree: src/com/pokemon/game/{Main.java, controller/GameController.java, database/PokemonRepository.java, model/{Attack,Pokemon}.java, service/{CaptureService,CombatService,LevelingService,Scoreboard}.java, ui/GameUI.java, util/RNG.java}. The repository carries no description or README."
     },
     {
@@ -472,9 +472,9 @@
       "name": "To-Do List Board",
       "year": "2024",
       "category": "Browser task manager",
-      "status": "Public repository \u00b7 retired",
+      "status": "Public repository · retired",
       "blurb": "A ClickUp-style task board with drag-and-drop, written as one page of HTML, CSS and JavaScript with no framework and no build step.",
-      "role": "Solo \u2014 all five commits.",
+      "role": "Solo — all five commits.",
       "tech": [
         "JavaScript",
         "CSS",
@@ -483,16 +483,16 @@
       "href": "https://github.com/yeegz/To-Do-List-Board",
       "hrefLabel": "View the repository",
       "why": "Retired rather than featured. It is listed so the archive matches what is actually public on the account.",
-      "evidence": "gh api repos/yeegz/To-Do-List-Board: public, not a fork, created 2024-09-22, pushed 2025-07-08, 5 commits, sole contributor yeegz. Languages: CSS 17,913 / JavaScript 14,781 / HTML 7,241 bytes. Root contents: index.html, script.js, style.css. The \"ClickUp-style task manager with drag-and-drop (archive)\" wording is the owner's own, from the yeegz/yeegz profile README (smaller-projects.md \u00a74)."
+      "evidence": "gh api repos/yeegz/To-Do-List-Board: public, not a fork, created 2024-09-22, pushed 2025-07-08, 5 commits, sole contributor yeegz. Languages: CSS 17,913 / JavaScript 14,781 / HTML 7,241 bytes. Root contents: index.html, script.js, style.css. The \"ClickUp-style task manager with drag-and-drop (archive)\" wording is the owner's own, from the yeegz/yeegz profile README (smaller-projects.md §4)."
     },
     {
       "slug": "moon-n-knight",
       "name": "Moon-n-Knight",
       "year": "2024",
-      "category": "Godot prototype \u2014 pair project",
-      "status": "Public repository \u00b7 unfinished",
+      "category": "Godot prototype — pair project",
+      "status": "Public repository · unfinished",
       "blurb": "A second Godot project started two months after Fallen Asteri wrapped, with the same collaborator: one level, shared scenes and scripts, and 1.3 KB of GDScript. It stopped twelve days later.",
-      "role": "One of two contributors \u2014 7 of 18 commits.",
+      "role": "One of two contributors — 7 of 18 commits.",
       "tech": [
         "Godot Engine",
         "GDScript"
@@ -500,7 +500,7 @@
       "href": "https://github.com/yeegz/Moon-n-Knight",
       "hrefLabel": "View the repository",
       "why": "Included because it is public and it did not finish. Two weeks of work and then nothing is the ordinary shape of a side project, and hiding it would make the rest of the archive read as luck.",
-      "evidence": "gh api repos/yeegz/Moon-n-Knight: public, not a fork, GDScript 1,280 bytes, created 2024-08-17, pushed 2024-08-29 (12 days), 18 commits. Contributors: The-silver-ghost 11, yeegz 7 \u2014 The-silver-ghost is also the largest contributor to Fallen Asteri (smaller-projects.md \u00a72). Root contents: project.godot, level_1/, general_scenes/, general_scripts/, sprites/."
+      "evidence": "gh api repos/yeegz/Moon-n-Knight: public, not a fork, GDScript 1,280 bytes, created 2024-08-17, pushed 2024-08-29 (12 days), 18 commits. Contributors: The-silver-ghost 11, yeegz 7 — The-silver-ghost is also the largest contributor to Fallen Asteri (smaller-projects.md §2). Root contents: project.godot, level_1/, general_scenes/, general_scripts/, sprites/."
     },
     {
       "slug": "python-based-calculator",
@@ -509,7 +509,7 @@
       "category": "Desktop utility",
       "status": "Public repository",
       "blurb": "A tkinter GUI calculator in a single 3 KB main.py. The repository describes itself as \"Just your average calculator based on python with GUI using tkinter\", which is exactly what it is.",
-      "role": "Solo \u2014 one commit.",
+      "role": "Solo — one commit.",
       "tech": [
         "Python",
         "tkinter"

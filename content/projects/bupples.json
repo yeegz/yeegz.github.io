@@ -3,13 +3,15 @@
   "name": "Bupples",
   "tagline": "Group expense splitting with a cent-exact multi-currency ledger and scanned receipts.",
   "summary": "Bupples is a social expense app for the people who actually have to settle up afterwards — housemates, trip groups, a table of friends splitting one receipt. A group creates a hangout, adds expenses, photographs the bill, taps the items each person had, and the app tracks who owes whom until the debts are cleared. I built it as sole developer: product design, the Flutter client, the Firestore data model and security rules, ninety-nine Cloud Functions, the receipt-reading pipeline, the subscription server, the native iOS and Android widgets, and the release tooling. The engineering that matters is the money. Every amount is stored as an integer number of minor units and every split runs through one shared kernel, so a remainder always lands somewhere deterministic instead of disappearing between two screens. It is live on the App Store and Google Play.",
-
   "category": "Social finance app",
   "role": "Sole developer — product design, Flutter client, Firebase backend, security rules, release",
   "team": "Solo",
   "timeline": "2026-02 – Present",
   "status": "Live on the App Store and Google Play",
-  "platforms": ["iOS", "Android", "Web — product site and browser claim flow"],
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
   "stack": [
     "Flutter / Dart",
     "Riverpod",
@@ -23,12 +25,10 @@
     "Kotlin / Android RemoteViews",
     "Firebase Hosting"
   ],
-
   "featured": true,
   "order": 1,
   "accent": "#86bd98",
   "ground": "#050b07",
-
   "links": [
     {
       "label": "App Store",
@@ -55,7 +55,6 @@
       "evidence": "The source repository is private and licensed All Rights Reserved (README: \"Proprietary … Source is private; shared for review only\"), so the public link is the showcase mirror."
     }
   ],
-
   "problem": {
     "lead": "Splitting a bill is arithmetic. Settling one is a negotiation, and the arithmetic is what people argue about.",
     "points": [
@@ -81,7 +80,6 @@
       }
     ]
   },
-
   "contribution": {
     "owned": [
       "Product design and the whole interface, including the design system it is built from",
@@ -102,7 +100,6 @@
       "Typefaces and icons. Fraunces, Hanken Grotesk and JetBrains Mono are bundled third-party variable fonts and the icon set is Hugeicons."
     ]
   },
-
   "constraints": [
     {
       "title": "One developer, no reviewer",
@@ -125,7 +122,6 @@
       "evidence": "functions/src/receipt_scan.ts SCAN_TRUST_THRESHOLD 0.85, with the comment that paying for the second call on every scan \"is how a feature gets switched off\"."
     }
   ],
-
   "flow": {
     "caption": "One receipt, from the shutter to a settled balance.",
     "steps": [
@@ -163,7 +159,6 @@
       }
     ]
   },
-
   "architecture": {
     "caption": "What runs on the phone, what runs on the server, and where money is allowed to be written.",
     "alt": "Bupples is a Flutter client on iOS and Android talking to Firebase. The client holds the interface, Riverpod state, a Flutter-free money domain layer, and Firestore offline persistence so writes queue when the network drops. Around it sit native surfaces I wrote directly: an AVFoundation QR scanner and a real UITabBar exposed to Flutter through platform channels, plus WidgetKit home, lock-screen and StandBy widgets on iOS and RemoteViews widgets on Android, sharing data through an App Group. The client reads and writes Firestore directly for everything that benefits from realtime listeners, but every write passes through 2,254 lines of Security Rules that bind authorisation to the Firebase auth uid rather than any client-supplied identifier. Anything money-critical or membership-critical does not go through rules at all: it goes to Cloud Functions on Node 22, which write with the Admin SDK. There are 99 deployed handlers — 58 callables, 27 Firestore document triggers, 13 scheduled jobs and one HTTP webhook — including a server mirror of the balance ledger and the exact receipt-claim arithmetic. Receipt reading is two-tier: Google ML Kit runs on the device for an instant first pass, then a Cloud Function calls Gemini 2.5 Flash on Vertex AI using Application Default Credentials, with a second more careful pass only when the first one is not trusted. Subscriptions run through RevenueCat on the device, and RevenueCat posts entitlement changes to an authenticated webhook, which writes the entitlement to Firestore where privileged callables re-read it before granting anything. Firebase Hosting serves a static product site with the legal pages, deep-link landings for join codes and profiles, and one genuinely interactive page: a browser claim flow that signs in anonymously and calls the same Cloud Functions the app does.",
@@ -245,21 +240,68 @@
       }
     ],
     "edges": [
-      { "from": "client", "to": "native", "label": "Platform channels; widget data through an App Group" },
-      { "from": "client", "to": "extraction", "label": "On-device OCR runs before the network call" },
-      { "from": "client", "to": "firebase", "label": "Direct reads and writes, every one checked by rules" },
-      { "from": "firebase", "to": "client", "label": "Realtime listeners, budgeted at ≤4 per joined hangout" },
-      { "from": "client", "to": "functions", "label": "Callables for anything money- or membership-critical" },
-      { "from": "functions", "to": "firebase", "label": "Admin SDK writes: joins, settlements, finalised receipts, ownership" },
-      { "from": "functions", "to": "extraction", "label": "Vertex AI with Application Default Credentials — no API key" },
-      { "from": "client", "to": "billing", "label": "Purchase and restore through the store" },
-      { "from": "billing", "to": "functions", "label": "Entitlement webhook, authenticated with a Secret Manager secret" },
-      { "from": "functions", "to": "billing", "label": "Live entitlement re-read before any privileged grant" },
-      { "from": "web", "to": "functions", "label": "The browser claim page calls the same callables" },
-      { "from": "web", "to": "firebase", "label": "Anonymous sign-in, then the same rules apply" }
+      {
+        "from": "client",
+        "to": "native",
+        "label": "Platform channels; widget data through an App Group"
+      },
+      {
+        "from": "client",
+        "to": "extraction",
+        "label": "On-device OCR runs before the network call"
+      },
+      {
+        "from": "client",
+        "to": "firebase",
+        "label": "Direct reads and writes, every one checked by rules"
+      },
+      {
+        "from": "firebase",
+        "to": "client",
+        "label": "Realtime listeners, budgeted at ≤4 per joined hangout"
+      },
+      {
+        "from": "client",
+        "to": "functions",
+        "label": "Callables for anything money- or membership-critical"
+      },
+      {
+        "from": "functions",
+        "to": "firebase",
+        "label": "Admin SDK writes: joins, settlements, finalised receipts, ownership"
+      },
+      {
+        "from": "functions",
+        "to": "extraction",
+        "label": "Vertex AI with Application Default Credentials — no API key"
+      },
+      {
+        "from": "client",
+        "to": "billing",
+        "label": "Purchase and restore through the store"
+      },
+      {
+        "from": "billing",
+        "to": "functions",
+        "label": "Entitlement webhook, authenticated with a Secret Manager secret"
+      },
+      {
+        "from": "functions",
+        "to": "billing",
+        "label": "Live entitlement re-read before any privileged grant"
+      },
+      {
+        "from": "web",
+        "to": "functions",
+        "label": "The browser claim page calls the same callables"
+      },
+      {
+        "from": "web",
+        "to": "firebase",
+        "label": "Anonymous sign-in, then the same rules apply"
+      }
     ]
   },
-
   "challenges": [
     {
       "title": "Cent-exact money, and exactly one place that divides it",
@@ -332,7 +374,6 @@
       "evidence": "functions/src/receipt_scan.ts: SCAN_MODEL_PRIMARY / SCAN_MODEL_ACCURATE (both gemini-2.5-flash today, with an in-file note to point the accurate tier at a stronger model once provisioned), SCAN_TRUST_THRESHOLD 0.85, SCAN_FALLBACK_ITEM_CONFIDENCE 0.7, PAGE_MAX_EDGE 1600, MAX_SCAN_PAGES 4, BLUR_SHARPNESS 2.2, LOW_CONTRAST_STDEV 28; functions/src/receipt_merchant.ts for template learning; functions/src/index.ts:226–230 Vertex AI init with Application Default Credentials; pubspec.yaml ML Kit comment; remoteconfig.template.json parameter receipt_scan_enabled."
     }
   ],
-
   "decisions": [
     {
       "title": "Entitlements are server truth",
@@ -375,7 +416,6 @@
       "evidence": "CLAUDE.md standing rules (\"NEVER bare --only functions\"); 99 handlers enumerated from functions/src/*.ts; tool/verify_build_freshness.sh, scripts/check_release_config.sh, SHIP_CHECKLIST.md, docs/RELEASE.md, docs/releases/1.3.0_deploy_runbook.md."
     }
   ],
-
   "evolution": [
     {
       "title": "First release changed the failure mode",
@@ -398,7 +438,6 @@
       "evidence": "docs/PERF.md — the five budgets, stated as blocking a release build; integration_test/perf_soak_test.dart with on-device FrameTiming."
     }
   ],
-
   "testing": {
     "lead": "Tests here exist to fail first. The repository's standing rule is that a behavioural fix does not count as done until its test has been verified red against the pre-fix code — by reverting the fix and re-running it. A test written after a fix and green on the first run proves nothing about the bug it claims to cover.",
     "stats": [
@@ -456,7 +495,6 @@
       }
     ]
   },
-
   "results": [
     {
       "title": "Shipped, on both stores",
@@ -479,7 +517,6 @@
       "evidence": "Deliberate omission. The App Store rating at time of writing is drawn from a sample too small to present as evidence, and no traction data exists in the repository."
     }
   ],
-
   "lessons": {
     "worked": [
       "One kernel, called from everywhere. The single most valuable file in the project is 100 lines that distribute leftover cents. Everything that divides money calls it, so there is exactly one place a rounding decision can be wrong — and exactly one place to fix it.",
@@ -497,7 +534,6 @@
       "One money implementation, not two. The Dart and TypeScript copies should be generated from a shared specification, or one of them should stop existing, so drift becomes impossible rather than merely tested against."
     ]
   },
-
   "media": [
     {
       "src": "/images/projects/bupples/profile.webp",
@@ -521,7 +557,6 @@
       "height": 1800
     }
   ],
-
   "seo": {
     "title": "Bupples — a cent-exact expense splitter on iOS and Android",
     "description": "A social expense app built solo in Flutter and Firebase: integer-cent money, one shared split kernel, AI receipt extraction, and server-authoritative settlement. Live on both stores.",

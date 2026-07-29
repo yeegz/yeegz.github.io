@@ -3,13 +3,15 @@
   "name": "Adelante",
   "tagline": "Widget-first motivation for iOS and Android, read from the Home Screen.",
   "summary": "A motivation app only helps on the day nobody feels like opening a motivation app. Adelante puts the writing on the surfaces a phone already shows — Home Screen, Lock Screen and the iOS 17+ StandBy families — instead of behind a launch. I built the Flutter application, both native widget renderers (WidgetKit and SwiftUI on iOS, RemoteViews on Android), the deterministic content pipeline behind a 12,828-entry library that ships inside the binary, and the Firebase content backend that the shipped build deliberately does not need. It matters because the hard part of a widget product is not the app: it is three separate processes that never talk to each other agreeing, offline, on what to show right now.",
-
   "category": "Mobile — native widget surfaces",
   "role": "Sole developer — Flutter app, both native widget renderers, the content pipeline, and the backend design",
   "team": "Solo",
   "timeline": "2026-06 – Present",
   "status": "Not released. Both platforms compile to release artifacts, including the iOS widget extension, but there is no App Store or Google Play listing — every account, signing and submission item in docs/store/store-readiness.md is still unchecked. The Firebase backend is written, unit-tested from the client side, and has never run against a live project.",
-  "platforms": ["iOS 16+", "Android"],
+  "platforms": [
+    "iOS 16+",
+    "Android"
+  ],
   "stack": [
     "Flutter 3.44.1",
     "Dart 3.12.1",
@@ -24,12 +26,10 @@
     "Firebase Cloud Functions (v2)",
     "Firestore"
   ],
-
   "featured": true,
   "order": 2,
   "accent": "#e97842",
   "ground": "#faf7f0",
-
   "links": [
     {
       "label": "View showcase",
@@ -38,7 +38,6 @@
       "evidence": "GitHub API returns HTTP 200 with \"private\": false; created 2026-07-13T05:36:59Z, single commit e5b283a. The application source is private and unpublished: `git remote -v` in /Users/yousofselim/Documents/Adelante returns nothing, and api.github.com/repos/yeegz/adelante returns 404."
     }
   ],
-
   "problem": {
     "lead": "The content has to arrive without being asked for, on a surface the user already looks at, on two platforms whose widget systems agree on almost nothing.",
     "points": [
@@ -50,7 +49,6 @@
       "Faith is part of the content. A user who selects one tradition must never be shown another — the kind of promise a scoring function quietly breaks."
     ]
   },
-
   "contribution": {
     "owned": [
       "The Flutter application — 8,963 lines across 41 Dart files: a Riverpod 3 provider graph, the content repository and search index, the recommendation engine and refresh policy, onboarding, the widget studio and settings.",
@@ -66,7 +64,6 @@
       "The prose, mostly. 12,756 of 12,828 entries are original text produced by generators I drove and gated rather than lines I wrote by hand; 96 curated entries seed the set and are registered as authoritative so generated output can never displace them."
     ]
   },
-
   "constraints": [
     {
       "title": "No accounts, analytics, or off-device tracking",
@@ -94,7 +91,6 @@
       "evidence": "docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:17-20; lib/app/backend_config.dart:17 makes the endpoint a String.fromEnvironment with an empty default and isContentSyncEnabled false when empty."
     }
   ],
-
   "flow": {
     "caption": "Boot to widget — the path one quote takes from a bundled asset to a rendered Home Screen tile, without a network call.",
     "steps": [
@@ -106,7 +102,6 @@
       "Each native renderer reads that store, filters the pool down to the tiers its family can hold, and computes the rotation index from the shared anchor — no message ever passes between the three processes."
     ]
   },
-
   "architecture": {
     "caption": "Three processes, one shared payload, and a backend the shipped build does not need.",
     "alt": "Adelante runs as three independent processes on one device. The Flutter app holds the content repository, search index, recommendation engine and refresh policy, and writes a single serialised payload into a shared local store — an App Group container on iOS, SharedPreferences on Android — using the home_widget package. That shared store also holds the bundled 12,828-entry library.json asset, the cached content, and eighteen preference keys. Two native renderers read the shared store and never write to it and never open a socket: an iOS WidgetKit extension with seven widget families, SwiftUI views, a payload decoder, a copy of the rotation function and a precomputed twelve-entry timeline; and an Android AppWidgetProvider with five baked RemoteViews layout variants, a Canvas-rendered gradient bitmap and its own copy of the same rotation function. A separate build-time toolchain on the developer machine generates library.json through the deterministic gate and automates the Xcode widget target and its font resources. A Firebase project sits outside the device holding five Cloud Functions — getContent for delta sync, scheduledContentImport on a 24-hour schedule, approveContent and rejectContent as admin callables, and a one-time setAdminClaim bootstrap — over Firestore collections for content, content_versions, content_reviews, sources and meta. The app talks to that backend through one anonymous read-only GET carrying no identifiers, and only when an endpoint has been compiled into the build; it is empty by default, so the shipped app is offline-only.",
@@ -174,15 +169,38 @@
       }
     ],
     "edges": [
-      { "from": "pipeline", "to": "app", "label": "generates library.json into the app bundle" },
-      { "from": "pipeline", "to": "ios", "label": "creates and repairs the extension target and its font resources" },
-      { "from": "app", "to": "shared", "label": "writes one serialised payload via home_widget" },
-      { "from": "shared", "to": "ios", "label": "read-only — the extension never opens a socket" },
-      { "from": "shared", "to": "android", "label": "read-only — the provider never opens a socket" },
-      { "from": "app", "to": "backend", "label": "anonymous GET ?since=<version> — disabled unless an endpoint is compiled in" }
+      {
+        "from": "pipeline",
+        "to": "app",
+        "label": "generates library.json into the app bundle"
+      },
+      {
+        "from": "pipeline",
+        "to": "ios",
+        "label": "creates and repairs the extension target and its font resources"
+      },
+      {
+        "from": "app",
+        "to": "shared",
+        "label": "writes one serialised payload via home_widget"
+      },
+      {
+        "from": "shared",
+        "to": "ios",
+        "label": "read-only — the extension never opens a socket"
+      },
+      {
+        "from": "shared",
+        "to": "android",
+        "label": "read-only — the provider never opens a socket"
+      },
+      {
+        "from": "app",
+        "to": "backend",
+        "label": "anonymous GET ?since=<version> — disabled unless an endpoint is compiled in"
+      }
     ]
   },
-
   "challenges": [
     {
       "title": "Three renderers agreeing on which quote is now, with no way to talk to each other",
@@ -255,7 +273,6 @@
       "evidence": "tool/generate_library/gate.dart (396 lines; dedup layers at :309-312, filter lists at :133-173, seedCurated at :191, id derivation at :376-395); functions/src/model.ts (217 lines) and functions/src/index.ts:132; assets/content/library.json verified with json.load — 11,837,788 bytes, 12,828 entries, 12,828 unique ids, 12,828 unique texts, 20 categories; faith counts islam 599, judaism 559, christianity 559, hinduism 558, buddhism 552, generalSpiritual 3, null 9,998; licenseStatus original 12,756."
     }
   ],
-
   "decisions": [
     {
       "title": "Ship the whole library; treat the backend as growth",
@@ -298,7 +315,6 @@
       "evidence": "docs/backend/content-system.md ('Backend Choice'); functions/package.json (Node 20, firebase-functions ^6.1.0, firebase-admin ^12.6.0); firestore.rules (44 lines, header comment); functions/src/index.ts:47 (getContent); firestore.indexes.json (3 composite indexes)."
     }
   ],
-
   "evolution": [
     {
       "title": "The baseline was written down before it was fixed",
@@ -326,15 +342,34 @@
       "evidence": "Commits f4535e9 and 1c3343b (2026-06-21), c974605 (2026-07-18); ios/Runner/AppDelegate.swift:26-147 (adelante/native_tab_bar platform view factory, comment at :106-111); lib/features/app/presentation/native_tab_bar.dart."
     }
   ],
-
   "testing": {
     "lead": "18 test files, 1,898 lines, 117 test declarations and 284 assertions — and no Flutter widget tests at all. The suite is aimed at data, contracts and cross-platform invariants rather than UI, and three of its suites do something unusual: they read the Swift, Kotlin and XML sources off disk from Dart and assert on their text, which pins invariants a Dart test cannot otherwise reach. Those are source-text guards, not behavioural tests, and they are worth naming as such.",
     "stats": [
-      { "label": "Test files", "value": "18", "evidence": "find test -name '*_test.dart' -type f | wc -l → 18; find test -type f -name '*.dart' | xargs wc -l → 1898." },
-      { "label": "Test declarations", "value": "117", "evidence": "grep -rE \"^\\\\s*(test|testWidgets)\\\\(\" test/*.dart | wc -l → 117, across 20 groups. Two of the 117 sit inside generating loops (5 and 17 iterations), so the executed count is higher than the declared one. At commit 6bc4715 (2026-06-21) the same command returned 60 across 13 files." },
-      { "label": "Assertions", "value": "284", "evidence": "grep -rEo \"expect\\\\(\" test/*.dart | wc -l → 284." },
-      { "label": "Flutter widget tests", "value": "0", "evidence": "grep -rE \"^\\\\s*testWidgets\\\\(\" test/*.dart | wc -l → 0." },
-      { "label": "Backend tests", "value": "0", "evidence": "functions/ contains no test files, verified by listing the directory recursively. The five Cloud Functions are exercised only from the client side." }
+      {
+        "label": "Test files",
+        "value": "18",
+        "evidence": "find test -name '*_test.dart' -type f | wc -l → 18; find test -type f -name '*.dart' | xargs wc -l → 1898."
+      },
+      {
+        "label": "Test declarations",
+        "value": "117",
+        "evidence": "grep -rE \"^\\\\s*(test|testWidgets)\\\\(\" test/*.dart | wc -l → 117, across 20 groups. Two of the 117 sit inside generating loops (5 and 17 iterations), so the executed count is higher than the declared one. At commit 6bc4715 (2026-06-21) the same command returned 60 across 13 files."
+      },
+      {
+        "label": "Assertions",
+        "value": "284",
+        "evidence": "grep -rEo \"expect\\\\(\" test/*.dart | wc -l → 284."
+      },
+      {
+        "label": "Flutter widget tests",
+        "value": "0",
+        "evidence": "grep -rE \"^\\\\s*testWidgets\\\\(\" test/*.dart | wc -l → 0."
+      },
+      {
+        "label": "Backend tests",
+        "value": "0",
+        "evidence": "functions/ contains no test files, verified by listing the directory recursively. The five Cloud Functions are exercised only from the client side."
+      }
     ],
     "cases": [
       {
@@ -359,7 +394,6 @@
       }
     ]
   },
-
   "results": [
     {
       "title": "Both platforms build, extension included",
@@ -382,7 +416,6 @@
       "evidence": "pubspec.yaml:38-48 cross-checked against pubspec.lock `dependency: \"direct main\"`; repo-wide grep for analytics/auth/ads/attribution SDK names across lib/, pubspec.yaml and pubspec.lock returns 2 non-SDK hits; android/app/src/main/AndroidManifest.xml has zero uses-permission entries (INTERNET appears only in the debug manifest, with Flutter's stock hot-reload comment); ios/Runner/Info.plist has no NSUserTrackingUsageDescription."
     }
   ],
-
   "lessons": {
     "worked": [
       "Auditing the codebase and writing the defects down before touching them. The overhaul spec's 'Baseline facts' section is what made the fixes checkable a month later rather than remembered.",
@@ -401,7 +434,6 @@
       "Work the store-readiness checklist, which is entirely unstarted — Apple Developer membership, App Group capability, PrivacyInfo.xcprivacy, distribution signing, a release keystore, and both store listings."
     ]
   },
-
   "seo": {
     "title": "Adelante — widget-first motivation for iOS and Android",
     "description": "A Flutter motivation app whose content lives in native widgets: WidgetKit and SwiftUI on iOS, RemoteViews on Android, driven from one shared payload with no accounts, analytics or ads.",

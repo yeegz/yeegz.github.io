@@ -297,6 +297,69 @@ test.describe('homepage repairs', () => {
   });
 });
 
+test.describe('data integrity', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const root = path.resolve(__dirname, '..');
+  const site = JSON.parse(fs.readFileSync(path.join(root, 'content/site.json'), 'utf8'));
+  const projects = fs
+    .readdirSync(path.join(root, 'content/projects'))
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => JSON.parse(fs.readFileSync(path.join(root, 'content/projects', f), 'utf8')));
+
+  test('Bupples is never claimed as a web product', () => {
+    // Owner-confirmed: iOS and Android only. bupples.web.app is the marketing
+    // landing page — it is the App Store listing's own sellerUrl, not the app.
+    const bupples = projects.find((p) => p.slug === 'bupples');
+    expect(bupples, 'bupples.json missing').toBeTruthy();
+    expect(bupples.platforms).toEqual(['iOS', 'Android']);
+
+    const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    expect(html).not.toContain('iOS, Android, and web');
+    expect(html).not.toContain('iOS · Android · Web');
+  });
+
+  test('no project claims a platform it has not shipped on', () => {
+    // electron-builder targets Windows, but the only packaged artifact is
+    // release/Photoshoot-1.0.0-arm64-mac.zip and no .exe exists — so Windows
+    // may be discussed in prose, never listed as a shipped platform.
+    for (const p of projects) {
+      for (const platform of p.platforms) {
+        expect(platform, `${p.slug} lists Windows as a shipped platform`).not.toMatch(/^Windows/i);
+      }
+    }
+  });
+
+  test('every credibility claim carries an evidence citation', () => {
+    expect(site.credibility.length).toBeGreaterThan(3);
+    for (const c of site.credibility) {
+      expect(c.evidence, `credibility "${c.label}" has no citation`).toBeTruthy();
+      expect(c.evidence.length).toBeGreaterThan(20);
+    }
+  });
+
+  test('every challenge and decision is traceable', () => {
+    for (const p of projects) {
+      for (const c of p.challenges || []) {
+        expect(c.evidence, `${p.slug} challenge "${c.title}" has no citation`).toBeTruthy();
+      }
+    }
+  });
+
+  test('the removed overclaims stay removed', () => {
+    const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    const js = fs.readFileSync(path.join(root, 'script.js'), 'utf8');
+    for (const banned of [
+      'Building since',          // earliest dated project is April 2024
+      'Products shipped',        // counted a team project and a redesign contribution
+      'SOLE DEVELOPER — 5 PRODUCTS',
+      'Next.js · React',         // unsupported by the résumé, lanes or JSON-LD
+    ]) {
+      expect(html + js, `"${banned}" is back on the page`).not.toContain(banned);
+    }
+  });
+});
+
 test('content passes schema validation', async () => {
   const { execFileSync } = require('child_process');
   const out = execFileSync('node', ['tools/build.mjs', '--check'], { encoding: 'utf8' });

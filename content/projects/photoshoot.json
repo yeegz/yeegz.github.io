@@ -3,13 +3,15 @@
   "name": "Photoshoot",
   "tagline": "A photobooth for desktop and browser that never sends a camera frame anywhere.",
   "summary": "Photobooth software normally asks you to hand your camera to somebody's server. Photoshoot does the opposite: the webcam feed is rendered by a hand-written WebGL2 pipeline inside the app, face tracking runs against a model served from the app's own origin, and captures are written to a local folder or to IndexedDB. There is no backend anywhere in the repository. One TypeScript renderer serves both an Electron desktop build and a browser build, talking only to a twenty-method bridge interface that is implemented once per runtime. I built it alone — the twenty-seven fragment shaders, the zero-trust import format for community themes and filters, the Electron hardening, the landing page and the static deploy. It matters because it is the version of this product that does not need to be trusted: the privacy claim is a property of the architecture, not a promise in a policy.",
-
   "category": "Photobooth · desktop and web",
   "role": "Sole developer — graphics pipeline, security model, both runtimes, deployment",
   "team": "Solo",
   "timeline": "2026-06",
   "status": "Live on the web · desktop build from source, no published release",
-  "platforms": ["Web (WebGL2 browsers)", "Windows desktop (Electron)"],
+  "platforms": [
+    "Web (WebGL2 browsers)",
+    "Desktop (Electron) — built from source, not released"
+  ],
   "stack": [
     "TypeScript 5.6 (strict)",
     "Electron 31",
@@ -21,18 +23,22 @@
     "IndexedDB · localStorage",
     "Firebase Hosting"
   ],
-
   "featured": true,
   "order": 3,
   "accent": "#a12e34",
   "ground": "#e9e3d6",
-
   "links": [
     {
-      "label": "Live site",
+      "label": "Open the photobooth",
+      "href": "https://photoshoot-yeegz.web.app/app/",
+      "kind": "live",
+      "evidence": "Verified 2026-07-29: / is a landing page (title 'Photoshoot — a webcam photobooth for your desktop') that links to /app/. /app/ returns 200 with title 'Photoshoot', a <canvas> and the bundled renderer (main-NDNDSI2B.js) — it is the running app."
+    },
+    {
+      "label": "Product site",
       "href": "https://photoshoot-yeegz.web.app/",
       "kind": "live",
-      "evidence": "HTTP 200, verified reachable. The root is the landing page; the running web app is one link away at /app/, which serves the same renderer bundle as the desktop build."
+      "evidence": "Landing page for the project; the app itself is one click away at /app/."
     },
     {
       "label": "Source on GitHub",
@@ -41,7 +47,6 @@
       "evidence": "HTTP 200. Public (\"private\": false via api.github.com), MIT licence, primary language TypeScript, created 2026-06-13, last push 2026-06-17. Description: \"A joyful webcam photobooth — live WebGL effects, 4-shot strips, themes, background replacement. Electron desktop app + web app. Original code & assets.\""
     }
   ],
-
   "problem": {
     "lead": "A photobooth is a camera app, and a camera app asks for the most sensitive permission a hobby project can ask for. The interesting constraint was making it playful — warps that follow the pointer, face effects, a printed four-shot strip — without a single frame leaving the machine.",
     "points": [
@@ -51,7 +56,6 @@
       "The app invites community themes and colour filters. A file downloaded from a stranger has to be able to change how the app looks and what the GPU does, without being able to run anything."
     ]
   },
-
   "contribution": {
     "owned": [
       "The full application: 34 TypeScript files, 5,902 lines under src/, plus 2,550 lines of CSS across the four app stylesheets and the landing page.",
@@ -68,7 +72,6 @@
       "No design collaborator, no QA and no code review. The gaps in the testing section are a consequence of that, and are stated rather than papered over."
     ]
   },
-
   "constraints": [
     {
       "title": "No backend, by construction",
@@ -91,7 +94,6 @@
       "evidence": "git log: first commit bb93690 on 2026-06-14, final commit d219ad6 on 2026-06-17; 13 commits, all on main, working tree clean."
     }
   ],
-
   "flow": {
     "caption": "One frame, from lens to strip. Nothing in this path crosses the network.",
     "steps": [
@@ -104,7 +106,6 @@
       "The capture is written to Pictures/Photoshoot on the desktop, or to IndexedDB in the browser."
     ]
   },
-
   "architecture": {
     "caption": "Three processes, one shared renderer, and a single audited seam between them.",
     "alt": "Photoshoot is an Electron application with three processes plus a browser build that reuses one of them. The shared layer, src/shared/, holds pure types and validators with no Node and no DOM imports, so the same modules bundle into all four contexts: the theme validator, the filter validator, the twenty IPC channel names, and the PhotoshootBridge interface. The renderer holds everything the user sees — camera capture, the WebGL2 pipeline with its twenty-seven fragment shaders, MediaPipe face tracking, background replacement, CSSOM theming, synthesized audio and the three capture modes — and it never talks to Node directly. It talks only to PhotoshootBridge. That interface is implemented twice. On the desktop, the preload script implements it over contextBridge and ipcRenderer, and the Electron main process answers on twenty channels: window control, settings storage, gallery storage, theme import and filter import, each gated by a lexical path-containment check. In the browser, src/web/shim.ts implements the same twenty methods over IndexedDB for captures, localStorage for settings and themes, and a download anchor for exports. Data lives in three places, all of them local: the user's Pictures folder and JSON files in Electron's userData directory on the desktop, and IndexedDB plus localStorage in the browser. Two third parties are involved. MediaPipe Tasks Vision supplies the face landmark model and WASM runtime, both vendored into the app and served from its own app:// origin rather than fetched from a CDN. Firebase Hosting serves the web build as static files. No other network destination exists — the desktop app cancels every request whose URL does not start with app:, file:, devtools:, blob:, data: or chrome-extension:.",
@@ -162,18 +163,53 @@
       }
     ],
     "edges": [
-      { "from": "Camera", "to": "Renderer", "label": "getUserMedia — MediaStream, local only" },
-      { "from": "Renderer", "to": "Shared", "label": "re-validates every token and parameter before use" },
-      { "from": "Renderer", "to": "Bridge", "label": "PhotoshootBridge — 20 methods, the only way out" },
-      { "from": "Bridge", "to": "Electron main", "label": "desktop: contextBridge over 20 IPC channels" },
-      { "from": "Bridge", "to": "On-device storage", "label": "web: IndexedDB, localStorage, download anchor" },
-      { "from": "Electron main", "to": "Shared", "label": "validates imports before anything is persisted" },
-      { "from": "Electron main", "to": "On-device storage", "label": "path-contained reads and writes" },
-      { "from": "Renderer", "to": "Third parties", "label": "loads the face model from app://photoshoot, not a CDN" },
-      { "from": "Third parties", "to": "Renderer", "label": "Firebase Hosting serves the web bundle; no runtime API calls" }
+      {
+        "from": "Camera",
+        "to": "Renderer",
+        "label": "getUserMedia — MediaStream, local only"
+      },
+      {
+        "from": "Renderer",
+        "to": "Shared",
+        "label": "re-validates every token and parameter before use"
+      },
+      {
+        "from": "Renderer",
+        "to": "Bridge",
+        "label": "PhotoshootBridge — 20 methods, the only way out"
+      },
+      {
+        "from": "Bridge",
+        "to": "Electron main",
+        "label": "desktop: contextBridge over 20 IPC channels"
+      },
+      {
+        "from": "Bridge",
+        "to": "On-device storage",
+        "label": "web: IndexedDB, localStorage, download anchor"
+      },
+      {
+        "from": "Electron main",
+        "to": "Shared",
+        "label": "validates imports before anything is persisted"
+      },
+      {
+        "from": "Electron main",
+        "to": "On-device storage",
+        "label": "path-contained reads and writes"
+      },
+      {
+        "from": "Renderer",
+        "to": "Third parties",
+        "label": "loads the face model from app://photoshoot, not a CDN"
+      },
+      {
+        "from": "Third parties",
+        "to": "Renderer",
+        "label": "Firebase Hosting serves the web bundle; no runtime API calls"
+      }
     ]
   },
-
   "challenges": [
     {
       "title": "A plugin format that is data, never code",
@@ -247,7 +283,6 @@
       "evidence": "src/shared/ipc-contract.ts:7-28 (20 channels) and :157-178 (PhotoshootBridge). src/preload/preload.ts (38 lines, contextBridge only, no ipcRenderer or require reaches the page). src/web/shim.ts (448 lines). web/build-web.mjs:63 and :85-93. `npm run typecheck` (tsc --noEmit) exits 0 with zero diagnostics; tsconfig.json:3-19."
     }
   ],
-
   "decisions": [
     {
       "title": "Lock the renderer down before writing anything into it",
@@ -290,7 +325,6 @@
       "evidence": "web/build-web.mjs:1-11 (rationale) and :26-53 (sha256-8 hashing of bundles and stylesheets); firebase.json:9-33 (cache headers); commit 0797177, 2026-06-17. Verified live: the deployed /app/ references shim-E227B433.js and main-NDNDSI2B.js, byte-identical to the local web-dist/ build, and Firebase reports last-modified 2026-06-17 15:04:23 GMT — the timestamp of the final commit."
     }
   ],
-
   "evolution": [
     {
       "title": "14 June 2026 — the app, in one sitting",
@@ -308,7 +342,6 @@
       "evidence": "package.json:3 (1.0.0). `git tag` returns empty; /repos/yeegz/photoshoot/releases returns an empty array. src/renderer/themes.ts:18-22 lists five built-in themes (Studio, Classic Metal, Studio Dark, Retro Film, Darkroom) against web/landing/index.html:9 and :134."
     }
   ],
-
   "testing": {
     "lead": "There is one test file and no continuous integration. What it covers is the part that matters most — the validator standing between a downloaded file and the GPU — and it is written as adversarial cases rather than happy paths. Stating its scope exactly is more useful than implying the project is tested end to end, so the gap is listed alongside the coverage.",
     "stats": [
@@ -342,7 +375,6 @@
       "Not covered, stated plainly: the theme validator, the Electron main process, filesystem path containment, the renderer and the GL layer. The theme validator is the larger of the two — 59 tokens, 24 forbidden substrings and four regular expressions — and it is the untested one."
     ]
   },
-
   "results": [
     {
       "title": "Deployed, and current with the source",
@@ -360,7 +392,6 @@
       "evidence": "package.json:29-31. build/make-icon.mjs (5.6 KB, emits a 512×512 PNG). src/renderer/sound.ts:1-5 and :60-152, with the eight cue types at :7-15. src/renderer/backgrounds.ts:16-210. The only committed binaries are the generated icon and the MediaPipe model file."
     }
   ],
-
   "lessons": {
     "worked": [
       "Validating twice — once at import and again at use — cost almost nothing and meant the renderer never has to assume the importer ran, or ran the current version of itself.",
@@ -378,7 +409,6 @@
       "Symlink rejection currently guards only the lookup-table import path, because isInside() is lexical and a symlink named lut.png could otherwise point anywhere on disk. The same lstat guard belongs on every path that accepts a file from outside the app, not just that one."
     ]
   },
-
   "media": [
     {
       "src": "/images/photoshoot-app.webp",
@@ -388,7 +418,6 @@
       "height": 956
     }
   ],
-
   "seo": {
     "title": "Photoshoot — a local-first WebGL2 photobooth for desktop and browser",
     "description": "A TypeScript, Electron and WebGL2 photobooth with 17 hand-written GLSL effects and 8 on-device MediaPipe face effects. No backend: camera frames are rendered on the GPU and captures stay on the device. Built solo by Yousof Selim.",

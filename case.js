@@ -91,6 +91,13 @@
         el.classList.add('is-in');
         var label = el.querySelector('.sec-label') || (el.classList.contains('sec-label') ? el : null);
         if (label) label.classList.add('drawn');
+        /* The measuring rail under every section head is clipped to zero width
+           by styles.css and drawn open by the homepage's GSAP. Nothing on these
+           routes ever opened it, so the site's signature rule — and the accent
+           spark that rides its right end — was invisible on all thirteen
+           sections of every case study. */
+        var rail = el.querySelector('.sec-rail');
+        if (rail) rail.classList.add('drawn');
       };
 
       var observer = new IntersectionObserver(

@@ -3304,8 +3304,12 @@ html.egypt .egg-strip { box-shadow: 0 0 12px rgba(212, 160, 23, 0.7); }
   html.egypt .hero-name { padding-right: clamp(16px, 2vw, 56px); }
   html.egypt .nm-stack { margin-left: min(41.5vw, 622px); }
   html.egypt .nm-in {
-    font-size: clamp(5rem, 9.2vw, 12rem) !important;
-    line-height: 1.05 !important;
+    /* Bigger, and sized by the space it actually has. The clamp was width-only,
+       so the name sat small in a hero with a tall empty band above it — and on
+       a short laptop the same rule had nothing stopping the two lines running
+       past the fold into the CTA row. The svh term is the height ceiling. */
+    font-size: min(clamp(4.6rem, 9.6vw, 13rem), 19svh) !important;
+    line-height: 1.06 !important;
   }
   /* `.nm-line` clips its own overflow for the reveal, so its leading has to
      grow with the type or the taller line boxes are cropped. */
@@ -3577,3 +3581,18 @@ html.egypt .mnav-theme { display: none; }
 /* Cursor in the flag: the disc takes the red band, its label the white. */
 html.egypt.egypt { --cursor-fill: #ce1126; --cursor-text: #ffffff; }
 html.egypt .cursor-dot, html.egypt .cursor-ring { border-color: var(--eg-gold); }
+
+/* ---------- the last green the flag missed ----------------------
+   Four surfaces the earlier egg pass did not reach: two focus rings
+   mixed from the mint accent, the Adelante stage's sage wash, the
+   Bupples stage label, and the Photoshoot window's traffic light. */
+
+html.egypt .a-stage,
+html.egypt .p-stage { --focus: var(--eg-red); }
+html.egypt .a-stage::before {
+  background:
+    radial-gradient(circle at 80% 29%, rgba(233, 120, 66, 0.11), transparent 29%),
+    radial-gradient(circle at 42% 94%, rgba(206, 17, 38, 0.1), transparent 33%);
+}
+html.egypt .b-stage .stage-head { color: #8a8a8a; }
+html.egypt .lights i:nth-child(3) { background: var(--eg-gold, #d4a017); }

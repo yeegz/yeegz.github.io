@@ -1563,3 +1563,13 @@ html.egypt .cs-s-problem .cs-sec-title em,
 html.egypt .cs-s-results .cs-sec-title em,
 html.egypt .cs-s-problem em,
 html.egypt .cs-s-results em { color: #f3c95c !important; }
+
+/* The rail is clipped to zero by styles.css and opened by the homepage's GSAP.
+   These routes draw it from case.js instead — same gesture, no animation
+   bundle. Reduced motion already forces clip-path: none, so this never runs
+   there. */
+.cs-body .sec-rail {
+  transition: clip-path 1.3s var(--ease-out);
+  transition-delay: 0.25s;
+}
+.cs-body .sec-rail.drawn { clip-path: inset(-8px 0 -8px 0); }

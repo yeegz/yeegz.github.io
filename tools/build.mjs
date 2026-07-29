@@ -499,7 +499,7 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=51" />
+<link rel="stylesheet" href="/styles.css?v=52" />
 <link rel="stylesheet" href="/case.css?v=7" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
@@ -615,7 +615,7 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=51" />
+<link rel="stylesheet" href="/styles.css?v=52" />
 <link rel="stylesheet" href="/case.css?v=7" />
 ${HEAD_BOOT}
 </head>
@@ -712,9 +712,13 @@ function renderCredibility(site) {
   if (!has(site.credibility)) return '';
   return `<ul class="cred-strip" data-reveal aria-label="At a glance">
 ${site.credibility
-  .map(
-    (c) => `            <li><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`
-  )
+  .map((c) => {
+    // The display numeral is sized for "01" or "1.2.5". A longer text value
+    // wraps to three lines at that size and unbalances the whole strip, so it
+    // gets a quieter treatment instead of being forced into the numeral slot.
+    const isNumeral = /^[\d.]+$/.test(String(c.value).trim());
+    return `            <li${isNumeral ? '' : ' class="cred-text"'}><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`;
+  })
   .join('\n')}
           </ul>`;
 }

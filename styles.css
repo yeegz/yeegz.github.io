@@ -2485,3 +2485,15 @@ html[data-theme="light"] .cap-list li { background: #e7e1d5; }
 #top, #work, #skills, #education, #experience, #contact, #identity {
   scroll-margin-top: clamp(72px, 9vh, 96px);
 }
+
+/* A credibility value that is words rather than a numeral: same weight in the
+   hierarchy, but sized so it sits on one or two lines instead of three. */
+.cred-strip .cred-text { flex-basis: clamp(170px, 20%, 240px); }
+.cred-strip .cred-text b {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}

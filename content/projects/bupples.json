@@ -83,7 +83,7 @@
   "contribution": {
     "owned": [
       "Product design and the whole interface, including the design system it is built from",
-      "The Flutter client: 656 Dart files under lib/, feature-first with a Flutter-free domain layer per feature",
+      "The Flutter client: 656 Dart files under lib/, feature-first, with the money kernel (cents.dart, ledger.dart, money.dart) free of any Flutter import and the wider domain layer limited to flutter/foundation, so the money maths is tested without a widget tree",
       "The money domain — parsing, splitting, the pairwise debt graph, settlement, multi-currency",
       "The Firestore data model, 2,254 lines of Security Rules and the rules-emulator suite",
       "99 Cloud Function handlers in TypeScript: callables, document triggers, scheduled jobs and the billing webhook",
@@ -104,12 +104,12 @@
     {
       "title": "One developer, no reviewer",
       "body": "Every layer is mine, which means nothing is caught by someone else reading it. The response was to write the rules down rather than remember them: standing engineering rules, a design contract that locks the type, radius, shadow and motion ladders, and five performance budgets that block a release build. Rules in a file outlast the memory of why they existed.",
-      "evidence": "CLAUDE.md and AGENTS.md standing rules; DESIGN.md \"anti-slop contract\"; docs/PERF.md five budgets. Git shows 1,130 commits, all authored by one person."
+      "evidence": "CLAUDE.md and AGENTS.md standing rules; DESIGN.md \"anti-slop contract\"; docs/PERF.md five budgets. Git shows 1,131 commits, all authored by one person (git rev-list --count HEAD, 2026-07-29)."
     },
     {
       "title": "Money cannot be eventually correct",
       "body": "A social app can tolerate a stale avatar. A ledger cannot tolerate a stale balance, and it certainly cannot tolerate a payment that applies twice or not at all. This ruled out floating point, ruled out client-authored balances, and made idempotency a requirement of every operation that moves money rather than a refinement.",
-      "evidence": "functions/src/balance.ts header: the persisted server-side preference \"and ONLY that value\" decides what contributes; \"anything a client sends … is NEVER read for financial computation\". 74 runTransaction call sites across functions/src."
+      "evidence": "functions/src/balance.ts header: the persisted server-side preference \"and ONLY that value\" decides what contributes; \"anything a client sends … is NEVER read for financial computation\". 69 runTransaction call sites across functions/src, re-derived NUL-safely 2026-07-29: grep -rao \"runTransaction(\" functions/src | wc -l -> 69 (the bare identifier appears 77 times including comments). -a matters: functions/src/balance.ts contains NUL bytes, so a plain grep treats it as binary and silently skips it."
     },
     {
       "title": "The iOS build stays pure Swift Package Manager",
@@ -119,7 +119,7 @@
     {
       "title": "Every scan has a marginal cost",
       "body": "The app is free with an optional subscription, and a cloud model call is billed per scan. A pipeline that always runs its most expensive read is a pipeline whose feature eventually gets switched off to save money. Accuracy had to be earned per receipt, not paid for on all of them.",
-      "evidence": "functions/src/receipt_scan.ts SCAN_TRUST_THRESHOLD 0.85, with the comment that paying for the second call on every scan \"is how a feature gets switched off\"."
+      "evidence": "functions/src/receipt_scan.ts SCAN_FALLBACK_ITEM_CONFIDENCE 0.7, whose comment says paying for a second call on every scan \"is how a feature gets switched off\" (receipt_scan.ts:112-118). SCAN_TRUST_THRESHOLD 0.85 at line 110 carries only \"Field confidence at or above this reads cleanly.\"."
     }
   ],
   "flow": {
@@ -161,7 +161,7 @@
   },
   "architecture": {
     "caption": "What runs on the phone, what runs on the server, and where money is allowed to be written.",
-    "alt": "Bupples is a Flutter client on iOS and Android talking to Firebase. The client holds the interface, Riverpod state, a Flutter-free money domain layer, and Firestore offline persistence so writes queue when the network drops. Around it sit native surfaces I wrote directly: an AVFoundation QR scanner and a real UITabBar exposed to Flutter through platform channels, plus WidgetKit home, lock-screen and StandBy widgets on iOS and RemoteViews widgets on Android, sharing data through an App Group. The client reads and writes Firestore directly for everything that benefits from realtime listeners, but every write passes through 2,254 lines of Security Rules that bind authorisation to the Firebase auth uid rather than any client-supplied identifier. Anything money-critical or membership-critical does not go through rules at all: it goes to Cloud Functions on Node 22, which write with the Admin SDK. There are 99 deployed handlers — 58 callables, 27 Firestore document triggers, 13 scheduled jobs and one HTTP webhook — including a server mirror of the balance ledger and the exact receipt-claim arithmetic. Receipt reading is two-tier: Google ML Kit runs on the device for an instant first pass, then a Cloud Function calls Gemini 2.5 Flash on Vertex AI using Application Default Credentials, with a second more careful pass only when the first one is not trusted. Subscriptions run through RevenueCat on the device, and RevenueCat posts entitlement changes to an authenticated webhook, which writes the entitlement to Firestore where privileged callables re-read it before granting anything. Firebase Hosting serves a static product site with the legal pages, deep-link landings for join codes and profiles, and one genuinely interactive page: a browser claim flow that signs in anonymously and calls the same Cloud Functions the app does.",
+    "alt": "Bupples is a Flutter client on iOS and Android talking to Firebase. The client holds the interface, Riverpod state, a money kernel with no Flutter import at all, and Firestore offline persistence so writes queue when the network drops. Around it sit native surfaces I wrote directly: an AVFoundation QR scanner and a real UITabBar exposed to Flutter through platform channels, plus WidgetKit home, lock-screen and StandBy widgets on iOS and RemoteViews widgets on Android, sharing data through an App Group. The client reads and writes Firestore directly for everything that benefits from realtime listeners, but every write passes through 2,254 lines of Security Rules that bind authorisation to the Firebase auth uid rather than any client-supplied identifier. Anything money-critical or membership-critical does not go through rules at all: it goes to Cloud Functions on Node 22, which write with the Admin SDK. There are 99 deployed handlers — 58 callables, 27 Firestore document triggers, 13 scheduled jobs and one HTTP webhook — including a server mirror of the balance ledger and the exact receipt-claim arithmetic. Receipt reading is two-tier: Google ML Kit runs on the device for an instant first pass, then a Cloud Function calls Gemini 2.5 Flash on Vertex AI using Application Default Credentials, with a second more careful pass only when the first one is not trusted. Subscriptions run through RevenueCat on the device, and RevenueCat posts entitlement changes to an authenticated webhook, which writes the entitlement to Firestore where privileged callables re-read it before granting anything. Firebase Hosting serves a static product site with the legal pages, deep-link landings for join codes and profiles, and one genuinely interactive page: a browser claim flow that signs in anonymously and calls the same Cloud Functions the app does.",
     "groups": [
       {
         "id": "client",
@@ -337,13 +337,13 @@
       "options": [
         "Compute everything server-side and drop the live preview — which means tapping an item and waiting for a round trip",
         "Use floating-point percentages and reconcile with a tolerance at the end — a general fuzz factor is exactly how a real thirty-sen error gets absorbed and shipped as truth",
-        "Exact rational arithmetic over integers, implemented twice against one written contract, with the same invariants property-tested on both sides"
+        "Exact rational arithmetic over integers, implemented twice against one written contract, with the same invariants written down once and property-tested on the Dart side, with a deterministic pseudo-random sweep over the tax-and-service allocation on the TypeScript side"
       ],
       "solution": "Both implementations work in integer minor units and use exact rational arithmetic over big integers, so rounding is deterministic in both runtimes rather than dependent on either one's float behaviour. The invariants are named in both files and hold for any input: member subtotals plus the unclaimed pot equal the item total exactly, with over-claims clamped first; tax and service allocated per member plus the unallocated remainder equal tax plus service exactly; splitting the remainder equally conserves the pot exactly. Cash rounding is a per-currency table of named steps rather than a tolerance, and the reconciler's stated design rule is that tolerances are named, bounded and enumerated — anything the checks cannot explain comes out as an explicit residual for a human to resolve, never as a silent adjustment.",
       "tradeoff": "Roughly sixteen hundred lines of the same arithmetic exist twice and must change together. Nothing in the toolchain enforces that; only the tests, the shared invariant list and a comment at the top of each file do.",
-      "validation": "Property tests over the named invariants on both sides, plus targeted unit tests for reconciliation, tax and service allocation, and handwritten tip inference.",
+      "validation": "The same invariants written down once and property-tested on the Dart side, with a deterministic pseudo-random sweep over the tax-and-service allocation on the TypeScript side, plus targeted unit tests for reconciliation and handwritten tip inference.",
       "result": "The share a person watches change while they tap items is the share the ledger stores. A receipt whose printed total genuinely disagrees with its own lines surfaces that as a residual instead of quietly absorbing it into someone's balance.",
-      "evidence": "functions/src/receipt_math.ts (1,000 lines) and lib/features/session/domain/receipt_claims.dart (615 lines), whose headers state the shared contract and the property-tested invariants; CASH_ROUNDING_STEPS at receipt_math.ts:673 and the \"no general fuzz factor\" design rule; functions/test-unit/receipt_reconcile.test.mjs, allocate_tax_service.test.mjs, tip_inference.test.mjs."
+      "evidence": "functions/src/receipt_math.ts (1,000 lines) and lib/features/session/domain/receipt_claims.dart (615 lines), whose headers state the shared contract — receipt_math.ts says verbatim \"Invariants (property-tested on the Dart side)\", and on the TypeScript side only allocate_tax_service.test.mjs runs a sweep (\"Deterministic pseudo-random sweep (mulberry32)\"), the other two suites being example-based; CASH_ROUNDING_STEPS at receipt_math.ts:673 and the \"no general fuzz factor\" design rule; functions/test-unit/receipt_reconcile.test.mjs, allocate_tax_service.test.mjs, tip_inference.test.mjs."
     },
     {
       "title": "The trust boundary: the client can ask, the server decides",
@@ -353,11 +353,11 @@
         "Route every write through Cloud Functions — which gives up the realtime listeners that make shared balances feel live",
         "Rules that bind every write to the caller's uid, plus server-only fields clients cannot touch at all, plus idempotent callables for the operations that must not double-apply"
       ],
-      "solution": "The third, drawn as an explicit boundary. Authorisation binds to the Firebase auth uid and never to a client-supplied member id. Sessions cannot be listed — a session is readable only through an unguessable id reached via a join-code lookup. Joining goes through a Cloud Function using the Admin SDK, so a client can never grow the authorised-uid list itself; a subset guard prevents the self-leave branch being used to evict the host or swap in another uid. Expenses are owner-scoped: the creator or the host may edit, and everyone else files a change request. The host field is server-only, and ownership moves only through a callable so the hand-off is audited and notified. Paid cosmetic frames are denied to clients outright in the rules; the only route onto one is a callable that re-reads the live entitlement first. On the server, 74 transactions carry the write-critical paths and idempotency is committed inside the transaction rather than checked before it — a double-tapped claim returns an 'already done' result instead of applying twice.",
+      "solution": "The third, drawn as an explicit boundary. Authorisation binds to the Firebase auth uid and never to a client-supplied member id. Sessions cannot be listed — a session is readable only through an unguessable id reached via a join-code lookup. Joining goes through a Cloud Function using the Admin SDK, so a client can never grow the authorised-uid list itself; a subset guard prevents the self-leave branch being used to evict the host or swap in another uid. Expenses are owner-scoped: the creator or the host may edit, and everyone else files a change request. The host field is server-only, and ownership moves only through a callable so the hand-off is audited and notified. Paid cosmetic frames are denied to clients outright in the rules; the only route onto one is a callable that re-reads the live entitlement first. On the server, transactions carry the write-critical paths and idempotency is committed inside the transaction rather than checked before it — a double-tapped claim returns an 'already done' result instead of applying twice.",
       "tradeoff": "The rules file is a second description of the domain's shape. Add a field to an expense and it has to be added to the rules' payload validator too, or the write is rejected in production and nowhere else. That cost is paid down with an emulator suite rather than with looser rules.",
-      "validation": "25 Firestore rules test files run against the emulator alongside 44 backend unit test files. I also ran a ten-domain adversarial security audit against my own shipped code at version 1.1.1 in July 2026; it scored the app five out of ten at that point and produced a register of findings.",
+      "validation": "25 Firestore rules test files run against the emulator alongside 45 backend unit test files. I also ran an eight-domain static adversarial review of my own shipped code at version 1.1.1 in July 2026; it scored the app five out of ten at that point and produced a register of findings.",
       "result": "The audit's highest finding — a member could rewrite the authorised-uid list through the self-leave branch and evict the host — is closed in the current rules, with the attack it prevents named in the comment above the guard. The register is not fully closed, and what is still open is stated in the lessons below rather than left out.",
-      "evidence": "firestore.rules — 2,254 lines / 128 KB, 26 helpers; header comment lines 3–25 for the authorisation model; the hasAll subset guard on authedUids; clientEquippableFrame and the equipProFrame callable; hostUid server-only via transferOwnership (~line 210). functions/src: 74 runTransaction call sites, 164 mentions of idempotency across 14 files; offline_claim.ts returning {kind:'already'}. docs/audits/SECURITY_AUDIT.md, committed 2026-07-16 at 1.1.1+119."
+      "evidence": "firestore.rules — 2,254 lines / 128 KB, 26 helpers; header comment lines 3–25 for the authorisation model; the hasAll subset guard on authedUids; clientEquippableFrame and the equipProFrame callable; hostUid server-only via transferOwnership (~line 210). functions/src: 69 runTransaction call sites and 168 mentions of idempotency across 14 files, re-derived NUL-safely 2026-07-29 (grep -rao \"runTransaction(\" functions/src | wc -l -> 69; grep -raio \"idempoten[a-z]*\" functions/src | wc -l -> 168; grep -rail idempoten -> 14 files). -a is required because functions/src/balance.ts contains NUL bytes; offline_claim.ts returning {kind:'already'}. docs/audits/SECURITY_AUDIT.md, committed 2026-07-16 at 1.1.1+119."
     },
     {
       "title": "Reading a receipt twice, and only paying for the second read when it is worth it",
@@ -381,7 +381,7 @@
       "because": "A purchase state the client reports is a purchase state the client can be persuaded to lie about, and the paid cosmetics are the visible reward, so they are the obvious target. The rules deny a client-written frame id outright; the only route onto one is a callable that reads the live entitlement document first. The webhook is authenticated with a shared secret held in Secret Manager. Scheduled jobs then handle the parts a purchase SDK does not: lapse enforcement, expiring perks, grace status, trial reminders and gifting between subscribers.",
       "instead": "Trusting the purchase SDK's cached entitlement on the device",
       "cost": "Entitlement changes take a network round trip and depend on a webhook being reachable, so a subscriber who upgrades in a tunnel sees their perks a moment after the server hears about it.",
-      "evidence": "firestore.rules clientEquippableFrame comment (\"Pro frame ids are DENIED to clients — the only route is the equipProFrame callable which re-checks the live entitlement\"); functions/src/index.ts revenueCatWebhook with REVENUECAT_WEBHOOK_AUTH from Secret Manager; resetExpiredProPerks, getProLapseGraceStatus, trialReminderNotifier, winBackChurnedPro, giftProFromSubscriber, moveProEntitlementLink; lib/features/pro/data/billing_service.dart."
+      "evidence": "firestore.rules clientEquippableFrame comment, verbatim: \"Pro frame ids are DENIED here on purpose: the ONLY route onto a Pro frame is the equipProFrame Cloud Function (admin SDK bypasses rules), which re-checks the live customers/{uid} entitlement first.\"; functions/src/index.ts revenueCatWebhook with REVENUECAT_WEBHOOK_AUTH from Secret Manager; resetExpiredProPerks, getProLapseGraceStatus, trialReminderNotifier, winBackChurnedPro, giftProFromSubscriber, moveProEntitlementLink; lib/features/pro/data/billing_service.dart."
     },
     {
       "title": "A pure Swift Package Manager iOS build, and native code where a plugin would break it",
@@ -397,7 +397,7 @@
       "because": "The app was built in Malaysia and its first bills were in ringgit, which is precisely how a currency becomes a hardcoded fallback and a group in Singapore ends up looking at RM. Region resolution has a documented provenance ladder, currency and cash-rounding behaviour are per-currency tables, and the standing rule forbids hardcoding the local currency as a fallback in new code. Multi-currency then falls out of the same discipline: each currency is its own independent ledger and nothing is ever converted, because a wrong exchange rate inside a shared bill is worse than no exchange rate at all.",
       "instead": "Shipping the local currency as the default and generalising later",
       "cost": "Every money surface has to carry a currency and know its exponent, and the display contract now has four hand-maintained mirrors — the Dart formatter, the Cloud Functions copy, the iOS widget and the Android widget provider — which have to change together.",
-      "evidence": "CLAUDE.md: \"Any country-specific system (MYR, DuitNow, Malaysian examples) is a regional adapter behind the country-neutral core — never the default … Never hardcode RM/MYR as a fallback in new code\"; lib/core/region/region_source.dart provenance ladder; lib/core/utils/currencies.dart (466 lines); docs/APP_OVERVIEW.md §1; the four-mirror format note in CLAUDE.md."
+      "evidence": "CLAUDE.md: \"Any country-specific system (MYR, DuitNow, Malaysian examples) is a regional adapter behind the country-neutral core — never the default … Never hardcode RM/MYR as a fallback in new code\"; lib/core/region/region_source.dart provenance ladder; lib/core/utils/currencies.dart (466 lines); the four-mirror format note in CLAUDE.md. docs/APP_OVERVIEW.md §1 is deliberately NOT cited here: line 12 argues the opposite (\"Currency: Ringgit (RM) is the default and the whole app is designed around it\") and is stale. It is still cited in challenges[0], where it is used only for \"there is no FX conversion\", which §1 does say."
     },
     {
       "title": "Timezone names, never offsets",
@@ -413,18 +413,18 @@
       "because": "There are 99 handlers in one codebase. A bare functions deploy treats the deployed set as something to reconcile against the local build, so anything the build does not emit that day is removed — on a backend that moves money, that is a live outage rather than a tidy-up. The rule is written into the repository's standing rules; rules and index deploys are exempt because they are whole-file replacements anyway. Release steps live in scripts that verify build freshness and signing configuration rather than in someone's memory.",
       "instead": "The one-line deploy that every Firebase tutorial teaches",
       "cost": "Long deploy commands, and a new function has to be named explicitly or it silently never ships. The checklist trades a loud failure for a quiet one, so the runbook has to list the order.",
-      "evidence": "CLAUDE.md standing rules (\"NEVER bare --only functions\"); 99 handlers enumerated from functions/src/*.ts; tool/verify_build_freshness.sh, scripts/check_release_config.sh, SHIP_CHECKLIST.md, docs/RELEASE.md, docs/releases/1.3.0_deploy_runbook.md."
+      "evidence": "CLAUDE.md standing rules, verbatim: \"Never deploy Cloud Functions with a bare `--only functions`\"; 99 handlers enumerated from functions/src/*.ts; tool/verify_build_freshness.sh, scripts/check_release_config.sh, SHIP_CHECKLIST.md, docs/RELEASE.md, docs/releases/1.3.0_deploy_runbook.md."
     }
   ],
   "evolution": [
     {
       "title": "First release changed the failure mode",
       "body": "The app went public on the App Store on 2 July 2026 and on Google Play, and from that point a bug stopped being a hot reload and became a release. Build numbers are bumped per shipped cut rather than per commit, and the cadence since has been steady: 1.1.0 in mid-July, 1.1.1 the week after, 1.2.0, then 1.2.5 in the store on 27 July 2026, with 1.3.0 in the working tree.",
-      "evidence": "iTunes lookup API: first released 2026-07-02, current store version 1.2.5 released 2026-07-27. git log -p -- pubspec.yaml shows 1.1.0+109 (2026-07-12) through 1.3.0+152 (2026-07-28)."
+      "evidence": "iTunes lookup API: first released 2026-07-02, current store version 1.2.5 released 2026-07-27. git log -p -- pubspec.yaml shows 1.1.0+109 (2026-07-12) through 1.3.0+153, which is the version in the working tree as of 2026-07-29."
     },
     {
       "title": "Audited my own shipped code, then fixed what it found",
-      "body": "At version 1.1.1 I ran a ten-domain adversarial security audit against the live code rather than against the design. It scored five out of ten and produced a register. The highest finding was a membership-privilege escape through the self-leave branch; the current rules carry the subset guard that closes it, with the attack it prevents written above the guard so the reason survives the next edit.",
+      "body": "At version 1.1.1 I ran an eight-domain static adversarial review of the live code rather than against the design. It scored five out of ten and produced a register. The highest finding was a membership-privilege escape through the self-leave branch; the current rules carry the subset guard that closes it, with the attack it prevents written above the guard so the reason survives the next edit.",
       "evidence": "docs/audits/SECURITY_AUDIT.md, committed 2026-07-16 at 1.1.1+119 (commit 44ff9ffd); firestore.rules now carries resource.data.authedUids.hasAll(request.resource.data.authedUids) with the comment naming the swap attack."
     },
     {
@@ -448,23 +448,23 @@
       },
       {
         "label": "Dart test declarations",
-        "value": "4,803",
-        "evidence": "Static count of test()/testWidgets() call sites: grep -rhoE '^[[:space:]]*(test|testWidgets)\\(' --include='*.dart' test | wc -l → 4803. The 1.3.0 programme report claims 5,288 executed Flutter tests at build 150, higher because some cases are generated inside loops; the static count is the one used here because it can be re-derived from the tree."
+        "value": "4,812",
+        "evidence": "Static count of test()/testWidgets() call sites: grep -rhoE '^[[:space:]]*(test|testWidgets)\\(' --include='*.dart' test | wc -l → 4812, re-derived 2026-07-29. The 1.3.0 programme report claims 5,288 executed Flutter tests at build 150, higher because some cases are generated inside loops; the static count is the one used here because it can be re-derived from the tree."
       },
       {
         "label": "Grouped suites",
-        "value": "894",
-        "evidence": "grep -rhoE '^[[:space:]]*group\\(' --include='*.dart' test | wc -l → 894."
+        "value": "895",
+        "evidence": "grep -rhoE '^[[:space:]]*group\\(' --include='*.dart' test | wc -l → 895, re-derived 2026-07-29."
       },
       {
         "label": "Backend test files",
-        "value": "25 rules + 44 unit",
-        "evidence": "functions/test-rules/*.test.mjs → 25 files against the Firestore rules emulator; functions/test-unit/*.test.mjs → 44 files under node --test."
+        "value": "25 rules + 45 unit",
+        "evidence": "functions/test-rules/*.test.mjs → 25 files against the Firestore rules emulator; functions/test-unit/*.test.mjs → 45 files under node --test. Re-derived 2026-07-29."
       },
       {
         "label": "Backend test declarations",
-        "value": "958",
-        "evidence": "grep -rhoE '^[[:space:]]*(test|it)\\(' across functions/test-rules and functions/test-unit → 958."
+        "value": "965",
+        "evidence": "grep -rhoE '^[[:space:]]*(test|it)\\(' across functions/test-rules and functions/test-unit → 965, re-derived 2026-07-29."
       },
       {
         "label": "On-device journeys",
@@ -503,8 +503,8 @@
     },
     {
       "title": "The scope one person carried",
-      "body": "656 Dart files and around 250,000 lines under lib/, roughly 30,000 lines of TypeScript in the functions codebase, 99 deployed Cloud Function handlers, 25 top-level Firestore collections with 30 nested rule blocks, 2,254 lines of security rules and 16 composite indexes. Twenty-four features, each with its own domain, data, application and presentation layers, and a domain layer that does not import Flutter so the money maths can be tested without a widget tree.",
-      "evidence": "find lib -name '*.dart' | wc -l → 656; cat | wc -l → 250,711; functions/src → 30,025 lines; 99 handlers enumerated by grep over export const … onCall|onRequest|onSchedule|onDocument*|onObject*; firestore.rules 2,254 lines; firestore.indexes.json 16 composite indexes."
+      "body": "656 Dart files and around 250,000 lines under lib/, roughly 30,000 lines of TypeScript in the functions codebase, 99 deployed Cloud Function handlers, 25 top-level Firestore collections with 30 nested rule blocks, 2,254 lines of security rules and 16 composite indexes. Twenty-four features, each with its own domain, data, application and presentation layers, and a money kernel with no Flutter import at all, so the money maths can be tested without a widget tree.",
+      "evidence": "find lib -name '*.dart' | wc -l → 656; cat | wc -l → 251,055; functions/src → 30,079 lines (both re-derived 2026-07-29); 99 handlers enumerated by grep over export const … onCall|onRequest|onSchedule|onDocument*|onObject*; firestore.rules 2,254 lines; firestore.indexes.json 16 composite indexes."
     },
     {
       "title": "Operational control without a store release",
@@ -519,7 +519,7 @@
   ],
   "lessons": {
     "worked": [
-      "One kernel, called from everywhere. The single most valuable file in the project is 100 lines that distribute leftover cents. Everything that divides money calls it, so there is exactly one place a rounding decision can be wrong — and exactly one place to fix it.",
+      "One kernel, called from everywhere. The single most valuable file in the project is 46 lines that distribute leftover cents. Everything that divides money calls it, so there is exactly one place a rounding decision can be wrong — and exactly one place to fix it.",
       "Writing the law down. Money is integer minor units. Pair-level settle-up uses the direct ledger. Never hardcode the local currency as a fallback. These live in a rules file, not in my memory, and they are the reason a feature written six weeks later still behaves.",
       "Red first. Reverting the fix and watching the new test fail is slower than writing the test after, and it is the only version that proves the test covers the bug rather than the code."
     ],
@@ -561,5 +561,6 @@
     "title": "Bupples — a cent-exact expense splitter on iOS and Android",
     "description": "A social expense app built solo in Flutter and Firebase: integer-cent money, one shared split kernel, AI receipt extraction, and server-authoritative settlement. Live on both stores.",
     "image": "/images/projects/bupples/profile.webp"
-  }
+  },
+  "timelineEvidence": "Timeline traces to the résumé (\"Feb 2026 - Present\"), which is the owner's own claim about his own work. The local repository's first commit is 2026-06-07, but it holds 1,131 commits and the tree is at 1.3.0+153 — i.e. it is a rebuild after the original source was lost, not the start of the project. The App Store record is consistent with a longer history: first release 2026-07-02 already at 1.2.x. NOT independently provable from files — see CONTENT_GAPS.md §4.6."
 }

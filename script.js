@@ -176,7 +176,7 @@
 
   const FACTS = [
     'FLUTTER & DART', 'TYPESCRIPT & JS', 'PYTHON & SQL',
-    'SUPABASE · POSTGRES', 'FIREBASE · FIRESTORE', 'NODE.JS & REST APIS',
+    'SWIFT · KOTLIN — NATIVE WIDGETS', 'FIREBASE · FIRESTORE', 'NODE.JS & REST APIS',
     'SHIPPING SINCE 2024', 'BUILT SOLO — 3 PRODUCTS', "BSC AUG '27 — SUNWAY × LANCASTER",
     'BUPPLES — LIVE ON BOTH STORES', 'EN / AR — SUBANG JAYA'
   ];
@@ -678,7 +678,7 @@
     const ROLES = [
       ['Software Engineering Student', ['Mobile ', { em: '&' }, ' Full-Stack ', { em: 'Developer' }]],
       ['Mobile', ['Flutter, SwiftUI ', { em: '&' }, ' Kotlin']],
-      ['Backend & Data', ['Firebase, Node.js ', { em: '&' }, ' Supabase']],
+      ['Backend & Data', ['Firebase, Node.js ', { em: '&' }, ' Cloud Functions']],
       ['Cloud & AI', ['Vertex AI, Gemini ', { em: '&' }, ' MediaPipe']],
       ['Interactive', ['WebGL2, Electron ', { em: '&' }, ' Godot Engine']]
     ];

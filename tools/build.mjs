@@ -530,7 +530,7 @@ ${NAV}
 
     <aside class="cs-cta">
       <h2>Want the detail behind any of this?</h2>
-      <p>I am looking for a full-time software engineering internship, January to April 2027, in Kuala Lumpur or remote.</p>
+      <p>I am looking for a full-time software engineering internship, January to April 2027, in Subang Jaya or Kuala Lumpur, Malaysia.</p>
       <nav class="cs-cta-links" aria-label="Contact">
         <a href="mailto:yousofselim2@gmail.com" data-cursor="MAIL">yousofselim2@gmail.com<span class="cta-arr" aria-hidden="true">↗</span></a>
         <a href="/Yousof-Selim-Resume.pdf" download data-cursor="PDF">Résumé<span class="cta-arr" aria-hidden="true">↓</span></a>

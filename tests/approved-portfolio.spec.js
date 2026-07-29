@@ -119,7 +119,12 @@ test('resume-synced portfolio structure is present', async ({ page }) => {
   await expect(page.locator('#work .work-name')).toHaveText([
     'Bupples', 'Adelante', 'Photoshoot', 'Tajweed', 'Fallen Asteri'
   ]);
-  await expect(page.locator('#work .work-status.is-closed')).toHaveCount(1);
+  // Three closed: Fallen Asteri (Apr–Jun 2024), Tajweed (Feb–Jun 2026 — the repo's
+  // first commit is 2026-02-06 and his last is 2026-06-20, so "SEP 2025 — NOW" was
+  // wrong at both ends) and Photoshoot (Jun 2026 — last commit and pushed_at are both
+  // 2026-06-17). Only Bupples and Adelante are still worked on.
+  await expect(page.locator('#work .work-status.is-closed')).toHaveCount(3);
+  await expect(page.locator('#work .sec-tag')).toContainText('02 OPEN');
   await expect(page.locator('#work .sec-tag')).toContainText('05');
   await expect(page.locator('#work')).not.toContainText('Task Management App');
   await expect(page.locator('#skills [data-skill-lane]')).toHaveCount(5);

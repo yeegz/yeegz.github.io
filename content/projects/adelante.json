@@ -2,12 +2,12 @@
   "slug": "adelante",
   "name": "Adelante",
   "tagline": "Widget-first motivation for iOS and Android, read from the Home Screen.",
-  "summary": "A motivation app only helps on the day nobody feels like opening a motivation app. Adelante puts the writing on the surfaces a phone already shows — Home Screen, Lock Screen and the iOS 17+ StandBy families — instead of behind a launch. I built the Flutter application, both native widget renderers (WidgetKit and SwiftUI on iOS, RemoteViews on Android), the deterministic content pipeline behind a 12,828-entry library that ships inside the binary, and the Firebase content backend that the shipped build deliberately does not need. It matters because the hard part of a widget product is not the app: it is three separate processes that never talk to each other agreeing, offline, on what to show right now.",
+  "summary": "A motivation app only helps on the day nobody feels like opening a motivation app. Adelante puts the writing on the surfaces a phone already shows — Home Screen, Lock Screen and — because every view applies containerBackground — StandBy on iOS 17+ — instead of behind a launch. I built the Flutter application, both native widget renderers (WidgetKit and SwiftUI on iOS, RemoteViews on Android), the deterministic content pipeline behind a 12,828-entry library that ships inside the binary, and the Firebase content backend that the shipped build deliberately does not need. It matters because the hard part of a widget product is not the app: it is three separate processes that never talk to each other agreeing, offline, on what to show right now.",
   "category": "Mobile — native widget surfaces",
   "role": "Sole developer — Flutter app, both native widget renderers, the content pipeline, and the backend design",
   "team": "Solo",
   "timeline": "2026-06 – Present",
-  "status": "Not released. Both platforms compile to release artifacts, including the iOS widget extension, but there is no App Store or Google Play listing — every account, signing and submission item in docs/store/store-readiness.md is still unchecked. The Firebase backend is written, unit-tested from the client side, and has never run against a live project.",
+  "status": "Not released. The iOS app and its widget extension both build for release, with artifacts dated 2026-07-18; the last Android release APK is dated 2026-06-21, before the July overhaul, so Android has not been rebuilt since. There is no App Store or Google Play listing — every account, signing and submission item in docs/store/store-readiness.md is still unchecked. The Firebase backend is written, unit-tested from the client side, and has never run against a live project.",
   "platforms": [
     "iOS 16+",
     "Android"
@@ -45,7 +45,7 @@
       "It also has to be right when the app is opened. The Flutter app, the iOS extension and the Android provider are three separate processes with no channel between them, and all three have to name the same current quote.",
       "The two native widget systems are not comparable. SwiftUI will draw whatever it is handed; RemoteViews cannot paint a gradient, cannot round a corner arbitrarily, and cannot set a typeface at runtime at all.",
       "No accounts, no analytics, no off-device tracking was written as a product non-goal before implementation — which rules out the ordinary content-delivery shape where a server knows who asked for what.",
-      "Content at the volume a rotating widget needs cannot be hand-written. Generating tens of thousands of candidate lines makes near-duplicates, filler phrasing, missing licenses and invented scripture citations the default outcome rather than the exception.",
+      "Content at the volume a rotating widget needs cannot be hand-written. Generating roughly 12,700 candidate lines across 139 shards makes near-duplicates, filler phrasing, missing licenses and invented scripture citations a standing risk rather than a hypothetical one.",
       "Faith is part of the content. A user who selects one tradition must never be shown another — the kind of promise a scoring function quietly breaks."
     ]
   },
@@ -61,7 +61,7 @@
     "notOwned": [
       "The typefaces. Spectral, Cardo, PT Serif and Fira Sans are bundled under the SIL Open Font License, eight .ttf files across four families.",
       "The scripture translations. The public-domain sources — King James Version, Pickthall, JPS 1917, Max Müller, Edwin Arnold — are cited, not written.",
-      "The prose, mostly. 12,756 of 12,828 entries are original text produced by generators I drove and gated rather than lines I wrote by hand; 96 curated entries seed the set and are registered as authoritative so generated output can never displace them."
+      "The prose, mostly. 12,732 of the 12,828 entries are generator output run through the gate; the other 96 are the curated seed — 72 public-domain lines and 24 written by hand. The curated entries are registered as authoritative so generated output can never displace them."
     ]
   },
   "constraints": [
@@ -78,7 +78,7 @@
     {
       "title": "RemoteViews is a description of a view, not a view",
       "body": "No gradients, no arbitrary corner radius, and uniform auto-size text that is silently disabled the moment any code calls setTextViewTextSize. The payload also crosses a process boundary with a hard size limit, so anything drawn on the app side has to be small enough to survive the trip.",
-      "evidence": "android/app/src/main/kotlin/com/adelanteapp/adelante/AdelanteWidgetProvider.kt (391 lines), bitmap path at lines 230-270 with the 480 px longest-edge cap; the no-setTextViewTextSize rule is written as a comment at lines 129-130."
+      "evidence": "android/app/src/main/kotlin/com/adelanteapp/adelante/AdelanteWidgetProvider.kt (390 lines; wc -l, 2026-07-29), bitmap path at lines 230-270 with the 480 px longest-edge cap; the no-setTextViewTextSize rule is written as a comment at lines 129-130."
     },
     {
       "title": "Fonts do not cross the iOS extension boundary",
@@ -260,7 +260,7 @@
     },
     {
       "title": "A deterministic gate over machine-generated content",
-      "why": "Reaching a floor of 500 entries per category meant producing tens of thousands of candidates. Judgement can live in the generator, but enforcement cannot: near-duplicates, filler phrasing, missing licenses and invented scripture citations have to be rejected the same way every time, and provably, or the library quietly fills with paraphrases of itself.",
+      "why": "Reaching a floor of 500 entries per category meant producing roughly 12,700 candidates across 139 generated shards. Judgement can live in the generator, but enforcement cannot: near-duplicates, filler phrasing, missing licenses and invented scripture citations have to be rejected the same way every time, and provably, or the library quietly fills with paraphrases of itself.",
       "options": [
         "Read and approve every candidate by hand",
         "Score candidates and accept everything above a threshold",
@@ -269,8 +269,8 @@
       "solution": "tool/generate_library/gate.dart, 396 lines, with three independent dedup layers: exact normalised text, an order- and punctuation-insensitive token-set fingerprint, and a stopword-stripped sorted content key that catches 'Discipline is the bridge between goals and results' against 'Discipline is a bridge from goals to results'. Quality filters are a 12–320 character band, a sentence-shape regex requiring an uppercase or digit start and a terminal end, 15 exact bare clichés and 19 substrings that read as machine filler. License enforcement requires a non-empty status that is never 'unknown', and rejects anything typed as scripture without a citation. Ids are FNV-1a derived and stable, with collision suffixing, and there are nine typed rejection reasons. The 96 curated entries are registered first and prime the dedup sets, so generated output cannot re-introduce a curated line. The same shape exists server-side in functions/src/model.ts — a strict allowlist validator, a fingerprint documented as matching the Dart pipeline, a 0–1 quality heuristic, and a trusted-host allowlist where only a trusted feed scoring above 0.6 may auto-publish.",
       "tradeoff": "A deterministic gate rejects safely and reads badly: it cannot tell a dull line from a good one, so it removes only the failure modes it can name. Enforcing tone with substring lists also means every newly noticed filler phrase is another entry added after the fact.",
       "validation": "The shipped asset holds 12,828 entries with 12,828 unique ids and 12,828 unique texts — zero exact duplicates, verified by loading library.json and counting. test/content_foundation_test.dart (21 declarations), test/content_library_test.dart (9) and test/content_asset_floor_test.dart (7) hold the floors and the shape against the real asset rather than a fixture.",
-      "result": "The library grew from 96 curated entries to 12,828 across 20 categories, with five faith traditions each above 550 entries, and no duplicate text reached the asset. 12,756 of those entries are original text produced through the pipeline and 72 are cited public-domain scripture — the gate exists because the first number is that large, not in spite of it.",
-      "evidence": "tool/generate_library/gate.dart (396 lines; dedup layers at :309-312, filter lists at :133-173, seedCurated at :191, id derivation at :376-395); functions/src/model.ts (217 lines) and functions/src/index.ts:132; assets/content/library.json verified with json.load — 11,837,788 bytes, 12,828 entries, 12,828 unique ids, 12,828 unique texts, 20 categories; faith counts islam 599, judaism 559, christianity 559, hinduism 558, buddhism 552, generalSpiritual 3, null 9,998; licenseStatus original 12,756."
+      "result": "The library grew from 96 curated entries to 12,828 across 20 categories, with five faith traditions each above 550 entries, and no duplicate text reached the asset. 12,732 of those entries are original text produced through the pipeline and 72 are public domain: 45 attributed quotes (Emerson, Seneca, Epictetus, Thoreau, Keller) and 27 scripture verses, 36 of which carry an explicit citation — the gate exists because the first number is that large, not in spite of it. The recorded run rejected 9 of 12,741 candidates — 2 filler, 6 exact duplicates, 1 near-duplicate. The value is that the rule runs identically every time over the whole library, not that it caught a lot.",
+      "evidence": "tool/generate_library/gate.dart (396 lines; dedup layers at :309-312, filter lists at :133-173, seedCurated at :191, id derivation at :376-395); functions/src/model.ts (217 lines) and functions/src/index.ts:132; assets/content/library.json verified with json.load — 11,837,788 bytes, 12,828 entries, 12,828 unique ids, 12,828 unique texts, 20 categories; faith counts islam 599, judaism 559, christianity 559, hinduism 558, buddhism 552, generalSpiritual 3, null 9,998; contentType original 12,732, reflection 19, affirmation 5, quote 45, verse 15, ayah 12 — the 12,732 is the generator figure; licenseStatus original is 12,756 because it folds in the 24 hand-written seed entries, which is why it is not the number published. tool/generate_library/report.txt (git-tracked) records the run: 139 raw batch files, 12,741 raw records read, 9 rejected (2 slop, 6 exactDuplicate, 1 nearDuplicate, and zero invalidLicense or missingCitation). All re-verified with json.load on 2026-07-29."
     }
   ],
   "decisions": [
@@ -312,7 +312,7 @@
       "because": "Recorded in docs/backend/content-system.md under 'Backend Choice': mobile SDKs, offline persistence, security rules, scheduled functions, and a console-based admin path that meant the curation workflow did not need a custom API and review UI built first.",
       "instead": "Supabase and Postgres",
       "cost": "The shipped client never uses the Firestore SDK at all — it calls one HTTPS function, which uses the Admin SDK and bypasses rules entirely, as the rules file's own header states. Most of what won the comparison is unused by the path the app actually takes.",
-      "evidence": "docs/backend/content-system.md ('Backend Choice'); functions/package.json (Node 20, firebase-functions ^6.1.0, firebase-admin ^12.6.0); firestore.rules (44 lines, header comment); functions/src/index.ts:47 (getContent); firestore.indexes.json (3 composite indexes)."
+      "evidence": "docs/backend/content-system.md ('Backend Choice'); functions/package.json (Node 20, firebase-functions ^6.1.0, firebase-admin ^12.6.0); firestore.rules (41 lines, header comment; wc -l, 2026-07-29); functions/src/index.ts:47 (getContent); firestore.indexes.json (3 composite indexes)."
     }
   ],
   "evolution": [
@@ -333,8 +333,8 @@
     },
     {
       "title": "The library grew in two jumps",
-      "body": "96 curated seed entries, then 10,047 at commit b22474d, then 12,828 after the faith fill at 3e0d06d, which is where it stands. Two commit messages in that stretch claim counts a few entries off from the file at those SHAs, which is why the citable number is the one read back out of the shipped asset.",
-      "evidence": "git show <sha>:assets/content/library.json piped through json.load — b22474d = 10,047; 3e0d06d = 12,828; HEAD = 12,828."
+      "body": "96 curated seed entries, then 10,047 at commit b22474d, then 12,828 after the faith fill at 3e0d06d, which is where it stands. One commit message in that stretch (b22474d, \"10,051 quotes\") is four entries off the file at that SHA, which is why the citable number is the one read back out of the shipped asset.",
+      "evidence": "git show <sha>:assets/content/library.json piped through json.load — b22474d = 10,047 against a commit message claiming 10,051; 476346c = 10,056 and 3e0d06d = 12,828 are both exact; HEAD = 12,828."
     },
     {
       "title": "The tab bar was reverted twice before it was native",
@@ -396,9 +396,9 @@
   },
   "results": [
     {
-      "title": "Both platforms build, extension included",
-      "body": "Release artifacts exist for both: build/ios/Release-iphoneos holds Runner.app and AdelanteWidgets.appex with dSYMs, and build/app/outputs/flutter-apk holds a release APK. The hand-built WidgetKit extension target compiles and embeds, which is the part of a Flutter widget project most likely not to.",
-      "evidence": "build/ios/Release-iphoneos/Runner.app and AdelanteWidgets.appex, both dated 2026-07-18 15:09; build/app/outputs/flutter-apk/app-release.apk. Runner.app Info.plist reports CFBundleShortVersionString 1.0.0, CFBundleVersion 1, MinimumOSVersion 16.0."
+      "title": "iOS builds current; the Android artifact is stale",
+      "body": "build/ios/Release-iphoneos holds Runner.app and AdelanteWidgets.appex with dSYMs, both dated 2026-07-18. build/app/outputs/flutter-apk holds a release APK, but it is dated 2026-06-21 — before the nineteen commits of 2026-07-18 that rewrote the payload, tiering, rotation and the Android provider — so nothing on disk demonstrates the current Android code compiles. The hand-built WidgetKit extension target compiles and embeds, which is the part of a Flutter widget project most likely not to.",
+      "evidence": "build/ios/Release-iphoneos/Runner.app and AdelanteWidgets.appex, both dated 2026-07-18 15:09; build/app/outputs/flutter-apk/app-release.apk dated 2026-06-21 13:01, verified by ls on 2026-07-29. Runner.app Info.plist reports CFBundleShortVersionString 1.0.0, CFBundleVersion 1, MinimumOSVersion 16.0."
     },
     {
       "title": "Seven widget families from one set of views",
@@ -413,7 +413,7 @@
     {
       "title": "Eight runtime dependencies, none of them tracking",
       "body": "The complete set of direct runtime dependencies is cupertino_icons, flutter_riverpod, shared_preferences, home_widget, uuid, share_plus, http and auto_size_text. There is no analytics, auth, attribution, crash-reporting or advertising package at any depth in the lockfile, the Android release manifest declares zero permissions, and Info.plist carries no tracking usage description. That is evidence from the manifest about what the build contains — it is not a runtime audit, and it is stated that way on purpose.",
-      "evidence": "pubspec.yaml:38-48 cross-checked against pubspec.lock `dependency: \"direct main\"`; repo-wide grep for analytics/auth/ads/attribution SDK names across lib/, pubspec.yaml and pubspec.lock returns 2 non-SDK hits; android/app/src/main/AndroidManifest.xml has zero uses-permission entries (INTERNET appears only in the debug manifest, with Flutter's stock hot-reload comment); ios/Runner/Info.plist has no NSUserTrackingUsageDescription."
+      "evidence": "pubspec.yaml:38-48 cross-checked against pubspec.lock `dependency: \"direct main\"`; repo-wide grep for analytics/auth/ads/attribution SDK names across lib/, pubspec.yaml and pubspec.lock returns 2 non-SDK hits; android/app/src/main/AndroidManifest.xml has zero uses-permission entries (INTERNET appears only in the debug and profile manifests, with Flutter's stock hot-reload comment — android/app/src/debug/AndroidManifest.xml:6 and android/app/src/profile/AndroidManifest.xml:6; the release manifest is genuinely empty); ios/Runner/Info.plist has no NSUserTrackingUsageDescription."
     }
   ],
   "lessons": {
@@ -431,7 +431,7 @@
       "Compress the library asset and move the parse off the main isolate — after measuring cold start, so the change has a number attached to it.",
       "Per-widget-instance configuration is specified and not built. The widget still uses StaticConfiguration with no AppIntentConfiguration, and Android declares no configure activity; separate surfaces are handled by a fixed pool offset instead.",
       "Run the backend against a real Firebase project. Five Cloud Functions, security rules, three composite indexes and a seeding script have been written and never deployed.",
-      "Work the store-readiness checklist, which is entirely unstarted — Apple Developer membership, App Group capability, PrivacyInfo.xcprivacy, distribution signing, a release keystore, and both store listings."
+      "Work the store-readiness checklist: 14 of its 24 items are open, and every item needing a developer account or a signing identity — Apple Developer membership, App Group capability, PrivacyInfo.xcprivacy, distribution signing, a release keystore, and both store listings — is untouched."
     ]
   },
   "seo": {

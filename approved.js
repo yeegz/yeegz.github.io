@@ -264,7 +264,7 @@
   /* Education chapters. */
   const education = {
     degree: {
-      ghost: '2027', no: 'Chapter 02 / Current', title: 'Bachelor of Software Engineering (Hons)', type: 'Expected 2027',
+      ghost: '2027', no: 'Chapter 02 / Current', title: 'Bachelor of Software Engineering (Hons)', type: 'Expected August 2027',
       institutions: [['Sunway University', 'Malaysia'], ['Lancaster University', 'United Kingdom']],
       status: 'Subang Jaya, Malaysia<br>Dual-degree programme<br>In progress',
       courses: ['Software Architecture', 'Data Structures', 'Mobile Development', 'Databases', 'UI/UX Design']
@@ -308,6 +308,27 @@
     chapter?.classList.add('change');
   };
   chapterTabs.forEach((tab) => tab.addEventListener('click', () => showChapter(tab.dataset.chapter)));
+
+  /* showChapter() gives the tablist a roving tabindex — the inactive tab is set
+     to -1. That pattern is only half of it: without arrow-key handling the
+     unfocusable tab becomes unreachable, and the entire Foundation chapter
+     (Multimedia University, 2023—24, its subjects) was readable by mouse only.
+     Standard tablist keys, with focus following selection. */
+  const focusChapter = (index) => {
+    const tab = chapterTabs[(index + chapterTabs.length) % chapterTabs.length];
+    if (!tab) return;
+    showChapter(tab.dataset.chapter);
+    tab.focus();
+  };
+  chapterTabs.forEach((tab, index) => {
+    tab.addEventListener('keydown', (event) => {
+      const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+      if (step) { event.preventDefault(); focusChapter(index + step); return; }
+      if (event.key === 'Home') { event.preventDefault(); focusChapter(0); }
+      if (event.key === 'End') { event.preventDefault(); focusChapter(chapterTabs.length - 1); }
+    });
+  });
+
   showChapter('degree');
 
   /* Experience calendar filter. */

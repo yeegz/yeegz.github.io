@@ -1175,8 +1175,12 @@ html[data-theme="light"] .pin .about-panel { background: radial-gradient(circle 
 .tool-set { display: flex; align-items: center; gap: 23px; padding-right: 23px; }
 .tool-set span { font: 750 clamp(27px,3.6vw,56px)/1 var(--disp); font-stretch: 118%; letter-spacing: -.04em; text-transform: uppercase; }
 .tool-set i { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; background: var(--tone); opacity: .82; }
-.lane-note { position: absolute; left: clamp(125px,17vw,250px); bottom: 13px; margin: 0; color: #aaa9a3; font: italic 15px var(--serif); opacity: 0; transform: translateY(7px); transition: opacity .3s,transform .4s cubic-bezier(.16,1,.3,1); pointer-events: none; }
-.skill-lane:hover .lane-note,.skill-lane:focus-within .lane-note { opacity: 1; transform: none; }
+/* z-index is load-bearing: the scroller is a positioned z-index:1 box, so a
+   z-index:auto note is painted *underneath* the marquee type. The note also
+   only clears the marquee once the lane has finished growing to its open
+   height, so the fade-in waits for that and the fade-out leads it. */
+.lane-note { position: absolute; z-index: 6; left: clamp(125px,17vw,250px); bottom: 13px; margin: 0; color: #aaa9a3; font: italic 15px var(--serif); opacity: 0; transform: translateY(7px); transition: opacity .16s,transform .3s cubic-bezier(.16,1,.3,1); pointer-events: none; }
+.skill-lane:hover .lane-note,.skill-lane:focus-within .lane-note { opacity: 1; transform: none; transition: opacity .26s .19s,transform .4s .19s cubic-bezier(.16,1,.3,1); }
 .edge { position: absolute; z-index: 30; top: 0; bottom: 0; width: clamp(74px,8vw,122px); border: 0; color: var(--tone); cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .22s; background: transparent; }
 .edge.prev { left: clamp(125px,17vw,250px); background: linear-gradient(90deg,#0e1210 7%,rgba(14,18,16,.86) 38%,transparent 100%); }
 .edge.next { right: 0; background: linear-gradient(270deg,#0e1210 7%,rgba(14,18,16,.86) 38%,transparent 100%); }
@@ -1471,6 +1475,36 @@ html.project-open,html.project-open body{overflow:hidden!important}.project-open
   .work-link { padding-bottom: 1.15rem; }
   .work-open { padding-bottom: 6.2rem; }
 }
+/* Desktop had the inverse of the phone rule: `.work-links` was display:none
+   above 1024px, so every outbound destination — the live app, the store, the
+   repo, the playable build — existed only inside the modal. A visitor who
+   never opened a case file could not reach a single project. The links belong
+   on the card at every width; they sit above the full-row opener overlay so a
+   click on a link is a link and a click anywhere else still opens the case. */
+@media (min-width: 1025px) {
+  .work-links {
+    position: relative; z-index: 3;
+    display: flex; flex-wrap: wrap; gap: 0.55rem;
+    margin: 1.15rem 0.2rem 0;
+  }
+  .work-links a {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    min-height: 38px; padding: 0.55rem 0.9rem;
+    border: 1px solid var(--line-soft);
+    color: var(--muted);
+    font: 500 0.56rem var(--mono); letter-spacing: 0.15em; text-transform: uppercase;
+    transition: color 0.32s, border-color 0.32s, background 0.32s;
+  }
+  .work-links a span { color: var(--accent); }
+  .work-links a.wl-primary { border-color: color-mix(in srgb, var(--accent) 38%, transparent); color: var(--ink-soft); }
+  .work-links a:hover {
+    border-color: var(--accent); color: var(--ink);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+  /* Keep the opener's own label clear of the new row. */
+  .work-open { padding-bottom: clamp(1.5rem, 3.4vh, 2.2rem); }
+}
+
 @media (max-width: 760px) {
   /* Phones: the theater stays closed, so there is no opener to stretch. */
   .work-open { display: none; }
@@ -1712,7 +1746,40 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 
 /* Copy that only exists on hover is copy a touch visitor never reads. */
 @media (hover: none), (pointer: coarse) {
-  .lane-note { opacity: 1; transform: none; }
+  /* A touch lane can never grow on hover, so it cannot borrow the open
+     height the absolute note was measured against — the caption landed
+     inside the marquee's band and the type painted straight over it. Give
+     the note its own grid row instead, and let the lane size to content. */
+  .skill-lane, .skill-lane:hover, .skill-lane:focus-within {
+    height: auto;
+    min-height: 86px;
+    grid-template-rows: auto auto;
+    align-content: center;
+    row-gap: 7px;
+    padding-block: 15px;
+  }
+  .lane-label { grid-column: 1; grid-row: 1 / -1; align-self: center; }
+  .skill-scroller { grid-column: 2; grid-row: 1; }
+  .lane-note {
+    position: static;
+    grid-column: 2;
+    grid-row: 2;
+    /* clear of the two edge arrows parked at the lane's right edge */
+    padding-right: 104px;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  /* Arrows belong beside the words they scroll, not centred over the caption.
+     Explicit height, because `bottom:auto` on an empty button collapses it to
+     a zero-height, untappable target. 44px also clears the tap-size floor. */
+  .skill-lane .edge { top: 8px; bottom: auto; height: 44px; }
+  /* Both arrows park on the right here and carry no scrim of their own, so
+     the words have to fade out from under them rather than run through. */
+  .skill-scroller {
+    /* both arrows occupy the last 96px, so the type is fully gone by 104px */
+    mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 152px), transparent calc(100% - 104px));
+  }
   .a-mark .sweep, .a-mark .head { opacity: 1; }
   .forward-line { opacity: 1; transform: none; }
   .work-open .wo-label, .work-open .wo-arr { opacity: 1; translate: 0 0; }
@@ -2123,3 +2190,35 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
   transition: opacity 0.28s var(--ease-out);
 }
 .progress-rail.is-turning .pr-label { opacity: 0; }
+
+/* Case-study links. A separate element from `.work-links`: those are the
+   project's own external destinations (stores, live sites, repos), this is a
+   route inside the portfolio, and conflating them makes both harder to scan.
+   Sits above the full-row opener overlay so it is clickable at every width. */
+.work-study {
+  position: relative;
+  z-index: 3;
+  margin: 1.05rem 0.2rem 0;
+}
+.work-study a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0.6rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  color: var(--ink);
+  font: 500 0.58rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background 0.32s, border-color 0.32s;
+}
+.work-study a:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.work-study .cta-arr { color: var(--accent); }
+@media (max-width: 1024px) {
+  .work-study { margin: 1.15rem 0.2rem 0; }
+  .work-study a { width: 100%; justify-content: space-between; }
+}

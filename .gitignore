@@ -6,3 +6,7 @@ node_modules
 test-results/
 playwright-report/
 tmp/
+
+# Working notes: candid audit of content provenance. Local only —
+# this repository is public.
+CONTENT_GAPS.md

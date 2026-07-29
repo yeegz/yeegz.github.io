@@ -95,6 +95,30 @@ function normalise(p) {
   if (a && Array.isArray(a.edges)) {
     a.edges = a.edges.map((e) => ({ ...e, via: e.via ?? e.label ?? '' }));
   }
+  /* Several list fields were authored as strings in one file and as
+     {title, body} objects in another. The renderers assumed strings, so an
+     object list rendered as literal "[object Object]" on a live page. Flatten
+     any such list to a single rich string. */
+  const flatten = (v) =>
+    typeof v === 'string'
+      ? v
+      : v && typeof v === 'object'
+        ? [v.title, v.body].filter(Boolean).join(' — ') || String(v.value ?? '')
+        : String(v ?? '');
+
+  if (p.problem && Array.isArray(p.problem.points)) p.problem.points = p.problem.points.map(flatten);
+  if (p.testing && Array.isArray(p.testing.cases)) p.testing.cases = p.testing.cases.map(flatten);
+  if (p.contribution) {
+    for (const k of ['owned', 'notOwned']) {
+      if (Array.isArray(p.contribution[k])) p.contribution[k] = p.contribution[k].map(flatten);
+    }
+  }
+  if (p.lessons) {
+    for (const k of ['worked', 'underestimated', 'next']) {
+      if (Array.isArray(p.lessons[k])) p.lessons[k] = p.lessons[k].map(flatten);
+    }
+  }
+
   if (p.flow && Array.isArray(p.flow.steps)) {
     p.flow.steps = p.flow.steps.map((s) =>
       typeof s === 'string' ? { title: '', body: s } : { title: s.title ?? '', body: s.body ?? '' }
@@ -113,6 +137,23 @@ function assertNothingDropped(p) {
       if (!has(g.nodes)) errs.push(`${p.slug}.architecture.groups[${i}].nodes: empty after normalising (expected nodes/items)`);
     });
   }
+  const stringLists = [
+    ['problem.points', p.problem?.points],
+    ['testing.cases', p.testing?.cases],
+    ['contribution.owned', p.contribution?.owned],
+    ['contribution.notOwned', p.contribution?.notOwned],
+    ['lessons.worked', p.lessons?.worked],
+    ['lessons.underestimated', p.lessons?.underestimated],
+    ['lessons.next', p.lessons?.next],
+  ];
+  for (const [name, list] of stringLists) {
+    (list || []).forEach((v, i) => {
+      if (typeof v !== 'string' || !v.trim()) {
+        errs.push(`${p.slug}.${name}[${i}]: must be a non-empty string after flattening (got ${typeof v}) — this is what renders as "[object Object]"`);
+      }
+    });
+  }
+
   (p.flow?.steps || []).forEach((s, i) => {
     if (!has(s.body)) errs.push(`${p.slug}.flow.steps[${i}]: empty body after normalising`);
   });

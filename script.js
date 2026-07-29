@@ -1810,8 +1810,20 @@
      shipped glow), and the rail's far end ignites once Ship lands. */
   const pipelineScene = document.querySelector('.scene-statement');
   if (pipelineScene && pipelineScene.querySelector('.pipe-rail')) {
+    /* Scrubbing this to scroll works on a wide screen, where all three words sit
+       on one line and the whole sequence is in view for its entire range. Once
+       the layout stacks, the section is taller than the phone it is being read
+       on: by the time the scrub reaches Ship, Design has already left the top of
+       the screen, so the pipeline is never seen whole. Below the stacking
+       breakpoint it plays on arrival instead, in its own time. */
+    const narrowPipeline = matchMedia('(max-width: 760px)').matches;
     const stl = gsap.timeline({
-      scrollTrigger: { trigger: pipelineScene, start: 'top 76%', end: 'center 32%', scrub: SCRUB_UI, invalidateOnRefresh: true }
+      scrollTrigger: narrowPipeline
+        ? { trigger: pipelineScene, start: 'top 72%', once: true }
+        : { trigger: pipelineScene, start: 'top 76%', end: 'center 32%', scrub: SCRUB_UI, invalidateOnRefresh: true },
+      /* The timeline is authored in scrub units; played as real time it wants
+         to be a little quicker than one second per unit. */
+      timeScale: narrowPipeline ? 1.45 : 1,
     });
     stl
       .fromTo('.pipe-rail', { clipPath: 'inset(-8px 100% -8px 0)' }, { clipPath: 'inset(-8px 0% -8px 0)', duration: 3, ease: 'none' }, 0)

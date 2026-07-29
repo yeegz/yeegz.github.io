@@ -1507,30 +1507,54 @@ html.project-open,html.project-open body{overflow:hidden!important}.project-open
    on the card at every width; they sit above the full-row opener overlay so a
    click on a link is a link and a click anywhere else still opens the case. */
 @media (min-width: 1025px) {
+  /* The destinations belong to the card, under the thing they are pictures of.
+     They used to be a sibling of .work-link reproducing its first grid column
+     with a hand-computed margin, which put them out under the copy and left
+     them at whatever width their own labels happened to be. They are now a
+     child of the same grid, taking the media's exact placement and width, so
+     they sit under the screenshot and stay there at any viewport. */
+  /* One box for the picture and its destinations, so the buttons sit directly
+     under the screenshot. As separate grid children the links landed in row 2,
+     which begins below the tallest item in row 1 — the copy column — leaving a
+     70px hole between a screenshot and the links that belong to it. */
+  .work-visual {
+    grid-column: 2 / -1;
+    justify-self: end;
+    width: min(42vw, 560px);
+    max-width: 100%;
+    margin-top: 1.7rem;
+  }
+  .work-visual .work-media { grid-column: auto; justify-self: stretch; width: 100%; margin-top: 0; }
   .work-links {
     position: relative; z-index: 3;
-    display: flex; flex-wrap: wrap; gap: 0.55rem;
-    /* Sit under the copy, not out in the number's margin. .work-link is a
-       grid of [no | main | side] and these rows are its siblings, so they have
-       to reproduce the first column plus the gap by hand. */
-    margin: 1.15rem 0.2rem 0 calc(0.5rem + 5.5rem + clamp(1.2rem, 2.4vw, 2.4rem));
+    margin-top: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
   .work-links a {
-    display: inline-flex; align-items: center; gap: 0.55rem;
-    min-height: 38px; padding: 0.55rem 0.9rem;
-    border: 1px solid var(--line-soft);
-    color: var(--muted);
-    font: 500 0.56rem var(--mono); letter-spacing: 0.15em; text-transform: uppercase;
-    transition: color 0.32s, border-color 0.32s, background 0.32s;
+    display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+    min-height: 44px; padding: 0.6rem 0.85rem;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--ink) 3%, transparent);
+    color: var(--ink-soft);
+    font: 500 0.56rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
+    transition: color 0.32s, border-color 0.32s, background 0.32s, transform 0.32s var(--ease-out);
   }
-  .work-links a span { color: var(--accent); }
-  .work-links a.wl-primary { border-color: color-mix(in srgb, var(--accent) 38%, transparent); color: var(--ink-soft); }
+  .work-links a span { color: var(--accent); transition: transform 0.32s var(--ease-out); }
+  .work-links a.wl-primary {
+    border-color: color-mix(in srgb, var(--accent) 42%, transparent);
+    color: var(--ink);
+  }
   .work-links a:hover {
     border-color: var(--accent); color: var(--ink);
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    transform: translateY(-1px);
   }
-  /* Keep the opener's own label clear of the new row. */
-  .work-open { padding-bottom: clamp(1.5rem, 3.4vh, 2.2rem); }
+  .work-links a:hover span { transform: translate(2px, -2px); }
+  /* An odd one out takes the full width rather than half a row. */
+  .work-links a:only-child,
+  .work-links a:nth-child(odd):last-child { grid-column: 1 / -1; }
 }
 
 @media (max-width: 760px) {
@@ -3773,3 +3797,14 @@ html.egypt .head-simple:hover { border-color: var(--eg-gold); color: var(--eg-go
 }
 .egg-tell:hover { color: var(--accent); border-bottom-color: var(--accent); }
 html.egypt .egg-tell { color: var(--eg-gold); border-bottom-color: var(--eg-gold); }
+
+/* The wrapper exists only for the desktop grid; everywhere else the media and
+   the links go back to being direct children of their original parents. */
+@media (max-width: 1024px) {
+  .work-visual { display: contents; }
+  /* With the wrapper dissolved the links become a grid item of the card, and
+     auto-placement dropped them into a 74px track — the columns then resolved
+     against their own content instead of the row, so the buttons came out
+     unequal. They take the full width here, as they did before the wrapper. */
+  .work-links { grid-column: 1 / -1; }
+}

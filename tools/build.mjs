@@ -801,89 +801,152 @@ ${cards}
 function renderSimple(site, projects) {
   const p = site.profile || {};
   const PORTRAIT = fs.existsSync(path.join(ROOT, 'images/yousof-headshot.jpg'));
-  const cred = (site.credibility || [])
-    .map((c) => `<li><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`)
-    .join('\n      ');
 
-  const linkRow = (links) =>
-    !has(links)
+  const chips = (arr, cls = 's-chip') =>
+    !has(arr) ? '' : `<p class="s-chips">${arr.map((t) => `<span class="${cls}">${esc(t)}</span>`).join('')}</p>`;
+
+  const linkRow = (links, extra = []) =>
+    !has(links) && !extra.length
       ? ''
-      : `<p class="s-links">${links
+      : `<p class="s-links">${[...(links || []), ...extra]
           .map((l) => {
             const ext = /^https?:/.test(l.href);
             return `<a href="${esc(l.href)}"${ext ? ' target="_blank" rel="noopener"' : ''}${
               l.kind === 'store' ? ' class="is-store"' : ''
-            }>${esc(l.label)}</a>`;
+            }>${esc(l.label)}<span aria-hidden="true">${ext ? '↗' : '→'}</span></a>`;
           })
           .join('')}</p>`;
 
+  /* Stat tiles. The reference portfolio leans on these hard and it is the right
+     instinct — a number with a label is the fastest thing on a page to read.
+     What it does NOT get to keep is the emoji in front of each one, or the
+     percentage bars underneath, which assert a precision nobody measured. */
+  const statTiles = (items) =>
+    `<div class="s-stats">${items
+      .map((c) => {
+        // "iOS · Android · Web" is a value but not a numeral, and setting it at
+        // display size wrapped it to three lines and made it read as a headline.
+        const numeral = /^[\d.,]+$/.test(String(c.value).trim());
+        return `<div class="s-stat${numeral ? '' : ' is-text'}"><b>${esc(c.value)}</b><span>${esc(c.label)}</span></div>`;
+      })
+      .join('')}</div>`;
+
   const work = projects
     .map((x) => {
-      /* Three readings, not thirteen sections: what it is, what it took, and
-         what actually shipped. The case study is one click away for the rest. */
+      const shot = has(x.media) ? x.media[0] : null;
       const results = (x.results || []).slice(0, 3);
-      return `<article class="s-item">
-      <h3>${esc(x.name)}<span class="s-when">${esc(humanDate(x.timeline))}</span></h3>
-      <p>${rich(x.tagline)}</p>
-      <dl class="s-kv">
-        <div><dt>Role</dt><dd>${esc(x.role)}</dd></div>
-        <div><dt>Platforms</dt><dd>${esc((x.platforms || []).join(' · '))}</dd></div>
-        ${has(x.stack) ? `<div><dt>Stack</dt><dd>${esc(x.stack.join(' · '))}</dd></div>` : ''}
-      </dl>
+      return `<article class="s-card">
       ${
-        results.length
-          ? `<ul class="s-list">${results.map((r) => `<li><b>${esc(r.title)}.</b> ${rich(r.body)}</li>`).join('')}</ul>`
+        shot
+          ? `<div class="s-card-shot"><img src="${esc(shot.src)}" alt="${esc(shot.alt)}"${
+              shot.width ? ` width="${shot.width}"` : ''
+            }${shot.height ? ` height="${shot.height}"` : ''} loading="lazy" decoding="async" /></div>`
           : ''
       }
-      ${linkRow([...(x.links || []), { label: 'Full case study', href: `/work/${x.slug}/` }])}
+      <div class="s-card-body">
+        <div class="s-card-head">
+          <h3>${esc(x.name)}</h3>
+          <p class="s-when">${esc(humanDate(x.timeline))}</p>
+        </div>
+        <p class="s-card-tag">${rich(x.tagline)}</p>
+        <p class="s-card-role"><span>Role</span>${esc(x.role)}</p>
+        ${chips(x.platforms, 's-chip s-chip-quiet')}
+        ${
+          results.length
+            ? `<ul class="s-list">${results.map((r) => `<li><b>${esc(r.title)}.</b> ${rich(r.body)}</li>`).join('')}</ul>`
+            : ''
+        }
+        ${chips(x.stack)}
+        ${linkRow(x.links, [{ label: 'Full case study', href: `/work/${x.slug}/` }])}
+      </div>
     </article>`;
     })
     .join('\n    ');
 
   const caps = (site.capabilities || [])
     .map(
-      (c) => `<article class="s-item">
-      <h3>${esc(c.group)}</h3>
-      <p>${rich(c.lead)}</p>
-      ${has(c.tools) ? `<p class="s-tools">${esc(c.tools.join(' · '))}</p>` : ''}
+      (c) => `<article class="s-card s-card-flat">
+      <div class="s-card-body">
+        <h3>${esc(c.group)}</h3>
+        <p>${rich(c.lead)}</p>
+        ${chips(c.tools)}
+      </div>
     </article>`,
     )
     .join('\n    ');
 
-  const edu = (site.education || [])
-    .map(
-      (e) => `<article class="s-item">
-      <h3>${esc(e.credential)}<span class="s-when">${esc(humanDate(e.dates))}</span></h3>
-      <p>${esc(e.institution)}${has(e.programme) ? ` — ${esc(e.programme)}` : ''}${has(e.location) ? ` · ${esc(e.location)}` : ''}</p>
-      ${has(e.status) ? `<p class="s-kv"><b>Status</b> ${esc(e.status)}</p>` : ''}
-    </article>`,
-    )
-    .join('\n    ');
+  const timeline = (entries, render) =>
+    `<ol class="s-time">${entries.map(render).join('')}</ol>`;
 
-  const record = (site.experience || [])
-    .map(
-      (e) => `<article class="s-item">
-      <h3>${esc(e.role)}<span class="s-when">${esc(humanDate(e.dates))}</span></h3>
-      <p>${esc(e.org)}${has(e.location) ? ` · ${esc(e.location)}` : ''}</p>
-      ${has(e.bullets) ? `<ul class="s-list">${e.bullets.map((b) => `<li>${rich(b)}</li>`).join('')}</ul>` : ''}
-    </article>`,
-    )
-    .join('\n    ');
+  const edu = has(site.education)
+    ? timeline(
+        site.education,
+        (e) => `<li class="s-time-row">
+        <p class="s-when">${esc(humanDate(e.dates))}</p>
+        <div>
+          <h3>${esc(e.credential)}</h3>
+          <p class="s-org">${esc(e.institution)}${has(e.location) ? ` · ${esc(e.location)}` : ''}</p>
+          ${has(e.status) ? `<p class="s-note-sm">${esc(e.status)}</p>` : ''}
+          ${chips(e.coursework, 's-chip s-chip-quiet')}
+        </div>
+      </li>`,
+      )
+    : '';
+
+  const record = has(site.experience)
+    ? timeline(
+        site.experience,
+        (e) => `<li class="s-time-row">
+        <p class="s-when">${esc(humanDate(e.dates))}</p>
+        <div>
+          <h3>${esc(e.role)}</h3>
+          <p class="s-org">${esc(e.org)}${has(e.location) ? ` · ${esc(e.location)}` : ''}</p>
+          ${has(e.lead) ? `<p>${rich(e.lead)}</p>` : ''}
+          ${has(e.bullets) ? `<ul class="s-list">${e.bullets.map((b) => `<li>${rich(b)}</li>`).join('')}</ul>` : ''}
+          ${
+            has(e.projects)
+              ? `<ul class="s-list">${e.projects
+                  .map(
+                    (pr) =>
+                      `<li><b>${esc(pr.name)}${has(pr.dates) ? ` · ${esc(pr.dates)}` : ''}.</b>${
+                        has(pr.bullets) ? ` ${rich(pr.bullets[0])}` : ''
+                      }</li>`,
+                  )
+                  .join('')}</ul>`
+              : ''
+          }
+          ${chips(e.tech, 's-chip s-chip-quiet')}
+        </div>
+      </li>`,
+      )
+    : '';
 
   const nowCol = (label, items) =>
     !has(items)
       ? ''
-      : `<li><b>${esc(label)}</b><span>${items
-          .map((i) => esc(typeof i === 'string' ? i : i.title || i.body || ''))
-          .join(' · ')}</span></li>`;
+      : `<div class="s-now-col">
+        <h3>${esc(label)}</h3>
+        <ul>${items
+          .map((i) =>
+            typeof i === 'string'
+              ? `<li>${esc(i)}</li>`
+              : `<li><b>${esc(i.title)}</b>${has(i.body) ? ` ${esc(i.body)}` : ''}</li>`,
+          )
+          .join('')}</ul>
+      </div>`;
+
   const now = site.now
-    ? `<ul class="s-facts">
+    ? `<div class="s-now">
       ${nowCol('Building', site.now.building)}
       ${nowCol('Studying', site.now.studying)}
       ${nowCol('Looking for', site.now.seeking)}
       ${nowCol('Exploring', site.now.exploring)}
-    </ul>`
+    </div>`
     : '';
+
+  const externals = (p.links || site.links || []).filter(
+    (l) => !/^mailto:/i.test(l.href) && !/resume/i.test(l.href) && !/r[ée]sum/i.test(l.label || ''),
+  );
 
   return `<!DOCTYPE html>
 <html lang="en" class="no-js">
@@ -900,7 +963,7 @@ function renderSimple(site, projects) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/simple.css?v=4" />
+<link rel="stylesheet" href="/simple.css?v=7" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 try { document.documentElement.dataset.theme = localStorage.getItem('ysf-theme') === 'light' ? 'light' : 'dark'; }
@@ -912,6 +975,16 @@ addEventListener('DOMContentLoaded', function () {
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
   }, { rootMargin: '0px 0px -8% 0px', threshold: 0.02 });
   document.querySelectorAll('[data-in]').forEach(function (el) { io.observe(el); });
+
+  // The nav marks where you are. Nothing else on this page moves on scroll.
+  var links = [].slice.call(document.querySelectorAll('.s-nav a'));
+  var spy = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      links.forEach(function (a) { a.classList.toggle('is-here', a.hash === '#' + e.target.id); });
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  document.querySelectorAll('main section[id]').forEach(function (el) { spy.observe(el); });
 });
 </script>
 </head>
@@ -924,17 +997,17 @@ addEventListener('DOMContentLoaded', function () {
     <a href="#skills">Skills</a>
     <a href="#education">Education</a>
     <a href="#record">Record</a>
+    <a href="#contact">Contact</a>
   </nav>
   <div class="s-actions">
     <a class="s-btn s-btn-lead" href="/">Full portfolio</a>
     <a class="s-btn" href="/Yousof-Selim-Resume.pdf" download>Résumé</a>
-    <a class="s-btn" href="mailto:${esc(p.email)}">Email</a>
   </div>
 </header>
 
-<main class="wrap">
+<main>
 
-  <div class="s-top" data-in>
+  <section class="s-hero" data-in>
     ${
       PORTRAIT
         ? `<figure class="s-portrait">
@@ -946,36 +1019,60 @@ addEventListener('DOMContentLoaded', function () {
         : ''
     }
     <div class="s-intro">
+      <p class="s-kicker">Portfolio <span>/</span> the short version</p>
       <h1 class="s-name">${esc(p.name || site.name)}</h1>
       <p class="s-role">${esc(p.title || site.title)}</p>
       <p class="s-meta">${esc(p.location || site.location)} <span>·</span> ${esc(p.availability || site.availability)}</p>
       <p class="s-lede">${rich(p.positioning)}</p>
-      <p class="s-links">
-        <a class="is-store" href="mailto:${esc(p.email)}">${esc(p.email)}</a>
-        ${(p.links || site.links || [])
-          .filter((l) => !/^mailto:/i.test(l.href))
-          .map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`)
-          .join('')}
+      ${chips((site.capabilities || []).map((c) => c.group))}
+      <p class="s-cta">
+        <a class="s-btn s-btn-lead" href="mailto:${esc(p.email)}">Get in touch<span aria-hidden="true">→</span></a>
+        <a class="s-btn" href="#work">See the work<span aria-hidden="true">↓</span></a>
       </p>
     </div>
-  </div>
-
-  ${cred ? `<section class="s-sec" data-in><h2><b>01</b> At a glance</h2><ul class="s-facts">\n      ${cred}\n    </ul></section>` : ''}
-
-  <section class="s-sec" id="work" data-in>
-    <h2><b>02</b> Work</h2>
-    ${work}
   </section>
 
-  ${caps ? `<section class="s-sec" id="skills" data-in><h2><b>03</b> What I can build</h2>\n    ${caps}\n  </section>` : ''}
+  <section class="s-sec" id="glance" data-in>
+    <h2><b>01</b> At a glance</h2>
+    ${has(site.credibility) ? statTiles(site.credibility) : ''}
+  </section>
 
-  ${edu ? `<section class="s-sec" id="education" data-in><h2><b>04</b> Education</h2>\n    ${edu}\n  </section>` : ''}
+  <section class="s-sec" id="work" data-in>
+    <h2><b>02</b> Selected work</h2>
+    <p class="s-sec-lede">Each of these was designed, engineered, tested and released by me. Every number below is one I can show you where to check.</p>
+    <div class="s-cards">
+    ${work}
+    </div>
+  </section>
 
-  ${record ? `<section class="s-sec" id="record" data-in><h2><b>05</b> The record</h2>\n    ${record}\n  </section>` : ''}
+  ${
+    caps
+      ? `<section class="s-sec" id="skills" data-in>
+    <h2><b>03</b> What I can build</h2>
+    <p class="s-sec-lede">The things I can take from an empty repository to a release, and what I use to do it.</p>
+    <div class="s-cards s-cards-2">
+    ${caps}
+    </div>
+  </section>`
+      : ''
+  }
 
-  ${now ? `<section class="s-sec" id="now" data-in><h2><b>06</b> Right now</h2>${now}</section>` : ''}
+  ${edu ? `<section class="s-sec" id="education" data-in><h2><b>04</b> Education</h2>${edu}</section>` : ''}
 
-  <p class="s-note">This is the short version. The full portfolio has the case studies — the problem, the architecture, what each decision cost, and how it was tested.</p>
+  ${record ? `<section class="s-sec" id="record" data-in><h2><b>05</b> The record</h2>${record}</section>` : ''}
+
+  ${now ? `<section class="s-sec" id="rightnow" data-in><h2><b>06</b> Right now</h2>${now}</section>` : ''}
+
+  <section class="s-sec s-contact" id="contact" data-in>
+    <h2><b>07</b> Contact</h2>
+    <p class="s-contact-line">Available for a full-time software engineering internship, ${esc(
+      String(p.availability || site.availability || '').replace(/^full-time internship\s*[—–-]\s*/i, ''),
+    )}, in ${esc(p.location || site.location)}.</p>
+    <p class="s-mail"><a href="mailto:${esc(p.email)}">${esc(p.email)}</a></p>
+    ${linkRow(externals, [{ label: 'Résumé (PDF)', href: '/Yousof-Selim-Resume.pdf' }])}
+  </section>
+
+  <p class="s-note">This is the short version. The full portfolio carries the case studies — the problem, the architecture, what each decision cost, and how it was tested.</p>
 
   <p class="s-foot">Designed and built by hand · 2026 · <a href="/">Full portfolio</a></p>
 </main>

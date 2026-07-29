@@ -255,3 +255,170 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
   .s-anim [data-in].is-in,
   .s-anim .s-item { opacity: 1; transform: none; transition: none; }
 }
+
+/* =================================================================
+   Sections, the way a portfolio has them
+   -----------------------------------------------------------------
+   The first pass was a document: hairline rows, one type size, no
+   way to land on a fact without reading a paragraph. What a scan
+   page needs is the shape the genre already settled on — stat tiles,
+   cards with tag chips, a timeline — done in this site's language
+   rather than the stock one.
+
+   Explicitly not adopted from the reference: emoji in front of every
+   heading, and skill bars with percentages. A "Python 95%" asserts a
+   precision nobody measured, which is the opposite of what the rest
+   of this portfolio is for.
+   ================================================================= */
+
+main { max-width: 78rem; margin: 0 auto; padding: 0 var(--pad) clamp(60px, 10vh, 110px); }
+
+.s-kicker {
+  font: 500 0.58rem var(--mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.s-kicker span { color: var(--accent); }
+
+.s-hero { display: grid; gap: clamp(24px, 3.5vw, 52px); align-items: start; padding: clamp(38px, 8vh, 84px) 0 clamp(30px, 5vh, 56px); }
+@media (min-width: 820px) {
+  .s-hero:has(.s-portrait) { grid-template-columns: minmax(0, 232px) minmax(0, 1fr); }
+}
+.s-intro { max-width: 62ch; }
+.s-cta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 1.4rem; }
+
+/* ---------- chips ------------------------------------------------ */
+
+.s-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.9rem; }
+.s-chip {
+  padding: 0.36rem 0.62rem;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.s-chip-quiet { border-color: transparent; background: var(--bg-2); color: var(--muted); }
+
+/* ---------- stat tiles ------------------------------------------- */
+
+/* Wrapping flex with flex-grow, not a grid. auto-fit only collapses tracks
+   when the whole set fits one row — eight tiles into five columns leaves the
+   last row two empty cells, painted by the container's own rule colour. */
+.s-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.s-stat { flex: 1 1 190px; min-width: 0; padding: 1.15rem 1.2rem 1.3rem; background: var(--bg); }
+.s-stat b {
+  display: block;
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: clamp(1.6rem, 3.4vw, 2.35rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+/* A value like "iOS · Android · Web" is not a numeral and must not be set as
+   one. It keeps the mono voice the rest of the site gives such values. */
+.s-stat.is-text b {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.s-stat span { display: block; margin-top: 0.55rem; font-size: 0.84rem; line-height: 1.45; color: var(--muted); }
+
+/* ---------- cards ------------------------------------------------- */
+
+.s-cards { display: grid; gap: clamp(18px, 2.2vw, 26px); }
+@media (min-width: 900px) { .s-cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.s-card { border: 1px solid var(--line); background: var(--bg-2); display: grid; }
+@media (min-width: 820px) {
+  .s-card:has(.s-card-shot) { grid-template-columns: minmax(0, 210px) minmax(0, 1fr); }
+}
+.s-card-shot { padding: 1.1rem; display: grid; place-items: center; border-bottom: 1px solid var(--line); }
+@media (min-width: 820px) {
+  .s-card-shot { border-bottom: 0; border-right: 1px solid var(--line); align-content: start; }
+}
+/* Radius only where a real product is depicted — the site's standing rule. */
+.s-card-shot img { display: block; width: 100%; max-width: 168px; height: auto; border-radius: 12px; border: 1px solid var(--line); }
+.s-card-body { padding: clamp(16px, 2vw, 24px); }
+.s-card-flat { background: none; }
+.s-card-head { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: baseline; justify-content: space-between; }
+.s-card h3 {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: clamp(1.15rem, 1.9vw, 1.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.s-card-tag { margin-top: 0.4rem; color: var(--ink); font-family: var(--serif); font-style: italic; font-size: 1.08rem; line-height: 1.35; }
+.s-card p { margin-top: 0.45rem; }
+
+.s-sec-lede { max-width: 62ch; margin: -0.4rem 0 1.5rem; color: var(--muted); }
+
+/* ---------- timeline ---------------------------------------------- */
+
+.s-time { list-style: none; }
+.s-time-row {
+  display: grid;
+  gap: 0.35rem 1.6rem;
+  padding: 1.3rem 0;
+  border-top: 1px solid var(--line);
+}
+.s-time-row:last-child { border-bottom: 1px solid var(--line); }
+@media (min-width: 760px) { .s-time-row { grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); } }
+.s-time-row h3 { font-family: var(--disp); font-weight: 700; font-size: 1.16rem; line-height: 1.2; color: var(--ink); }
+.s-org { margin-top: 0.25rem; color: var(--accent); font-family: var(--serif); font-style: italic; font-size: 1rem; }
+.s-note-sm { margin-top: 0.3rem; color: var(--muted); font-size: 0.86rem; }
+.s-when { font: 500 0.58rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- right now + contact ------------------------------------ */
+
+.s-now { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+@media (min-width: 820px) { .s-now { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.s-now-col { padding: 1.2rem 1.3rem; background: var(--bg); }
+.s-now-col h3 { font: 500 0.55rem var(--mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+.s-now-col ul { list-style: none; display: grid; gap: 0.5rem; }
+.s-now-col li { font-size: 0.9rem; line-height: 1.5; }
+.s-now-col b { color: var(--ink); font-weight: 500; }
+
+.s-contact { padding-bottom: 0.5rem; }
+.s-contact-line { max-width: 50ch; color: var(--ink); font-size: 1.05rem; }
+.s-mail { margin-top: 1rem; }
+.s-mail a {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: clamp(1.4rem, 4.4vw, 2.6rem);
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  overflow-wrap: anywhere;
+}
+.s-mail a:hover { color: var(--accent); }
+
+.s-nav a.is-here { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* The role is a sentence, not a tag — as a chip it ran the width of the card
+   and made the platform chips beside it unreadable. */
+.s-card-role { margin-top: 0.75rem; color: var(--ink-soft); font-size: 0.88rem; line-height: 1.5; }
+.s-card-role span {
+  display: inline-block;
+  margin-right: 0.6rem;
+  font: 500 0.52rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/simple.css?v=4" />
+<link rel="stylesheet" href="/simple.css?v=7" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 try { document.documentElement.dataset.theme = localStorage.getItem('ysf-theme') === 'light' ? 'light' : 'dark'; }
@@ -25,6 +25,16 @@ addEventListener('DOMContentLoaded', function () {
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
   }, { rootMargin: '0px 0px -8% 0px', threshold: 0.02 });
   document.querySelectorAll('[data-in]').forEach(function (el) { io.observe(el); });
+
+  // The nav marks where you are. Nothing else on this page moves on scroll.
+  var links = [].slice.call(document.querySelectorAll('.s-nav a'));
+  var spy = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      links.forEach(function (a) { a.classList.toggle('is-here', a.hash === '#' + e.target.id); });
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  document.querySelectorAll('main section[id]').forEach(function (el) { spy.observe(el); });
 });
 </script>
 </head>
@@ -37,145 +47,205 @@ addEventListener('DOMContentLoaded', function () {
     <a href="#skills">Skills</a>
     <a href="#education">Education</a>
     <a href="#record">Record</a>
+    <a href="#contact">Contact</a>
   </nav>
   <div class="s-actions">
     <a class="s-btn s-btn-lead" href="/">Full portfolio</a>
     <a class="s-btn" href="/Yousof-Selim-Resume.pdf" download>Résumé</a>
-    <a class="s-btn" href="mailto:yousofselim2@gmail.com">Email</a>
   </div>
 </header>
 
-<main class="wrap">
+<main>
 
-  <div class="s-top" data-in>
+  <section class="s-hero" data-in>
     
     <div class="s-intro">
+      <p class="s-kicker">Portfolio <span>/</span> the short version</p>
       <h1 class="s-name">Yousof Selim</h1>
       <p class="s-role">Mobile &amp; Full-Stack Developer</p>
       <p class="s-meta">Subang Jaya / Kuala Lumpur, Malaysia <span>·</span> Full-time internship — January to April 2027</p>
       <p class="s-lede">Software Engineering student at Sunway University and Lancaster University, building products that reach real stores rather than demos that reach a repository. The work runs across a Flutter expense app live on the App Store and Google Play, native iOS and Android widget extensions written outside the framework, a local-first Electron and WebGL2 photobooth live in the browser and packaged for desktop, and the Firebase backends — Cloud Functions and Firestore Security Rules — sitting behind them. The through-line is end-to-end ownership: the data model, the rules that guard it, the interface, the tests, and the release that puts it in someone's hands.</p>
-      <p class="s-links">
-        <a class="is-store" href="mailto:yousofselim2@gmail.com">yousofselim2@gmail.com</a>
-        <a href="https://github.com/yeegz" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/ysf-slm" target="_blank" rel="noopener">LinkedIn</a><a href="/Yousof-Selim-Resume.pdf" target="_blank" rel="noopener">Résumé (PDF)</a>
+      <p class="s-chips"><span class="s-chip">Cross-platform mobile products</span><span class="s-chip">Native iOS and Android surfaces</span><span class="s-chip">Backends, data and rules</span><span class="s-chip">Real-time graphics and desktop</span><span class="s-chip">Applied AI in products</span><span class="s-chip">Release and product operations</span></p>
+      <p class="s-cta">
+        <a class="s-btn s-btn-lead" href="mailto:yousofselim2@gmail.com">Get in touch<span aria-hidden="true">→</span></a>
+        <a class="s-btn" href="#work">See the work<span aria-hidden="true">↓</span></a>
       </p>
     </div>
-  </div>
+  </section>
 
-  <section class="s-sec" data-in><h2><b>01</b> At a glance</h2><ul class="s-facts">
-      <li><b>01</b><span>Product live on the App Store and Google Play</span></li>
-      <li><b>03</b><span>Cross-platform products owned end to end, solo</span></li>
-      <li><b>35</b><span>People who completed a profile in Bupples</span></li>
-      <li><b>9,206</b><span>Cloud Function executions behind it in 30 days</span></li>
-      <li><b>iOS · ANDROID · WEB</b><span>Platforms with something live and reachable</span></li>
-      <li><b>1.2.5</b><span>Bupples on the App Store, released 27 July 2026</span></li>
-      <li><b>AUG 2027</b><span>BSc Software Engineering (Hons) — Sunway University / Lancaster University</span></li>
-      <li><b>JAN—APR 2027</b><span>Available for a full-time internship</span></li>
-    </ul></section>
+  <section class="s-sec" id="glance" data-in>
+    <h2><b>01</b> At a glance</h2>
+    <div class="s-stats"><div class="s-stat"><b>01</b><span>Product live on the App Store and Google Play</span></div><div class="s-stat"><b>03</b><span>Cross-platform products owned end to end, solo</span></div><div class="s-stat"><b>35</b><span>People who completed a profile in Bupples</span></div><div class="s-stat"><b>9,206</b><span>Cloud Function executions behind it in 30 days</span></div><div class="s-stat is-text"><b>iOS · ANDROID · WEB</b><span>Platforms with something live and reachable</span></div><div class="s-stat"><b>1.2.5</b><span>Bupples on the App Store, released 27 July 2026</span></div><div class="s-stat is-text"><b>AUG 2027</b><span>BSc Software Engineering (Hons) — Sunway University / Lancaster University</span></div><div class="s-stat is-text"><b>JAN—APR 2027</b><span>Available for a full-time internship</span></div></div>
+  </section>
 
   <section class="s-sec" id="work" data-in>
-    <h2><b>02</b> Work</h2>
-    <article class="s-item">
-      <h3>Bupples<span class="s-when">February 2026 – Present</span></h3>
-      <p>Group expense splitting with a cent-exact multi-currency ledger and scanned receipts.</p>
-      <dl class="s-kv">
-        <div><dt>Role</dt><dd>Sole developer — product design, Flutter client, Firebase backend, security rules, release</dd></div>
-        <div><dt>Platforms</dt><dd>iOS · Android</dd></div>
-        <div><dt>Stack</dt><dd>Flutter / Dart · Riverpod · Firestore + Security Rules · Cloud Functions (Node 22, TypeScript) · Firebase Auth, Storage, Messaging, Remote Config, Crashlytics · Vertex AI — Gemini 2.5 Flash · Google ML Kit text recognition (on device) · RevenueCat · Swift / SwiftUI / WidgetKit · Kotlin / Android RemoteViews · Firebase Hosting</dd></div>
-      </dl>
-      <ul class="s-list"><li><b>Shipped, on both stores.</b> Live on the App Store as a Finance app, free, minimum iOS 15.5, first released 2 July 2026, and on Google Play under com.bupples.bupples. Universal Links and App Links are configured, so a join code, a Turbo split or a profile handle opens the installed app and falls back to the web page when it is not installed.</li><li><b>The scope one person carried.</b> 656 Dart files and around 250,000 lines under lib/, roughly 30,000 lines of TypeScript in the functions codebase, 99 deployed Cloud Function handlers, 25 top-level Firestore collections with 30 nested rule blocks, 2,254 lines of security rules and 16 composite indexes. Twenty-four features, each with its own domain, data, application and presentation layers, and a money kernel with no Flutter import at all, so the money maths can be tested without a widget tree.</li><li><b>Operational control without a store release.</b> Fifteen Remote Config parameters gate the assistant, receipt scanning, nudges, the paywall, maintenance mode, a version gate and update prompts, with a client-side gate that renders maintenance, force-update and degraded states. An expensive or misbehaving feature can be switched off in minutes rather than in a review cycle.</li></ul>
-      <p class="s-links"><a href="https://apps.apple.com/my/app/bupples/id6777620291" target="_blank" rel="noopener" class="is-store">App Store</a><a href="https://play.google.com/store/apps/details?id=com.bupples.bupples" target="_blank" rel="noopener" class="is-store">Google Play</a><a href="https://bupples.web.app" target="_blank" rel="noopener">Product site (landing page)</a><a href="https://github.com/yeegz/Bupples-showcase" target="_blank" rel="noopener">Showcase repository — source is private</a><a href="/work/bupples/">Full case study</a></p>
+    <h2><b>02</b> Selected work</h2>
+    <p class="s-sec-lede">Each of these was designed, engineered, tested and released by me. Every number below is one I can show you where to check.</p>
+    <div class="s-cards">
+    <article class="s-card">
+      <div class="s-card-shot"><img src="/images/projects/bupples/profile.webp" alt="The Bupples profile screen on a phone. Below the member's name and handle sit two separate balance chips — &quot;you're owed RM17.50&quot; in green and &quot;you owe USD 10.20&quot; in red — above a grid of statistics: hangouts this month, biggest night, most split with, and a running weekend streak." width="830" height="1800" loading="lazy" decoding="async" /></div>
+      <div class="s-card-body">
+        <div class="s-card-head">
+          <h3>Bupples</h3>
+          <p class="s-when">February 2026 – Present</p>
+        </div>
+        <p class="s-card-tag">Group expense splitting with a cent-exact multi-currency ledger and scanned receipts.</p>
+        <p class="s-card-role"><span>Role</span>Sole developer — product design, Flutter client, Firebase backend, security rules, release</p>
+        <p class="s-chips"><span class="s-chip s-chip-quiet">iOS</span><span class="s-chip s-chip-quiet">Android</span></p>
+        <ul class="s-list"><li><b>Shipped, on both stores.</b> Live on the App Store as a Finance app, free, minimum iOS 15.5, first released 2 July 2026, and on Google Play under com.bupples.bupples. Universal Links and App Links are configured, so a join code, a Turbo split or a profile handle opens the installed app and falls back to the web page when it is not installed.</li><li><b>The scope one person carried.</b> 656 Dart files and around 250,000 lines under lib/, roughly 30,000 lines of TypeScript in the functions codebase, 99 deployed Cloud Function handlers, 25 top-level Firestore collections with 30 nested rule blocks, 2,254 lines of security rules and 16 composite indexes. Twenty-four features, each with its own domain, data, application and presentation layers, and a money kernel with no Flutter import at all, so the money maths can be tested without a widget tree.</li><li><b>Operational control without a store release.</b> Fifteen Remote Config parameters gate the assistant, receipt scanning, nudges, the paywall, maintenance mode, a version gate and update prompts, with a client-side gate that renders maintenance, force-update and degraded states. An expensive or misbehaving feature can be switched off in minutes rather than in a review cycle.</li></ul>
+        <p class="s-chips"><span class="s-chip">Flutter / Dart</span><span class="s-chip">Riverpod</span><span class="s-chip">Firestore + Security Rules</span><span class="s-chip">Cloud Functions (Node 22, TypeScript)</span><span class="s-chip">Firebase Auth, Storage, Messaging, Remote Config, Crashlytics</span><span class="s-chip">Vertex AI — Gemini 2.5 Flash</span><span class="s-chip">Google ML Kit text recognition (on device)</span><span class="s-chip">RevenueCat</span><span class="s-chip">Swift / SwiftUI / WidgetKit</span><span class="s-chip">Kotlin / Android RemoteViews</span><span class="s-chip">Firebase Hosting</span></p>
+        <p class="s-links"><a href="https://apps.apple.com/my/app/bupples/id6777620291" target="_blank" rel="noopener" class="is-store">App Store<span aria-hidden="true">↗</span></a><a href="https://play.google.com/store/apps/details?id=com.bupples.bupples" target="_blank" rel="noopener" class="is-store">Google Play<span aria-hidden="true">↗</span></a><a href="https://bupples.web.app" target="_blank" rel="noopener">Product site (landing page)<span aria-hidden="true">↗</span></a><a href="https://github.com/yeegz/Bupples-showcase" target="_blank" rel="noopener">Showcase repository — source is private<span aria-hidden="true">↗</span></a><a href="/work/bupples/">Full case study<span aria-hidden="true">→</span></a></p>
+      </div>
     </article>
-    <article class="s-item">
-      <h3>Adelante<span class="s-when">June 2026 – Present</span></h3>
-      <p>Widget-first motivation for iOS and Android, read from the Home Screen.</p>
-      <dl class="s-kv">
-        <div><dt>Role</dt><dd>Sole developer — Flutter app, both native widget renderers, the content pipeline, and the backend design</dd></div>
-        <div><dt>Platforms</dt><dd>iOS 16+ · Android</dd></div>
-        <div><dt>Stack</dt><dd>Flutter 3.44.1 · Dart 3.12.1 · Riverpod 3 · Swift / SwiftUI · WidgetKit · Kotlin · Android RemoteViews · home_widget · TypeScript · Node.js 20 · Firebase Cloud Functions (v2) · Firestore</dd></div>
-      </dl>
-      <ul class="s-list"><li><b>iOS builds current; the Android artifact is stale.</b> build/ios/Release-iphoneos holds Runner.app and AdelanteWidgets.appex with dSYMs, both dated 2026-07-18. build/app/outputs/flutter-apk holds a release APK, but it is dated 2026-06-21 — before the nineteen commits of 2026-07-18 that rewrote the payload, tiering, rotation and the Android provider — so nothing on disk demonstrates the current Android code compiles. The hand-built WidgetKit extension target compiles and embeds, which is the part of a Flutter widget project most likely not to.</li><li><b>Seven widget families from one set of views.</b> The bundle declares systemSmall, systemMedium, systemLarge and systemExtraLarge plus accessoryInline, accessoryCircular and accessoryRectangular, and applies containerBackground(for: .widget) with a pre-iOS-17 fallback — which is what makes the same views legal in StandBy, since iOS 17 and later reuse those families there. There is no StandBy-specific code path: the accurate claim is StandBy-safe, not a separately built StandBy widget.</li><li><b>12,828 entries, no duplicate text.</b> The shipped library holds 12,828 entries with 12,828 unique ids and 12,828 unique texts across 20 categories, and five traditions clearing the 500-per-category floor the pipeline was built to reach: islam 599, judaism 559, christianity 559, hinduism 558, buddhism 552.</li></ul>
-      <p class="s-links"><a href="https://github.com/yeegz/adelante-showcase" target="_blank" rel="noopener">View showcase</a><a href="/work/adelante/">Full case study</a></p>
-    </article>
-    <article class="s-item">
-      <h3>Photoshoot<span class="s-when">June 2026</span></h3>
-      <p>A photobooth for desktop and browser that never sends a camera frame anywhere.</p>
-      <dl class="s-kv">
-        <div><dt>Role</dt><dd>Sole developer — graphics pipeline, security model, both runtimes, deployment</dd></div>
-        <div><dt>Platforms</dt><dd>Web (WebGL2 browsers) · Desktop (Electron) — built from source, not released</dd></div>
-        <div><dt>Stack</dt><dd>TypeScript 5.6 (strict) · Electron 31 · WebGL2 · GLSL ES 3.00 · MediaPipe Tasks Vision — FaceLandmarker · esbuild · Web Audio API · Canvas2D · MediaRecorder · IndexedDB · localStorage · Firebase Hosting</dd></div>
-      </dl>
-      <ul class="s-list"><li><b>Deployed, and current with the source.</b> The web app is live and the deployment matches HEAD exactly: the served document references the same content-hashed filenames the local build produces, and the host's last-modified timestamp is thirteen seconds after the final commit.</li><li><b>Seventeen effects and eight face effects, all on-device.</b> The registry holds 26 entries: one pass-through, 17 GLSL effects and 8 MediaPipe face effects, plus a 27th shader for the audited custom-filter program. Seven of the seventeen are warps whose centre follows the pointer, mirror-corrected so it lines up with the cursor; two are time-animated. Face tracking runs with numFaces: 1 against a model served from the app's own origin, throttled to roughly 22 fps so the render loop keeps its own cadence — and if the model fails to load, face effects render the plain image instead of failing.</li><li><b>One runtime dependency, and no shipped assets.</b> @mediapipe/tasks-vision is the only entry under dependencies; everything else is a devDependency. Nothing else is downloaded and nothing is bundled that was not written for this project: the app icon is generated by a build script using only node:zlib deflate, the six backdrops are drawn procedurally, and all eight sound cues are synthesized from oscillators and band-passed noise. There are no audio files in the repository at all.</li></ul>
-      <p class="s-links"><a href="https://photoshoot-yeegz.web.app/app/" target="_blank" rel="noopener">Open the photobooth</a><a href="https://photoshoot-yeegz.web.app/" target="_blank" rel="noopener">Product site</a><a href="https://github.com/yeegz/photoshoot" target="_blank" rel="noopener">Source on GitHub</a><a href="/work/photoshoot/">Full case study</a></p>
-    </article>
-  </section>
-
-  <section class="s-sec" id="skills" data-in><h2><b>03</b> What I can build</h2>
-    <article class="s-item">
-      <h3>Cross-platform mobile products</h3>
-      <p>Take a Flutter application from an empty repository to a listing on both the App Store and Google Play, including the signing, the store paperwork, and the update cadence afterwards.</p>
-      <p class="s-tools">Flutter · Dart · Riverpod · Firebase · Xcode</p>
-    </article>
-    <article class="s-item">
-      <h3>Native iOS and Android surfaces</h3>
-      <p>Leave the framework where the framework cannot go — Home Screen, Lock Screen and StandBy widgets written natively on each platform and wired back into a shared app.</p>
-      <p class="s-tools">Swift · SwiftUI · WidgetKit · Kotlin · Android RemoteViews</p>
-    </article>
-    <article class="s-item">
-      <h3>Backends, data and rules</h3>
-      <p>Model the data, move the writes that decide anything into server-side functions, and constrain the rest with security rules instead of trusting the client.</p>
-      <p class="s-tools">Firestore · Cloud Functions · Node.js · REST APIs · App Check</p>
-    </article>
-    <article class="s-item">
-      <h3>Real-time graphics and desktop</h3>
-      <p>Build interfaces that run on the GPU and ship as a desktop binary as readily as a web page, with the process boundaries locked down.</p>
-      <p class="s-tools">TypeScript · JavaScript · Electron · WebGL2 · GLSL · HTML/CSS · Godot Engine · Python</p>
-    </article>
-    <article class="s-item">
-      <h3>Applied AI in products</h3>
-      <p>Put a model where it does a job a user can check — reading a receipt into structured line items, tracking a face on-device — rather than where it decides a number.</p>
-      <p class="s-tools">Vertex AI · Gemini · MediaPipe</p>
-    </article>
-    <article class="s-item">
-      <h3>Release and product operations</h3>
-      <p>Run the unglamorous half — versioning, subscriptions, remote flags, design handoff, and the release itself — so a build can be shipped on a schedule rather than when it happens to be ready.</p>
-      <p class="s-tools">Git/GitHub · RevenueCat · Remote Config · Figma</p>
-    </article>
-  </section>
-
-  <section class="s-sec" id="education" data-in><h2><b>04</b> Education</h2>
-    <article class="s-item">
-      <h3>Bachelor of Software Engineering (Hons)<span class="s-when">Expected August 2027</span></h3>
-      <p>Sunway University / Lancaster University — Dual-degree programme · Subang Jaya, Malaysia</p>
-      <p class="s-kv"><b>Status</b> In progress</p>
-    </article>
-    <article class="s-item">
-      <h3>Foundation in Information Technology<span class="s-when">May 2023 — Jul 2024</span></h3>
-      <p>Multimedia University — Foundation programme · Cyberjaya, Malaysia</p>
-      <p class="s-kv"><b>Status</b> Completed</p>
-    </article>
-  </section>
-
-  <section class="s-sec" id="record" data-in><h2><b>05</b> The record</h2>
-    <article class="s-item">
-      <h3>Sole developer<span class="s-when">Feb 2026 — Present</span></h3>
-      <p>Independent products · Subang Jaya, Malaysia</p>
+    <article class="s-card">
       
+      <div class="s-card-body">
+        <div class="s-card-head">
+          <h3>Adelante</h3>
+          <p class="s-when">June 2026 – Present</p>
+        </div>
+        <p class="s-card-tag">Widget-first motivation for iOS and Android, read from the Home Screen.</p>
+        <p class="s-card-role"><span>Role</span>Sole developer — Flutter app, both native widget renderers, the content pipeline, and the backend design</p>
+        <p class="s-chips"><span class="s-chip s-chip-quiet">iOS 16+</span><span class="s-chip s-chip-quiet">Android</span></p>
+        <ul class="s-list"><li><b>iOS builds current; the Android artifact is stale.</b> build/ios/Release-iphoneos holds Runner.app and AdelanteWidgets.appex with dSYMs, both dated 2026-07-18. build/app/outputs/flutter-apk holds a release APK, but it is dated 2026-06-21 — before the nineteen commits of 2026-07-18 that rewrote the payload, tiering, rotation and the Android provider — so nothing on disk demonstrates the current Android code compiles. The hand-built WidgetKit extension target compiles and embeds, which is the part of a Flutter widget project most likely not to.</li><li><b>Seven widget families from one set of views.</b> The bundle declares systemSmall, systemMedium, systemLarge and systemExtraLarge plus accessoryInline, accessoryCircular and accessoryRectangular, and applies containerBackground(for: .widget) with a pre-iOS-17 fallback — which is what makes the same views legal in StandBy, since iOS 17 and later reuse those families there. There is no StandBy-specific code path: the accurate claim is StandBy-safe, not a separately built StandBy widget.</li><li><b>12,828 entries, no duplicate text.</b> The shipped library holds 12,828 entries with 12,828 unique ids and 12,828 unique texts across 20 categories, and five traditions clearing the 500-per-category floor the pipeline was built to reach: islam 599, judaism 559, christianity 559, hinduism 558, buddhism 552.</li></ul>
+        <p class="s-chips"><span class="s-chip">Flutter 3.44.1</span><span class="s-chip">Dart 3.12.1</span><span class="s-chip">Riverpod 3</span><span class="s-chip">Swift / SwiftUI</span><span class="s-chip">WidgetKit</span><span class="s-chip">Kotlin</span><span class="s-chip">Android RemoteViews</span><span class="s-chip">home_widget</span><span class="s-chip">TypeScript</span><span class="s-chip">Node.js 20</span><span class="s-chip">Firebase Cloud Functions (v2)</span><span class="s-chip">Firestore</span></p>
+        <p class="s-links"><a href="https://github.com/yeegz/adelante-showcase" target="_blank" rel="noopener">View showcase<span aria-hidden="true">↗</span></a><a href="/work/adelante/">Full case study<span aria-hidden="true">→</span></a></p>
+      </div>
     </article>
-    <article class="s-item">
-      <h3>Digital Marketing Executive<span class="s-when">Jan 2026 — Present</span></h3>
-      <p>Sunway Cybersecurity Club · Subang Jaya, Malaysia</p>
-      <ul class="s-list"><li>Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.</li><li>Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners.</li></ul>
+    <article class="s-card">
+      <div class="s-card-shot"><img src="/images/photoshoot-app.webp" alt="The Photoshoot capture window: a dark viewfinder marked REC with an ISO 400 · F/1.8 · ON-DEVICE readout, a row of effect swatches, a red shutter button, and a four-frame paper strip printed PHOTO·SHOOT alongside it." width="1202" height="956" loading="lazy" decoding="async" /></div>
+      <div class="s-card-body">
+        <div class="s-card-head">
+          <h3>Photoshoot</h3>
+          <p class="s-when">June 2026</p>
+        </div>
+        <p class="s-card-tag">A photobooth for desktop and browser that never sends a camera frame anywhere.</p>
+        <p class="s-card-role"><span>Role</span>Sole developer — graphics pipeline, security model, both runtimes, deployment</p>
+        <p class="s-chips"><span class="s-chip s-chip-quiet">Web (WebGL2 browsers)</span><span class="s-chip s-chip-quiet">Desktop (Electron) — built from source, not released</span></p>
+        <ul class="s-list"><li><b>Deployed, and current with the source.</b> The web app is live and the deployment matches HEAD exactly: the served document references the same content-hashed filenames the local build produces, and the host's last-modified timestamp is thirteen seconds after the final commit.</li><li><b>Seventeen effects and eight face effects, all on-device.</b> The registry holds 26 entries: one pass-through, 17 GLSL effects and 8 MediaPipe face effects, plus a 27th shader for the audited custom-filter program. Seven of the seventeen are warps whose centre follows the pointer, mirror-corrected so it lines up with the cursor; two are time-animated. Face tracking runs with numFaces: 1 against a model served from the app's own origin, throttled to roughly 22 fps so the render loop keeps its own cadence — and if the model fails to load, face effects render the plain image instead of failing.</li><li><b>One runtime dependency, and no shipped assets.</b> @mediapipe/tasks-vision is the only entry under dependencies; everything else is a devDependency. Nothing else is downloaded and nothing is bundled that was not written for this project: the app icon is generated by a build script using only node:zlib deflate, the six backdrops are drawn procedurally, and all eight sound cues are synthesized from oscillators and band-passed noise. There are no audio files in the repository at all.</li></ul>
+        <p class="s-chips"><span class="s-chip">TypeScript 5.6 (strict)</span><span class="s-chip">Electron 31</span><span class="s-chip">WebGL2 · GLSL ES 3.00</span><span class="s-chip">MediaPipe Tasks Vision — FaceLandmarker</span><span class="s-chip">esbuild</span><span class="s-chip">Web Audio API</span><span class="s-chip">Canvas2D · MediaRecorder</span><span class="s-chip">IndexedDB · localStorage</span><span class="s-chip">Firebase Hosting</span></p>
+        <p class="s-links"><a href="https://photoshoot-yeegz.web.app/app/" target="_blank" rel="noopener">Open the photobooth<span aria-hidden="true">↗</span></a><a href="https://photoshoot-yeegz.web.app/" target="_blank" rel="noopener">Product site<span aria-hidden="true">↗</span></a><a href="https://github.com/yeegz/photoshoot" target="_blank" rel="noopener">Source on GitHub<span aria-hidden="true">↗</span></a><a href="/work/photoshoot/">Full case study<span aria-hidden="true">→</span></a></p>
+      </div>
     </article>
+    </div>
   </section>
 
-  <section class="s-sec" id="now" data-in><h2><b>06</b> Right now</h2><ul class="s-facts">
-      <li><b>Building</b><span>Bupples · Adelante · Photoshoot</span></li>
-      <li><b>Studying</b><span>BSc Software Engineering (Hons) — Sunway University / Lancaster University</span></li>
-      <li><b>Looking for</b><span>A full-time software engineering internship, January to April 2027</span></li>
-      <li><b>Exploring</b><span>Inference that runs on the device · Model output as structured data, not prose · Widgets as the product surface</span></li>
-    </ul></section>
+  <section class="s-sec" id="skills" data-in>
+    <h2><b>03</b> What I can build</h2>
+    <p class="s-sec-lede">The things I can take from an empty repository to a release, and what I use to do it.</p>
+    <div class="s-cards s-cards-2">
+    <article class="s-card s-card-flat">
+      <div class="s-card-body">
+        <h3>Cross-platform mobile products</h3>
+        <p>Take a Flutter application from an empty repository to a listing on both the App Store and Google Play, including the signing, the store paperwork, and the update cadence afterwards.</p>
+        <p class="s-chips"><span class="s-chip">Flutter</span><span class="s-chip">Dart</span><span class="s-chip">Riverpod</span><span class="s-chip">Firebase</span><span class="s-chip">Xcode</span></p>
+      </div>
+    </article>
+    <article class="s-card s-card-flat">
+      <div class="s-card-body">
+        <h3>Native iOS and Android surfaces</h3>
+        <p>Leave the framework where the framework cannot go — Home Screen, Lock Screen and StandBy widgets written natively on each platform and wired back into a shared app.</p>
+        <p class="s-chips"><span class="s-chip">Swift</span><span class="s-chip">SwiftUI</span><span class="s-chip">WidgetKit</span><span class="s-chip">Kotlin</span><span class="s-chip">Android RemoteViews</span></p>
+      </div>
+    </article>
+    <article class="s-card s-card-flat">
+      <div class="s-card-body">
+        <h3>Backends, data and rules</h3>
+        <p>Model the data, move the writes that decide anything into server-side functions, and constrain the rest with security rules instead of trusting the client.</p>
+        <p class="s-chips"><span class="s-chip">Firestore</span><span class="s-chip">Cloud Functions</span><span class="s-chip">Node.js</span><span class="s-chip">REST APIs</span><span class="s-chip">App Check</span></p>
+      </div>
+    </article>
+    <article class="s-card s-card-flat">
+      <div class="s-card-body">
+        <h3>Real-time graphics and desktop</h3>
+        <p>Build interfaces that run on the GPU and ship as a desktop binary as readily as a web page, with the process boundaries locked down.</p>
+        <p class="s-chips"><span class="s-chip">TypeScript</span><span class="s-chip">JavaScript</span><span class="s-chip">Electron</span><span class="s-chip">WebGL2</span><span class="s-chip">GLSL</span><span class="s-chip">HTML/CSS</span><span class="s-chip">Godot Engine</span><span class="s-chip">Python</span></p>
+      </div>
+    </article>
+    <article class="s-card s-card-flat">
+      <div class="s-card-body">
+        <h3>Applied AI in products</h3>
+        <p>Put a model where it does a job a user can check — reading a receipt into structured line items, tracking a face on-device — rather than where it decides a number.</p>
+        <p class="s-chips"><span class="s-chip">Vertex AI</span><span class="s-chip">Gemini</span><span class="s-chip">MediaPipe</span></p>
+      </div>
+    </article>
+    <article class="s-card s-card-flat">
+      <div class="s-card-body">
+        <h3>Release and product operations</h3>
+        <p>Run the unglamorous half — versioning, subscriptions, remote flags, design handoff, and the release itself — so a build can be shipped on a schedule rather than when it happens to be ready.</p>
+        <p class="s-chips"><span class="s-chip">Git/GitHub</span><span class="s-chip">RevenueCat</span><span class="s-chip">Remote Config</span><span class="s-chip">Figma</span></p>
+      </div>
+    </article>
+    </div>
+  </section>
 
-  <p class="s-note">This is the short version. The full portfolio has the case studies — the problem, the architecture, what each decision cost, and how it was tested.</p>
+  <section class="s-sec" id="education" data-in><h2><b>04</b> Education</h2><ol class="s-time"><li class="s-time-row">
+        <p class="s-when">Expected August 2027</p>
+        <div>
+          <h3>Bachelor of Software Engineering (Hons)</h3>
+          <p class="s-org">Sunway University / Lancaster University · Subang Jaya, Malaysia</p>
+          <p class="s-note-sm">In progress</p>
+          <p class="s-chips"><span class="s-chip s-chip-quiet">Software Architecture</span><span class="s-chip s-chip-quiet">Data Structures</span><span class="s-chip s-chip-quiet">Mobile Development</span><span class="s-chip s-chip-quiet">Databases</span><span class="s-chip s-chip-quiet">UI/UX Design</span></p>
+        </div>
+      </li><li class="s-time-row">
+        <p class="s-when">May 2023 — Jul 2024</p>
+        <div>
+          <h3>Foundation in Information Technology</h3>
+          <p class="s-org">Multimedia University · Cyberjaya, Malaysia</p>
+          <p class="s-note-sm">Completed</p>
+          <p class="s-chips"><span class="s-chip s-chip-quiet">Programming</span><span class="s-chip s-chip-quiet">Data Structures</span><span class="s-chip s-chip-quiet">Networking</span><span class="s-chip s-chip-quiet">Web Fundamentals</span></p>
+        </div>
+      </li></ol></section>
+
+  <section class="s-sec" id="record" data-in><h2><b>05</b> The record</h2><ol class="s-time"><li class="s-time-row">
+        <p class="s-when">Feb 2026 — Present</p>
+        <div>
+          <h3>Sole developer</h3>
+          <p class="s-org">Independent products · Subang Jaya, Malaysia</p>
+          <p>Three products taken from an empty repository to a release, each owned end to end — product design, client, backend, security rules, store paperwork and the update cadence afterwards.</p>
+          
+          <ul class="s-list"><li><b>Bupples · Feb 2026 — Present.</b> Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.</li><li><b>Adelante · Jun 2026 — Present.</b> Built a privacy-first motivation app with native WidgetKit/SwiftUI and Android RemoteViews widgets for the Home Screen, Lock Screen, and StandBy — without accounts, analytics, or ads.</li><li><b>Photoshoot · Jun 2026 — Present.</b> Built and deployed a browser and desktop photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time GLSL effects and 8 on-device MediaPipe face effects.</li></ul>
+          
+        </div>
+      </li><li class="s-time-row">
+        <p class="s-when">Jan 2026 — Present</p>
+        <div>
+          <h3>Digital Marketing Executive</h3>
+          <p class="s-org">Sunway Cybersecurity Club · Subang Jaya, Malaysia</p>
+          
+          <ul class="s-list"><li>Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.</li><li>Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners.</li></ul>
+          
+          <p class="s-chips"><span class="s-chip s-chip-quiet">Canva</span><span class="s-chip s-chip-quiet">LinkedIn</span></p>
+        </div>
+      </li></ol></section>
+
+  <section class="s-sec" id="rightnow" data-in><h2><b>06</b> Right now</h2><div class="s-now">
+      <div class="s-now-col">
+        <h3>Building</h3>
+        <ul><li><b>Bupples</b> Maintaining the shipped product. It reached the App Store and Google Play on 2 July 2026 and was on version 1.2.5 by 27 July.</li><li><b>Adelante</b> Widget-first motivation app for iOS and Android: native WidgetKit and RemoteViews surfaces over a scheduled Firebase content pipeline, with no accounts, analytics or ads.</li><li><b>Photoshoot</b> Shipped in June 2026 and live in the browser: a local-first Electron and WebGL2 photobooth with 17 real-time GLSL effects and 8 on-device MediaPipe face effects. Not under active development.</li></ul>
+      </div>
+      <div class="s-now-col">
+        <h3>Studying</h3>
+        <ul><li><b>BSc Software Engineering (Hons) — Sunway University / Lancaster University</b> Software Architecture, Data Structures, Mobile Development, Databases, and UI/UX Design. Expected August 2027.</li></ul>
+      </div>
+      <div class="s-now-col">
+        <h3>Looking for</h3>
+        <ul><li><b>A full-time software engineering internship, January to April 2027</b> Subang Jaya or Kuala Lumpur, Malaysia. Mobile, full-stack, or anything that ships to a real store.</li></ul>
+      </div>
+      <div class="s-now-col">
+        <h3>Exploring</h3>
+        <ul><li><b>Inference that runs on the device</b> MediaPipe face effects executing locally in Photoshoot, so a camera frame never has to be uploaded to become useful.</li><li><b>Model output as structured data, not prose</b> Gemini receipt extraction in Bupples: the model reads a photographed receipt into line items, and the ledger still does the money.</li><li><b>Widgets as the product surface</b> Home Screen, Lock Screen and StandBy as places a product lives rather than shortcuts into it — which means two native implementations instead of one shared screen.</li></ul>
+      </div>
+    </div></section>
+
+  <section class="s-sec s-contact" id="contact" data-in>
+    <h2><b>07</b> Contact</h2>
+    <p class="s-contact-line">Available for a full-time software engineering internship, January to April 2027, in Subang Jaya / Kuala Lumpur, Malaysia.</p>
+    <p class="s-mail"><a href="mailto:yousofselim2@gmail.com">yousofselim2@gmail.com</a></p>
+    <p class="s-links"><a href="https://github.com/yeegz" target="_blank" rel="noopener">GitHub<span aria-hidden="true">↗</span></a><a href="https://www.linkedin.com/in/ysf-slm" target="_blank" rel="noopener">LinkedIn<span aria-hidden="true">↗</span></a><a href="/Yousof-Selim-Resume.pdf">Résumé (PDF)<span aria-hidden="true">→</span></a></p>
+  </section>
+
+  <p class="s-note">This is the short version. The full portfolio carries the case studies — the problem, the architecture, what each decision cost, and how it was tested.</p>
 
   <p class="s-foot">Designed and built by hand · 2026 · <a href="/">Full portfolio</a></p>
 </main>

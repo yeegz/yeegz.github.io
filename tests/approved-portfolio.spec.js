@@ -660,7 +660,9 @@ test('phone case cards are self-contained: no theater, links and new art on the 
   await expect(page.locator('#projectTheater')).not.toHaveAttribute('open', '');
   // The project's real destinations sit on the card as comfortable buttons.
   const links = page.locator('.work-row .work-links a');
-  expect(await links.count()).toBe(8);
+  // 10 since Bupples' two live store listings lead its row — they are the
+  // strongest evidence on the page and used to sit only inside the case study.
+  expect(await links.count()).toBe(10);
   await expect(links.first()).toBeVisible();
   const tap = await links.first().boundingBox();
   expect(tap.height).toBeGreaterThanOrEqual(44);

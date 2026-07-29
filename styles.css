@@ -3591,3 +3591,46 @@ html.egypt .lights i:nth-child(3) { background: var(--eg-gold, #d4a017); }
   html.egypt .dim-right,
   html.egypt .dim-top { display: none !important; }
 }
+
+/* The dense one-paragraph summary asked a recruiter to absorb ISO 4217,
+   idempotency, security rules, model extraction, subscriptions and remote
+   config in a single breath. The claim leads in plain language; the substance
+   follows as a scannable line under it. */
+.work-layers {
+  margin-top: 0.7rem;
+  max-width: 56ch;
+  color: var(--ink-soft);
+  font: 500 0.68rem var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.85;
+}
+.work-layers i { color: var(--accent); font-style: normal; padding: 0 0.15em; }
+
+/* A live store listing is the strongest evidence on the page, so it leads
+   the row rather than sitting behind a case study. */
+.work-links .wl-store { border-color: color-mix(in srgb, var(--accent) 52%, transparent); }
+
+/* The door to the scan route. It sits between the résumé and the theme
+   toggle because that is where someone looks when they are deciding how much
+   time to give this — and it is the one control on the page that offers less
+   rather than more. */
+.head-simple {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: border-color 0.3s, color 0.3s;
+}
+.head-simple:hover { border-color: var(--accent); color: var(--accent); }
+html.egypt .head-simple:hover { border-color: var(--eg-gold); color: var(--eg-gold); }
+@media (max-width: 900px) {
+  /* The mobile drawer already carries it; two doors in one bar is clutter. */
+  .head-simple { display: none; }
+}

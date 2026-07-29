@@ -40,7 +40,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" fetchpriority="low" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /><link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="styles.css?v=88" />
+<link rel="stylesheet" href="styles.css?v=89" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 /* A refresh restores the old scroll position by default, which drops the
@@ -133,6 +133,7 @@ setTimeout(function () {
   <div class="head-actions">
     <button class="head-egg-off" id="eggOff" type="button" data-cursor="EXIT" hidden>Exit Egypt<span aria-hidden="true">×</span></button>
     <a class="head-resume" href="Yousof-Selim-Resume.pdf" download data-cursor="PDF">Résumé</a>
+    <a class="head-simple" href="simple/" data-cursor="SCAN">Simple</a>
     <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Switch to light mode" data-cursor="LIGHT">
       <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.25"/><path d="M12 2.2v2.1M12 19.7v2.1M2.2 12h2.1M19.7 12h2.1M5.08 5.08l1.49 1.49M17.43 17.43l1.49 1.49M18.92 5.08l-1.49 1.49M6.57 17.43l-1.49 1.49"/></svg>
       <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.15A8.25 8.25 0 0 1 8.85 4 8.25 8.25 0 1 0 20 15.15Z"/></svg>
@@ -318,9 +319,9 @@ setTimeout(function () {
           <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="2" cy="2" r="0.62"/><circle cx="3.5" cy="2" r="0.62"/><circle cx="5" cy="2" r="0.62"/><circle cx="6.5" cy="2" r="0.62"/><circle cx="8" cy="2" r="0.62"/><circle cx="2" cy="3.6" r="0.62"/><circle cx="8" cy="3.6" r="0.62"/><circle cx="2.2" cy="5.2" r="0.62"/><circle cx="7.8" cy="5.2" r="0.62"/><circle cx="3.1" cy="6.6" r="0.62"/><circle cx="6.9" cy="6.6" r="0.62"/><circle cx="4" cy="7.7" r="0.62"/><circle cx="6" cy="7.7" r="0.62"/><circle cx="5" cy="8.5" r="0.62"/></svg>
           <div class="pr-body">
             <h3>Trust the server, not the client</h3>
-            <p>Anything a client can compute, a client can also lie about. The writes that decide who owes whom run in Cloud Functions and are idempotent, so a retried request cannot double a debt, and everything else is bounded by Firestore Security Rules with App Check turning away clients that are not the app.</p>
+            <p>Anything a client can compute, a client can also lie about. The writes that decide who owes whom run in Cloud Functions and are idempotent, so a retried request cannot double a debt, and everything else is bounded by Firestore Security Rules, which are what actually hold. App Check is integrated on the client, but enforcement across the callables is still switched off in source, so it is not yet a layer I claim.</p>
           </div>
-          <p class="pr-eg"><span>In practice</span>Idempotent Cloud Functions behind Firestore Security Rules, with App Check and Remote Config.</p>
+          <p class="pr-eg"><span>In practice</span>Idempotent Cloud Functions behind Firestore Security Rules, with Remote Config. App Check integrated; enforcement pending.</p>
         </li>
         <li class="pr-item" data-cursor="RULE">
           <i class="pr-rule" aria-hidden="true"></i>
@@ -384,8 +385,9 @@ setTimeout(function () {
             <span class="work-no" aria-hidden="true">01</span>
             <div class="work-main">
               <h3 class="work-name">Bupples</h3>
-              <p class="work-kicker">Social expense system · Flutter · Firebase</p>
-              <p class="work-case">Built and launched a social expense-sharing product on iOS and Android as sole developer. A cent-exact ISO 4217 multi-currency ledger runs on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.</p>
+              <p class="work-kicker">Social expense system</p>
+              <p class="work-case">Built and launched a social expense-sharing app on iOS and Android as sole developer.</p>
+              <p class="work-layers">Cent-exact multi-currency ledger <i aria-hidden="true">·</i> AI receipt extraction <i aria-hidden="true">·</i> secure Firebase backend <i aria-hidden="true">·</i> subscriptions</p>
               <dl class="work-spec">
                 <div><dt>Stack</dt><dd>Flutter · Firebase · Vertex AI · RevenueCat</dd></div>
                 <div><dt>Role</dt><dd>Sole developer · product design through release</dd></div>
@@ -410,7 +412,9 @@ setTimeout(function () {
           </button>
           <p class="work-study"><a href="work/bupples/" data-cursor="READ">Read the Bupples case study<span class="cta-arr" aria-hidden="true">→</span></a></p>
           <div class="work-links">
-            <a class="wl-primary" href="https://bupples.web.app/" target="_blank" rel="noopener">Product site<span aria-hidden="true">↗</span></a>
+            <a class="wl-primary wl-store" href="https://apps.apple.com/my/app/bupples/id6777620291" target="_blank" rel="noopener">App Store<span aria-hidden="true">↗</span></a>
+            <a class="wl-primary wl-store" href="https://play.google.com/store/apps/details?id=com.bupples.bupples" target="_blank" rel="noopener">Google Play<span aria-hidden="true">↗</span></a>
+            <a href="https://bupples.web.app/" target="_blank" rel="noopener">Product site<span aria-hidden="true">↗</span></a>
             <a href="https://github.com/yeegz/Bupples-showcase" target="_blank" rel="noopener">View showcase<span aria-hidden="true">↗</span></a>
           </div>
         </li>
@@ -451,7 +455,7 @@ setTimeout(function () {
             <span class="work-no" aria-hidden="true">03</span>
             <div class="work-main">
               <h3 class="work-name">Photoshoot</h3>
-              <p class="work-kicker">Photobooth · TypeScript · Electron · WebGL2</p>
+              <p class="work-kicker">Photobooth</p>
               <p class="work-case">A browser and desktop photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time GLSL effects and 8 on-device MediaPipe face effects. The local-first Electron/WebGL2 architecture uses context isolation, sandboxing, and a strict CSP — camera frames and captures never leave the device.</p>
               <dl class="work-spec">
                 <div><dt>Stack</dt><dd>TypeScript · Electron · WebGL2 · MediaPipe</dd></div>
@@ -559,7 +563,6 @@ setTimeout(function () {
             <h3>Cross-platform mobile products</h3>
           </div>
           <p class="cap-lead">Take a Flutter application from an empty repository to a listing on both the App Store and Google Play, including the signing, the store paperwork, and the update cadence afterwards.</p>
-          <p class="cap-tools">Flutter <i aria-hidden="true">·</i> Dart <i aria-hidden="true">·</i> Riverpod <i aria-hidden="true">·</i> Firebase <i aria-hidden="true">·</i> Xcode</p>
         </li>
         <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
@@ -567,7 +570,6 @@ setTimeout(function () {
             <h3>Native iOS and Android surfaces</h3>
           </div>
           <p class="cap-lead">Leave the framework where the framework cannot go — Home Screen, Lock Screen and StandBy widgets written natively on each platform and wired back into a shared app.</p>
-          <p class="cap-tools">Swift <i aria-hidden="true">·</i> SwiftUI <i aria-hidden="true">·</i> WidgetKit <i aria-hidden="true">·</i> Kotlin <i aria-hidden="true">·</i> Android RemoteViews</p>
         </li>
         <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
@@ -575,7 +577,6 @@ setTimeout(function () {
             <h3>Backends, data and rules</h3>
           </div>
           <p class="cap-lead">Model the data, move the writes that decide anything into server-side functions, and constrain the rest with security rules instead of trusting the client.</p>
-          <p class="cap-tools">Firestore <i aria-hidden="true">·</i> Cloud Functions <i aria-hidden="true">·</i> Node.js <i aria-hidden="true">·</i> REST APIs <i aria-hidden="true">·</i> App Check</p>
         </li>
         <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
@@ -583,7 +584,6 @@ setTimeout(function () {
             <h3>Real-time graphics and desktop</h3>
           </div>
           <p class="cap-lead">Build interfaces that run on the GPU and ship as a desktop binary as readily as a web page, with the process boundaries locked down.</p>
-          <p class="cap-tools">TypeScript <i aria-hidden="true">·</i> JavaScript <i aria-hidden="true">·</i> Electron <i aria-hidden="true">·</i> WebGL2 <i aria-hidden="true">·</i> GLSL <i aria-hidden="true">·</i> HTML/CSS <i aria-hidden="true">·</i> Godot Engine <i aria-hidden="true">·</i> Python</p>
         </li>
         <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
@@ -591,7 +591,6 @@ setTimeout(function () {
             <h3>Applied AI in products</h3>
           </div>
           <p class="cap-lead">Put a model where it does a job a user can check — reading a receipt into structured line items, tracking a face on-device — rather than where it decides a number.</p>
-          <p class="cap-tools">Vertex AI <i aria-hidden="true">·</i> Gemini <i aria-hidden="true">·</i> MediaPipe</p>
         </li>
         <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
@@ -599,7 +598,6 @@ setTimeout(function () {
             <h3>Release and product operations</h3>
           </div>
           <p class="cap-lead">Run the unglamorous half — versioning, subscriptions, remote flags, design handoff, and the release itself — so a build can be shipped on a schedule rather than when it happens to be ready.</p>
-          <p class="cap-tools">Git/GitHub <i aria-hidden="true">·</i> RevenueCat <i aria-hidden="true">·</i> Remote Config <i aria-hidden="true">·</i> Figma</p>
         </li>
       </ul>
     </div>
@@ -634,17 +632,6 @@ setTimeout(function () {
       <p class="sec-label">FIG. 04<span class="slash">/</span>THE RECORD</p>
       <ol class="tl-list">
         <li class="tl-row" data-cursor="RECORD">
-          <p class="tl-when">Jan 2026 — Present</p>
-          <div class="tl-what">
-            <h3>Digital Marketing Executive</h3>
-            <p class="tl-org">Sunway Cybersecurity Club <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
-            
-            <ul class="tl-bullets"><li>Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.</li><li>Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners.</li></ul>
-            <p class="tl-tech">Canva <i aria-hidden="true">·</i> LinkedIn</p>
-            
-          </div>
-        </li>
-        <li class="tl-row" data-cursor="RECORD">
           <p class="tl-when">Feb 2026 — Present</p>
           <div class="tl-what">
             <h3>Sole developer</h3>
@@ -658,7 +645,7 @@ setTimeout(function () {
                   <h4>Bupples</h4>
                   <p class="tl-p-when">Feb 2026 — Present</p>
                 </div>
-                <ul><li>Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.</li><li>Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.</li><li>Live on the App Store and Google Play since 2 July 2026; version 1.2.5 shipped on 27 July 2026.</li></ul>
+                <ul><li>Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.</li><li>Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions and Remote Config.</li><li>Live on the App Store and Google Play since 2 July 2026; version 1.2.5 shipped on 27 July 2026.</li></ul>
                 <p class="tl-tech">Flutter <i aria-hidden="true">·</i> Dart <i aria-hidden="true">·</i> Firebase <i aria-hidden="true">·</i> Firestore <i aria-hidden="true">·</i> Cloud Functions <i aria-hidden="true">·</i> Vertex AI <i aria-hidden="true">·</i> Gemini <i aria-hidden="true">·</i> RevenueCat <i aria-hidden="true">·</i> App Check <i aria-hidden="true">·</i> Remote Config</p>
                 <a class="tl-study" href="work/bupples/" data-cursor="READ">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
               </li>
@@ -681,6 +668,17 @@ setTimeout(function () {
                 <a class="tl-study" href="work/photoshoot/" data-cursor="READ">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
               </li>
             </ol>
+          </div>
+        </li>
+        <li class="tl-row" data-cursor="RECORD">
+          <p class="tl-when">Jan 2026 — Present</p>
+          <div class="tl-what">
+            <h3>Digital Marketing Executive</h3>
+            <p class="tl-org">Sunway Cybersecurity Club <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
+            
+            <ul class="tl-bullets"><li>Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.</li><li>Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners.</li></ul>
+            <p class="tl-tech">Canva <i aria-hidden="true">·</i> LinkedIn</p>
+            
           </div>
         </li>
       </ol>
@@ -740,7 +738,7 @@ setTimeout(function () {
         <figure class="bupples-screen screen center" tabindex="0"><img src="images/projects/bupples/profile.webp" loading="lazy" decoding="async" alt="Bupples profile screen" width="830" height="1800" /></figure>
         <figure class="bupples-screen screen right" tabindex="0"><img src="images/projects/bupples/accent.webp" loading="lazy" decoding="async" alt="Bupples custom accent editor" width="830" height="1800" /></figure>
       </div></div>
-      <div class="cap-strip"><div class="cap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9 9h4.2a2 2 0 0 1 0 4H11a2 2 0 0 0 0 4h4M12 6v12"/></svg><span><b>Ledger</b><small>ISO 4217 exact</small></span></div><div class="cap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h5M8 16h3"/><path d="M17 14l2 2 3-4"/></svg><span><b>AI receipts</b><small>Gemini extraction</small></span></div><div class="cap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg><span><b>Realtime</b><small>Chat + sync</small></span></div><div class="cap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.7-2.8 8.1-7 10-4.2-1.9-7-5.3-7-10V6z"/><path d="M9 12l2 2 4-5"/></svg><span><b>Protected</b><small>Rules + App Check</small></span></div></div>
+      <div class="cap-strip"><div class="cap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9 9h4.2a2 2 0 0 1 0 4H11a2 2 0 0 0 0 4h4M12 6v12"/></svg><span><b>Ledger</b><small>ISO 4217 exact</small></span></div><div class="cap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h5M8 16h3"/><path d="M17 14l2 2 3-4"/></svg><span><b>AI receipts</b><small>Gemini extraction</small></span></div><div class="cap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg><span><b>Realtime</b><small>Chat + sync</small></span></div><div class="cap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.7-2.8 8.1-7 10-4.2-1.9-7-5.3-7-10V6z"/><path d="M9 12l2 2 4-5"/></svg><span><b>Protected</b><small>Security Rules</small></span></div></div>
     </article>
 
     <article class="project-stage p-stage" data-project-stage="photoshoot" hidden>

@@ -1,0 +1,176 @@
+/* =============================================================
+   simple.css — the scan route (/simple/)
+
+   Deliberately NOT styles.css. This page exists because a recruiter
+   with ninety seconds should not have to scroll through a pinned
+   hero, a halftone canvas and five scroll-driven scenes to find out
+   what was built and where it is live. So it links none of that: no
+   GSAP, no canvas, no custom cursor, no reveal choreography, one
+   column, and a stylesheet small enough to arrive instantly.
+
+   It keeps the identity — the same four faces, the same bone-on-
+   near-black, the same mono micro-labels — because it is the same
+   person's portfolio, not a fallback.
+
+   Everything is readable with JavaScript disabled. The only script
+   on the page is the theme boot, which is inline.
+   ============================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0b;
+  --bg-2: #101012;
+  --ink: #f2efe9;
+  --ink-soft: #cdc9c1;
+  --muted: #8e8b85;
+  --muted-2: #6f6d68;
+  --line: rgba(242, 239, 233, 0.14);
+  --accent: #9bcfa5;
+  --disp: 'Archivo', system-ui, sans-serif;
+  --sans: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --pad: clamp(20px, 5vw, 56px);
+}
+
+:root[data-theme='light'] {
+  --bg: #eee8db;
+  --bg-2: #e5dfd2;
+  --ink: #101711;
+  --ink-soft: #354038;
+  --muted: #5d665f;
+  --muted-2: #7b827b;
+  --line: rgba(16, 23, 17, 0.18);
+  --accent: #315d43;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 74ch; margin: 0 auto; padding: 0 var(--pad) clamp(60px, 10vh, 110px); }
+
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ---------- chrome ---------------------------------------------- */
+
+.s-head {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem var(--pad);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.s-brand { font: 500 0.78rem var(--mono); letter-spacing: 0.06em; color: var(--ink); text-decoration: none; }
+.s-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.s-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 40px;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font: 500 0.58rem var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: none;
+  cursor: pointer;
+}
+.s-btn:hover { border-color: var(--accent); }
+.s-btn-lead { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+
+/* ---------- masthead -------------------------------------------- */
+
+.s-top { padding: clamp(34px, 7vh, 66px) 0 clamp(24px, 4vh, 40px); }
+.s-name {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: clamp(2.1rem, 6.5vw, 3.3rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.s-role { margin-top: 0.5rem; font-size: 1.05rem; color: var(--ink); }
+.s-meta { margin-top: 0.9rem; font: 500 0.62rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.s-meta span { color: var(--accent); }
+.s-lede { margin-top: 1.2rem; font-size: 1.02rem; }
+
+/* ---------- sections -------------------------------------------- */
+
+.s-sec { padding-top: clamp(30px, 5vh, 50px); }
+.s-sec > h2 {
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--line);
+  font: 500 0.6rem var(--mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.s-sec > h2 b { color: var(--accent); font-weight: 500; }
+
+.s-facts { list-style: none; display: grid; gap: 0.5rem; }
+.s-facts li { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: 0.3rem 1rem; }
+.s-facts b { color: var(--ink); font-family: var(--mono); font-weight: 500; font-size: 0.78rem; letter-spacing: 0.06em; }
+
+.s-item { padding: 1.15rem 0; border-bottom: 1px solid var(--line); }
+.s-item:first-of-type { border-top: 1px solid var(--line); }
+.s-item h3 {
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 1.22rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.s-item .s-when { float: right; font: 500 0.58rem var(--mono); letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+.s-item p { margin-top: 0.45rem; }
+/* Aligned rows, not one dense mono paragraph: on a page whose whole job is
+   scanning, the role and the platforms have to be findable at a glance. */
+.s-kv { margin-top: 0.75rem; display: grid; gap: 0.28rem; }
+.s-kv > div { display: grid; grid-template-columns: minmax(0, 6.5rem) minmax(0, 1fr); gap: 0.2rem 1rem; }
+.s-kv dt { font: 500 0.56rem var(--mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); padding-top: 0.15em; }
+.s-kv dd { color: var(--ink-soft); font-size: 0.88rem; line-height: 1.5; }
+.s-list { margin: 0.6rem 0 0 1.1rem; }
+.s-list li { margin-top: 0.3rem; }
+
+.s-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 0.85rem; }
+.s-links a {
+  padding: 0.42rem 0.7rem;
+  border: 1px solid var(--line);
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+}
+.s-links a:hover { border-color: var(--accent); }
+.s-links .is-store { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+
+.s-tools { margin-top: 0.5rem; color: var(--muted); font-size: 0.9rem; }
+.s-note { margin-top: 1rem; color: var(--muted); font-size: 0.88rem; }
+.s-foot { margin-top: clamp(40px, 7vh, 74px); padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--muted); font: 500 0.58rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
+
+@media print {
+  .s-head { display: none; }
+  body { background: #fff; color: #000; }
+  .wrap { max-width: none; }
+}

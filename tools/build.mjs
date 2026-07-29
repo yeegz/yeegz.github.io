@@ -501,6 +501,7 @@ const NAV = `
   <div class="head-actions">
     <button class="head-egg-off" id="eggOff" type="button" data-cursor="EXIT" hidden>Exit Egypt<span aria-hidden="true">×</span></button>
     <a class="head-resume" href="/Yousof-Selim-Resume.pdf" download data-cursor="PDF">Résumé</a>
+    <a class="head-simple" href="/simple/" data-cursor="SCAN">Simple</a>
     <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Switch to light mode" data-cursor="LIGHT">
       <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.25"/><path d="M12 2.2v2.1M12 19.7v2.1M2.2 12h2.1M19.7 12h2.1M5.08 5.08l1.49 1.49M17.43 17.43l1.49 1.49M18.92 5.08l-1.49 1.49M6.57 17.43l-1.49 1.49"/></svg>
       <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.15A8.25 8.25 0 0 1 8.85 4 8.25 8.25 0 1 0 20 15.15Z"/></svg>
@@ -639,7 +640,7 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=88" />
+<link rel="stylesheet" href="/styles.css?v=89" />
 <link rel="stylesheet" href="/case.css?v=17" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
@@ -755,7 +756,7 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=88" />
+<link rel="stylesheet" href="/styles.css?v=89" />
 <link rel="stylesheet" href="/case.css?v=17" />
 ${HEAD_BOOT}
 </head>
@@ -787,8 +788,177 @@ ${cards}
 `;
 }
 
+/* ------------------------------------------------------------------ */
+/* the scan route                                                      */
+/*                                                                     */
+/* A recruiter with ninety seconds should not have to scroll through a */
+/* pinned hero, a halftone canvas and five scroll-driven scenes to     */
+/* find out what was built and where it is live. /simple/ is the same  */
+/* facts, generated from the same content files so the two can never   */
+/* disagree, in one plain column with no script but the theme boot.    */
+/* ------------------------------------------------------------------ */
+
+function renderSimple(site, projects) {
+  const p = site.profile || {};
+  const cred = (site.credibility || [])
+    .map((c) => `<li><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`)
+    .join('\n      ');
+
+  const linkRow = (links) =>
+    !has(links)
+      ? ''
+      : `<p class="s-links">${links
+          .map((l) => {
+            const ext = /^https?:/.test(l.href);
+            return `<a href="${esc(l.href)}"${ext ? ' target="_blank" rel="noopener"' : ''}${
+              l.kind === 'store' ? ' class="is-store"' : ''
+            }>${esc(l.label)}</a>`;
+          })
+          .join('')}</p>`;
+
+  const work = projects
+    .map((x) => {
+      /* Three readings, not thirteen sections: what it is, what it took, and
+         what actually shipped. The case study is one click away for the rest. */
+      const results = (x.results || []).slice(0, 3);
+      return `<article class="s-item">
+      <h3>${esc(x.name)}<span class="s-when">${esc(humanDate(x.timeline))}</span></h3>
+      <p>${rich(x.tagline)}</p>
+      <dl class="s-kv">
+        <div><dt>Role</dt><dd>${esc(x.role)}</dd></div>
+        <div><dt>Platforms</dt><dd>${esc((x.platforms || []).join(' · '))}</dd></div>
+        ${has(x.stack) ? `<div><dt>Stack</dt><dd>${esc(x.stack.join(' · '))}</dd></div>` : ''}
+      </dl>
+      ${
+        results.length
+          ? `<ul class="s-list">${results.map((r) => `<li><b>${esc(r.title)}.</b> ${rich(r.body)}</li>`).join('')}</ul>`
+          : ''
+      }
+      ${linkRow([...(x.links || []), { label: 'Full case study', href: `/work/${x.slug}/` }])}
+    </article>`;
+    })
+    .join('\n    ');
+
+  const caps = (site.capabilities || [])
+    .map(
+      (c) => `<article class="s-item">
+      <h3>${esc(c.group)}</h3>
+      <p>${rich(c.lead)}</p>
+      ${has(c.tools) ? `<p class="s-tools">${esc(c.tools.join(' · '))}</p>` : ''}
+    </article>`,
+    )
+    .join('\n    ');
+
+  const edu = (site.education || [])
+    .map(
+      (e) => `<article class="s-item">
+      <h3>${esc(e.credential)}<span class="s-when">${esc(humanDate(e.dates))}</span></h3>
+      <p>${esc(e.institution)}${has(e.programme) ? ` — ${esc(e.programme)}` : ''}${has(e.location) ? ` · ${esc(e.location)}` : ''}</p>
+      ${has(e.status) ? `<p class="s-kv"><b>Status</b> ${esc(e.status)}</p>` : ''}
+    </article>`,
+    )
+    .join('\n    ');
+
+  const record = (site.experience || [])
+    .map(
+      (e) => `<article class="s-item">
+      <h3>${esc(e.role)}<span class="s-when">${esc(humanDate(e.dates))}</span></h3>
+      <p>${esc(e.org)}${has(e.location) ? ` · ${esc(e.location)}` : ''}</p>
+      ${has(e.bullets) ? `<ul class="s-list">${e.bullets.map((b) => `<li>${rich(b)}</li>`).join('')}</ul>` : ''}
+    </article>`,
+    )
+    .join('\n    ');
+
+  const nowCol = (label, items) =>
+    !has(items)
+      ? ''
+      : `<li><b>${esc(label)}</b><span>${items
+          .map((i) => esc(typeof i === 'string' ? i : i.title || i.body || ''))
+          .join(' · ')}</span></li>`;
+  const now = site.now
+    ? `<ul class="s-facts">
+      ${nowCol('Building', site.now.building)}
+      ${nowCol('Studying', site.now.studying)}
+      ${nowCol('Looking for', site.now.seeking)}
+      ${nowCol('Exploring', site.now.exploring)}
+    </ul>`
+    : '';
+
+  return `<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Yousof Selim — the short version</title>
+<meta name="description" content="A plain, scannable summary of Yousof Selim's shipped products, skills, education and availability. The full portfolio is one click away." />
+<link rel="canonical" href="${ORIGIN}/simple/" />
+<meta name="robots" content="noindex, follow" />
+<meta name="color-scheme" content="dark light" />
+<link rel="icon" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
+<link rel="stylesheet" href="/simple.css?v=2" />
+<script>
+document.documentElement.classList.replace('no-js','js');
+try { document.documentElement.dataset.theme = localStorage.getItem('ysf-theme') === 'light' ? 'light' : 'dark'; }
+catch (_) { document.documentElement.dataset.theme = 'dark'; }
+</script>
+</head>
+<body>
+
+<header class="s-head">
+  <a class="s-brand" href="/">ysf.slm</a>
+  <div class="s-actions">
+    <a class="s-btn s-btn-lead" href="/">Full portfolio</a>
+    <a class="s-btn" href="/Yousof-Selim-Resume.pdf" download>Résumé</a>
+    <a class="s-btn" href="mailto:${esc(p.email)}">Email</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="s-top">
+    <h1 class="s-name">${esc(p.name || site.name)}</h1>
+    <p class="s-role">${esc(p.title || site.title)}</p>
+    <p class="s-meta">${esc(p.location || site.location)} <span>·</span> ${esc(p.availability || site.availability)}</p>
+    <p class="s-lede">${rich(p.positioning)}</p>
+    <p class="s-links">
+      <a class="is-store" href="mailto:${esc(p.email)}">${esc(p.email)}</a>
+      ${(p.links || site.links || [])
+        .filter((l) => !/^mailto:/i.test(l.href))
+        .map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`)
+        .join('')}
+    </p>
+  </div>
+
+  ${cred ? `<section class="s-sec"><h2><b>01</b> At a glance</h2><ul class="s-facts">\n      ${cred}\n    </ul></section>` : ''}
+
+  <section class="s-sec">
+    <h2><b>02</b> Work</h2>
+    ${work}
+  </section>
+
+  ${caps ? `<section class="s-sec"><h2><b>03</b> What I can build</h2>\n    ${caps}\n  </section>` : ''}
+
+  ${edu ? `<section class="s-sec"><h2><b>04</b> Education</h2>\n    ${edu}\n  </section>` : ''}
+
+  ${record ? `<section class="s-sec"><h2><b>05</b> The record</h2>\n    ${record}\n  </section>` : ''}
+
+  ${now ? `<section class="s-sec"><h2><b>06</b> Right now</h2>${now}</section>` : ''}
+
+  <p class="s-note">This is the short version. The full portfolio has the case studies — the problem, the architecture, what each decision cost, and how it was tested.</p>
+
+  <p class="s-foot">Designed and built by hand · 2026 · <a href="/">Full portfolio</a></p>
+</main>
+</body>
+</html>
+`;
+}
+
 function renderSitemap(projects) {
-  const urls = [`${ORIGIN}/`, `${ORIGIN}/work/`, ...projects.map((p) => `${ORIGIN}/work/${p.slug}/`)];
+  const urls = [`${ORIGIN}/`, `${ORIGIN}/simple/`, `${ORIGIN}/work/`, ...projects.map((p) => `${ORIGIN}/work/${p.slug}/`)];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemap.org/schemas/sitemap/0.9">
 ${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}
@@ -832,6 +1002,10 @@ function main() {
   fs.mkdirSync(path.join(ROOT, 'work'), { recursive: true });
   fs.writeFileSync(path.join(ROOT, 'work/index.html'), renderIndex(projects, site));
   console.log('  → work/index.html');
+
+  fs.mkdirSync(path.join(ROOT, 'simple'), { recursive: true });
+  fs.writeFileSync(path.join(ROOT, 'simple/index.html'), renderSimple(site, projects));
+  console.log('  → simple/index.html');
 
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), renderSitemap(projects));
   console.log('  → sitemap.xml');
@@ -931,7 +1105,13 @@ ${site.principles
     </div>`;
 }
 
-/* ---------- capabilities: a spec sheet ----------------------------- */
+/* ---------- capabilities: a spec sheet -----------------------------
+   `tools` is deliberately NOT rendered. The lanes directly below this
+   block enumerate every tool by category, so printing them again here
+   said the same thing twice and made the section longer for it. What
+   a capability row is FOR is the sentence: what I can take from an
+   empty repository to a release. The data stays in site.json — it is
+   still true, it just is not said twice on one screen. */
 
 function renderCapabilities(site) {
   if (!has(site.capabilities)) return '';
@@ -946,7 +1126,6 @@ ${site.capabilities
             <h3>${esc(c.group)}</h3>
           </div>
           <p class="cap-lead">${rich(c.lead)}</p>
-          ${has(c.tools) ? `<p class="cap-tools">${c.tools.map((t) => esc(t)).join(' <i aria-hidden="true">·</i> ')}</p>` : ''}
         </li>`
   )
   .join('\n')}

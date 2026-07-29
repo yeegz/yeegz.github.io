@@ -33,7 +33,7 @@
   "profile": {
     "name": "Yousof Selim",
     "title": "Mobile & Full-Stack Developer",
-    "positioning": "Software Engineering student at Sunway University and Lancaster University, building products that reach real stores rather than demos that reach a repository. The work runs across a Flutter expense app live on the App Store and Google Play, native iOS and Android widget extensions written outside the framework, a local-first Electron and WebGL2 photobooth live in the browser and packaged for desktop, and the Firebase backends — Cloud Functions, Firestore Security Rules, App Check — sitting behind them. The through-line is end-to-end ownership: the data model, the rules that guard it, the interface, the tests, and the release that puts it in someone's hands.",
+    "positioning": "Software Engineering student at Sunway University and Lancaster University, building products that reach real stores rather than demos that reach a repository. The work runs across a Flutter expense app live on the App Store and Google Play, native iOS and Android widget extensions written outside the framework, a local-first Electron and WebGL2 photobooth live in the browser and packaged for desktop, and the Firebase backends — Cloud Functions and Firestore Security Rules — sitting behind them. The through-line is end-to-end ownership: the data model, the rules that guard it, the interface, the tests, and the release that puts it in someone's hands.",
     "location": "Subang Jaya / Kuala Lumpur, Malaysia",
     "availability": "Full-time internship — January to April 2027",
     "email": "yousofselim2@gmail.com",
@@ -103,22 +103,6 @@
   ],
   "experience": [
     {
-      "kind": "role",
-      "role": "Digital Marketing Executive",
-      "org": "Sunway Cybersecurity Club",
-      "location": "Subang Jaya, Malaysia",
-      "dates": "Jan 2026 — Present",
-      "bullets": [
-        "Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.",
-        "Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners."
-      ],
-      "tech": [
-        "Canva",
-        "LinkedIn"
-      ],
-      "evidence": "resume.txt lines 46-50, verbatim. This is the only employment-style entry in the corpus; no other role is claimed anywhere."
-    },
-    {
       "role": "Sole developer",
       "org": "Independent products",
       "location": "Subang Jaya, Malaysia",
@@ -133,7 +117,7 @@
           "dates": "Feb 2026 — Present",
           "bullets": [
             "Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.",
-            "Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.",
+            "Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions and Remote Config.",
             "Live on the App Store and Google Play since 2 July 2026; version 1.2.5 shipped on 27 July 2026."
           ],
           "tech": [
@@ -185,7 +169,24 @@
             "Firebase Hosting"
           ]
         }
-      ]
+      ],
+      "bullets": []
+    },
+    {
+      "kind": "role",
+      "role": "Digital Marketing Executive",
+      "org": "Sunway Cybersecurity Club",
+      "location": "Subang Jaya, Malaysia",
+      "dates": "Jan 2026 — Present",
+      "bullets": [
+        "Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.",
+        "Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners."
+      ],
+      "tech": [
+        "Canva",
+        "LinkedIn"
+      ],
+      "evidence": "resume.txt lines 46-50, verbatim. This is the only employment-style entry in the corpus; no other role is claimed anywhere."
     }
   ],
   "education": [
@@ -305,9 +306,9 @@
     },
     {
       "title": "Trust the server, not the client",
-      "body": "Anything a client can compute, a client can also lie about. The writes that decide who owes whom run in Cloud Functions and are idempotent, so a retried request cannot double a debt, and everything else is bounded by Firestore Security Rules with App Check turning away clients that are not the app.",
+      "body": "Anything a client can compute, a client can also lie about. The writes that decide who owes whom run in Cloud Functions and are idempotent, so a retried request cannot double a debt, and everything else is bounded by Firestore Security Rules, which are what actually hold. App Check is integrated on the client, but enforcement across the callables is still switched off in source, so it is not yet a layer I claim.",
       "exampleProject": "bupples",
-      "exampleDetail": "Idempotent Cloud Functions behind Firestore Security Rules, with App Check and Remote Config.",
+      "exampleDetail": "Idempotent Cloud Functions behind Firestore Security Rules, with Remote Config. App Check integrated; enforcement pending.",
       "evidence": "resume.txt lines 27-28."
     },
     {

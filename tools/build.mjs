@@ -798,9 +798,18 @@ ${cards}
 /* disagree, in one plain column with no script but the theme boot.    */
 /* ------------------------------------------------------------------ */
 
+/** First sentence only — the scan route states the claim and leaves the
+ *  elaboration to the case study. Split on a period followed by a capital so
+ *  version numbers and package ids survive. */
+const firstSentence = (s) => {
+  const t = String(s ?? '').trim();
+  const m = t.split(/(?<=\.)\s+(?=[A-Z])/);
+  return m[0] || t;
+};
+
 function renderSimple(site, projects) {
   const p = site.profile || {};
-  const PORTRAIT = fs.existsSync(path.join(ROOT, 'images/yousof-headshot.jpg'));
+  const PORTRAIT = fs.existsSync(path.join(ROOT, 'images/yousof-headshot.png'));
 
   const chips = (arr, cls = 's-chip') =>
     !has(arr) ? '' : `<p class="s-chips">${arr.map((t) => `<span class="${cls}">${esc(t)}</span>`).join('')}</p>`;
@@ -853,7 +862,9 @@ function renderSimple(site, projects) {
         ${chips(x.platforms, 's-chip s-chip-quiet')}
         ${
           results.length
-            ? `<ul class="s-list">${results.map((r) => `<li><b>${esc(r.title)}.</b> ${rich(r.body)}</li>`).join('')}</ul>`
+            ? `<ul class="s-list">${results
+                .map((r) => `<li><b>${esc(r.title)}.</b> ${rich(firstSentence(r.body))}</li>`)
+                .join('')}</ul>`
             : ''
         }
         ${chips(x.stack)}
@@ -902,14 +913,14 @@ function renderSimple(site, projects) {
           <h3>${esc(e.role)}</h3>
           <p class="s-org">${esc(e.org)}${has(e.location) ? ` · ${esc(e.location)}` : ''}</p>
           ${has(e.lead) ? `<p>${rich(e.lead)}</p>` : ''}
-          ${has(e.bullets) ? `<ul class="s-list">${e.bullets.map((b) => `<li>${rich(b)}</li>`).join('')}</ul>` : ''}
+          ${has(e.bullets) ? `<ul class="s-list">${e.bullets.map((b) => `<li>${rich(firstSentence(b))}</li>`).join('')}</ul>` : ''}
           ${
             has(e.projects)
               ? `<ul class="s-list">${e.projects
                   .map(
                     (pr) =>
                       `<li><b>${esc(pr.name)}${has(pr.dates) ? ` · ${esc(pr.dates)}` : ''}.</b>${
-                        has(pr.bullets) ? ` ${rich(pr.bullets[0])}` : ''
+                        has(pr.bullets) ? ` ${rich(firstSentence(pr.bullets[0]))}` : ''
                       }</li>`,
                   )
                   .join('')}</ul>`
@@ -930,7 +941,7 @@ function renderSimple(site, projects) {
           .map((i) =>
             typeof i === 'string'
               ? `<li>${esc(i)}</li>`
-              : `<li><b>${esc(i.title)}</b>${has(i.body) ? ` ${esc(i.body)}` : ''}</li>`,
+              : `<li><b>${esc(i.title)}</b>${has(i.body) ? ` ${esc(firstSentence(i.body))}` : ''}</li>`,
           )
           .join('')}</ul>
       </div>`;
@@ -963,7 +974,7 @@ function renderSimple(site, projects) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/simple.css?v=7" />
+<link rel="stylesheet" href="/simple.css?v=9" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 try { document.documentElement.dataset.theme = localStorage.getItem('ysf-theme') === 'light' ? 'light' : 'dark'; }
@@ -1013,7 +1024,10 @@ addEventListener('DOMContentLoaded', function () {
         ? `<figure class="s-portrait">
       <span class="pf-c pf-tl"></span><span class="pf-c pf-tr"></span>
       <span class="pf-c pf-bl"></span><span class="pf-c pf-br"></span>
-      <img src="/images/yousof-headshot.jpg" alt="Yousof Selim" width="861" height="1280" fetchpriority="high" />
+      <picture>
+        <source type="image/webp" srcset="/images/yousof-headshot.webp" />
+        <img src="/images/yousof-headshot.png" alt="Yousof Selim" width="861" height="991" fetchpriority="high" />
+      </picture>
       <figcaption>FIG. 01 — YOUSOF SELIM</figcaption>
     </figure>`
         : ''
@@ -1024,6 +1038,7 @@ addEventListener('DOMContentLoaded', function () {
       <p class="s-role">${esc(p.title || site.title)}</p>
       <p class="s-meta">${esc(p.location || site.location)} <span>·</span> ${esc(p.availability || site.availability)}</p>
       <p class="s-lede">${rich(p.positioning)}</p>
+      <p class="s-lede-more"><a href="/">The long version, with the case studies <span aria-hidden="true">→</span></a></p>
       ${chips((site.capabilities || []).map((c) => c.group))}
       <p class="s-cta">
         <a class="s-btn s-btn-lead" href="mailto:${esc(p.email)}">Get in touch<span aria-hidden="true">→</span></a>
@@ -1033,12 +1048,12 @@ addEventListener('DOMContentLoaded', function () {
   </section>
 
   <section class="s-sec" id="glance" data-in>
-    <h2><b>01</b> At a glance</h2>
+    <h2><b>01</b> At a glance<i class="s-rail" aria-hidden="true"></i></h2>
     ${has(site.credibility) ? statTiles(site.credibility) : ''}
   </section>
 
   <section class="s-sec" id="work" data-in>
-    <h2><b>02</b> Selected work</h2>
+    <h2><b>02</b> Selected work<i class="s-rail" aria-hidden="true"></i></h2>
     <p class="s-sec-lede">Each of these was designed, engineered, tested and released by me. Every number below is one I can show you where to check.</p>
     <div class="s-cards">
     ${work}
@@ -1048,7 +1063,7 @@ addEventListener('DOMContentLoaded', function () {
   ${
     caps
       ? `<section class="s-sec" id="skills" data-in>
-    <h2><b>03</b> What I can build</h2>
+    <h2><b>03</b> What I can build<i class="s-rail" aria-hidden="true"></i></h2>
     <p class="s-sec-lede">The things I can take from an empty repository to a release, and what I use to do it.</p>
     <div class="s-cards s-cards-2">
     ${caps}
@@ -1057,14 +1072,14 @@ addEventListener('DOMContentLoaded', function () {
       : ''
   }
 
-  ${edu ? `<section class="s-sec" id="education" data-in><h2><b>04</b> Education</h2>${edu}</section>` : ''}
+  ${edu ? `<section class="s-sec" id="education" data-in><h2><b>04</b> Education<i class="s-rail" aria-hidden="true"></i></h2>${edu}</section>` : ''}
 
-  ${record ? `<section class="s-sec" id="record" data-in><h2><b>05</b> The record</h2>${record}</section>` : ''}
+  ${record ? `<section class="s-sec" id="record" data-in><h2><b>05</b> The record<i class="s-rail" aria-hidden="true"></i></h2>${record}</section>` : ''}
 
-  ${now ? `<section class="s-sec" id="rightnow" data-in><h2><b>06</b> Right now</h2>${now}</section>` : ''}
+  ${now ? `<section class="s-sec" id="rightnow" data-in><h2><b>06</b> Right now<i class="s-rail" aria-hidden="true"></i></h2>${now}</section>` : ''}
 
   <section class="s-sec s-contact" id="contact" data-in>
-    <h2><b>07</b> Contact</h2>
+    <h2><b>07</b> Contact<i class="s-rail" aria-hidden="true"></i></h2>
     <p class="s-contact-line">Available for a full-time software engineering internship, ${esc(
       String(p.availability || site.availability || '').replace(/^full-time internship\s*[—–-]\s*/i, ''),
     )}, in ${esc(p.location || site.location)}.</p>

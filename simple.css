@@ -189,13 +189,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
    not a circular avatar, which is the one portrait treatment this site has
    always refused. */
 .s-portrait { position: relative; }
+/* A cut-out on the page's own ground — the source frame is pure white, and a
+   white plate on a near-black page reads as light mode leaking in. */
 .s-portrait img {
   display: block;
   width: 100%;
   height: auto;
-  filter: grayscale(1) contrast(1.06);
-  border: 1px solid var(--line);
 }
+.s-portrait { padding-bottom: 0.2rem; }
 .s-portrait figcaption {
   margin-top: 0.6rem;
   font: 500 0.52rem var(--mono);
@@ -212,8 +213,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
 }
 .s-portrait .pf-tl { top: -4px; left: -4px; border-right: 0; border-bottom: 0; }
 .s-portrait .pf-tr { top: -4px; right: -4px; border-left: 0; border-bottom: 0; }
-.s-portrait .pf-bl { bottom: 26px; left: -4px; border-right: 0; border-top: 0; }
-.s-portrait .pf-br { bottom: 26px; right: -4px; border-left: 0; border-top: 0; }
+.s-portrait .pf-bl { bottom: 30px; left: -4px; border-right: 0; border-top: 0; }
+.s-portrait .pf-br { bottom: 30px; right: -4px; border-left: 0; border-top: 0; }
 
 /* ---------- section nav ------------------------------------------ */
 
@@ -421,4 +422,196 @@ main { max-width: 78rem; margin: 0 auto; padding: 0 var(--pad) clamp(60px, 10vh,
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+.s-lede-more { margin-top: 0.9rem; }
+.s-lede-more a {
+  font: 500 0.58rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* =================================================================
+   Life
+   -----------------------------------------------------------------
+   The first pass was correct and inert: one accent used four times,
+   no hover anywhere, and an arrival so quiet you could not tell it
+   had happened. This is a scan page, not a dead one — the colour
+   does work now (the accent marks every reading, every rail and
+   every live link) and everything you can point at responds.
+
+   Still no gradient blobs, no glass, no emoji. The devices are the
+   ones the full site already uses: a hairline rail that draws, a
+   glowing node, an accent that means "this is a real thing".
+   ================================================================= */
+
+/* A wash behind the masthead — the halo the main hero carries. */
+.s-hero { position: relative; }
+.s-hero::before {
+  content: '';
+  position: absolute;
+  inset: -12% -20% 30% -20%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 60% at 22% 34%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%),
+    radial-gradient(40% 50% at 78% 10%, rgba(255, 255, 255, 0.05), transparent 72%);
+}
+
+/* ---------- section heads: the rail draws ------------------------ */
+
+.s-sec > h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  border-bottom: 0;
+  padding-bottom: 0;
+  margin-bottom: 1.4rem;
+}
+.s-rail {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 55%, transparent), var(--line));
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.s-anim [data-in].is-in .s-rail { transform: scaleX(1); transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s; }
+.s-anim [data-in]:not(.is-in) .s-rail { transform: scaleX(0); }
+html:not(.s-anim) .s-rail { transform: scaleX(1); }
+
+/* ---------- readings ---------------------------------------------- */
+
+.s-stat { position: relative; transition: background 0.35s; }
+.s-stat::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.s-anim [data-in].is-in .s-stat::before { transform: scaleX(1); }
+html:not(.s-anim) .s-stat::before { transform: scaleX(1); }
+.s-stat:nth-child(2)::before { transition-delay: 0.06s; }
+.s-stat:nth-child(3)::before { transition-delay: 0.12s; }
+.s-stat:nth-child(4)::before { transition-delay: 0.18s; }
+.s-stat:nth-child(n + 5)::before { transition-delay: 0.24s; }
+.s-stat:hover { background: var(--bg-2); }
+.s-stat b { transition: color 0.3s; }
+.s-stat:hover b { color: var(--accent); }
+
+/* ---------- cards respond ----------------------------------------- */
+
+.s-card {
+  transition: border-color 0.35s, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.35s;
+}
+.s-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  transform: translateY(-2px);
+}
+.s-card-shot img { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.s-card:hover .s-card-shot img { transform: scale(1.03); }
+.s-card h3 { transition: color 0.3s; }
+.s-card:hover h3 { color: var(--accent); }
+
+/* ---------- chips and links respond -------------------------------- */
+
+.s-chip { transition: border-color 0.28s, color 0.28s, background 0.28s; }
+.s-chip:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); color: var(--ink); }
+.s-chip-quiet:hover { background: color-mix(in srgb, var(--accent) 12%, var(--bg-2)); }
+
+.s-links a,
+.s-btn { transition: border-color 0.3s, color 0.3s, background 0.3s; }
+.s-links a span,
+.s-btn span { display: inline-block; margin-left: 0.5em; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.s-links a:hover span,
+.s-btn:hover span { transform: translate(3px, -1px); }
+.s-links a:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+.s-btn:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+
+/* ---------- the timeline gets its node ----------------------------- */
+
+.s-time-row { position: relative; transition: background 0.3s; }
+.s-time-row::before {
+  content: '';
+  position: absolute;
+  left: -13px;
+  top: 1.55rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--accent) 45%, transparent);
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+@media (min-width: 760px) { .s-time-row::before { opacity: 1; } }
+.s-time { position: relative; padding-left: 2px; }
+
+/* ---------- the status board and contact --------------------------- */
+
+.s-now-col { transition: background 0.35s; }
+.s-now-col:hover { background: var(--bg-2); }
+.s-now-col h3::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 0.55rem;
+  vertical-align: 0.05em;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.s-mail a { transition: color 0.3s, border-color 0.3s; }
+.s-mail a:hover { border-bottom-color: var(--accent); }
+
+/* The brand mark gets the site's own dot. */
+.s-brand::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 0.5em;
+  background: var(--accent);
+  vertical-align: 0.06em;
+}
+
+/* ---------- a livelier arrival ------------------------------------- */
+
+.s-anim [data-in] { opacity: 0; transform: translateY(20px); }
+.s-anim [data-in].is-in {
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.s-anim .s-stat,
+.s-anim .s-card,
+.s-anim .s-time-row { opacity: 0; transform: translateY(14px); transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.16, 1, 0.3, 1); }
+.s-anim [data-in].is-in .s-stat,
+.s-anim [data-in].is-in .s-card,
+.s-anim [data-in].is-in .s-time-row { opacity: 1; transform: none; }
+.s-anim [data-in].is-in .s-stat:nth-child(2),
+.s-anim [data-in].is-in .s-card:nth-child(2),
+.s-anim [data-in].is-in .s-time-row:nth-child(2) { transition-delay: 0.07s; }
+.s-anim [data-in].is-in .s-stat:nth-child(3),
+.s-anim [data-in].is-in .s-card:nth-child(3),
+.s-anim [data-in].is-in .s-time-row:nth-child(3) { transition-delay: 0.14s; }
+.s-anim [data-in].is-in .s-stat:nth-child(n + 4),
+.s-anim [data-in].is-in .s-card:nth-child(n + 4),
+.s-anim [data-in].is-in .s-time-row:nth-child(n + 4) { transition-delay: 0.21s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .s-anim [data-in],
+  .s-anim [data-in].is-in,
+  .s-anim .s-stat,
+  .s-anim .s-card,
+  .s-anim .s-time-row { opacity: 1; transform: none; transition: none; }
+  .s-rail, .s-stat::before { transform: scaleX(1); transition: none; }
+  .s-card:hover { transform: none; }
 }

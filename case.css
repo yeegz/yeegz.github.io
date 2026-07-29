@@ -1,0 +1,928 @@
+/* =============================================================
+   case.css — case-study routes (/work/, /work/<slug>/)
+
+   Loaded after styles.css, and deliberately additive: every colour,
+   face and rule below comes from the tokens already declared there.
+   The identity this extends, in one paragraph:
+
+     Archivo display at 850–900 weight, font-stretch 112–125%,
+     line-height 0.74–0.88, letter-spacing −0.045 to −0.075em, upper-
+     case — with a serif-italic <em> dropped onto its own line and
+     indented. Mono micro-labels at 8–10px, .12–.24em tracking. One
+     hairline rule, var(--line). Zero radius on chrome; radius only
+     where a real product is being depicted. Outlined ghost numerals
+     behind section heads.
+
+   Everything here is readable with JavaScript disabled. Motion is
+   additive only, and every animation is switched off under
+   prefers-reduced-motion.
+   ============================================================= */
+
+.cs-body {
+  --cs-gutter: clamp(24px, 5vw, 76px);
+  --cs-measure: 68ch;
+  --cs-accent: var(--accent);
+  /* The site header is position:fixed, and the contents bar sticks beneath it.
+     Both must be accounted for or an in-page jump lands with the section
+     heading hidden behind them. */
+  --cs-head-h: 74px;
+  --cs-toc-h: 62px;
+}
+
+/* The page tints toward the project's authored accent without letting a
+   project palette leak into the global token layer. */
+.cs-body ::selection { background: var(--cs-accent); color: var(--bg); }
+.cs-body :focus-visible { outline-color: var(--cs-accent); }
+
+.cs-head { background: transparent; }
+.cs-main { padding-top: clamp(96px, 12vh, 148px); }
+
+/* ---------- shared type ---------------------------------------- */
+
+.cs-sec-title,
+.cs-title,
+.wk-title {
+  font-family: var(--disp);
+  font-weight: 900;
+  font-stretch: 122%;
+  text-transform: uppercase;
+  letter-spacing: -0.055em;
+  line-height: 0.82;
+}
+
+/* The signature move: the serif italic drops to its own line and indents. */
+.cs-sec-title em,
+.cs-title em,
+.wk-title em {
+  display: block;
+  margin-left: 0.1em;
+  padding-left: 8%;
+  color: var(--cs-accent);
+  font-family: var(--serif);
+  font-style: italic;
+  font-stretch: normal;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: -0.015em;
+}
+
+.cs-h3 {
+  margin-bottom: 0.85rem;
+  color: var(--ink);
+  font: 500 0.62rem var(--mono);
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+}
+
+.cs-lead {
+  max-width: var(--cs-measure);
+  color: var(--ink-soft);
+  font-size: clamp(1.02rem, 1.5vw, 1.24rem);
+  line-height: 1.62;
+}
+
+.cs-prose p + p { margin-top: 1.1rem; }
+
+.cs-points { list-style: none; max-width: var(--cs-measure); margin-top: 1.3rem; }
+.cs-points li {
+  position: relative;
+  padding-left: 1.5rem;
+  color: var(--ink-soft);
+  line-height: 1.62;
+}
+.cs-points li + li { margin-top: 0.75rem; }
+.cs-points li::before {
+  content: "";
+  position: absolute;
+  top: 0.66em;
+  left: 0;
+  width: 8px;
+  height: 1.5px;
+  background: var(--cs-accent);
+}
+
+/* ---------- hero ------------------------------------------------ */
+
+.cs-hero {
+  padding: 0 var(--cs-gutter) clamp(38px, 6vh, 64px);
+  border-bottom: 1px solid var(--line);
+}
+
+.cs-eyebrow {
+  display: flex;
+  gap: 0.6em;
+  align-items: center;
+  margin-bottom: clamp(18px, 3vh, 30px);
+  color: var(--muted);
+  font: 500 0.58rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cs-eyebrow a { color: var(--muted); border-bottom: 1px solid transparent; transition: color 0.3s, border-color 0.3s; }
+.cs-eyebrow a:hover { color: var(--ink); border-bottom-color: var(--cs-accent); }
+.cs-eyebrow span { color: var(--cs-accent); }
+
+.cs-title {
+  font-size: clamp(3.4rem, 11vw, 9rem);
+  letter-spacing: -0.065em;
+  line-height: 0.78;
+}
+
+.cs-tagline {
+  max-width: 40ch;
+  margin-top: clamp(14px, 2.4vh, 24px);
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.25rem, 2.6vw, 2rem);
+  line-height: 1.24;
+}
+.cs-tagline em { color: var(--cs-accent); }
+
+/* ---------- destinations --------------------------------------- */
+
+.cs-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: clamp(26px, 4vh, 40px);
+}
+.cs-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  min-height: 44px;
+  padding: 0.72rem 1.15rem;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font: 500 0.6rem var(--mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: border-color 0.3s, background 0.3s, color 0.3s;
+}
+.cs-link:hover { border-color: var(--cs-accent); background: color-mix(in srgb, var(--cs-accent) 9%, transparent); }
+/* A live store listing is the strongest evidence on the page — it leads. */
+.cs-link-store {
+  border-color: color-mix(in srgb, var(--cs-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--cs-accent) 12%, transparent);
+}
+.cs-link .cta-arr { color: var(--cs-accent); }
+
+/* ---------- quick facts ---------------------------------------- */
+
+/* Flex, not grid: `auto-fit` sizes the track count from the container width,
+   so a fact count that does not divide evenly leaves live tracks showing the
+   container's rule colour as empty cells. Flex items only ever occupy the
+   space they need, so the panel cannot render a cell that holds nothing. */
+.cs-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  margin-top: clamp(30px, 5vh, 48px);
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.cs-facts > div {
+  flex: 1 1 clamp(150px, 15%, 210px);
+  padding: 1.05rem 1.15rem;
+  background: var(--bg);
+}
+.cs-facts dt {
+  margin-bottom: 0.5rem;
+  color: var(--muted);
+  font: 500 0.53rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cs-facts dd { color: var(--ink); font-size: 0.92rem; line-height: 1.45; }
+
+.cs-stack {
+  margin-top: -1px;
+  padding: 1.15rem 1.15rem 1.25rem;
+  border: 1px solid var(--line);
+}
+.cs-stack dt {
+  margin-bottom: 0.75rem;
+  color: var(--muted);
+  font: 500 0.53rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cs-stack dd { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.cs-chip {
+  padding: 0.34rem 0.6rem;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---------- contents ------------------------------------------- */
+
+.cs-toc {
+  position: sticky;
+  top: var(--cs-head-h);
+  z-index: 40;
+  padding: 0.85rem var(--cs-gutter);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(9px);
+}
+.cs-toc-l {
+  margin-bottom: 0.55rem;
+  color: var(--muted);
+  font: 500 0.52rem var(--mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.cs-toc ol {
+  display: flex;
+  gap: 1.15rem;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: none;
+  counter-reset: toc;
+}
+.cs-toc ol::-webkit-scrollbar { display: none; }
+.cs-toc a {
+  display: block;
+  padding: 0.3rem 0;
+  color: var(--muted);
+  font: 500 0.58rem var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-bottom: 1px solid transparent;
+  transition: color 0.28s, border-color 0.28s;
+}
+.cs-toc a:hover, .cs-toc a.is-current { color: var(--ink); border-bottom-color: var(--cs-accent); }
+
+/* Reading progress. Purely decorative, hidden from assistive tech. */
+.cs-progress {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 60;
+  height: 2px;
+  width: 100%;
+  transform: scaleX(var(--p, 0));
+  transform-origin: 0 50%;
+  background: var(--cs-accent);
+  pointer-events: none;
+}
+
+/* ---------- sections ------------------------------------------- */
+
+.cs-section {
+  position: relative;
+  scroll-margin-top: calc(var(--cs-head-h) + var(--cs-toc-h));
+  padding: clamp(56px, 9vh, 104px) var(--cs-gutter);
+  border-bottom: 1px solid var(--line);
+}
+.cs-sec-head { margin-bottom: clamp(28px, 4.5vh, 46px); }
+.cs-sec-title { font-size: clamp(2.1rem, 5.4vw, 4.3rem); }
+
+.cs-section .sec-label {
+  display: inline-block;
+  margin-bottom: 1.1rem;
+  color: var(--cs-accent);
+}
+
+/* ---------- role split ----------------------------------------- */
+
+.cs-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: clamp(28px, 4vw, 56px);
+}
+.cs-ticks { list-style: none; }
+.cs-ticks li {
+  position: relative;
+  padding-left: 1.6rem;
+  color: var(--ink-soft);
+  line-height: 1.58;
+}
+.cs-ticks li + li { margin-top: 0.7rem; }
+.cs-ticks li::before {
+  content: "";
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border-left: 1.5px solid var(--cs-accent);
+  border-bottom: 1.5px solid var(--cs-accent);
+  rotate: -45deg;
+}
+/* Not-owned reads as an honest subtraction, not an achievement. */
+.cs-ticks-muted li { color: var(--muted); }
+.cs-ticks-muted li::before {
+  border: 0;
+  top: 0.72em;
+  width: 9px;
+  height: 1.5px;
+  rotate: none;
+  background: var(--muted-2);
+}
+
+/* ---------- card grids ----------------------------------------- */
+
+.cs-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.cs-card { padding: 1.5rem 1.4rem; background: var(--bg); }
+.cs-card-t {
+  margin-bottom: 0.7rem;
+  color: var(--ink);
+  font: 500 0.6rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.cs-card p { color: var(--ink-soft); font-size: 0.93rem; line-height: 1.6; }
+
+/* ---------- flow ------------------------------------------------ */
+
+.cs-flow-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  list-style: none;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.cs-step { flex: 1 1 218px; position: relative; padding: 1.6rem 1.35rem; background: var(--bg); }
+.cs-step-n {
+  display: block;
+  margin-bottom: 0.85rem;
+  color: transparent;
+  -webkit-text-stroke: 1.2px var(--cs-accent);
+  font: 900 2.3rem/1 var(--disp);
+  letter-spacing: -0.05em;
+}
+.cs-step-t {
+  margin-bottom: 0.55rem;
+  font: 500 0.6rem var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.cs-step p { color: var(--ink-soft); font-size: 0.9rem; line-height: 1.58; }
+
+figcaption {
+  margin-top: 1.1rem;
+  color: var(--muted);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+figcaption b {
+  margin-right: 0.7em;
+  color: var(--cs-accent);
+  font: 500 0.55rem var(--mono);
+  font-style: normal;
+  letter-spacing: 0.18em;
+}
+
+/* ---------- architecture ---------------------------------------- */
+
+.cs-arch-board {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.cs-arch-group { padding: 1.4rem 1.25rem; background: var(--bg); }
+/* Tiers are distinguished by weight and rule, never by colour alone. */
+.cs-arch-group[data-tier="client"] { background: color-mix(in srgb, var(--cs-accent) 5%, var(--bg)); }
+.cs-arch-group[data-tier="server"] { background: var(--bg-2); }
+.cs-arch-group[data-tier="external"] { border-top: 2px dashed color-mix(in srgb, var(--muted) 45%, transparent); }
+.cs-arch-label {
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--cs-accent);
+  font: 500 0.56rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cs-arch-nodes { list-style: none; }
+.cs-arch-nodes li {
+  padding: 0.42rem 0;
+  color: var(--ink-soft);
+  font-size: 0.87rem;
+  line-height: 1.45;
+}
+.cs-arch-nodes li + li { border-top: 1px solid var(--line-soft); }
+.cs-arch-note {
+  margin-top: 0.9rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.cs-arch-edges {
+  margin-top: 1.5rem;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+.cs-arch-edges li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: baseline;
+  color: var(--muted);
+  font: 500 0.6rem var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cs-arch-edges b { color: var(--ink-soft); font-weight: 500; }
+.cs-arch-edges span { color: var(--muted-2); text-transform: none; letter-spacing: 0; font-family: var(--sans); }
+
+/* ---------- challenges ------------------------------------------ */
+
+.cs-challenge { padding-top: clamp(30px, 5vh, 54px); }
+.cs-challenge + .cs-challenge { margin-top: clamp(30px, 5vh, 54px); border-top: 1px solid var(--line); }
+.cs-challenge-n {
+  color: var(--cs-accent);
+  font: 500 0.57rem var(--mono);
+  letter-spacing: 0.22em;
+}
+.cs-challenge-t {
+  max-width: 26ch;
+  margin: 0.7rem 0 clamp(20px, 3vh, 32px);
+  font-family: var(--disp);
+  font-weight: 800;
+  font-stretch: 116%;
+  font-size: clamp(1.5rem, 3.1vw, 2.5rem);
+  line-height: 0.94;
+  letter-spacing: -0.038em;
+}
+.cs-challenge-t em { color: var(--cs-accent); font-stretch: normal; }
+.cs-challenge-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 268px), 1fr));
+  gap: clamp(20px, 2.6vw, 38px);
+}
+.cs-cbeat p:not(.cs-beat-l) { color: var(--ink-soft); font-size: 0.93rem; line-height: 1.62; }
+.cs-beat-l {
+  margin-bottom: 0.6rem;
+  color: var(--muted);
+  font: 500 0.53rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cs-cbeat-out { border-left: 2px solid var(--cs-accent); padding-left: 1.1rem; }
+.cs-cbeat-out p:not(.cs-beat-l) { color: var(--ink); }
+
+/* ---------- decisions ------------------------------------------- */
+
+.cs-decisions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.cs-decision { position: relative; padding: 1.7rem 1.45rem; background: var(--bg); }
+.cs-dec-n {
+  margin-bottom: 0.9rem;
+  color: transparent;
+  -webkit-text-stroke: 1.2px var(--muted-2);
+  font: 900 2rem/1 var(--disp);
+  letter-spacing: -0.05em;
+}
+.cs-decision p { color: var(--ink-soft); font-size: 0.9rem; line-height: 1.6; }
+.cs-decision p + p { margin-top: 0.75rem; }
+.cs-dec-chose, .cs-dec-alt, .cs-dec-cost { color: var(--ink) !important; }
+.cs-dec-chose span, .cs-dec-alt span, .cs-dec-cost span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--muted);
+  font: 500 0.5rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cs-dec-chose { color: var(--cs-accent) !important; }
+
+/* ---------- testing / results ----------------------------------- */
+
+.cs-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  margin-top: clamp(24px, 4vh, 38px);
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.cs-metrics > * { flex: 1 1 180px; padding: 1.35rem 1.2rem; background: var(--bg); }
+.cs-metrics dt {
+  margin-bottom: 0.55rem;
+  color: var(--muted);
+  font: 500 0.53rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cs-metrics dd {
+  color: var(--ink);
+  font-family: var(--disp);
+  font-weight: 800;
+  font-stretch: 114%;
+  font-size: clamp(1.35rem, 2.6vw, 2.1rem);
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+.cs-metrics-lg dd {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-stretch: normal;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  line-height: 1.58;
+  color: var(--ink-soft);
+}
+.cs-cases { margin-top: clamp(26px, 4vh, 40px); }
+
+/* ---------- lessons --------------------------------------------- */
+
+.cs-lessons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: clamp(26px, 3.4vw, 48px);
+}
+
+/* ---------- media ----------------------------------------------- */
+
+.cs-media { padding: clamp(48px, 8vh, 88px) var(--cs-gutter); border-bottom: 1px solid var(--line); }
+.cs-fig + .cs-fig { margin-top: clamp(38px, 6vh, 68px); }
+/* Radius only where a real product is depicted — the site's standing rule. */
+.cs-fig img { width: 100%; border-radius: 14px; }
+
+/* ---------- related + cta --------------------------------------- */
+
+.cs-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.cs-rel {
+  flex: 1 1 210px;
+  display: block;
+  min-height: 96px;
+  padding: 1.5rem var(--cs-gutter);
+  background: var(--bg);
+  transition: background 0.3s;
+}
+.cs-rel:hover { background: var(--bg-2); }
+.cs-rel span {
+  display: block;
+  margin-bottom: 0.6rem;
+  color: var(--muted);
+  font: 500 0.53rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cs-rel b {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-stretch: 114%;
+  font-size: clamp(1.15rem, 2.2vw, 1.7rem);
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+.cs-rel:hover b { color: var(--cs-accent); }
+.cs-rel-next { text-align: right; }
+
+.cs-cta { padding: clamp(56px, 9vh, 104px) var(--cs-gutter); }
+.cs-cta h2 {
+  max-width: 20ch;
+  font-family: var(--disp);
+  font-weight: 900;
+  font-stretch: 122%;
+  font-size: clamp(1.9rem, 4.6vw, 3.4rem);
+  line-height: 0.88;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+.cs-cta p { max-width: 52ch; margin-top: 1.2rem; color: var(--ink-soft); }
+.cs-cta-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1.8rem; }
+.cs-cta-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  min-height: 44px;
+  padding: 0.72rem 1.15rem;
+  border: 1px solid var(--line);
+  font: 500 0.6rem var(--mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: border-color 0.3s;
+}
+.cs-cta-links a:hover { border-color: var(--cs-accent); }
+
+.cs-foot { padding: 1.6rem var(--cs-gutter); border-top: 1px solid var(--line); }
+
+/* ---------- /work index ----------------------------------------- */
+
+.wk-hero { padding: 0 var(--cs-gutter) clamp(40px, 7vh, 72px); border-bottom: 1px solid var(--line); }
+.wk-hero .sec-label { display: inline-block; margin-bottom: 1.2rem; color: var(--accent); }
+.wk-title { font-size: clamp(2.8rem, 8.4vw, 7rem); }
+.wk-lead { max-width: 60ch; margin-top: 1.6rem; color: var(--ink-soft); font-size: clamp(1rem, 1.4vw, 1.15rem); }
+
+.wk-list { list-style: none; }
+.wk-card {
+  display: block;
+  position: relative;
+  padding: clamp(34px, 5.5vh, 62px) var(--cs-gutter);
+  border-bottom: 1px solid var(--line);
+  transition: background 0.35s;
+}
+.wk-card:hover { background: color-mix(in srgb, var(--cs-accent) 5%, transparent); }
+.wk-no {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--muted-2);
+  font: 900 clamp(2.2rem, 4vw, 3.4rem)/1 var(--disp);
+  letter-spacing: -0.06em;
+  transition: -webkit-text-stroke-color 0.35s;
+}
+.wk-card:hover .wk-no { -webkit-text-stroke-color: var(--cs-accent); }
+.wk-name {
+  margin: 0.5rem 0 0.4rem;
+  font-family: var(--disp);
+  font-weight: 900;
+  font-stretch: 122%;
+  font-size: clamp(2.2rem, 6.5vw, 5rem);
+  line-height: 0.86;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+}
+.wk-tag {
+  max-width: 46ch;
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.05rem, 1.9vw, 1.5rem);
+}
+.wk-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 1.1rem;
+  max-width: 780px;
+  margin-top: 1.6rem;
+}
+.wk-meta dt {
+  margin-bottom: 0.4rem;
+  color: var(--muted);
+  font: 500 0.52rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.wk-meta dd { color: var(--ink-soft); font-size: 0.9rem; }
+.wk-open {
+  margin-top: 1.5rem;
+  color: var(--cs-accent);
+  font: 500 0.58rem var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.wk-archive { padding: clamp(56px, 9vh, 104px) var(--cs-gutter); }
+.wk-arch-list { list-style: none; margin-top: clamp(24px, 4vh, 40px); }
+.wk-arch {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 1.2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line);
+}
+.wk-arch-y { color: var(--muted); font: 500 0.58rem var(--mono); letter-spacing: 0.14em; }
+.wk-arch h3 {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-stretch: 114%;
+  font-size: clamp(1.1rem, 2.1vw, 1.55rem);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+.wk-arch h3 a:hover { color: var(--accent); }
+.wk-arch-b { max-width: 62ch; margin-top: 0.5rem; color: var(--ink-soft); font-size: 0.92rem; line-height: 1.58; }
+.wk-arch-m { margin-top: 0.6rem; color: var(--muted); font: 500 0.53rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
+
+/* ---------- light theme ----------------------------------------- */
+
+html[data-theme="light"] .cs-facts > div,
+html[data-theme="light"] .cs-card,
+html[data-theme="light"] .cs-step,
+html[data-theme="light"] .cs-decision,
+html[data-theme="light"] .cs-metrics > div,
+html[data-theme="light"] .cs-arch-group,
+html[data-theme="light"] .cs-rel,
+html[data-theme="light"] .cs-body { background: var(--bg); }
+html[data-theme="light"] .cs-arch-group[data-tier="server"] { background: var(--bg-2); }
+html[data-theme="light"] .cs-toc { background: color-mix(in srgb, var(--bg) 90%, transparent); }
+
+/* ---------- responsive ------------------------------------------ */
+
+@media (max-width: 760px) {
+  .cs-main { padding-top: clamp(76px, 11vh, 108px); }
+  .cs-title { font-size: clamp(2.7rem, 13vw, 4.4rem); }
+  .cs-sec-title { font-size: clamp(1.85rem, 8.6vw, 2.8rem); }
+  .cs-sec-title em { padding-left: 4%; }
+  .cs-challenge-body { gap: 22px; }
+  .cs-rel-next { text-align: left; }
+  .wk-arch { grid-template-columns: 1fr; gap: 0.4rem; }
+  .cs-toc ol { gap: 0.9rem; }
+}
+
+@media (max-width: 430px) {
+  .cs-facts { grid-template-columns: 1fr; }
+  .cs-links, .cs-cta-links { flex-direction: column; align-items: stretch; }
+  .cs-link, .cs-cta-links a { justify-content: space-between; }
+}
+
+@media (min-width: 1700px) {
+  .cs-body { --cs-gutter: clamp(76px, 5vw, 132px); }
+}
+
+/* Touch: nothing may depend on hover. */
+@media (hover: none), (pointer: coarse) {
+  .cs-toc { position: static; backdrop-filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-body *, .cs-body *::before, .cs-body *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .cs-progress { display: none; }
+}
+
+@media (forced-colors: active) {
+  .cs-step-n, .cs-dec-n, .cs-no { -webkit-text-stroke: 0; color: CanvasText; }
+  .cs-progress { display: none; }
+}
+
+@media print {
+  .cs-toc, .cs-progress, .site-head, .cs-related, .cs-cta { display: none; }
+  .cs-section { break-inside: avoid; border-bottom: 1px solid #999; }
+}
+
+/* ---------- mobile navigation ------------------------------------
+   The shared header hides .site-nav below 900px and hands over to the
+   homepage's hamburger drawer — but that drawer lives in index.html and is
+   driven by script.js, neither of which a case-study route loads. The result
+   was a phone header with nothing in it but the wordmark: no way to reach
+   Work, Skills, Education, Experience or Contact.
+
+   Rather than duplicate the drawer, the header goes static here (these pages
+   have no scroll choreography that needs it pinned) and the nav becomes a
+   scrollable row. That also drops the fixed-header offset to zero, so the
+   contents bar can stick to the very top. */
+@media (max-width: 900px) {
+  .cs-body { --cs-head-h: 0px; }
+  .cs-head {
+    position: static;
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+    padding: 0.9rem var(--cs-gutter) 0;
+  }
+  .cs-head::before { display: none; }
+  .cs-main { padding-top: clamp(18px, 3vh, 30px); }
+
+  .cs-head .site-nav {
+    display: flex;
+    order: 3;
+    width: 100%;
+    gap: 1.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-top: 1px solid var(--line);
+    margin-top: 0.55rem;
+  }
+  .cs-head .site-nav::-webkit-scrollbar { display: none; }
+  .cs-head .site-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+  /* The superscript index is noise at this size and shrinks the label. */
+  .cs-head .site-nav sup { display: none; }
+}
+
+/* ---------- tap targets ------------------------------------------
+   WCAG 2.2 AA asks for 24x24 CSS px minimum. These all sat at 13–23px. */
+.cs-body .brand,
+.cs-foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.cs-eyebrow { min-height: 44px; }
+.cs-eyebrow a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.cs-toc a { padding: 0.62rem 0; }
+
+/* =============================================================
+   Signature devices + motion
+   -------------------------------------------------------------
+   These are the parts that make the page unmistakably this site
+   rather than a well-set article: the outlined ghost numeral
+   behind each section head, the measuring rail with its tick comb
+   and accent spark, the registration crosses, and the reveal that
+   lifts each block in as it enters.
+
+   The reveal mirrors the homepage exactly — opacity 0→1, y 40→0,
+   0.95s, 0.08s stagger, power3.out, fired once at 88% of the
+   viewport — but runs on IntersectionObserver instead of GSAP.
+   That keeps the case routes off the 128KB animation vendor
+   bundle they otherwise have no use for.
+   ============================================================= */
+
+/* ---------- ghost numerals ---------------------------------- */
+
+.cs-section { overflow: clip; }          /* ghosts have overflowed a page before */
+.cs-ghost {
+  position: absolute;
+  right: -0.04em;
+  top: -0.16em;
+  z-index: 0;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(242, 239, 233, 0.05);
+  font: 900 clamp(8rem, 16vw, 15rem)/1 var(--disp);
+  font-stretch: 125%;
+  letter-spacing: -0.08em;
+  pointer-events: none;
+  user-select: none;
+}
+html[data-theme="light"] .cs-ghost { -webkit-text-stroke-color: rgba(16, 23, 17, 0.07); }
+.cs-sec-head, .cs-sec-body { position: relative; z-index: 1; }
+
+.wk-hero { position: relative; overflow: clip; }
+.wk-ghost { top: -0.28em; }
+
+/* ---------- rail -------------------------------------------- */
+
+.cs-sec-head .sec-rail { max-width: min(100%, 620px); }
+.cs-hero-rail { margin-top: clamp(1.8rem, 4vh, 2.6rem); }
+
+/* ---------- registration marks ------------------------------ */
+
+.cs-hero, .wk-hero { position: relative; }
+.cs-hero .reg, .wk-hero .reg {
+  top: -0.2rem;
+  font-size: 0.7rem;
+  color: var(--muted-2);
+}
+.cs-hero .reg-tl, .wk-hero .reg-tl { left: 0; }
+.cs-hero .reg-tr, .wk-hero .reg-tr { right: 0; }
+
+/* ---------- reveal ------------------------------------------
+   Hidden ONLY once case.js has run and set .cs-anim. If the
+   script never runs — blocked, errored, an extension — nothing
+   is ever hidden, so the page cannot be stranded blank. This is
+   deliberately safer than gating on a timeout. */
+
+.cs-anim [data-reveal] {
+  opacity: 0;
+  transform: translateY(40px);
+}
+.cs-anim [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+  /* approximates GSAP power3.out, which the homepage reveal uses */
+  transition: opacity 0.95s cubic-bezier(0.215, 0.61, 0.355, 1) var(--d, 0s),
+              transform 0.95s cubic-bezier(0.215, 0.61, 0.355, 1) var(--d, 0s);
+}
+
+/* The hairline that draws out of the boxed section label. */
+.cs-body .sec-label::after { width: 22vw; }
+.cs-anim .cs-body .sec-label::after,
+.cs-anim .sec-label::after {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 1.3s var(--ease-out) 0.25s;
+}
+.cs-anim .sec-label.drawn::after { transform: scaleX(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  /* Nothing is ever hidden waiting for a scroll it will not get. */
+  .cs-anim [data-reveal] { opacity: 1 !important; transform: none !important; }
+  .cs-anim .sec-label::after { transform: scaleX(1) !important; }
+}
+
+@media (forced-colors: active) {
+  .cs-ghost { display: none; }
+}

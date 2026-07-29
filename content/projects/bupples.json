@@ -1,0 +1,530 @@
+{
+  "slug": "bupples",
+  "name": "Bupples",
+  "tagline": "Group expense splitting with a cent-exact multi-currency ledger and scanned receipts.",
+  "summary": "Bupples is a social expense app for the people who actually have to settle up afterwards — housemates, trip groups, a table of friends splitting one receipt. A group creates a hangout, adds expenses, photographs the bill, taps the items each person had, and the app tracks who owes whom until the debts are cleared. I built it as sole developer: product design, the Flutter client, the Firestore data model and security rules, ninety-nine Cloud Functions, the receipt-reading pipeline, the subscription server, the native iOS and Android widgets, and the release tooling. The engineering that matters is the money. Every amount is stored as an integer number of minor units and every split runs through one shared kernel, so a remainder always lands somewhere deterministic instead of disappearing between two screens. It is live on the App Store and Google Play.",
+
+  "category": "Social finance app",
+  "role": "Sole developer — product design, Flutter client, Firebase backend, security rules, release",
+  "team": "Solo",
+  "timeline": "2026-02 – Present",
+  "status": "Live on the App Store and Google Play",
+  "platforms": ["iOS", "Android", "Web — product site and browser claim flow"],
+  "stack": [
+    "Flutter / Dart",
+    "Riverpod",
+    "Firestore + Security Rules",
+    "Cloud Functions (Node 22, TypeScript)",
+    "Firebase Auth, Storage, Messaging, Remote Config, Crashlytics",
+    "Vertex AI — Gemini 2.5 Flash",
+    "Google ML Kit text recognition (on device)",
+    "RevenueCat",
+    "Swift / SwiftUI / WidgetKit",
+    "Kotlin / Android RemoteViews",
+    "Firebase Hosting"
+  ],
+
+  "featured": true,
+  "order": 1,
+  "accent": "#86bd98",
+  "ground": "#050b07",
+
+  "links": [
+    {
+      "label": "App Store",
+      "href": "https://apps.apple.com/my/app/bupples/id6777620291",
+      "kind": "store",
+      "evidence": "iTunes lookup API: seller \"Yousof Selim\", genre Finance/Utilities, free, minimum iOS 15.5, first released 2026-07-02, version 1.2.5 released 2026-07-27."
+    },
+    {
+      "label": "Google Play",
+      "href": "https://play.google.com/store/apps/details?id=com.bupples.bupples",
+      "kind": "store",
+      "evidence": "Listing verified reachable; title \"Bupples\", subtitle \"Split costs with friends, minus the awkward.\" Android applicationId com.bupples.bupples (android/app/build.gradle.kts:51)."
+    },
+    {
+      "label": "Product site (landing page)",
+      "href": "https://bupples.web.app",
+      "kind": "live",
+      "evidence": "firebase.json hosting.public = 'public'; public/index.html is hand-written HTML with no Flutter bootstrap (grep for flutter_bootstrap|main.dart.js → 0). This is the marketing and legal site plus the /t browser claim flow, not the app running on the web."
+    },
+    {
+      "label": "Showcase repository — source is private",
+      "href": "https://github.com/yeegz/Bupples-showcase",
+      "kind": "showcase",
+      "evidence": "The source repository is private and licensed All Rights Reserved (README: \"Proprietary … Source is private; shared for review only\"), so the public link is the showcase mirror."
+    }
+  ],
+
+  "problem": {
+    "lead": "Splitting a bill is arithmetic. Settling one is a negotiation, and the arithmetic is what people argue about.",
+    "points": [
+      {
+        "title": "The number has to be identical on every phone",
+        "body": "A group expense is edited by several people at once, from several devices, some of them offline. If two screens disagree by a single cent, the argument is no longer about the bill — it is about whether the app can be trusted at all. That rules out anything that rounds at the display layer.",
+        "evidence": "CLAUDE.md standing rule: \"Money is integer minor units end to end … Never introduce float arithmetic on amounts.\""
+      },
+      {
+        "title": "Real receipts do not split evenly",
+        "body": "Equal splits are the easy case. The real one is a table where three people shared a starter, one person drank, tax and service charge sit at the bottom as percentages of everything above them, and the printed total has been rounded to the nearest five sen because the country retired its smallest coin.",
+        "evidence": "functions/src/receipt_math.ts:673 CASH_ROUNDING_STEPS = {MYR:5, CAD:5, AUD:5, NZD:10, CHF:5, SEK:100, NOK:100, DKK:50, ZAR:10}, with the comment explaining Malaysia's abolished 1 sen coin."
+      },
+      {
+        "title": "Most apps stop at the number",
+        "body": "Knowing you owe someone is not settling with them. The app has to hold a debt through a partial payment, a payment the other person has not confirmed yet, a payment routed through a third person by a fewest-transfers plan, and a bill that gets edited after the money has already moved.",
+        "evidence": "lib/features/settlement/domain/ledger.dart (394 lines) and simplified_decomposition.dart; settlement states include pending, confirmed, written-off and disputed."
+      },
+      {
+        "title": "Nobody wants to type a receipt in",
+        "body": "Itemised splitting only works if getting the items in is faster than doing the arithmetic in your head. That means reading a creased thermal receipt from a photograph — and doing it fast enough that the person holding the phone does not put it down.",
+        "evidence": "pubspec.yaml ML Kit comment: \"real text with real bounding boxes in tens of milliseconds, before the paid cloud extraction has finished its handshake\"."
+      }
+    ]
+  },
+
+  "contribution": {
+    "owned": [
+      "Product design and the whole interface, including the design system it is built from",
+      "The Flutter client: 656 Dart files under lib/, feature-first with a Flutter-free domain layer per feature",
+      "The money domain — parsing, splitting, the pairwise debt graph, settlement, multi-currency",
+      "The Firestore data model, 2,254 lines of Security Rules and the rules-emulator suite",
+      "99 Cloud Function handlers in TypeScript: callables, document triggers, scheduled jobs and the billing webhook",
+      "The receipt pipeline end to end — on-device OCR, cloud extraction, reconciliation, claiming, finalisation",
+      "The subscription and entitlement server, including gifting, lapse enforcement and grace handling",
+      "Native platform work: an AVFoundation QR scanner, a UITabBar platform view, and WidgetKit and RemoteViews widget extensions",
+      "Release engineering — signing, build-freshness verification, deploy runbooks and store submission",
+      "The hosted product site, its legal pages, and the browser claim flow at /t"
+    ],
+    "notOwned": [
+      "The managed platform. Firebase supplies authentication, the realtime document layer, storage, messaging and the functions runtime. I designed on top of it; I did not build it.",
+      "The models. Extraction quality comes from Gemini 2.5 Flash on Vertex AI and Google's on-device ML Kit recogniser. Mine is the pipeline around them: the quality gates, the prompts, the confidence threshold and the arithmetic that checks their output.",
+      "Store billing. RevenueCat handles receipt validation and subscription state with Apple and Google; I own the entitlement model on my side of the webhook.",
+      "Typefaces and icons. Fraunces, Hanken Grotesk and JetBrains Mono are bundled third-party variable fonts and the icon set is Hugeicons."
+    ]
+  },
+
+  "constraints": [
+    {
+      "title": "One developer, no reviewer",
+      "body": "Every layer is mine, which means nothing is caught by someone else reading it. The response was to write the rules down rather than remember them: standing engineering rules, a design contract that locks the type, radius, shadow and motion ladders, and five performance budgets that block a release build. Rules in a file outlast the memory of why they existed.",
+      "evidence": "CLAUDE.md and AGENTS.md standing rules; DESIGN.md \"anti-slop contract\"; docs/PERF.md five budgets. Git shows 1,130 commits, all authored by one person."
+    },
+    {
+      "title": "Money cannot be eventually correct",
+      "body": "A social app can tolerate a stale avatar. A ledger cannot tolerate a stale balance, and it certainly cannot tolerate a payment that applies twice or not at all. This ruled out floating point, ruled out client-authored balances, and made idempotency a requirement of every operation that moves money rather than a refinement.",
+      "evidence": "functions/src/balance.ts header: the persisted server-side preference \"and ONLY that value\" decides what contributes; \"anything a client sends … is NEVER read for financial computation\". 74 runTransaction call sites across functions/src."
+    },
+    {
+      "title": "The iOS build stays pure Swift Package Manager",
+      "body": "No Podfile. Two plugins had already broken this build the same way, so any dependency that drags CocoaPods back in is a dependency that has to justify itself or be written by hand instead. It is a self-imposed constraint that costs native code and buys a build that keeps working.",
+      "evidence": "pubspec.yaml SPM comment naming mobile_scanner and workmanager as the two plugins that broke the build; ios/Runner/QrScannerPlugin.swift written as a platform channel because of it."
+    },
+    {
+      "title": "Every scan has a marginal cost",
+      "body": "The app is free with an optional subscription, and a cloud model call is billed per scan. A pipeline that always runs its most expensive read is a pipeline whose feature eventually gets switched off to save money. Accuracy had to be earned per receipt, not paid for on all of them.",
+      "evidence": "functions/src/receipt_scan.ts SCAN_TRUST_THRESHOLD 0.85, with the comment that paying for the second call on every scan \"is how a feature gets switched off\"."
+    }
+  ],
+
+  "flow": {
+    "caption": "One receipt, from the shutter to a settled balance.",
+    "steps": [
+      {
+        "title": "Photograph",
+        "body": "Blur and contrast gates reject an unreadable page before a model is ever paid for it. At most four pages, 1600 px on the long edge."
+      },
+      {
+        "title": "Read on device",
+        "body": "ML Kit returns real text with real bounding boxes in tens of milliseconds, so the progress the user sees is genuine rather than an animated guess."
+      },
+      {
+        "title": "Extract in the cloud",
+        "body": "A fast Gemini pass structures the page into line items, tax, service charge and totals. Its 0–1000 boxes are normalised into one 0–1 coordinate contract shared with the on-device pass."
+      },
+      {
+        "title": "Earn the second pass",
+        "body": "Below a 0.85 trust score, only the uncertain lines are re-read — zoomed crop, higher media resolution, an automatic thinking budget."
+      },
+      {
+        "title": "Reconcile",
+        "body": "Line arithmetic is checked against the printed totals using named, bounded tolerances including per-currency cash-rounding steps. Anything the checks cannot explain surfaces as a visible residual."
+      },
+      {
+        "title": "Claim",
+        "body": "Each member taps the items they had. The Dart preview and the TypeScript writer share the same invariants, so the share shown while tapping is the share that gets stored."
+      },
+      {
+        "title": "Finalise",
+        "body": "A callable writes the money server-side inside a transaction, allocating tax and service per item, and the group's balances move."
+      },
+      {
+        "title": "Settle",
+        "body": "Pair-level settle-up always reads the direct ledger. The fewest-payments plan is a separate view, and a payment recorded against it carries the debts it actually covers."
+      }
+    ]
+  },
+
+  "architecture": {
+    "caption": "What runs on the phone, what runs on the server, and where money is allowed to be written.",
+    "alt": "Bupples is a Flutter client on iOS and Android talking to Firebase. The client holds the interface, Riverpod state, a Flutter-free money domain layer, and Firestore offline persistence so writes queue when the network drops. Around it sit native surfaces I wrote directly: an AVFoundation QR scanner and a real UITabBar exposed to Flutter through platform channels, plus WidgetKit home, lock-screen and StandBy widgets on iOS and RemoteViews widgets on Android, sharing data through an App Group. The client reads and writes Firestore directly for everything that benefits from realtime listeners, but every write passes through 2,254 lines of Security Rules that bind authorisation to the Firebase auth uid rather than any client-supplied identifier. Anything money-critical or membership-critical does not go through rules at all: it goes to Cloud Functions on Node 22, which write with the Admin SDK. There are 99 deployed handlers — 58 callables, 27 Firestore document triggers, 13 scheduled jobs and one HTTP webhook — including a server mirror of the balance ledger and the exact receipt-claim arithmetic. Receipt reading is two-tier: Google ML Kit runs on the device for an instant first pass, then a Cloud Function calls Gemini 2.5 Flash on Vertex AI using Application Default Credentials, with a second more careful pass only when the first one is not trusted. Subscriptions run through RevenueCat on the device, and RevenueCat posts entitlement changes to an authenticated webhook, which writes the entitlement to Firestore where privileged callables re-read it before granting anything. Firebase Hosting serves a static product site with the legal pages, deep-link landings for join codes and profiles, and one genuinely interactive page: a browser claim flow that signs in anonymously and calls the same Cloud Functions the app does.",
+    "groups": [
+      {
+        "id": "client",
+        "label": "Flutter client — iOS and Android",
+        "nodes": [
+          "24 features, four layers each: domain / data / application / presentation",
+          "Riverpod providers and controllers",
+          "Money domain — parsing, split kernel, pairwise debt graph, settlement",
+          "Firestore offline persistence; writes queue and sync on reconnect",
+          "Remote-control gate — maintenance, force-update and degraded states"
+        ]
+      },
+      {
+        "id": "native",
+        "label": "Native surfaces",
+        "nodes": [
+          "AVFoundation QR scanner (platform channel)",
+          "UITabBar embedded as a Flutter platform view",
+          "WidgetKit extension — home, lock screen, StandBy",
+          "Android RemoteViews widget providers",
+          "App Group group.com.bupples.widgets"
+        ]
+      },
+      {
+        "id": "firebase",
+        "label": "Firebase — managed",
+        "nodes": [
+          "Auth — Apple, Google, email",
+          "Firestore — 25 top-level collections, 30 nested rule blocks",
+          "Security Rules — 2,254 lines, 26 helpers",
+          "16 composite indexes",
+          "Storage, Cloud Messaging, Crashlytics, Analytics",
+          "Remote Config — 15 parameters"
+        ]
+      },
+      {
+        "id": "functions",
+        "label": "Cloud Functions — Node 22, TypeScript",
+        "nodes": [
+          "58 callables — joins, settlements, receipts, ownership, entitlements",
+          "27 Firestore document triggers",
+          "13 scheduled jobs — auto-confirm, reminders, sweeps, rollovers",
+          "balance.ts — server mirror of the pairwise ledger",
+          "receipt_math.ts — exact claim arithmetic in BigInt"
+        ]
+      },
+      {
+        "id": "extraction",
+        "label": "Receipt extraction",
+        "nodes": [
+          "ML Kit text recognition — on device, first pass",
+          "Vertex AI · Gemini 2.5 Flash — fast structured pass",
+          "Vertex AI — accurate pass: thinking budget, zoomed crop",
+          "Merchant layout templates learned from repeat observations"
+        ]
+      },
+      {
+        "id": "billing",
+        "label": "Subscriptions",
+        "nodes": [
+          "RevenueCat SDK on device",
+          "revenueCatWebhook — shared secret from Secret Manager",
+          "customers/{uid} entitlement document",
+          "Scheduled lapse, grace, trial and win-back jobs"
+        ]
+      },
+      {
+        "id": "web",
+        "label": "Firebase Hosting",
+        "nodes": [
+          "Static product site and legal pages",
+          "/t — Turbo split claim in the browser, no install",
+          "/j, /te, /@ — deep-link landings",
+          "Universal Links and App Links"
+        ]
+      }
+    ],
+    "edges": [
+      { "from": "client", "to": "native", "label": "Platform channels; widget data through an App Group" },
+      { "from": "client", "to": "extraction", "label": "On-device OCR runs before the network call" },
+      { "from": "client", "to": "firebase", "label": "Direct reads and writes, every one checked by rules" },
+      { "from": "firebase", "to": "client", "label": "Realtime listeners, budgeted at ≤4 per joined hangout" },
+      { "from": "client", "to": "functions", "label": "Callables for anything money- or membership-critical" },
+      { "from": "functions", "to": "firebase", "label": "Admin SDK writes: joins, settlements, finalised receipts, ownership" },
+      { "from": "functions", "to": "extraction", "label": "Vertex AI with Application Default Credentials — no API key" },
+      { "from": "client", "to": "billing", "label": "Purchase and restore through the store" },
+      { "from": "billing", "to": "functions", "label": "Entitlement webhook, authenticated with a Secret Manager secret" },
+      { "from": "functions", "to": "billing", "label": "Live entitlement re-read before any privileged grant" },
+      { "from": "web", "to": "functions", "label": "The browser claim page calls the same callables" },
+      { "from": "web", "to": "firebase", "label": "Anonymous sign-in, then the same rules apply" }
+    ]
+  },
+
+  "challenges": [
+    {
+      "title": "Cent-exact money, and exactly one place that divides it",
+      "why": "A split is a division that rarely comes out even. Three people on a ten-ringgit bill, four on a bill ending in a stray cent, percentage splits, share-weighted splits, a bill two people paid at once. Every one produces a remainder, and every feature that handled its own remainder was a chance for the expense screen and the balance screen to disagree by a cent — and for a group's balances to stop summing to zero. Parsing was its own hazard before any division happened: multiplying a decimal by a hundred and rounding drifts in binary floating point, which turns 0.35 into 34 cents and 12.005 into 1200.",
+      "options": [
+        "Store amounts as doubles and round when displaying them — the obvious version, and the one whose specific failures are written into the file as the reason it was abandoned",
+        "Let each feature round its own way, which is what produces the two-screens-disagree bug",
+        "Integer minor units everywhere, with one shared kernel that every split calls"
+      ],
+      "solution": "Money is integer minor units end to end. Parsing does string-based integer arithmetic rather than touching a float at all, and is exponent-aware for currencies with zero, two or three decimal places. One file is the only place cents are distributed: a proportional distributor that gives leftover cents to the largest weights first, and an even splitter that gives them to the first sorted ids. Its own header says why it exists — one implementation shared by the expense split, the multi-payer who-paid editor and the settlement surplus maths, so no two call sites can drift. Expense shares return cents per participant for equal, exact, percentage and share methods and always sum back to the total; custom splits with some members pinned use largest-remainder rounding for the rest. Currencies are never added together: the ledger is keyed by currency and within each one the members' balances sum to zero.",
+      "tradeoff": "A shared kernel means no feature gets to invent a local rounding rule for the sake of a nicer-looking number. And the money format contract is not automatically shared across runtimes — it has hand-maintained mirrors in the Cloud Functions copy, the iOS widget and the Android widget provider, so a change to one has to land in all four.",
+      "validation": "The invariants are asserted rather than assumed: shares always sum to the expense total, and within each currency the members' net balances sum to zero. The rule is written into the repository's standing rules as law, so a later feature cannot quietly reintroduce a float on an amount.",
+      "result": "Balances agree across every screen and every device, and a rounding remainder always lands somewhere deterministic instead of vanishing. Multi-currency groups work without an exchange-rate feed, because nothing is ever converted.",
+      "evidence": "lib/core/utils/money.dart (Money.parseToCents string arithmetic, with the failing float cases named in-comment; scaleFor for ISO exponents); lib/features/settlement/domain/cents.dart (distributeCents / splitEvenCents, header quoted above); lib/features/session/domain/session_expense.dart:266 shares(); lib/features/session/domain/custom_split.dart; ledger.dart _byCurrency and netBalancesByCurrency; docs/APP_OVERVIEW.md §1 \"there is no FX conversion\"; CLAUDE.md money law."
+    },
+    {
+      "title": "A fewest-payments plan that could lose money",
+      "why": "There are two ledgers, not one. The direct ledger says who owes whom. The simplified plan solves for the fewest transfers — at most one less than the number of people — and to do that it reroutes money: it asks A to pay C when A never owed C, because A owed B and B owed C. When someone recorded a payment against a rerouted row, the ledger went looking for a direct A-to-C debt, found none, clamped the reduction to zero, and the payment simply disappeared. Both sides still showed the debt and the payer was invited to pay it again. It is the worst class of bug an expense app can have, because the app keeps insisting and the user knows they already paid.",
+      "options": [
+        "Delete the fewest-payments plan and show only direct debts — which loses the feature that makes settling a six-person trip bearable",
+        "Record the routed payment as a direct credit from payer to receiver — which invents a debt that never existed and breaks the zero-sum",
+        "Decompose the routed payment into a flow through the debt graph at the moment it is recorded, and store the edges it covers on the payment itself"
+      ],
+      "solution": "The third. When a payment is recorded against a rerouted row, it is decomposed into a flow through the owes graph and the covered edges are stored on the request; the ledger then reduces each of those real edges instead of hunting for a pair that does not exist. The soundness argument is per-node conservation: in a flow, every intermediate node's inflow equals its outflow, so only the payer's and the receiver's net positions move and nobody else's balance is touched. The existing per-edge clamp still applies on top, which bounds the failure mode — a stale or hostile decomposition can only ever under-apply, never manufacture a credit. The ledger validates the stored flow before trusting it and falls back to the old direct clamp if validation fails. The server keeps its own copy of the same computation, with a comment requiring the two apply loops stay line-for-line comparable.",
+      "tradeoff": "The payment record now carries derived data that can go stale if the underlying bills are edited afterwards. That is bounded rather than solved: validation plus the per-edge clamp means a stale decomposition under-applies and the balance stays owed — recoverable — instead of over-applying, which is not. It also adds a second implementation of the same arithmetic to keep in step.",
+      "validation": "A dedicated backend unit test covers the routed case. Under the repository's standing test doctrine, a behavioural fix does not count until its test has been verified red against the pre-fix code by reverting the fix and re-running it.",
+      "result": "Shipped in the 1.3.0 programme under financial and state integrity. The rule that came out of it is now written down: pair-level balance and settle-up UI always reads the direct ledger, and the simplified solver is only ever the fewest-payments plan view.",
+      "evidence": "lib/features/settlement/domain/simplified_decomposition.dart (226 lines; the comment states the defect and the conservation argument); lib/features/settlement/domain/ledger.dart _pairwiseOwes and validCoveredEdgeFlow; functions/src/balance.ts pairwiseOwes (\"EXACT mirror … keep the two apply loops line-for-line comparable\"); functions/test-unit/routed_settlement.test.mjs; docs/releases/1.3.0_program_report.md, \"Financial and state integrity (Priority 0)\"; docs/audits/perf-rework-2026-07/COMPLETION_REPORT.md for the red-first doctrine."
+    },
+    {
+      "title": "Receipt claiming has to agree to the sen, in two languages",
+      "why": "When a table splits a scanned receipt, each person taps the items they had and sees their share update immediately. The preview is computed on the phone in Dart; the money is written by a Cloud Function in TypeScript. Two implementations of the same arithmetic in two runtimes, and if they disagree by one unit the receipt shows one number and the ledger stores another. The arithmetic itself is not simple either: tax and service charge have to ride per item so an item only carries its own proportional slice, items can be claimed by more people than ordered them, some items are claimed by nobody and have to stay in a pot, and real bills do not add up — Malaysia retired the one sen coin, so a cash total rounds to the nearest five sen and prints the adjustment, or on plenty of tills does not print it at all.",
+      "options": [
+        "Compute everything server-side and drop the live preview — which means tapping an item and waiting for a round trip",
+        "Use floating-point percentages and reconcile with a tolerance at the end — a general fuzz factor is exactly how a real thirty-sen error gets absorbed and shipped as truth",
+        "Exact rational arithmetic over integers, implemented twice against one written contract, with the same invariants property-tested on both sides"
+      ],
+      "solution": "Both implementations work in integer minor units and use exact rational arithmetic over big integers, so rounding is deterministic in both runtimes rather than dependent on either one's float behaviour. The invariants are named in both files and hold for any input: member subtotals plus the unclaimed pot equal the item total exactly, with over-claims clamped first; tax and service allocated per member plus the unallocated remainder equal tax plus service exactly; splitting the remainder equally conserves the pot exactly. Cash rounding is a per-currency table of named steps rather than a tolerance, and the reconciler's stated design rule is that tolerances are named, bounded and enumerated — anything the checks cannot explain comes out as an explicit residual for a human to resolve, never as a silent adjustment.",
+      "tradeoff": "Roughly sixteen hundred lines of the same arithmetic exist twice and must change together. Nothing in the toolchain enforces that; only the tests, the shared invariant list and a comment at the top of each file do.",
+      "validation": "Property tests over the named invariants on both sides, plus targeted unit tests for reconciliation, tax and service allocation, and handwritten tip inference.",
+      "result": "The share a person watches change while they tap items is the share the ledger stores. A receipt whose printed total genuinely disagrees with its own lines surfaces that as a residual instead of quietly absorbing it into someone's balance.",
+      "evidence": "functions/src/receipt_math.ts (1,000 lines) and lib/features/session/domain/receipt_claims.dart (615 lines), whose headers state the shared contract and the property-tested invariants; CASH_ROUNDING_STEPS at receipt_math.ts:673 and the \"no general fuzz factor\" design rule; functions/test-unit/receipt_reconcile.test.mjs, allocate_tax_service.test.mjs, tip_inference.test.mjs."
+    },
+    {
+      "title": "The trust boundary: the client can ask, the server decides",
+      "why": "Every figure in the app derives from documents that phones write. The natural Firestore shape lets a member edit their own membership row — and since money is keyed to membership, editing membership edits money. Session ids that can be listed leak private groups. And the operations that matter arrive over mobile networks where a retry, a double tap or a resumed background write is normal, so an operation that applies twice is not a rare case to design against later.",
+      "options": [
+        "Trust the client and reconcile afterwards — an expense app cannot reconcile a hostile write after the fact",
+        "Route every write through Cloud Functions — which gives up the realtime listeners that make shared balances feel live",
+        "Rules that bind every write to the caller's uid, plus server-only fields clients cannot touch at all, plus idempotent callables for the operations that must not double-apply"
+      ],
+      "solution": "The third, drawn as an explicit boundary. Authorisation binds to the Firebase auth uid and never to a client-supplied member id. Sessions cannot be listed — a session is readable only through an unguessable id reached via a join-code lookup. Joining goes through a Cloud Function using the Admin SDK, so a client can never grow the authorised-uid list itself; a subset guard prevents the self-leave branch being used to evict the host or swap in another uid. Expenses are owner-scoped: the creator or the host may edit, and everyone else files a change request. The host field is server-only, and ownership moves only through a callable so the hand-off is audited and notified. Paid cosmetic frames are denied to clients outright in the rules; the only route onto one is a callable that re-reads the live entitlement first. On the server, 74 transactions carry the write-critical paths and idempotency is committed inside the transaction rather than checked before it — a double-tapped claim returns an 'already done' result instead of applying twice.",
+      "tradeoff": "The rules file is a second description of the domain's shape. Add a field to an expense and it has to be added to the rules' payload validator too, or the write is rejected in production and nowhere else. That cost is paid down with an emulator suite rather than with looser rules.",
+      "validation": "25 Firestore rules test files run against the emulator alongside 44 backend unit test files. I also ran a ten-domain adversarial security audit against my own shipped code at version 1.1.1 in July 2026; it scored the app five out of ten at that point and produced a register of findings.",
+      "result": "The audit's highest finding — a member could rewrite the authorised-uid list through the self-leave branch and evict the host — is closed in the current rules, with the attack it prevents named in the comment above the guard. The register is not fully closed, and what is still open is stated in the lessons below rather than left out.",
+      "evidence": "firestore.rules — 2,254 lines / 128 KB, 26 helpers; header comment lines 3–25 for the authorisation model; the hasAll subset guard on authedUids; clientEquippableFrame and the equipProFrame callable; hostUid server-only via transferOwnership (~line 210). functions/src: 74 runTransaction call sites, 164 mentions of idempotency across 14 files; offline_claim.ts returning {kind:'already'}. docs/audits/SECURITY_AUDIT.md, committed 2026-07-16 at 1.1.1+119."
+    },
+    {
+      "title": "Reading a receipt twice, and only paying for the second read when it is worth it",
+      "why": "A photographed receipt is skewed, creased, thermally faded, often bilingual, and sometimes has a tip written on it in pen. One model call at maximum quality reads it well and costs money and seconds on every single scan, including the clean ones. A cheap call is fast and wrong exactly where it matters — the line with the price on it. And a progress indicator that sits still for eight seconds reads as a broken app, whatever it is doing underneath.",
+      "options": [
+        "Cloud extraction on every scan at full quality — slow first frame, and a per-scan bill on a free app",
+        "On-device OCR only — it gives text and boxes, but not structure: which line is an item, which is service charge, which is the total",
+        "Two tiers with a confidence gate, and an on-device pass in front of both so progress is real"
+      ],
+      "solution": "ML Kit runs on the device first and returns real text with real bounding boxes in tens of milliseconds, before the cloud call has even finished its handshake — which is what makes honest progressive processing possible instead of a fake progress bar. Then a fast cloud pass with thinking switched off structures the page. If its trust score clears 0.85 the scan is finished. Below that, a second pass earns its cost: an automatic thinking budget, higher media resolution, and a zoomed crop of only the uncertain lines rather than the whole page again. The whole thing is bounded — per-call deadlines of 30 and 25 seconds inside a 60-second callable timeout, four pages maximum, a 1600-pixel long edge, and blur and contrast gates that reject a photograph before it is ever sent. The model's coordinates come back in a 0–1000 space and are normalised into one shared 0–1 contract, with out-of-order coordinates sorted rather than dropped. Merchants whose layouts recur build a template that hints the prompt.",
+      "tradeoff": "Two prompt paths and two failure paths to maintain. And the accurate tier currently points at the same model as the fast one, pending a stronger one being provisioned, so today the second pass buys thinking budget and a zoomed crop rather than a larger model.",
+      "validation": "Extraction is not trusted on its own: the lines land in the reconciler, which checks the line arithmetic against the printed totals and refuses to absorb an unexplained difference. Scanning is also behind a Remote Config flag, so it can be switched off in production without shipping a build.",
+      "result": "Real text appears on screen within about a second of the shutter, and the expensive read is paid for only on the receipts that need it — which is what keeps the feature switched on.",
+      "evidence": "functions/src/receipt_scan.ts: SCAN_MODEL_PRIMARY / SCAN_MODEL_ACCURATE (both gemini-2.5-flash today, with an in-file note to point the accurate tier at a stronger model once provisioned), SCAN_TRUST_THRESHOLD 0.85, SCAN_FALLBACK_ITEM_CONFIDENCE 0.7, PAGE_MAX_EDGE 1600, MAX_SCAN_PAGES 4, BLUR_SHARPNESS 2.2, LOW_CONTRAST_STDEV 28; functions/src/receipt_merchant.ts for template learning; functions/src/index.ts:226–230 Vertex AI init with Application Default Credentials; pubspec.yaml ML Kit comment; remoteconfig.template.json parameter receipt_scan_enabled."
+    }
+  ],
+
+  "decisions": [
+    {
+      "title": "Entitlements are server truth",
+      "chose": "RevenueCat webhooks into a server-held entitlement, re-read before any privileged action",
+      "because": "A purchase state the client reports is a purchase state the client can be persuaded to lie about, and the paid cosmetics are the visible reward, so they are the obvious target. The rules deny a client-written frame id outright; the only route onto one is a callable that reads the live entitlement document first. The webhook is authenticated with a shared secret held in Secret Manager. Scheduled jobs then handle the parts a purchase SDK does not: lapse enforcement, expiring perks, grace status, trial reminders and gifting between subscribers.",
+      "instead": "Trusting the purchase SDK's cached entitlement on the device",
+      "cost": "Entitlement changes take a network round trip and depend on a webhook being reachable, so a subscriber who upgrades in a tunnel sees their perks a moment after the server hears about it.",
+      "evidence": "firestore.rules clientEquippableFrame comment (\"Pro frame ids are DENIED to clients — the only route is the equipProFrame callable which re-checks the live entitlement\"); functions/src/index.ts revenueCatWebhook with REVENUECAT_WEBHOOK_AUTH from Secret Manager; resetExpiredProPerks, getProLapseGraceStatus, trialReminderNotifier, winBackChurnedPro, giftProFromSubscriber, moveProEntitlementLink; lib/features/pro/data/billing_service.dart."
+    },
+    {
+      "title": "A pure Swift Package Manager iOS build, and native code where a plugin would break it",
+      "chose": "Writing the camera scanner and the tab bar natively rather than adding plugins",
+      "because": "Two plugins had already broken this build the same way, so the QR scanner is a hand-written AVFoundation platform channel instead of a dependency. The tab bar follows the same reasoning from the other direction: iOS 26 draws its own material, so the app embeds a genuine UITabBar as a platform view and lets the operating system draw it, rather than imitating the material in Dart and getting it subtly wrong on every OS update.",
+      "instead": "Adding the published plugin and accepting a Podfile",
+      "cost": "Native code I own on two platforms and have to maintain across OS releases. One dependency had to come back regardless — the on-device OCR is CocoaPods-based — so it ships with a written three-step rollback in case it stops surviving an iOS build.",
+      "evidence": "pubspec.yaml SPM comment naming mobile_scanner and workmanager; ios/Runner/QrScannerPlugin.swift (\"Deliberately native (AVFoundation) so the project keeps its SPM Firebase setup free of a CocoaPods camera plugin\"); ios/Runner/BupplesNativeTabBar.swift (\"Nothing here imitates the material; the OS draws it\"); the ML Kit rollback steps in pubspec.yaml."
+    },
+    {
+      "title": "A country-neutral core with regional adapters",
+      "chose": "Treating Malaysian behaviour as one adapter among many rather than the default",
+      "because": "The app was built in Malaysia and its first bills were in ringgit, which is precisely how a currency becomes a hardcoded fallback and a group in Singapore ends up looking at RM. Region resolution has a documented provenance ladder, currency and cash-rounding behaviour are per-currency tables, and the standing rule forbids hardcoding the local currency as a fallback in new code. Multi-currency then falls out of the same discipline: each currency is its own independent ledger and nothing is ever converted, because a wrong exchange rate inside a shared bill is worse than no exchange rate at all.",
+      "instead": "Shipping the local currency as the default and generalising later",
+      "cost": "Every money surface has to carry a currency and know its exponent, and the display contract now has four hand-maintained mirrors — the Dart formatter, the Cloud Functions copy, the iOS widget and the Android widget provider — which have to change together.",
+      "evidence": "CLAUDE.md: \"Any country-specific system (MYR, DuitNow, Malaysian examples) is a regional adapter behind the country-neutral core — never the default … Never hardcode RM/MYR as a fallback in new code\"; lib/core/region/region_source.dart provenance ladder; lib/core/utils/currencies.dart (466 lines); docs/APP_OVERVIEW.md §1; the four-mirror format note in CLAUDE.md."
+    },
+    {
+      "title": "Timezone names, never offsets",
+      "chose": "Persisting the user's IANA zone name and resolving the local hour on the server at send time",
+      "because": "An offset is only correct until daylight saving moves. A London account that reported +0 in February had its nine o'clock reminder land at ten for the whole of March. A zone name resolves the exact local hour on Node, which has full ICU data, at the moment the job runs.",
+      "instead": "Sending the device's UTC offset along with the preferred time",
+      "cost": "A platform dependency on the client purely to read the zone name, and a set of DST-boundary tests that have to be kept honest.",
+      "evidence": "pubspec.yaml flutter_timezone justification, which names the bug verbatim; functions/src/just_you_zone.ts (DST_SEARCH_MARGIN_MINUTES, HOURLY_TICK_MS); functions/test-unit/just_you_dst.test.mjs, just_you_timezone.test.mjs, just_you_zone.test.mjs."
+    },
+    {
+      "title": "Cloud Functions are deployed by name",
+      "chose": "Naming every function in the deploy command and keeping the order in a runbook",
+      "because": "There are 99 handlers in one codebase. A bare functions deploy treats the deployed set as something to reconcile against the local build, so anything the build does not emit that day is removed — on a backend that moves money, that is a live outage rather than a tidy-up. The rule is written into the repository's standing rules; rules and index deploys are exempt because they are whole-file replacements anyway. Release steps live in scripts that verify build freshness and signing configuration rather than in someone's memory.",
+      "instead": "The one-line deploy that every Firebase tutorial teaches",
+      "cost": "Long deploy commands, and a new function has to be named explicitly or it silently never ships. The checklist trades a loud failure for a quiet one, so the runbook has to list the order.",
+      "evidence": "CLAUDE.md standing rules (\"NEVER bare --only functions\"); 99 handlers enumerated from functions/src/*.ts; tool/verify_build_freshness.sh, scripts/check_release_config.sh, SHIP_CHECKLIST.md, docs/RELEASE.md, docs/releases/1.3.0_deploy_runbook.md."
+    }
+  ],
+
+  "evolution": [
+    {
+      "title": "First release changed the failure mode",
+      "body": "The app went public on the App Store on 2 July 2026 and on Google Play, and from that point a bug stopped being a hot reload and became a release. Build numbers are bumped per shipped cut rather than per commit, and the cadence since has been steady: 1.1.0 in mid-July, 1.1.1 the week after, 1.2.0, then 1.2.5 in the store on 27 July 2026, with 1.3.0 in the working tree.",
+      "evidence": "iTunes lookup API: first released 2026-07-02, current store version 1.2.5 released 2026-07-27. git log -p -- pubspec.yaml shows 1.1.0+109 (2026-07-12) through 1.3.0+152 (2026-07-28)."
+    },
+    {
+      "title": "Audited my own shipped code, then fixed what it found",
+      "body": "At version 1.1.1 I ran a ten-domain adversarial security audit against the live code rather than against the design. It scored five out of ten and produced a register. The highest finding was a membership-privilege escape through the self-leave branch; the current rules carry the subset guard that closes it, with the attack it prevents written above the guard so the reason survives the next edit.",
+      "evidence": "docs/audits/SECURITY_AUDIT.md, committed 2026-07-16 at 1.1.1+119 (commit 44ff9ffd); firestore.rules now carries resource.data.authedUids.hasAll(request.resource.data.authedUids) with the comment naming the swap attack."
+    },
+    {
+      "title": "A performance rework driven by measurement, not by feel",
+      "body": "Eleven read-only per-domain audits produced three named root causes rather than a list of impressions: a dead wake gate that diffed around fifty widgets per framed bubble per frame at up to 120 Hz while the screen was idle, a cached still image that never re-armed, and photo decodes keyed on an animating radius — roughly forty full decodes per photo bubble per ease, fixed by quantising the radius into buckets. The same pass found seven provider families leaking Firestore listeners and the settlement solver inlined in three providers, re-running on every unrelated document change.",
+      "evidence": "docs/audits/perf-rework-2026-07/ (11 domain audits + COMPLETION_REPORT.md); docs/PERF.md."
+    },
+    {
+      "title": "Budgets that block a build, not guidelines",
+      "body": "The performance work ended in five written budgets rather than a fixed list: one shared background-ambience clock; fixed-rate bubble physics with vsync-interpolated presentation and a cached still when idle; frame-time ceilings measured on a mid-range Android baseline rather than on my own phone; at most four app-lifetime listeners per joined hangout with route-scoped listeners released within thirty seconds; and thermal discipline, where a self-heating audit lowers that device's ambience ceiling with a fourteen-day expiry so one hot session never caps a device forever.",
+      "evidence": "docs/PERF.md — the five budgets, stated as blocking a release build; integration_test/perf_soak_test.dart with on-device FrameTiming."
+    }
+  ],
+
+  "testing": {
+    "lead": "Tests here exist to fail first. The repository's standing rule is that a behavioural fix does not count as done until its test has been verified red against the pre-fix code — by reverting the fix and re-running it. A test written after a fix and green on the first run proves nothing about the bug it claims to cover.",
+    "stats": [
+      {
+        "label": "Dart test files",
+        "value": "558",
+        "evidence": "find test -name '*_test.dart' -type f | wc -l → 558 (566 total .dart files under test/)."
+      },
+      {
+        "label": "Dart test declarations",
+        "value": "4,803",
+        "evidence": "Static count of test()/testWidgets() call sites: grep -rhoE '^[[:space:]]*(test|testWidgets)\\(' --include='*.dart' test | wc -l → 4803. The 1.3.0 programme report claims 5,288 executed Flutter tests at build 150, higher because some cases are generated inside loops; the static count is the one used here because it can be re-derived from the tree."
+      },
+      {
+        "label": "Grouped suites",
+        "value": "894",
+        "evidence": "grep -rhoE '^[[:space:]]*group\\(' --include='*.dart' test | wc -l → 894."
+      },
+      {
+        "label": "Backend test files",
+        "value": "25 rules + 44 unit",
+        "evidence": "functions/test-rules/*.test.mjs → 25 files against the Firestore rules emulator; functions/test-unit/*.test.mjs → 44 files under node --test."
+      },
+      {
+        "label": "Backend test declarations",
+        "value": "958",
+        "evidence": "grep -rhoE '^[[:space:]]*(test|it)\\(' across functions/test-rules and functions/test-unit → 958."
+      },
+      {
+        "label": "On-device journeys",
+        "value": "3",
+        "evidence": "integration_test/: perf_overhaul_journey_test.dart, perf_smoke_test.dart, perf_soak_test.dart, using FrameTiming through the integration_test package."
+      }
+    ],
+    "cases": [
+      {
+        "title": "A payment on a rerouted plan row",
+        "body": "The routed-settlement test covers the case that used to lose money: a payment recorded against a fewest-payments row where the payer and receiver share no direct debt must reduce the debts the payment actually covers, and must never create a reverse one.",
+        "evidence": "functions/test-unit/routed_settlement.test.mjs."
+      },
+      {
+        "title": "Receipts that do not add up",
+        "body": "Reconciliation, tax and service allocation, and handwritten tip inference each have their own suite, exercising named bounded tolerances — including per-currency cash rounding — rather than a general fuzz factor.",
+        "evidence": "functions/test-unit/receipt_reconcile.test.mjs, allocate_tax_service.test.mjs, tip_inference.test.mjs."
+      },
+      {
+        "title": "Reminders across a daylight-saving boundary",
+        "body": "Three suites cover zone resolution and the DST boundary specifically, because the bug that motivated the design only appears in the weeks after a clock change.",
+        "evidence": "functions/test-unit/just_you_dst.test.mjs, just_you_timezone.test.mjs, just_you_zone.test.mjs."
+      },
+      {
+        "title": "The rules themselves, against a real emulator",
+        "body": "Twenty-five suites run against the Firestore rules emulator rather than reasoning about the rules on paper — including the membership subset guard that closes the audit's highest finding.",
+        "evidence": "functions/test-rules/*.test.mjs, npm run test:rules."
+      }
+    ]
+  },
+
+  "results": [
+    {
+      "title": "Shipped, on both stores",
+      "body": "Live on the App Store as a Finance app, free, minimum iOS 15.5, first released 2 July 2026, and on Google Play under com.bupples.bupples. Universal Links and App Links are configured, so a join code, a Turbo split or a profile handle opens the installed app and falls back to the web page when it is not installed.",
+      "evidence": "iTunes lookup API (seller \"Yousof Selim\", genre Finance/Utilities, free, min iOS 15.5, first release 2026-07-02, version 1.2.5 on 2026-07-27); Play listing reachable; public/.well-known/apple-app-site-association and assetlinks.json."
+    },
+    {
+      "title": "The scope one person carried",
+      "body": "656 Dart files and around 250,000 lines under lib/, roughly 30,000 lines of TypeScript in the functions codebase, 99 deployed Cloud Function handlers, 25 top-level Firestore collections with 30 nested rule blocks, 2,254 lines of security rules and 16 composite indexes. Twenty-four features, each with its own domain, data, application and presentation layers, and a domain layer that does not import Flutter so the money maths can be tested without a widget tree.",
+      "evidence": "find lib -name '*.dart' | wc -l → 656; cat | wc -l → 250,711; functions/src → 30,025 lines; 99 handlers enumerated by grep over export const … onCall|onRequest|onSchedule|onDocument*|onObject*; firestore.rules 2,254 lines; firestore.indexes.json 16 composite indexes."
+    },
+    {
+      "title": "Operational control without a store release",
+      "body": "Fifteen Remote Config parameters gate the assistant, receipt scanning, nudges, the paywall, maintenance mode, a version gate and update prompts, with a client-side gate that renders maintenance, force-update and degraded states. An expensive or misbehaving feature can be switched off in minutes rather than in a review cycle.",
+      "evidence": "remoteconfig.template.json — 15 parameters; lib/features/remote_control/presentation/ (remote_control_gate.dart, force_update_screen.dart, maintenance_screen.dart, announcement_banner.dart, degraded_states.dart)."
+    },
+    {
+      "title": "What is not claimed here",
+      "body": "There are no download, revenue, rating or retention figures in this case study. The store listings are public and checkable; the numbers behind them are not something I can evidence, so they are left out rather than rounded into a sentence.",
+      "evidence": "Deliberate omission. The App Store rating at time of writing is drawn from a sample too small to present as evidence, and no traction data exists in the repository."
+    }
+  ],
+
+  "lessons": {
+    "worked": [
+      "One kernel, called from everywhere. The single most valuable file in the project is 100 lines that distribute leftover cents. Everything that divides money calls it, so there is exactly one place a rounding decision can be wrong — and exactly one place to fix it.",
+      "Writing the law down. Money is integer minor units. Pair-level settle-up uses the direct ledger. Never hardcode the local currency as a fallback. These live in a rules file, not in my memory, and they are the reason a feature written six weeks later still behaves.",
+      "Red first. Reverting the fix and watching the new test fail is slower than writing the test after, and it is the only version that proves the test covers the bug rather than the code."
+    ],
+    "underestimated": [
+      "The fewest-payments plan. I shipped it believing it was a presentation of the direct ledger. It is a different ledger, and a payment recorded against it could vanish. The lesson was not about greedy algorithms — it was that any view which reroutes money is not a view.",
+      "The cost of a mirror. The same arithmetic exists in Dart and in TypeScript, and in four places for money formatting. Nothing in the toolchain enforces that they change together; only tests, comments and discipline do. It works today and it is the standing hazard in the codebase.",
+      "How much of the work is not the feature. Security rules, idempotency, kill switches, deploy runbooks, signing scripts, DST handling. The visible product is a fraction of what shipping it required, and none of that fraction was optional."
+    ],
+    "next": [
+      "App Check enforcement. The client carries the App Check SDK, but server-side enforcement across the callables sits behind a single constant that is still false in source. Rules already bind every write to the caller's uid; attestation is the layer on top, and turning it on is the next piece of work rather than something already claimed.",
+      "The rest of the audit register. I verified that the highest finding is closed in the current rules. The remaining findings need to be re-checked one by one against the code as it stands now, and recorded, instead of assumed to have been swept up by later work.",
+      "One money implementation, not two. The Dart and TypeScript copies should be generated from a shared specification, or one of them should stop existing, so drift becomes impossible rather than merely tested against."
+    ]
+  },
+
+  "media": [
+    {
+      "src": "/images/projects/bupples/profile.webp",
+      "alt": "The Bupples profile screen on a phone. Below the member's name and handle sit two separate balance chips — \"you're owed RM17.50\" in green and \"you owe USD 10.20\" in red — above a grid of statistics: hangouts this month, biggest night, most split with, and a running weekend streak.",
+      "caption": "Two currencies, two balances, never added together. Each currency is its own ledger and nothing is converted.",
+      "width": 830,
+      "height": 1800
+    },
+    {
+      "src": "/images/projects/bupples/ask-pip.webp",
+      "alt": "The Pip assistant sheet. A chip under the title reads \"Can see: your balances, hangouts and friends\", four suggested questions follow — add an expense, who do I owe, explain my net balance, how much have I spent — and a line above the input reads \"Pip can make mistakes, so double-check anything important.\"",
+      "caption": "The assistant declares what it can see before it is asked anything, and says plainly that it can be wrong.",
+      "width": 900,
+      "height": 1553
+    },
+    {
+      "src": "/images/projects/bupples/accent.webp",
+      "alt": "The custom accent sheet, with a hue ring and a tone bar, the resulting hex value shown as #D4EB47, a live preview row of a letter, chip, toggle and button in the chosen colour, six preset swatches, and an Apply accent button.",
+      "caption": "Accent customisation, previewed live on real components. The paid cosmetics behind it are granted by a callable that re-reads the entitlement, never by the client.",
+      "width": 830,
+      "height": 1800
+    }
+  ],
+
+  "seo": {
+    "title": "Bupples — a cent-exact expense splitter on iOS and Android",
+    "description": "A social expense app built solo in Flutter and Firebase: integer-cent money, one shared split kernel, AI receipt extraction, and server-authoritative settlement. Live on both stores.",
+    "image": "/images/projects/bupples/profile.webp"
+  }
+}

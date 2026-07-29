@@ -1,0 +1,410 @@
+{
+  "slug": "adelante",
+  "name": "Adelante",
+  "tagline": "Widget-first motivation for iOS and Android, read from the Home Screen.",
+  "summary": "A motivation app only helps on the day nobody feels like opening a motivation app. Adelante puts the writing on the surfaces a phone already shows — Home Screen, Lock Screen and the iOS 17+ StandBy families — instead of behind a launch. I built the Flutter application, both native widget renderers (WidgetKit and SwiftUI on iOS, RemoteViews on Android), the deterministic content pipeline behind a 12,828-entry library that ships inside the binary, and the Firebase content backend that the shipped build deliberately does not need. It matters because the hard part of a widget product is not the app: it is three separate processes that never talk to each other agreeing, offline, on what to show right now.",
+
+  "category": "Mobile — native widget surfaces",
+  "role": "Sole developer — Flutter app, both native widget renderers, the content pipeline, and the backend design",
+  "team": "Solo",
+  "timeline": "2026-06 – Present",
+  "status": "Not released. Both platforms compile to release artifacts, including the iOS widget extension, but there is no App Store or Google Play listing — every account, signing and submission item in docs/store/store-readiness.md is still unchecked. The Firebase backend is written, unit-tested from the client side, and has never run against a live project.",
+  "platforms": ["iOS 16+", "Android"],
+  "stack": [
+    "Flutter 3.44.1",
+    "Dart 3.12.1",
+    "Riverpod 3",
+    "Swift / SwiftUI",
+    "WidgetKit",
+    "Kotlin",
+    "Android RemoteViews",
+    "home_widget",
+    "TypeScript",
+    "Node.js 20",
+    "Firebase Cloud Functions (v2)",
+    "Firestore"
+  ],
+
+  "featured": true,
+  "order": 2,
+  "accent": "#e97842",
+  "ground": "#faf7f0",
+
+  "links": [
+    {
+      "label": "View showcase",
+      "href": "https://github.com/yeegz/adelante-showcase",
+      "kind": "showcase",
+      "evidence": "GitHub API returns HTTP 200 with \"private\": false; created 2026-07-13T05:36:59Z, single commit e5b283a. The application source is private and unpublished: `git remote -v` in /Users/yousofselim/Documents/Adelante returns nothing, and api.github.com/repos/yeegz/adelante returns 404."
+    }
+  ],
+
+  "problem": {
+    "lead": "The content has to arrive without being asked for, on a surface the user already looks at, on two platforms whose widget systems agree on almost nothing.",
+    "points": [
+      "A widget is not a screen you own. WidgetKit decides when a widget wakes and how much refresh budget it gets, and the app may not be opened for days — so the widget has to advance on the user's chosen cadence without being told to.",
+      "It also has to be right when the app is opened. The Flutter app, the iOS extension and the Android provider are three separate processes with no channel between them, and all three have to name the same current quote.",
+      "The two native widget systems are not comparable. SwiftUI will draw whatever it is handed; RemoteViews cannot paint a gradient, cannot round a corner arbitrarily, and cannot set a typeface at runtime at all.",
+      "No accounts, no analytics, no off-device tracking was written as a product non-goal before implementation — which rules out the ordinary content-delivery shape where a server knows who asked for what.",
+      "Content at the volume a rotating widget needs cannot be hand-written. Generating tens of thousands of candidate lines makes near-duplicates, filler phrasing, missing licenses and invented scripture citations the default outcome rather than the exception.",
+      "Faith is part of the content. A user who selects one tradition must never be shown another — the kind of promise a scoring function quietly breaks."
+    ]
+  },
+
+  "contribution": {
+    "owned": [
+      "The Flutter application — 8,963 lines across 41 Dart files: a Riverpod 3 provider graph, the content repository and search index, the recommendation engine and refresh policy, onboarding, the widget studio and settings.",
+      "The iOS widget extension end to end: the WidgetKit bundle and its seven families, the SwiftUI views, the shared payload decoder and rotation, App Group entitlements, and the Xcode target itself — created and kept reproducible by a Ruby script driving `xcodeproj`.",
+      "The Android widget: a RemoteViews AppWidgetProvider with five baked layout variants, a Canvas-rendered gradient background, and payload-driven padding, gravity, corner radius and metadata visibility.",
+      "The content pipeline: a 396-line deterministic gate (three dedup layers, quality filters, license and citation enforcement, stable ids) and the 12,828-entry library it produces.",
+      "The backend: five Cloud Functions in TypeScript, Firestore security rules and three composite indexes, a seeding script, and the anonymous delta-sync client that consumes them.",
+      "The test suite: 117 test declarations across 18 files, including three suites that read the Swift, Kotlin and XML sources off disk from Dart to pin cross-platform invariants."
+    ],
+    "notOwned": [
+      "The typefaces. Spectral, Cardo, PT Serif and Fira Sans are bundled under the SIL Open Font License, eight .ttf files across four families.",
+      "The scripture translations. The public-domain sources — King James Version, Pickthall, JPS 1917, Max Müller, Edwin Arnold — are cited, not written.",
+      "The prose, mostly. 12,756 of 12,828 entries are original text produced by generators I drove and gated rather than lines I wrote by hand; 96 curated entries seed the set and are registered as authoritative so generated output can never displace them."
+    ]
+  },
+
+  "constraints": [
+    {
+      "title": "No accounts, analytics, or off-device tracking",
+      "body": "Written as a non-goal in the design spec before implementation, which meant no auth layer, no attribution SDK and no crash reporting could be added later for convenience. The claim is checkable from the manifest rather than asserted: the complete set of direct runtime dependencies is cupertino_icons, flutter_riverpod, shared_preferences, home_widget, uuid, share_plus, http and auto_size_text, and pubspec.lock contains no analytics, auth, attribution, crash-reporting or advertising package at any depth. Absence in the manifest is evidence about what the build contains, not an audit of runtime behaviour.",
+      "evidence": "docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:165 (Non-goals). pubspec.yaml:38-48 cross-checked against pubspec.lock `dependency: \"direct main\"`. Repo-wide grep for analytics|firebase_auth|firebase_core|admob|google_mobile_ads|facebook|mixpanel|amplitude|sentry|crashlytics|tracking|idfa|advertis across lib/, pubspec.yaml and pubspec.lock returns 2 hits, both non-SDK (a letter-spacing comment in lib/app/theme.dart:106 and the user-facing string in adelante_shell.dart:1528)."
+    },
+    {
+      "title": "The widget must work with nothing but the local store",
+      "body": "Neither native provider is allowed to reach the network. Both read only the shared local container — the App Group UserDefaults suite on iOS, SharedPreferences on Android — so everything a widget needs has to be serialised into the payload before it is written, including pre-tiered text and the rotation anchor.",
+      "evidence": "AdelanteWidgetShared.swift and AdelanteWidgetProvider.kt contain no networking calls; the invariant is documented at lib/features/content/data/content_sync_controller.dart:34-35. App Group group.com.adelanteapp.adelante declared in both Runner.entitlements and AdelanteWidgets.entitlements."
+    },
+    {
+      "title": "RemoteViews is a description of a view, not a view",
+      "body": "No gradients, no arbitrary corner radius, and uniform auto-size text that is silently disabled the moment any code calls setTextViewTextSize. The payload also crosses a process boundary with a hard size limit, so anything drawn on the app side has to be small enough to survive the trip.",
+      "evidence": "android/app/src/main/kotlin/com/adelanteapp/adelante/AdelanteWidgetProvider.kt (391 lines), bitmap path at lines 230-270 with the 480 px longest-edge cap; the no-setTextViewTextSize rule is written as a comment at lines 129-130."
+    },
+    {
+      "title": "Fonts do not cross the iOS extension boundary",
+      "body": "A widget extension is its own bundle. Fonts registered by the host app are invisible to it, and `Font.custom` with a family name fails silently — it falls back to system with no error and no crash, so the failure only shows up as a widget that looks wrong.",
+      "evidence": "ios/AdelanteWidgets/Info.plist:24-34 re-declares all eight .ttf files in the extension's own UIAppFonts; the failure mode is written into the code comment at AdelanteWidgetViews.swift:148-157."
+    },
+    {
+      "title": "Ship without a backend",
+      "body": "The delivery decision was hybrid: the full library ships as a bundled asset and the Firebase sync is a growth channel, not a dependency. Blaze activation is optional and a build with no endpoint configured still has to run.",
+      "evidence": "docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:17-20; lib/app/backend_config.dart:17 makes the endpoint a String.fromEnvironment with an empty default and isContentSyncEnabled false when empty."
+    }
+  ],
+
+  "flow": {
+    "caption": "Boot to widget — the path one quote takes from a bundled asset to a rendered Home Screen tile, without a network call.",
+    "steps": [
+      "Boot loads assets/content/library.json into QuoteRepository, which builds an inverted search index as it constructs.",
+      "ContentFilter narrows the library by selected categories and religious preference — a hard predicate, applied before anything is scored.",
+      "RecommendationEngine ranks what survives; QuoteRefreshPolicy decides which entry is current.",
+      "WidgetPayload serialises a styled pool: each entry carries three length-bounded strings and a tier stamped from its full text, and the app's current quote is forced to index 0.",
+      "home_widget writes the payload into the App Group container on iOS and SharedPreferences on Android.",
+      "Each native renderer reads that store, filters the pool down to the tiers its family can hold, and computes the rotation index from the shared anchor — no message ever passes between the three processes."
+    ]
+  },
+
+  "architecture": {
+    "caption": "Three processes, one shared payload, and a backend the shipped build does not need.",
+    "alt": "Adelante runs as three independent processes on one device. The Flutter app holds the content repository, search index, recommendation engine and refresh policy, and writes a single serialised payload into a shared local store — an App Group container on iOS, SharedPreferences on Android — using the home_widget package. That shared store also holds the bundled 12,828-entry library.json asset, the cached content, and eighteen preference keys. Two native renderers read the shared store and never write to it and never open a socket: an iOS WidgetKit extension with seven widget families, SwiftUI views, a payload decoder, a copy of the rotation function and a precomputed twelve-entry timeline; and an Android AppWidgetProvider with five baked RemoteViews layout variants, a Canvas-rendered gradient bitmap and its own copy of the same rotation function. A separate build-time toolchain on the developer machine generates library.json through the deterministic gate and automates the Xcode widget target and its font resources. A Firebase project sits outside the device holding five Cloud Functions — getContent for delta sync, scheduledContentImport on a 24-hour schedule, approveContent and rejectContent as admin callables, and a one-time setAdminClaim bootstrap — over Firestore collections for content, content_versions, content_reviews, sources and meta. The app talks to that backend through one anonymous read-only GET carrying no identifiers, and only when an endpoint has been compiled into the build; it is empty by default, so the shipped app is offline-only.",
+    "groups": [
+      {
+        "id": "app",
+        "label": "Flutter app — device",
+        "nodes": [
+          "Riverpod 3 provider graph (lib/app/providers.dart)",
+          "QuoteRepository + inverted SearchIndex",
+          "ContentFilter → RecommendationEngine → QuoteRefreshPolicy",
+          "WidgetPayload serialiser (tiering + text fitting)",
+          "Widget studio, onboarding, settings"
+        ]
+      },
+      {
+        "id": "shared",
+        "label": "Shared local store — device",
+        "nodes": [
+          "App Group container group.com.adelanteapp.adelante (iOS)",
+          "SharedPreferences (Android)",
+          "Bundled asset library.json — 12,828 entries, 11.8 MB",
+          "18 preference keys + content cache"
+        ]
+      },
+      {
+        "id": "ios",
+        "label": "iOS widget extension",
+        "nodes": [
+          "WidgetKit bundle — 7 families",
+          "SwiftUI views + containerBackground",
+          "AdelantePayload decoder",
+          "currentPoolIndex (Swift copy) + 12-entry timeline"
+        ]
+      },
+      {
+        "id": "android",
+        "label": "Android widget",
+        "nodes": [
+          "AppWidgetProvider (RemoteViews)",
+          "5 baked layout variants — one per typeface",
+          "Canvas-rendered gradient bitmap, 480 px cap",
+          "currentPoolIndex (Kotlin copy)"
+        ]
+      },
+      {
+        "id": "pipeline",
+        "label": "Build-time tooling — developer machine",
+        "nodes": [
+          "tool/generate_library/gate.dart — dedup, quality, license",
+          "ios/setup_widget_target.rb — Xcode extension target",
+          "ios/add_widget_fonts.rb — idempotent font resources"
+        ]
+      },
+      {
+        "id": "backend",
+        "label": "Firebase — written, never deployed",
+        "nodes": [
+          "getContent (onRequest) — delta sync, 5-min CDN cache",
+          "scheduledContentImport (onSchedule) — every 24 hours",
+          "approveContent / rejectContent (onCall, admin)",
+          "setAdminClaim (onCall) — one-time bootstrap",
+          "Firestore: content, content_versions, content_reviews, sources, meta"
+        ]
+      }
+    ],
+    "edges": [
+      { "from": "pipeline", "to": "app", "label": "generates library.json into the app bundle" },
+      { "from": "pipeline", "to": "ios", "label": "creates and repairs the extension target and its font resources" },
+      { "from": "app", "to": "shared", "label": "writes one serialised payload via home_widget" },
+      { "from": "shared", "to": "ios", "label": "read-only — the extension never opens a socket" },
+      { "from": "shared", "to": "android", "label": "read-only — the provider never opens a socket" },
+      { "from": "app", "to": "backend", "label": "anonymous GET ?since=<version> — disabled unless an endpoint is compiled in" }
+    ]
+  },
+
+  "challenges": [
+    {
+      "title": "Three renderers agreeing on which quote is now, with no way to talk to each other",
+      "why": "The Flutter app, the WidgetKit extension and the Android RemoteViews provider are three separate processes with no channel between them. WidgetKit decides when a widget wakes and rations the refresh budget, and the app may go unopened for days — so the widget has to advance on the user's cadence without being told to, and still be showing the same entry the app shows the moment it is opened.",
+      "options": [
+        "Push a fresh payload from the app on every rotation",
+        "Let each renderer keep its own cursor and rotate independently",
+        "Derive the index from shared constants so nobody has to be told anything"
+      ],
+      "solution": "One pure function of (anchor timestamp, interval, pool length), written three times over: currentPoolIndex in lib/features/widgets/domain/widget_rotation.dart:6, AdelantePayload.quote(at:offset:maxTier:) in ios/AdelanteWidgets/AdelanteWidgetShared.swift:96, and currentPoolIndex in AdelanteWidgetProvider.kt:373. Every publish forces the app's current quote to pool index 0, so an in-app refresh snaps all three surfaces back into alignment rather than negotiating. iOS additionally precomputes up to twelve future timeline entries so WidgetKit can rotate on schedule inside its budget instead of waking for each change.",
+      "tradeoff": "The same arithmetic now lives in three languages, and nothing but tests keeps the copies honest. The Lock Screen's separate-surface offset is also a hardcoded 7 — the tests pin that lock differs from home, not that the value is 7.",
+      "validation": "test/widget_parity_test.dart (17 declarations) and test/widget_text_and_payload_test.dart (12) assert the shared contract, and the parity suite reads the native sources off disk so a change to the Swift or Kotlin copy fails a Dart test.",
+      "result": "The independent-cursor version was shipped first and then removed: commit 82c8e51 (2026-06-21) is titled 'remove independent pool rotation + anchor drift', which deleted rotation outright to stop the drift. Rotation returned in fd47846 and fb80270 (2026-07-18) only once it was one deterministic index rather than three clocks.",
+      "evidence": "lib/features/widgets/domain/widget_rotation.dart:6; ios/AdelanteWidgets/AdelanteWidgetShared.swift:96; android/app/src/main/kotlin/com/adelanteapp/adelante/AdelanteWidgetProvider.kt:373; lib/core/home_widget/widget_payload.dart:31-32; ios/AdelanteWidgets/AdelanteWidgetProvider.swift:21-36. Commits 82c8e51 (2026-06-21), fd47846 and fb80270 (2026-07-18). Test counts from `grep -rE \"^\\s*(test|testWidgets)\\(\" test/*.dart`."
+    },
+    {
+      "title": "Long quotes never landing on a surface that cannot hold them",
+      "why": "Before the overhaul the iOS medium, large and extra-large families all rendered the full text, so a long entry either overflowed its tile or shrank until it was unreadable — recorded as a baseline defect in the overhaul spec before any of it was touched. Fixing it where it showed up would have meant the same truncation rules written in Dart, Swift and Kotlin, each free to disagree about where a sentence ends.",
+      "options": [
+        "Shrink the text until it fits",
+        "Truncate inside each native renderer",
+        "Emit bounded strings from Dart and make long entries ineligible for small surfaces"
+      ],
+      "solution": "Dart became the single source of truth twice over. lib/features/widgets/domain/widget_text.dart:32 emits three length-bounded strings per entry — small capped at 88 characters, medium clamped between 80 and 200 by the user's preset, large capped at 260 — and fit() prefers a sentence boundary in the back half of the budget, otherwise cuts on a word boundary and strips a trailing comma or dash before the ellipsis. Separately, widget_payload.dart:107 stamps a tier on the full text (0 at ≤90 characters, 1 at ≤170, 2 above), and each native surface filters the pool by tier before it picks: large and extra-large take tier 2, medium takes 1, and small plus every Lock Screen accessory take 0, while Android does the same by the widget's minimum width in dp. A long quote is not truncated onto a small widget — it is never eligible for one.",
+      "tradeoff": "The payload carries three strings and a tier per entry instead of one string, and a user whose library skews long sees a smaller effective pool on the small family than on the large one.",
+      "validation": "test/widget_text_and_payload_test.dart (12 declarations) pins the caps and the boundary behaviour; test/widget_parity_test.dart (17) asserts the tier gate is still present in both native sources.",
+      "result": "The truncation rules exist once, in the language that has the tests. Both native renderers only choose from a pool they were handed; neither one cuts a sentence.",
+      "evidence": "docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:41-43 (baseline defect); lib/features/widgets/domain/widget_text.dart:32; lib/core/home_widget/widget_payload.dart:107; ios/AdelanteWidgets/AdelanteWidgetViews.swift:38-44; AdelanteWidgetProvider.kt:74-79."
+    },
+    {
+      "title": "User-chosen typefaces on two widget systems that both refuse them",
+      "why": "Two unrelated platform walls. On iOS the widget extension is its own bundle, so fonts registered by the host app are invisible to it, and Font.custom with a family name fails silently — system fallback, no error, no crash, just a widget that looks wrong. On Android, RemoteViews cannot set a typeface at runtime at all.",
+      "options": [
+        "Ship one system typeface on both platforms and drop the choice",
+        "iOS: add the fonts to the extension target and resolve by exact PostScript name",
+        "Android: bake one layout variant per typeface and select it from the payload"
+      ],
+      "solution": "On iOS the four families were added to the extension target's own resource phase and declared in the extension's own UIAppFonts, then resolved by exact PostScript name — Spectral-Italic, Cardo-Italic, PTSerif-Italic, FiraSans-Regular — with the silent-fallback failure mode written into the comment beside them. Both Xcode mutations are automated in Ruby against xcodeproj so the project can be regenerated and rebuilt: setup_widget_target.rb creates the extension target, its entitlements and embed phase and reorders 'Embed Foundation Extensions' ahead of 'Thin Binary'; add_widget_fonts.rb is an idempotent font-resource adder. On Android there are five layout variants — adelante_widget.xml plus one each for Cardo, Fira Sans, PT Serif and Spectral — selected by a token from the payload at update time.",
+      "tradeoff": "A fifth typeface on Android is a fifth XML file, not a parameter. And the iOS path depends on PostScript names no compiler checks: rename a font file and the widget silently falls back to system, which is exactly the failure the comment exists to warn about.",
+      "validation": "Both targets build for release — build/ios/Release-iphoneos holds Runner.app and AdelanteWidgets.appex, both dated 2026-07-18 — and the eight .ttf files are declared in two places that have to agree: pubspec.yaml's fonts block and the extension's Info.plist.",
+      "result": "Four typefaces are selectable on both platforms, and the two Xcode mutations that are easy to lose in a regenerated project are scripts rather than remembered clicks.",
+      "evidence": "ios/AdelanteWidgets/Info.plist:24-34; ios/AdelanteWidgets/AdelanteWidgetViews.swift:148-157; ios/setup_widget_target.rb (86 lines); ios/add_widget_fonts.rb (29 lines); AdelanteWidgetProvider.kt:113-121; pubspec.yaml fonts block, 4 OFL families as 8 .ttf files; build artifacts dated 2026-07-18 15:09."
+    },
+    {
+      "title": "Making RemoteViews look like the SwiftUI widget",
+      "why": "RemoteViews describes a view to another process rather than drawing one. It cannot paint a gradient, cannot round a corner to an arbitrary radius, and its uniform auto-size text is silently disabled the moment any code calls setTextViewTextSize — a one-line regression with no error attached. The payload also crosses a process boundary with a hard size limit.",
+      "options": [
+        "Accept a flat, solid Android widget that does not match iOS",
+        "Set text size programmatically per family and give up auto-sizing",
+        "Render the background to a bitmap sized to the widget's real aspect ratio"
+      ],
+      "solution": "The background is drawn to a Bitmap on a Canvas sized to the widget's actual aspect ratio, so the corner radius still reads as circular after the ImageView's fitXY scaling, and capped at 480 px on the longest edge to stay inside the RemoteViews transaction limit. Text size is never set programmatically — the reason is written as a comment at the call site — and padding, per-element gravity, corner radius and the visibility of every metadata element are all driven from the same payload the iOS side reads.",
+      "tradeoff": "The bitmap is regenerated on every update and costs memory in proportion to the widget's on-screen size, and the 480 px cap trades sharpness on the largest widgets for staying under the transaction limit.",
+      "validation": "test/android_widget_remote_views_test.dart reads android/app/src/main/res/layout/adelante_widget.xml off disk and asserts that autoSizeTextType=\"uniform\" is present and android:textSize= is absent from the quote TextView.",
+      "result": "Both widgets render the same gradient, radius and metadata layout from one payload. The guard is a source-text assertion, which catches the stray line being reintroduced but would not catch a subtler rendering regression — a limit worth naming rather than counting as coverage.",
+      "evidence": "AdelanteWidgetProvider.kt:230-270 (bitmap path and 480 px cap), :129-130 (the no-setTextViewTextSize comment); test/android_widget_remote_views_test.dart (2 declarations); android/app/src/main/res/layout/adelante_widget.xml."
+    },
+    {
+      "title": "A deterministic gate over machine-generated content",
+      "why": "Reaching a floor of 500 entries per category meant producing tens of thousands of candidates. Judgement can live in the generator, but enforcement cannot: near-duplicates, filler phrasing, missing licenses and invented scripture citations have to be rejected the same way every time, and provably, or the library quietly fills with paraphrases of itself.",
+      "options": [
+        "Read and approve every candidate by hand",
+        "Score candidates and accept everything above a threshold",
+        "Enforce with a pure, deterministic function and keep judgement upstream in the generators"
+      ],
+      "solution": "tool/generate_library/gate.dart, 396 lines, with three independent dedup layers: exact normalised text, an order- and punctuation-insensitive token-set fingerprint, and a stopword-stripped sorted content key that catches 'Discipline is the bridge between goals and results' against 'Discipline is a bridge from goals to results'. Quality filters are a 12–320 character band, a sentence-shape regex requiring an uppercase or digit start and a terminal end, 15 exact bare clichés and 19 substrings that read as machine filler. License enforcement requires a non-empty status that is never 'unknown', and rejects anything typed as scripture without a citation. Ids are FNV-1a derived and stable, with collision suffixing, and there are nine typed rejection reasons. The 96 curated entries are registered first and prime the dedup sets, so generated output cannot re-introduce a curated line. The same shape exists server-side in functions/src/model.ts — a strict allowlist validator, a fingerprint documented as matching the Dart pipeline, a 0–1 quality heuristic, and a trusted-host allowlist where only a trusted feed scoring above 0.6 may auto-publish.",
+      "tradeoff": "A deterministic gate rejects safely and reads badly: it cannot tell a dull line from a good one, so it removes only the failure modes it can name. Enforcing tone with substring lists also means every newly noticed filler phrase is another entry added after the fact.",
+      "validation": "The shipped asset holds 12,828 entries with 12,828 unique ids and 12,828 unique texts — zero exact duplicates, verified by loading library.json and counting. test/content_foundation_test.dart (21 declarations), test/content_library_test.dart (9) and test/content_asset_floor_test.dart (7) hold the floors and the shape against the real asset rather than a fixture.",
+      "result": "The library grew from 96 curated entries to 12,828 across 20 categories, with five faith traditions each above 550 entries, and no duplicate text reached the asset. 12,756 of those entries are original text produced through the pipeline and 72 are cited public-domain scripture — the gate exists because the first number is that large, not in spite of it.",
+      "evidence": "tool/generate_library/gate.dart (396 lines; dedup layers at :309-312, filter lists at :133-173, seedCurated at :191, id derivation at :376-395); functions/src/model.ts (217 lines) and functions/src/index.ts:132; assets/content/library.json verified with json.load — 11,837,788 bytes, 12,828 entries, 12,828 unique ids, 12,828 unique texts, 20 categories; faith counts islam 599, judaism 559, christianity 559, hinduism 558, buddhism 552, generalSpiritual 3, null 9,998; licenseStatus original 12,756."
+    }
+  ],
+
+  "decisions": [
+    {
+      "title": "Ship the whole library; treat the backend as growth",
+      "chose": "An 11.8 MB library.json bundled into the app, with Firebase delta sync as an optional channel",
+      "because": "The delivery decision was written as hybrid before it was built: ship the full generated library as an offline asset and keep getContent delta-sync as the growth and correction channel, with Blaze activation optional and not required to ship. A widget product whose first frame depends on a network call has a bad first frame.",
+      "instead": "Fetching the library on first run and caching it",
+      "cost": "The asset is bundled uncompressed and parsed on the main isolate at boot. The design spec called for a gzipped library.json.gz produced with dart:io GZipCodec; the shipped asset is plain JSON, and the cold-start cost of parsing it has not been measured.",
+      "evidence": "docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:17-20 and :61; pubspec.yaml asset comment; assets/content/library.json is 11,837,788 bytes and git-tracked; ContentLibraryLoader.load parses it at boot."
+    },
+    {
+      "title": "Sync is off unless an endpoint is compiled in",
+      "chose": "String.fromEnvironment('ADELANTE_CONTENT_ENDPOINT') with an empty default, which leaves isContentSyncEnabled false",
+      "because": "Stated in the source: an empty endpoint means sync is disabled and the app stays purely local, which is the safe default so a build with no backend configured still ships and runs. It also makes the privacy posture structural rather than a promise — a build with no endpoint cannot phone anywhere.",
+      "instead": "A runtime feature flag, or an endpoint compiled in and toggled in settings",
+      "cost": "The backend is fully written and exercised by client-side tests but has never run against a live project: .firebaserc still contains the placeholder adelante-REPLACE-WITH-YOUR-PROJECT-ID, and there is no google-services.json, GoogleService-Info.plist or firebase_options.dart anywhere in the repo. Infrastructure that has never run is infrastructure that has not been proven.",
+      "evidence": "lib/app/backend_config.dart:6-8 (the quoted comment) and :17; .firebaserc; absence of Firebase config files verified across the repository."
+    },
+    {
+      "title": "A JSON asset instead of a compiled Dart list",
+      "chose": "assets/content/library.json loaded at boot, with the compiled seed retained as a fallback",
+      "because": "Written at the loader: this is what lets the library grow to thousands of entries without ballooning the compiled binary or the parse time of a giant source file. Any load or parse failure falls back to the compiled seedMotivationQuotes, so the app is never contentless.",
+      "instead": "Keeping the content as compiled Dart, which is what the 1,498-line seed file used to be",
+      "cost": "Two representations of the content now have to stay compatible, and the fallback path is the one least likely to be exercised. The related 'no local database' decision was written with a note to revisit past roughly 10,000 entries; the library is 12,828 and it was not revisited.",
+      "evidence": "lib/features/content/data/content_library_loader.dart:9-12 (the quoted comment and the fallback); lib/features/content/data/seed_content.dart (1,498 lines); design spec lines 166-168 (Non-goals: no local DB migration, revisit past ~10k)."
+    },
+    {
+      "title": "No accounts, analytics, or ads — as a constraint, not a feature line",
+      "chose": "Zero auth, analytics, attribution, crash-reporting or advertising dependencies, and a sync request that carries nothing",
+      "because": "It was written as a product non-goal before implementation, so it shaped the architecture rather than being retrofitted. The only sync call is a single GET with an accept header and an optional ?since= version, carrying no body, identifiers or preferences, and its docstring says so; the client re-checks the approved, reviewed and active flags anyway as defence in depth. The only authentication anywhere in the system is a server-side admin custom claim that gates the operator, not users.",
+      "instead": "An account layer, which would have let favourites, presets and widget configurations follow a user between devices",
+      "cost": "Nothing syncs — all 18 preference keys live on one device, so a reinstall loses favourites, presets and widget configurations. There is also no crash reporting and no analytics, which means a field failure is completely invisible.",
+      "evidence": "design spec line 165 (Non-goals); lib/features/content/data/remote_content_source.dart docstring :21-23; lib/app/local_store.dart (18 SharedPreferences keys, no upload path in the codebase); android/app/src/main/AndroidManifest.xml declares zero uses-permission entries; ios/Runner/Info.plist has no NSUserTrackingUsageDescription; firestore.rules requires request.auth.token.admin == true for all writes."
+    },
+    {
+      "title": "Firestore over Supabase for the content backend",
+      "chose": "Firebase — Firestore, Cloud Functions v2 on Node 20, security rules and composite indexes",
+      "because": "Recorded in docs/backend/content-system.md under 'Backend Choice': mobile SDKs, offline persistence, security rules, scheduled functions, and a console-based admin path that meant the curation workflow did not need a custom API and review UI built first.",
+      "instead": "Supabase and Postgres",
+      "cost": "The shipped client never uses the Firestore SDK at all — it calls one HTTPS function, which uses the Admin SDK and bypasses rules entirely, as the rules file's own header states. Most of what won the comparison is unused by the path the app actually takes.",
+      "evidence": "docs/backend/content-system.md ('Backend Choice'); functions/package.json (Node 20, firebase-functions ^6.1.0, firebase-admin ^12.6.0); firestore.rules (44 lines, header comment); functions/src/index.ts:47 (getContent); firestore.indexes.json (3 composite indexes)."
+    }
+  ],
+
+  "evolution": [
+    {
+      "title": "The baseline was written down before it was fixed",
+      "body": "The overhaul spec opens with a 'Baseline facts (from codebase audit)' section naming the defects in the author's own code: every iOS family rendered full text regardless of size, and search was a substring scan over a recomputed 13-field blob with no index, ranking, debounce or diacritic folding — and it was caged inside the user's selected categories, so nothing outside them was discoverable.",
+      "evidence": "docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:37-43."
+    },
+    {
+      "title": "Rotation was deleted before it was rebuilt",
+      "body": "Independent per-renderer rotation shipped first and drifted. Commit 82c8e51 removed it outright rather than patching it, and the shared deterministic index arrived a month later as its replacement.",
+      "evidence": "Commit 82c8e51 (2026-06-21) 'remove independent pool rotation + anchor drift'; fd47846 and fb80270 (2026-07-18)."
+    },
+    {
+      "title": "Search became an index",
+      "body": "lib/features/content/data/search_index.dart maps token to quote id to accumulated field weight — text 3.0, author 2.0, category 1.5, tag 1.0, mood and tone 0.75 — with AND semantics across tokens and the last, still-being-typed token prefix-matched so live typing works without a trie. Incremental add and remove keep it consistent with sync upserts, and searchRanked is deliberately not preference-filtered, with the reason written in its docstring: search is how you find something outside your own categories.",
+      "evidence": "lib/features/content/data/search_index.dart (weights, _prefixScores at :116); lib/features/content/data/quote_repository.dart:75 (searchRanked docstring), :16-22 and :47-63 (cached unmodifiable view; favourite and markShown skip reindexing)."
+    },
+    {
+      "title": "The library grew in two jumps",
+      "body": "96 curated seed entries, then 10,047 at commit b22474d, then 12,828 after the faith fill at 3e0d06d, which is where it stands. Two commit messages in that stretch claim counts a few entries off from the file at those SHAs, which is why the citable number is the one read back out of the shipped asset.",
+      "evidence": "git show <sha>:assets/content/library.json piped through json.load — b22474d = 10,047; 3e0d06d = 12,828; HEAD = 12,828."
+    },
+    {
+      "title": "The tab bar was reverted twice before it was native",
+      "body": "A Flutter approximation of the iOS 26 Liquid Glass tab bar was built and reverted twice on 2026-06-21 — the commit message says a native UIVisualEffect renders flat inside Flutter. It was finally solved by registering a real UITabBar as a Flutter platform view, using configureWithDefaultBackground() specifically to keep the system glass while tinting selected and unselected items to the app palette. It is iOS-only; Android keeps the Flutter bar.",
+      "evidence": "Commits f4535e9 and 1c3343b (2026-06-21), c974605 (2026-07-18); ios/Runner/AppDelegate.swift:26-147 (adelante/native_tab_bar platform view factory, comment at :106-111); lib/features/app/presentation/native_tab_bar.dart."
+    }
+  ],
+
+  "testing": {
+    "lead": "18 test files, 1,898 lines, 117 test declarations and 284 assertions — and no Flutter widget tests at all. The suite is aimed at data, contracts and cross-platform invariants rather than UI, and three of its suites do something unusual: they read the Swift, Kotlin and XML sources off disk from Dart and assert on their text, which pins invariants a Dart test cannot otherwise reach. Those are source-text guards, not behavioural tests, and they are worth naming as such.",
+    "stats": [
+      { "label": "Test files", "value": "18", "evidence": "find test -name '*_test.dart' -type f | wc -l → 18; find test -type f -name '*.dart' | xargs wc -l → 1898." },
+      { "label": "Test declarations", "value": "117", "evidence": "grep -rE \"^\\\\s*(test|testWidgets)\\\\(\" test/*.dart | wc -l → 117, across 20 groups. Two of the 117 sit inside generating loops (5 and 17 iterations), so the executed count is higher than the declared one. At commit 6bc4715 (2026-06-21) the same command returned 60 across 13 files." },
+      { "label": "Assertions", "value": "284", "evidence": "grep -rEo \"expect\\\\(\" test/*.dart | wc -l → 284." },
+      { "label": "Flutter widget tests", "value": "0", "evidence": "grep -rE \"^\\\\s*testWidgets\\\\(\" test/*.dart | wc -l → 0." },
+      { "label": "Backend tests", "value": "0", "evidence": "functions/ contains no test files, verified by listing the directory recursively. The five Cloud Functions are exercised only from the client side." }
+    ],
+    "cases": [
+      {
+        "title": "A user who picks one tradition is never shown another",
+        "body": "Faith filtering is a hard predicate applied before any scoring, in two places that both switch exhaustively over the ReligiousPreference enum. The tests generate one case per faith asserting both a minimum count and that no other tradition appears, plus a case that Islam-only never surfaces another faith and one that secular categories never leak scripture when no faith has been chosen.",
+        "evidence": "lib/features/content/domain/content_filter.dart:51 (_religionAllowed); lib/features/content/data/quote_repository.dart:100 (_passesFaith); test/content_library_test.dart (9 declarations, including the per-category loop at :119 over 17 secular categories); test/strict_content_filter_test.dart (4 declarations)."
+      },
+      {
+        "title": "A Dart test that asserts on Swift",
+        "body": "test/ios_widget_source_test.dart reads ios/AdelanteWidgets/AdelanteWidgetViews.swift and asserts the containerBackground modifier is applied outside the family switch. Moving it inside compiles perfectly and breaks the surfaces that require a container background — the exact class of bug a compiler cannot see.",
+        "evidence": "test/ios_widget_source_test.dart (2 declarations); ios/AdelanteWidgets/AdelanteWidgetViews.swift:264-274 (containerBackground with a pre-iOS-17 fallback)."
+      },
+      {
+        "title": "A Dart test that asserts on Android XML",
+        "body": "test/android_widget_remote_views_test.dart reads the widget layout and asserts autoSizeTextType=\"uniform\" is present and android:textSize= is absent from the quote TextView. Both halves guard the same one-line regression: any runtime text size silently disables uniform auto-sizing.",
+        "evidence": "test/android_widget_remote_views_test.dart (2 declarations); android/app/src/main/res/layout/adelante_widget.xml; AdelanteWidgetProvider.kt:129-130."
+      },
+      {
+        "title": "Content floors asserted against the shipped asset",
+        "body": "test/content_asset_floor_test.dart and test/content_library_test.dart load the real 12,828-entry library rather than a fixture and assert per-category and per-faith minimums, so a regenerated library that thins a category fails a test run instead of quietly shrinking a widget's pool.",
+        "evidence": "test/content_asset_floor_test.dart (7 declarations); test/content_library_test.dart (9 declarations, including the threshold loop at :77); test/content_foundation_test.dart (21 declarations)."
+      }
+    ]
+  },
+
+  "results": [
+    {
+      "title": "Both platforms build, extension included",
+      "body": "Release artifacts exist for both: build/ios/Release-iphoneos holds Runner.app and AdelanteWidgets.appex with dSYMs, and build/app/outputs/flutter-apk holds a release APK. The hand-built WidgetKit extension target compiles and embeds, which is the part of a Flutter widget project most likely not to.",
+      "evidence": "build/ios/Release-iphoneos/Runner.app and AdelanteWidgets.appex, both dated 2026-07-18 15:09; build/app/outputs/flutter-apk/app-release.apk. Runner.app Info.plist reports CFBundleShortVersionString 1.0.0, CFBundleVersion 1, MinimumOSVersion 16.0."
+    },
+    {
+      "title": "Seven widget families from one set of views",
+      "body": "The bundle declares systemSmall, systemMedium, systemLarge and systemExtraLarge plus accessoryInline, accessoryCircular and accessoryRectangular, and applies containerBackground(for: .widget) with a pre-iOS-17 fallback — which is what makes the same views legal in StandBy, since iOS 17 and later reuse those families there. There is no StandBy-specific code path: the accurate claim is StandBy-safe, not a separately built StandBy widget.",
+      "evidence": "ios/AdelanteWidgets/AdelanteWidgetBundle.swift:20-28 (7 families, StaticConfiguration at :15); AdelanteWidgetViews.swift:264-274 (containerBackground and fallback)."
+    },
+    {
+      "title": "12,828 entries, no duplicate text",
+      "body": "The shipped library holds 12,828 entries with 12,828 unique ids and 12,828 unique texts across 20 categories, and five traditions clearing the 500-per-category floor the pipeline was built to reach: islam 599, judaism 559, christianity 559, hinduism 558, buddhism 552.",
+      "evidence": "assets/content/library.json (11,837,788 bytes) verified with json.load: 12,828 entries, 12,828 unique ids, 12,828 unique texts, 20 distinct categories, faith counts as listed."
+    },
+    {
+      "title": "Eight runtime dependencies, none of them tracking",
+      "body": "The complete set of direct runtime dependencies is cupertino_icons, flutter_riverpod, shared_preferences, home_widget, uuid, share_plus, http and auto_size_text. There is no analytics, auth, attribution, crash-reporting or advertising package at any depth in the lockfile, the Android release manifest declares zero permissions, and Info.plist carries no tracking usage description. That is evidence from the manifest about what the build contains — it is not a runtime audit, and it is stated that way on purpose.",
+      "evidence": "pubspec.yaml:38-48 cross-checked against pubspec.lock `dependency: \"direct main\"`; repo-wide grep for analytics/auth/ads/attribution SDK names across lib/, pubspec.yaml and pubspec.lock returns 2 non-SDK hits; android/app/src/main/AndroidManifest.xml has zero uses-permission entries (INTERNET appears only in the debug manifest, with Flutter's stock hot-reload comment); ios/Runner/Info.plist has no NSUserTrackingUsageDescription."
+    }
+  ],
+
+  "lessons": {
+    "worked": [
+      "Auditing the codebase and writing the defects down before touching them. The overhaul spec's 'Baseline facts' section is what made the fixes checkable a month later rather than remembered.",
+      "Treating deliberate replication as a contract instead of a synchronisation problem. One pure rotation function copied into three languages, with tests reading the copies off disk, beat any scheme where the three processes had to tell each other anything.",
+      "Keeping judgement in the generators and enforcement in a pure gate. A 396-line deterministic function can be read, tested and re-run over the whole library; a review pass cannot."
+    ],
+    "underestimated": [
+      "The asset. 11.8 MB of uncompressed JSON is parsed on the main isolate at boot. The spec called for gzip, gzip was never applied, and the cold-start cost still has not been measured — which means the decision has not actually been evaluated.",
+      "The threshold I set myself. 'No local database' was written with a note to revisit past roughly 10,000 entries; the library is 12,828 and the note went unread.",
+      "What a source-text assertion buys. Reading Swift and XML from a Dart test catches deletion and reintroduction and says nothing about how either surface renders — useful, but not the coverage it can be mistaken for."
+    ],
+    "next": [
+      "Compress the library asset and move the parse off the main isolate — after measuring cold start, so the change has a number attached to it.",
+      "Per-widget-instance configuration is specified and not built. The widget still uses StaticConfiguration with no AppIntentConfiguration, and Android declares no configure activity; separate surfaces are handled by a fixed pool offset instead.",
+      "Run the backend against a real Firebase project. Five Cloud Functions, security rules, three composite indexes and a seeding script have been written and never deployed.",
+      "Work the store-readiness checklist, which is entirely unstarted — Apple Developer membership, App Group capability, PrivacyInfo.xcprivacy, distribution signing, a release keystore, and both store listings."
+    ]
+  },
+
+  "seo": {
+    "title": "Adelante — widget-first motivation for iOS and Android",
+    "description": "A Flutter motivation app whose content lives in native widgets: WidgetKit and SwiftUI on iOS, RemoteViews on Android, driven from one shared payload with no accounts, analytics or ads.",
+    "image": "/images/og-card.jpg"
+  }
+}

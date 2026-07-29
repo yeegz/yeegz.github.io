@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Photoshoot — a local-first WebGL2 photobooth for desktop and browser</title>
+<meta name="description" content="A TypeScript, Electron and WebGL2 photobooth with 17 hand-written GLSL effects and 8 on-device MediaPipe face effects. No backend: camera frames are rendered on the GPU and captures stay on the device. Built solo by Yousof Selim." />
+<meta name="author" content="Yousof Selim" />
+<meta name="theme-color" content="#e9e3d6" />
+<meta name="color-scheme" content="dark light" />
+<link rel="canonical" href="https://yeegz.github.io/work/photoshoot/" />
+
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="ysf.slm" />
+<meta property="og:title" content="Photoshoot — a local-first WebGL2 photobooth for desktop and browser" />
+<meta property="og:description" content="A TypeScript, Electron and WebGL2 photobooth with 17 hand-written GLSL effects and 8 on-device MediaPipe face effects. No backend: camera frames are rendered on the GPU and captures stay on the device. Built solo by Yousof Selim." />
+<meta property="og:url" content="https://yeegz.github.io/work/photoshoot/" />
+<meta property="og:image" content="https://yeegz.github.io/images/photoshoot-app.webp" />
+<meta property="og:image:alt" content="Photoshoot — A photobooth for desktop and browser that never sends a camera frame anywhere." />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Photoshoot — a local-first WebGL2 photobooth for desktop and browser" />
+<meta name="twitter:description" content="A TypeScript, Electron and WebGL2 photobooth with 17 hand-written GLSL effects and 8 on-device MediaPipe face effects. No backend: camera frames are rendered on the GPU and captures stay on the device. Built solo by Yousof Selim." />
+<meta name="twitter:image" content="https://yeegz.github.io/images/photoshoot-app.webp" />
+
+<link rel="icon" href="/favicon.svg" />
+<link rel="apple-touch-icon" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
+
+<link rel="stylesheet" href="/styles.css?v=49" />
+<link rel="stylesheet" href="/case.css?v=7" />
+<script>
+document.documentElement.classList.replace('no-js','js');
+try {
+  var t = localStorage.getItem('ysf-theme');
+  document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+} catch (_) { document.documentElement.dataset.theme = 'dark'; }
+</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Photoshoot","description":"A photobooth for desktop and browser that never sends a camera frame anywhere.","applicationCategory":"Photobooth · desktop and web","operatingSystem":"Web (WebGL2 browsers), Windows desktop (Electron)","author":{"@type":"Person","name":"Yousof Selim","url":"https://yeegz.github.io/"},"url":"https://yeegz.github.io/work/photoshoot/"}</script>
+</head>
+<body class="cs-body" data-project="photoshoot" style="--cs-accent:#a12e34;--cs-ground:#e9e3d6">
+
+<a class="skip-link" href="#overview">Skip to the case study</a>
+
+<header class="site-head cs-head" id="siteHead">
+  <a class="brand" href="/#top">ysf.slm<span class="brand-dot"></span></a>
+  <nav class="site-nav" aria-label="Site">
+    <a href="/#work"><sup>01</sup>Work</a>
+    <a href="/#skills"><sup>02</sup>Skills</a>
+    <a href="/#education"><sup>03</sup>Education</a>
+    <a href="/#experience"><sup>04</sup>Experience</a>
+    <a href="/#contact"><sup>05</sup>Contact</a>
+  </nav>
+  <div class="head-actions">
+    <a class="head-resume" href="/Yousof-Selim-Resume.pdf" download data-cursor="PDF">Résumé</a>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Switch to light mode" data-cursor="LIGHT">
+      <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.25"/><path d="M12 2.2v2.1M12 19.7v2.1M2.2 12h2.1M19.7 12h2.1M5.08 5.08l1.49 1.49M17.43 17.43l1.49 1.49M18.92 5.08l-1.49 1.49M6.57 17.43l-1.49 1.49"/></svg>
+      <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.15A8.25 8.25 0 0 1 8.85 4 8.25 8.25 0 1 0 20 15.15Z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="cs-main" id="top">
+  <article class="cs-article">
+
+    <header class="cs-hero">
+      <span class="reg reg-tl" aria-hidden="true">+</span>
+      <span class="reg reg-tr" aria-hidden="true">+</span>
+      <p class="cs-eyebrow" data-reveal><a href="/work/">Selected work</a><span aria-hidden="true">/</span>Photoshoot</p>
+      <h1 class="cs-title" data-reveal>Photoshoot</h1>
+      <p class="cs-tagline" data-reveal>A photobooth for desktop and browser that never sends a camera frame anywhere.</p>
+      <div class="sec-rail cs-hero-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+      <div data-reveal><nav class="cs-links" aria-label="Photoshoot destinations">
+  <a class="cs-link cs-link-live" href="https://photoshoot-yeegz.web.app/" target="_blank" rel="noopener" data-cursor="OPEN">Live site<span class="cta-arr" aria-hidden="true">↗</span></a>
+  <a class="cs-link cs-link-repo" href="https://github.com/yeegz/photoshoot" target="_blank" rel="noopener" data-cursor="OPEN">Source on GitHub<span class="cta-arr" aria-hidden="true">↗</span></a>
+</nav></div>
+      <div data-reveal>
+<dl class="cs-facts">
+  <div><dt>Role</dt><dd>Sole developer — graphics pipeline, security model, both runtimes, deployment</dd></div>
+  <div><dt>Team</dt><dd>Solo</dd></div>
+  <div><dt>Timeline</dt><dd>June 2026</dd></div>
+  <div><dt>Status</dt><dd>Live on the web · desktop build from source, no published release</dd></div>
+  <div><dt>Category</dt><dd>Photobooth · desktop and web</dd></div>
+  <div><dt>Platforms</dt><dd>Web (WebGL2 browsers) · Windows desktop (Electron)</dd></div>
+</dl>
+<dl class="cs-stack"><dt>Built with</dt><dd><span class="cs-chip">TypeScript 5.6 (strict)</span><span class="cs-chip">Electron 31</span><span class="cs-chip">WebGL2 · GLSL ES 3.00</span><span class="cs-chip">MediaPipe Tasks Vision — FaceLandmarker</span><span class="cs-chip">esbuild</span><span class="cs-chip">Web Audio API</span><span class="cs-chip">Canvas2D · MediaRecorder</span><span class="cs-chip">IndexedDB · localStorage</span><span class="cs-chip">Firebase Hosting</span></dd></dl></div>
+    </header>
+
+    <nav class="cs-toc" aria-label="On this page">
+  <p class="cs-toc-l">On this page</p>
+  <ol><li><a href="#overview">Overview</a></li><li><a href="#problem">The problem</a></li><li><a href="#role">My role</a></li><li><a href="#constraints">Constraints</a></li><li><a href="#flow">Product flow</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#challenges">Engineering challenges</a></li><li><a href="#decisions">Technical decisions</a></li><li><a href="#evolution">Design evolution</a></li><li><a href="#testing">Testing</a></li><li><a href="#results">Results</a></li><li><a href="#lessons">Reflection</a></li></ol>
+</nav>
+    
+<section class="cs-section" id="overview" aria-labelledby="overview-t">
+  <span class="cs-ghost" aria-hidden="true">01</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">01<span class="slash">/</span>EXECUTIVE SUMMARY</p>
+    <h2 class="cs-sec-title" id="overview-t">What it <em>is.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><div class="cs-prose"><p class="cs-lead">Photobooth software normally asks you to hand your camera to somebody's server. Photoshoot does the opposite: the webcam feed is rendered by a hand-written WebGL2 pipeline inside the app, face tracking runs against a model served from the app's own origin, and captures are written to a local folder or to IndexedDB. There is no backend anywhere in the repository. One TypeScript renderer serves both an Electron desktop build and a browser build, talking only to a twenty-method bridge interface that is implemented once per runtime. I built it alone — the twenty-seven fragment shaders, the zero-trust import format for community themes and filters, the Electron hardening, the landing page and the static deploy. It matters because it is the version of this product that does not need to be trusted: the privacy claim is a property of the architecture, not a promise in a policy.</p></div></div>
+</section>
+
+<section class="cs-section" id="problem" aria-labelledby="problem-t">
+  <span class="cs-ghost" aria-hidden="true">02</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">02<span class="slash">/</span>THE PROBLEM</p>
+    <h2 class="cs-sec-title" id="problem-t">What was <em>broken.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><div class="cs-prose">
+  <p class="cs-lead">A photobooth is a camera app, and a camera app asks for the most sensitive permission a hobby project can ask for. The interesting constraint was making it playful — warps that follow the pointer, face effects, a printed four-shot strip — without a single frame leaving the machine.</p>
+  <ul class="cs-points"><li>Effects have to hold display refresh over a live camera stream. CSS filter functions cannot express a pointer-driven warp, and a Canvas2D pixel loop cannot run one at that cadence.</li><li>Face effects need landmark tracking, which is exactly the capability that usually justifies uploading frames to a server.</li><li>The desktop and browser builds have to behave identically, but one has Node, IPC and a filesystem and the other has none of them and never can.</li><li>The app invites community themes and colour filters. A file downloaded from a stranger has to be able to change how the app looks and what the GPU does, without being able to run anything.</li></ul>
+</div></div>
+</section>
+
+<section class="cs-section" id="role" aria-labelledby="role-t">
+  <span class="cs-ghost" aria-hidden="true">03</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">03<span class="slash">/</span>ROLE &amp; OWNERSHIP</p>
+    <h2 class="cs-sec-title" id="role-t">What I <em>owned.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><div class="cs-split">
+  <div class="cs-owned"><h3 class="cs-h3">What I designed and engineered</h3><ul class="cs-ticks"><li>The full application: 34 TypeScript files, 5,902 lines under src/, plus 2,550 lines of CSS across the four app stylesheets and the landing page.</li><li>The graphics layer — 27 hand-written GLSL ES 3.00 fragment shaders, the compile/link/VAO core, the program cache and the WebGL context-loss recovery.</li><li>The security model — Electron window hardening, the app:// scheme handler, filesystem path containment, and the two shared validators that gate every imported theme and filter.</li><li>The shared bridge contract and both of its implementations: the Electron preload over IPC, and the browser shim over IndexedDB, localStorage and a download anchor.</li><li>All original assets: the app icon is generated by a build script using only node:zlib, the six backdrops are drawn procedurally with Canvas2D, and all eight sound cues are synthesized from oscillators and band-passed noise. No image or audio files ship.</li><li>The landing page, the esbuild pipeline, the content-hashed web build and the Firebase Hosting deploy.</li></ul></div>
+  <div class="cs-not-owned"><h3 class="cs-h3">What I did not own</h3><ul class="cs-ticks cs-ticks-muted"><li>MediaPipe Tasks Vision — Google's FaceLandmarker model and WASM runtime. Vendored into the app and served from its own origin, but not written by me. It is the project's single runtime dependency.</li><li>Electron, Chromium and esbuild.</li><li>Firebase Hosting, used only as a static file host — firebase.json contains a hosting block and nothing else.</li><li>No design collaborator, no QA and no code review. The gaps in the testing section are a consequence of that, and are stated rather than papered over.</li></ul></div>
+</div></div>
+</section>
+
+<section class="cs-section" id="constraints" aria-labelledby="constraints-t">
+  <span class="cs-ghost" aria-hidden="true">04</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">04<span class="slash">/</span>CONSTRAINTS</p>
+    <h2 class="cs-sec-title" id="constraints-t">What shaped <em>the build.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><div class="cs-grid "><article class="cs-card">
+    <h3 class="cs-card-t">No backend, by construction</h3>
+    <p>There is no server code anywhere in the repository. Every decision downstream — where captures live, how settings persist, how the face model loads — had to resolve locally or not at all.</p>
+  </article>
+<article class="cs-card">
+    <h3 class="cs-card-t">A Content Security Policy with no 'unsafe-inline'</h3>
+    <p>Nothing in the app can inject a style tag or an inline script. That single omission is what forced the theming design: tokens are written through the CSSOM with element.style.setProperty, which is governed by script-src rather than style-src.</p>
+  </article>
+<article class="cs-card">
+    <h3 class="cs-card-t">Untrusted input is the normal case, not the exception</h3>
+    <p>Community themes and filters are a feature, so the import path is a permanent, expected attack surface rather than an edge case to be handled later.</p>
+  </article>
+<article class="cs-card">
+    <h3 class="cs-card-t">One developer, four days</h3>
+    <p>The whole application was written across 13 commits between 14 and 17 June 2026. That budget is why there is one test suite rather than several, and why it was pointed at the validator instead of the UI.</p>
+  </article></div></div>
+</section>
+
+
+<section class="cs-section" id="flow" aria-labelledby="flow-t">
+  <span class="cs-ghost" aria-hidden="true">06</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">06<span class="slash">/</span>PRODUCT FLOW</p>
+    <h2 class="cs-sec-title" id="flow-t">How it <em>works.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><figure class="cs-flow">
+  <ol class="cs-flow-steps">
+    <li class="cs-step">
+      <span class="cs-step-n" aria-hidden="true">01</span>
+      
+      <p>getUserMedia opens the camera into a &lt;video&gt; element mounted one pixel wide at opacity 0 — pixels flow through WebGL, not through the tag.</p>
+    </li>
+    <li class="cs-step">
+      <span class="cs-step-n" aria-hidden="true">02</span>
+      
+      <p>requestAnimationFrame ticks at display refresh; prepareFrame() uploads the current video contents into one reusable GL texture.</p>
+    </li>
+    <li class="cs-step">
+      <span class="cs-step-n" aria-hidden="true">03</span>
+      
+      <p>If a face effect is active, MediaPipe FaceLandmarker — throttled to roughly 22 fps so the render loop keeps its own cadence — supplies iris, nose, mouth, chin, brow and cheek positions as uniforms.</p>
+    </li>
+    <li class="cs-step">
+      <span class="cs-step-n" aria-hidden="true">04</span>
+      
+      <p>drawEffect() runs the cached fragment program for the selected effect over a single full-screen quad. Nothing is allocated per frame.</p>
+    </li>
+    <li class="cs-step">
+      <span class="cs-step-n" aria-hidden="true">05</span>
+      
+      <p>grabFrame() re-renders and copies the GL canvas, so the saved file is exactly what the preview showed — effect, mirror and replaced background included.</p>
+    </li>
+    <li class="cs-step">
+      <span class="cs-step-n" aria-hidden="true">06</span>
+      
+      <p>Single shot saves one image; strip mode composes four onto a warm paper gradient with per-pixel grain and a printed footer; video mode records the canvas stream to WebM.</p>
+    </li>
+    <li class="cs-step">
+      <span class="cs-step-n" aria-hidden="true">07</span>
+      
+      <p>The capture is written to Pictures/Photoshoot on the desktop, or to IndexedDB in the browser.</p>
+    </li>
+  </ol>
+  <figcaption>One frame, from lens to strip. Nothing in this path crosses the network.</figcaption>
+</figure></div>
+</section>
+
+<section class="cs-section" id="architecture" aria-labelledby="architecture-t">
+  <span class="cs-ghost" aria-hidden="true">07</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">07<span class="slash">/</span>SYSTEM ARCHITECTURE</p>
+    <h2 class="cs-sec-title" id="architecture-t">How it <em>fits together.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><figure class="cs-arch">
+  <div class="cs-arch-board" role="img" aria-label="Photoshoot is an Electron application with three processes plus a browser build that reuses one of them. The shared layer, src/shared/, holds pure types and validators with no Node and no DOM imports, so the same modules bundle into all four contexts: the theme validator, the filter validator, the twenty IPC channel names, and the PhotoshootBridge interface. The renderer holds everything the user sees — camera capture, the WebGL2 pipeline with its twenty-seven fragment shaders, MediaPipe face tracking, background replacement, CSSOM theming, synthesized audio and the three capture modes — and it never talks to Node directly. It talks only to PhotoshootBridge. That interface is implemented twice. On the desktop, the preload script implements it over contextBridge and ipcRenderer, and the Electron main process answers on twenty channels: window control, settings storage, gallery storage, theme import and filter import, each gated by a lexical path-containment check. In the browser, src/web/shim.ts implements the same twenty methods over IndexedDB for captures, localStorage for settings and themes, and a download anchor for exports. Data lives in three places, all of them local: the user's Pictures folder and JSON files in Electron's userData directory on the desktop, and IndexedDB plus localStorage in the browser. Two third parties are involved. MediaPipe Tasks Vision supplies the face landmark model and WASM runtime, both vendored into the app and served from its own app:// origin rather than fetched from a CDN. Firebase Hosting serves the web build as static files. No other network destination exists — the desktop app cancels every request whose URL does not start with app:, file:, devtools:, blob:, data: or chrome-extension:.">
+    <div class="cs-arch-group" data-tier="core">
+      <p class="cs-arch-label">Renderer — shared by both runtimes</p>
+      <ul class="cs-arch-nodes"><li>camera.ts — getUserMedia, device enumeration, self-healing deviceId</li><li>gl/ — WebGL2 renderer, 27 fragment shaders, program cache, context-loss recovery</li><li>faceTracker.ts — MediaPipe FaceLandmarker, numFaces: 1, throttled to ~22 fps</li><li>backgroundReplace.ts — 192 px reference diff, GPU-upscaled matte</li><li>capture.ts — single shot, four-shot strip, WebM video</li><li>themes.ts — tokens applied through the CSSOM, never injected CSS</li><li>sound.ts — 8 cues synthesized with the Web Audio API</li></ul>
+      
+    </div>
+    <div class="cs-arch-group" data-tier="core">
+      <p class="cs-arch-label">Shared — no Node, no DOM</p>
+      <ul class="cs-arch-nodes"><li>ipc-contract.ts — 20 channel names and the PhotoshootBridge interface</li><li>theme-schema.ts — 59 whitelisted tokens, 24 forbidden substrings</li><li>filter-schema.ts — 11 clamped parameters, LUT byte validation</li></ul>
+      
+    </div>
+    <div class="cs-arch-group" data-tier="core">
+      <p class="cs-arch-label">Bridge — one interface, two implementations</p>
+      <ul class="cs-arch-nodes"><li>preload.ts — contextBridge over ipcRenderer, 38 lines, the only seam</li><li>web/shim.ts — the same 20 methods over browser storage, 448 lines</li></ul>
+      
+    </div>
+    <div class="cs-arch-group" data-tier="core">
+      <p class="cs-arch-label">Electron main</p>
+      <ul class="cs-arch-nodes"><li>main.ts — window hardening, CSP, permissions, request cancellation</li><li>app:// scheme handler — privileged origin, rejects paths outside dist/</li><li>storage.ts / paths.ts — every read and write gated by isInside()</li><li>themeImport.ts / filterImport.ts — validate, then persist</li></ul>
+      
+    </div>
+    <div class="cs-arch-group" data-tier="core">
+      <p class="cs-arch-label">On-device storage</p>
+      <ul class="cs-arch-nodes"><li>Pictures/Photoshoot — captured images and video</li><li>userData — settings.json, gallery.json, themes/index.json, filters/index.json</li><li>Browser — IndexedDB store `captures`, localStorage for settings and themes</li></ul>
+      
+    </div>
+    <div class="cs-arch-group" data-tier="core">
+      <p class="cs-arch-label">Third parties</p>
+      <ul class="cs-arch-nodes"><li>MediaPipe Tasks Vision — model and WASM vendored, served from the app's own origin</li><li>Firebase Hosting — static files only, content-hashed and immutably cached</li></ul>
+      
+    </div>
+  </div>
+  <ul class="cs-arch-edges"><li><b>Camera</b> <span aria-hidden="true">→</span> <b>Renderer</b><span>getUserMedia — MediaStream, local only</span></li><li><b>Renderer</b> <span aria-hidden="true">→</span> <b>Shared</b><span>re-validates every token and parameter before use</span></li><li><b>Renderer</b> <span aria-hidden="true">→</span> <b>Bridge</b><span>PhotoshootBridge — 20 methods, the only way out</span></li><li><b>Bridge</b> <span aria-hidden="true">→</span> <b>Electron main</b><span>desktop: contextBridge over 20 IPC channels</span></li><li><b>Bridge</b> <span aria-hidden="true">→</span> <b>On-device storage</b><span>web: IndexedDB, localStorage, download anchor</span></li><li><b>Electron main</b> <span aria-hidden="true">→</span> <b>Shared</b><span>validates imports before anything is persisted</span></li><li><b>Electron main</b> <span aria-hidden="true">→</span> <b>On-device storage</b><span>path-contained reads and writes</span></li><li><b>Renderer</b> <span aria-hidden="true">→</span> <b>Third parties</b><span>loads the face model from app://photoshoot, not a CDN</span></li><li><b>Third parties</b> <span aria-hidden="true">→</span> <b>Renderer</b><span>Firebase Hosting serves the web bundle; no runtime API calls</span></li></ul>
+  <figcaption>Three processes, one shared renderer, and a single audited seam between them.</figcaption>
+</figure></div>
+</section>
+
+<section class="cs-section" id="challenges" aria-labelledby="challenges-t">
+  <span class="cs-ghost" aria-hidden="true">08</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">08<span class="slash">/</span>ENGINEERING CHALLENGES</p>
+    <h2 class="cs-sec-title" id="challenges-t">The hard <em>parts.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><article class="cs-challenge" id="challenge-1">
+  <p class="cs-challenge-n" aria-hidden="true">CH.01</p>
+  <h3 class="cs-challenge-t">A plugin format that is data, never code</h3>
+  <div class="cs-challenge-body">
+    <div class="cs-cbeat"><p class="cs-beat-l">Why it was hard</p><p>Themes change the app's entire chrome and filters change what the GPU does to every pixel. Both are things a user should be able to download from a stranger and try, and both are the classic route to arbitrary execution. A theme that can set a CSS value can smuggle url(javascript:…), @import or a script tag; a filter that can supply shader text can rewrite the pipeline. The desktop app is an Electron process, so a mistake here is not a defaced page — it is a foothold.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">Options considered</p><ul class="cs-points"><li>Ship only built-in themes and filters, and drop the community format entirely</li><li>Accept CSS text from a manifest and sanitize it on the way in</li><li>Accept GLSL snippets and validate the source before compiling it</li><li>Reduce both formats to whitelisted, typed values with no free text anywhere</li></ul></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">What I built</p><p>A theme manifest may set only the 59 whitelisted CSS custom properties — 39 colour, 9 length, 5 shadow, 2 font and 4 texture. Each is matched against a per-kind regular expression, then screened against 24 forbidden substrings including javascript:, expression(, @import, &lt;script, url(, http://, file:, blob:, backslash escapes, braces and semicolons. Texture tokens can never be set from a manifest string at all; they come only from bytes the importer has already verified by magic number. A filter is 11 numbers, each hard-clamped to a fixed minimum, maximum and default, plus an optional lookup table. Every value is validated twice — once by the importer, and again by the renderer immediately before it reaches the CSSOM or a GL uniform.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">What it cost</p><p>Community themes can only do what the whitelist anticipated. Anything genuinely new needs a new token, a new regular expression and a new release, so the format cannot be extended by the people using it. That is the price of it being data.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>44 adversarial assertions run over the filter validator: out-of-range values, NaN, Infinity, wrong types, unknown keys, injected strings, junk manifests, and the renderer's re-clamp of a store that was edited on disk. The invariant is written into the shader file so it survives the next reader: no part of a manifest ever becomes shader source, JavaScript, CSS or HTML.</p></div>
+    <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>An imported filter controls numbers, never code, and an imported theme controls a fixed vocabulary of values. The theme validator follows the same design but has no tests — it is the larger and riskier of the two, and it is the largest known gap in the project.</p></div>
+  </div>
+</article>
+<article class="cs-challenge" id="challenge-2">
+  <p class="cs-challenge-n" aria-hidden="true">CH.02</p>
+  <h3 class="cs-challenge-t">One compiled shader for every user-supplied filter</h3>
+  <div class="cs-challenge-body">
+    <div class="cs-cbeat"><p class="cs-beat-l">Why it was hard</p><p>Imported filters need to look different from one another — brightness, contrast, temperature, hue rotation, film grain, a colour lookup table. The obvious implementation generates shader source per filter, which puts untrusted data on the path to the GPU compiler and adds a compile stall the first time each one is selected.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">Options considered</p><ul class="cs-points"><li>Generate GLSL per filter from the manifest and compile on first use</li><li>Precompile one program per known filter shape and switch between them</li><li>Compile one fixed program and drive every filter entirely from uniforms</li></ul></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">What I built</p><p>All imported filters resolve to a single program: the effect id is mapped with `const key = id.startsWith('custom:') ? 'customfilter' : id`, so every custom filter shares one compiled shader. The difference between two filters is three vec4 uniforms and an optional LUT texture. The shader runs brightness, contrast, saturation, temperature, tint, gamma, fade, a hue rotation about the (1,1,1) axis, a 64-level lookup table with blue-channel interpolation, vignette and grain — in that fixed order.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">What it cost</p><p>Every imported filter pays for every stage whether it uses it or not, and a filter can only ever be a point inside that fixed parameter space. Generated shaders would be cheaper per filter and unbounded in what they could express; this trades expressiveness for a surface area of eleven range checks.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>gamma is clamped to a floor of 0.2 so the shader's 1/gamma can never divide by zero, and that floor is asserted directly in the suite. A lookup table must be a real 512×512 PNG, checked by magic bytes and by the width and height read out of the IHDR chunk at byte offsets 16 and 20 — never by file extension. Non-square images, truncated files, oversized files and a JPEG wearing a .png name are all covered.</p></div>
+    <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Switching between imported filters costs uniform writes, not a shader compile, and the security argument for the whole feature collapses to a range check on eleven numbers.</p></div>
+  </div>
+</article>
+<article class="cs-challenge" id="challenge-3">
+  <p class="cs-challenge-n" aria-hidden="true">CH.03</p>
+  <h3 class="cs-challenge-t">The camera worked; the preview was blank</h3>
+  <div class="cs-challenge-body">
+    <div class="cs-cbeat"><p class="cs-beat-l">Why it was hard</p><p>The camera &lt;video&gt; element is deliberately mounted one pixel wide at opacity 0, because pixels flow through WebGL rather than through the tag. Driving the render loop from requestVideoFrameCallback is the textbook choice — it fires once per decoded video frame, exactly the cadence a texture upload wants. On some browser, GPU and operating-system combinations it never fires at all for an element in that state. getUserMedia had resolved, the tracks were live, and the app looked broken.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">Options considered</p><ul class="cs-points"><li>Mount the video visibly and hide it behind the canvas so rVFC has a painted element</li><li>Keep rVFC and add a watchdog that restarts the loop when no frame arrives</li><li>Drive the loop on requestAnimationFrame and stop depending on rVFC entirely</li></ul></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">What I built</p><p>The loop always ticks on requestAnimationFrame, which fires at display refresh whether or not a video frame was presented, and the texture upload takes whatever the video element currently holds. The reasoning is recorded as an eleven-line comment at the scheduling call itself, so the next reader does not reintroduce the optimisation.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">What it cost</p><p>On a camera running below display refresh, the same frame is uploaded more than once and that GPU work is wasted. Predictable liveness was worth more than avoiding redundant uploads.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>The debug overlay reports the active backend, which now reads `WebGL2 · rAF`. The fix is a discrete commit rather than a change bundled into unrelated work.</p></div>
+    <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Fixed on 17 June 2026. The README has not caught up — it still describes the rVFC loop that this commit removed, which is documentation drift I have not yet corrected.</p></div>
+  </div>
+</article>
+<article class="cs-challenge" id="challenge-4">
+  <p class="cs-challenge-n" aria-hidden="true">CH.04</p>
+  <h3 class="cs-challenge-t">Replacing the background without a second model</h3>
+  <div class="cs-challenge-body">
+    <div class="cs-cbeat"><p class="cs-beat-l">Why it was hard</p><p>Background replacement means deciding, per pixel and per frame, what is the person and what is the room. The modern answer is a segmentation model, which would have meant a second on-device model to download and a second inference budget on top of the face mesh. The naive alternative — reading pixels back from the GPU at full resolution and differencing them on the CPU — stalls the pipeline every frame.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">Options considered</p><ul class="cs-points"><li>Add a second MediaPipe model for selfie segmentation</li><li>Difference every frame against a reference at full resolution on the CPU</li><li>Difference against a low-resolution reference and let the compositor do the upscaling</li></ul></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">What I built</p><p>The user captures a reference frame of the empty scene at 192 px wide. Each frame is differenced against it with a sum-of-channels threshold derived from a user tolerance setting — the only CPU pixel loop in the application, deliberately confined to that resolution. The resulting low-resolution alpha mask is upscaled by the GPU during destination-in compositing, which softens the matte edge for free rather than requiring a separate feather pass. The composited canvas is then fed back into the GL pipeline as the source, so effects and mirroring still apply on top.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">What it cost</p><p>It asks the user to step out of frame once, and it degrades if the camera or the lighting moves. A segmentation model would need neither. It also means the six backdrops had to be drawable rather than photographable — they are generated procedurally with Canvas2D and cached per size, so no image assets ship.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>The cost is bounded by construction rather than by measurement: the loop is fixed at a 192 px sample regardless of camera resolution, and the upscale is the compositor's work, not the CPU's. There is no benchmark in the repository, so I have no frame-rate figure to publish for it and will not quote one.</p></div>
+    <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>Background replacement composites in a single pass ahead of the effect pipeline, with one bounded CPU loop and no second model to load.</p></div>
+  </div>
+</article>
+<article class="cs-challenge" id="challenge-5">
+  <p class="cs-challenge-n" aria-hidden="true">CH.05</p>
+  <h3 class="cs-challenge-t">One renderer, two runtimes</h3>
+  <div class="cs-challenge-body">
+    <div class="cs-cbeat"><p class="cs-beat-l">Why it was hard</p><p>The desktop app has Node, IPC, a filesystem and a main process. The browser has none of those and cannot be given them. Keeping two builds in step usually degrades one of two ways: a shared core with two thin apps around it that quietly drift apart, or platform checks sprinkled through the renderer that multiply with every feature.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">Options considered</p><ul class="cs-points"><li>Two codebases kept in step by hand</li><li>One codebase with `if (isElectron)` branches inside the renderer</li><li>A bridge interface the renderer talks to, implemented once per runtime</li></ul></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">What I built</p><p>The renderer only ever calls PhotoshootBridge, a twenty-method interface declared in src/shared/ipc-contract.ts alongside the twenty IPC channel names. preload.ts implements it over contextBridge and ipcRenderer; src/web/shim.ts implements the same twenty methods over IndexedDB, localStorage and a download anchor. src/shared/ imports neither Node nor the DOM, so it bundles unchanged into the main process, the preload, the renderer and the web shim. The web build bundles src/renderer/main.ts verbatim and only swaps the script tags and sets data-platform=&quot;web&quot;.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">What it cost</p><p>The interface is the lowest common denominator of the two runtimes, so capabilities that only make sense on the desktop — revealing a file in its folder, for example — still have to exist in the browser and do the nearest native equivalent. Adding one feature means touching the contract, both implementations and the preload bridge: four files for one capability.</p></div>
+    <div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>`tsc --noEmit` runs clean with strict mode on, zero diagnostics, which is what actually enforces that both implementations satisfy the interface. The deployed web app references exactly the hashed filenames produced by the local build, so the two runtimes are demonstrably built from the same renderer source.</p></div>
+    <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>34 TypeScript files and 5,902 lines produce one renderer and two shipping runtimes, with the platform difference isolated to two files totalling 486 lines.</p></div>
+  </div>
+</article></div>
+</section>
+
+<section class="cs-section" id="decisions" aria-labelledby="decisions-t">
+  <span class="cs-ghost" aria-hidden="true">09</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">09<span class="slash">/</span>TECHNICAL DECISIONS</p>
+    <h2 class="cs-sec-title" id="decisions-t">Why <em>this way.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><div class="cs-decisions">
+  <article class="cs-decision">
+    <p class="cs-dec-n" aria-hidden="true">01</p>
+    <h3 class="cs-h3">Lock the renderer down before writing anything into it</h3>
+    <p class="cs-dec-chose"><span>Chose</span> contextIsolation and sandbox on, nodeIntegration off, a CSP with no 'unsafe-inline', and a network kill-switch</p>
+    <p>The renderer's job is to hold a live camera feed and apply visual data that may have come from a stranger. Everything it does not need, it should not have. The window is created with contextIsolation: true, nodeIntegration: false, sandbox: true, webgl: true, spellcheck: false and devTools: isDev, so production builds ship without dev tools. The preload is the only seam and exposes exactly twenty methods — no ipcRenderer, no require and no Node reaches the page. The CSP is declared once and applied twice, as a meta tag and as an injected response header. Only the media permission is ever granted; geolocation, notifications and MIDI are refused by both the request and the check handler. Every new window is denied and http(s) links are routed to the OS browser instead. And onBeforeRequest cancels any request whose URL does not begin with app:, file:, devtools:, blob:, data: or chrome-extension: — the desktop app cannot make a network call at all.</p>
+    <p class="cs-dec-alt"><span>Instead of</span> Electron's defaults with contextIsolation left on and nothing else touched, which is what most desktop wrappers ship.</p>
+    <p class="cs-dec-cost"><span>Trade-off</span> Because 'unsafe-inline' is absent, nothing can inject a style tag, so themes had to be applied through the CSSOM instead of by writing CSS. Disabling dev tools in production means a user-reported rendering bug has to be reproduced locally before it can be looked at.</p>
+  </article>
+  <article class="cs-decision">
+    <p class="cs-dec-n" aria-hidden="true">02</p>
+    <h3 class="cs-h3">A custom app:// origin instead of file://</h3>
+    <p class="cs-dec-chose"><span>Chose</span> Register app://photoshoot as a privileged scheme and serve the packaged app from it</p>
+    <p>MediaPipe's FaceLandmarker fetches its WASM runtime and its model file at startup. Chromium blocks fetch() of file:// resources but allows it for a standard scheme, so a file:// app cannot load an on-device model without reaching for the network — which would defeat the entire point of the product. A real origin also gives 'self' in the CSP something to resolve to. The scheme is registered as standard, secure, supportFetchAPI and stream, and its handler rejects anything resolving outside dist/. The reason is written into the code above the constant, not left in a commit message.</p>
+    <p class="cs-dec-alt"><span>Instead of</span> Loading dist/index.html straight from file://, or running a local HTTP server inside the desktop app.</p>
+    <p class="cs-dec-cost"><span>Trade-off</span> A scheme handler is code I own and have to keep correct. A path-containment mistake in it would be a file-read primitive, which is why it is one of the places isInside() is applied.</p>
+  </article>
+  <article class="cs-decision">
+    <p class="cs-dec-n" aria-hidden="true">03</p>
+    <h3 class="cs-h3">Hand-written GLSL rather than a graphics library</h3>
+    <p class="cs-dec-chose"><span>Chose</span> Raw WebGL2 with GLSL ES 3.00 — 27 fragment shaders written by hand over a single full-screen quad</p>
+    <p>The entire app is one quad with a different fragment shader on it. A scene-graph library would have added a dependency, a bundle and an abstraction whose value — meshes, cameras, lighting, material systems — is entirely unused here. CSS filter functions cannot express the seven pointer-driven warps or the face-tracked distortions, and a Canvas2D pixel loop cannot run them at display refresh. Writing the shaders directly is also what made the single fixed custom-filter program possible, which is the thing that makes untrusted filters safe.</p>
+    <p class="cs-dec-alt"><span>Instead of</span> three.js or PixiJS for the pipeline, or CSS filter functions and Canvas2D for the effects.</p>
+    <p class="cs-dec-cost"><span>Trade-off</span> Everything a library would have handled is mine: compilation, linking, VAO setup, uniform plumbing and context loss. Programs are compiled lazily and cached per effect id; webglcontextlost and webglcontextrestored handlers clear and rebuild every program and re-upload every LUT texture; a shader that fails to compile falls back to the pass-through effect once and raises a toast rather than crashing the app.</p>
+  </article>
+  <article class="cs-decision">
+    <p class="cs-dec-n" aria-hidden="true">04</p>
+    <h3 class="cs-h3">No UI framework, no state library, esbuild for everything</h3>
+    <p class="cs-dec-chose"><span>Chose</span> Plain DOM built with createElement, a 43-line mutable singleton for shared state, and three esbuild targets</p>
+    <p>The interface is a viewfinder, a control bar, a 3×3 effects grid and a few sheets. Reconciliation buys nothing when the thing changing sixty times a second is a GPU texture rather than a DOM tree. esbuild produces the main, preload and renderer bundles from one script with no plugin system to learn, and type checking is deliberately a separate command — esbuild does none, so a type error can never stop the app from building and running while I am debugging something unrelated.</p>
+    <p class="cs-dec-alt"><span>Instead of</span> React or Svelte on Vite, with a store library for shared state.</p>
+    <p class="cs-dec-cost"><span>Trade-off</span> There is no component model, so UI code is imperative, and shared state is a singleton any module can mutate. That is workable at 5,902 lines and would not be at five times that.</p>
+  </article>
+  <article class="cs-decision">
+    <p class="cs-dec-n" aria-hidden="true">05</p>
+    <h3 class="cs-h3">Content-hashed static assets instead of a versioned deploy</h3>
+    <p class="cs-dec-chose"><span>Chose</span> sha256-prefixed filenames cached immutably for a year, with the HTML documents served no-cache</p>
+    <p>Every bundle and stylesheet is emitted with an eight-character content hash and Cache-Control: public, max-age=31536000, immutable, while the HTML and the /, /app and /app/ routes revalidate on every load. A push therefore reaches users on their next page load without anyone clearing a cache, and a stale HTML document can never pair with a mismatched bundle, because the document names the exact files it needs. There is no backend to version alongside it.</p>
+    <p class="cs-dec-alt"><span>Instead of</span> Query-string cache busting, or a short max-age on everything and hoping.</p>
+    <p class="cs-dec-cost"><span>Trade-off</span> Every deploy writes new filenames, so the hosting bucket accumulates the old ones.</p>
+  </article>
+</div></div>
+</section>
+
+<section class="cs-section" id="evolution" aria-labelledby="evolution-t">
+  <span class="cs-ghost" aria-hidden="true">10</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">10<span class="slash">/</span>DESIGN EVOLUTION</p>
+    <h2 class="cs-sec-title" id="evolution-t">How it <em>changed.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><div class="cs-grid "><article class="cs-card">
+    <h3 class="cs-card-t">14 June 2026 — the app, in one sitting</h3>
+    <p>Ten commits: the Electron and web shell with the landing page and Firebase Hosting config, then the effects registry with drag-to-move distortion centres, print-to-tray capture, the MediaPipe face-mesh effects, the community filter format with lookup tables, a redesigned landing page, and the Darkroom theme.</p>
+  </article>
+<article class="cs-card">
+    <h3 class="cs-card-t">17 June 2026 — the three fixes that only appear once you run it</h3>
+    <p>Nothing on the 15th or 16th; three commits on the 17th, each one a defect that reading the code would not have found. The render loop moved from requestVideoFrameCallback to requestAnimationFrame. The web build started content-hashing its assets so deploys propagate. And a saved camera deviceId stopped being able to permanently break the app.</p>
+  </article>
+<article class="cs-card">
+    <h3 class="cs-card-t">Where it stands</h3>
+    <p>Version 1.0.0, 13 commits, no git tags and no GitHub release. The web deployment is current with HEAD. The README carries two statements the code has since contradicted, and the landing page still says four themes where the app ships five — small drift, but drift I can point at rather than pretend away.</p>
+  </article></div></div>
+</section>
+
+<section class="cs-section" id="testing" aria-labelledby="testing-t">
+  <span class="cs-ghost" aria-hidden="true">11</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">11<span class="slash">/</span>TESTING &amp; RELIABILITY</p>
+    <h2 class="cs-sec-title" id="testing-t">How it is <em>proven.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><div class="cs-testing">
+  <p class="cs-lead">There is one test file and no continuous integration. What it covers is the part that matters most — the validator standing between a downloaded file and the GPU — and it is written as adversarial cases rather than happy paths. Stating its scope exactly is more useful than implying the project is tested end to end, so the gap is listed alongside the coverage.</p>
+  <dl class="cs-metrics"><div><dt>Adversarial assertions passing</dt><dd>44</dd></div><div><dt>Test files in the repository</dt><dd>1</dd></div><div><dt>Type errors under strict mode</dt><dd>0</dd></div><div><dt>CI pipelines</dt><dd>None</dd></div></dl>
+  <div class="cs-cases"><h3 class="cs-h3">Representative cases</h3><ul class="cs-points"><li>Numeric clamping across all eleven filter parameters: values below the minimum, above the maximum, NaN, Infinity, and the wrong type entirely.</li><li>Manifest hygiene: unknown keys dropped, injected strings sanitized, and a junk manifest rejected outright rather than partially applied.</li><li>Lookup-table filename traversal: ../../etc/passwd, absolute paths, backslashes, double extensions, dotfiles, overlong names and control characters.</li><li>Lookup-table bytes: PNG magic numbers, a 512×512 IHDR, non-square images, a JPEG wearing a .png name, truncated files and oversized files.</li><li>Tamper recovery: the renderer's clampParams re-clamps a filter store that was edited on disk after import, which is the second half of the validate-twice rule.</li><li>Not covered, stated plainly: the theme validator, the Electron main process, filesystem path containment, the renderer and the GL layer. The theme validator is the larger of the two — 59 tokens, 24 forbidden substrings and four regular expressions — and it is the untested one.</li></ul></div>
+</div></div>
+</section>
+
+<section class="cs-section" id="results" aria-labelledby="results-t">
+  <span class="cs-ghost" aria-hidden="true">12</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">12<span class="slash">/</span>RESULTS</p>
+    <h2 class="cs-sec-title" id="results-t">What <em>shipped.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><dl class="cs-metrics cs-metrics-lg"><div><dt>Deployed, and current with the source</dt><dd>The web app is live and the deployment matches HEAD exactly: the served document references the same content-hashed filenames the local build produces, and the host's last-modified timestamp is the timestamp of the final commit.</dd></div><div><dt>Seventeen effects and eight face effects, all on-device</dt><dd>The registry holds 26 entries: one pass-through, 17 GLSL effects and 8 MediaPipe face effects, plus a 27th shader for the audited custom-filter program. Seven of the seventeen are warps whose centre follows the pointer, mirror-corrected so it lines up with the cursor; two are time-animated. Face tracking runs with numFaces: 1 against a model served from the app's own origin, throttled to roughly 22 fps so the render loop keeps its own cadence — and if the model fails to load, face effects render the plain image instead of failing.</dd></div><div><dt>One runtime dependency, and no shipped assets</dt><dd>@mediapipe/tasks-vision is the only entry under dependencies; everything else is a devDependency. Nothing else is downloaded and nothing is bundled that was not written for this project: the app icon is generated by a build script using only node:zlib deflate, the six backdrops are drawn procedurally, and all eight sound cues are synthesized from oscillators and band-passed noise. There are no audio files in the repository at all.</dd></div></dl></div>
+</section>
+
+<section class="cs-section" id="lessons" aria-labelledby="lessons-t">
+  <span class="cs-ghost" aria-hidden="true">13</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">13<span class="slash">/</span>REFLECTION</p>
+    <h2 class="cs-sec-title" id="lessons-t">What I <em>learned.</em></h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal><div class="cs-lessons">
+  <div><h3 class="cs-h3">What worked</h3><ul class="cs-points"><li>Validating twice — once at import and again at use — cost almost nothing and meant the renderer never has to assume the importer ran, or ran the current version of itself.</li><li>Splitting the texture upload from the draw call was a small refactor that made the effects menu possible at all: it uploads one frame and draws several different effects from it, three tiles per animation frame through a second small renderer capped at 420 px.</li><li>Writing the reason into the code rather than the commit message. The rVFC comment, the app:// comment and the symlink comment each exist so the next reader does not undo the fix while tidying up.</li></ul></div>
+  <div><h3 class="cs-h3">What I underestimated</h3><ul class="cs-points"><li>Platform behaviour that is technically correct and practically useless. requestVideoFrameCallback declining to fire for an off-screen video is legal, and it presents to the user as &quot;the camera is broken&quot;.</li><li>State that rots between sessions. Browser deviceIds rotate, so a saved camera id turned into a permanent &quot;No camera found&quot; until the error handler learned to retry with default constraints and persist whatever actually opened.</li><li>How fast documentation drifts from code. The README described the render loop the way it worked for three days, and the landing page still counts four themes against the five the app ships.</li></ul></div>
+  <div><h3 class="cs-h3">What I would do next</h3><ul class="cs-points"><li>Tests for the theme validator. It is the larger and riskier of the two shared validators and it has none — the honest reading is that the filter path is tested and the theme path is only reviewed.</li><li>A packaged, signed desktop build. electron-builder is configured for a Windows NSIS installer and a portable binary, but no GitHub release exists, so the README's download link and the landing page's download button both currently lead to an empty releases page.</li><li>Symlink rejection currently guards only the lookup-table import path, because isInside() is lexical and a symlink named lut.png could otherwise point anywhere on disk. The same lstat guard belongs on every path that accepts a file from outside the app, not just that one.</li></ul></div>
+</div></div>
+</section>
+    <div class="cs-media">
+  <figure class="cs-fig">
+    <img src="/images/photoshoot-app.webp" alt="The Photoshoot capture window: a dark viewfinder marked REC with an ISO 400 · F/1.8 · ON-DEVICE readout, a row of effect swatches, a red shutter button, and a four-frame paper strip printed PHOTO·SHOOT alongside it." width="1202" height="956" loading="lazy" decoding="async" />
+    <figcaption><b aria-hidden="true">FIG. 01</b>The capture window and the four-shot strip. Drawn for this archive — the repository ships no product screenshots.</figcaption>
+  </figure>
+</div>
+    
+<nav class="cs-related" aria-label="More work">
+  <a class="cs-rel cs-rel-prev" href="/work/adelante/"><span>Previous</span><b>Adelante</b></a>
+  <a class="cs-rel cs-rel-all" href="/work/"><span>All work</span><b>Selected work</b></a>
+  
+</nav>
+
+    <aside class="cs-cta">
+      <h2>Want the detail behind any of this?</h2>
+      <p>I am looking for a full-time software engineering internship, January to April 2027, in Kuala Lumpur or remote.</p>
+      <nav class="cs-cta-links" aria-label="Contact">
+        <a href="mailto:yousofselim2@gmail.com" data-cursor="MAIL">yousofselim2@gmail.com<span class="cta-arr" aria-hidden="true">↗</span></a>
+        <a href="/Yousof-Selim-Resume.pdf" download data-cursor="PDF">Résumé<span class="cta-arr" aria-hidden="true">↓</span></a>
+        <a href="/#contact">Contact<span class="cta-arr" aria-hidden="true">→</span></a>
+      </nav>
+    </aside>
+
+  </article>
+</main>
+
+<footer class="site-foot cs-foot">
+  <p>DESIGNED AND BUILT BY HAND · 2026</p>
+  <a href="/#top">Back to top ↑</a>
+</footer>
+
+<script src="/case.js?v=4" defer></script>
+</body>
+</html>

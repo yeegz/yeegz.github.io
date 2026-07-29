@@ -1,0 +1,700 @@
+#!/usr/bin/env node
+/**
+ * Static generator for the case-study routes.
+ *
+ * Reads content/site.json + content/projects/*.json, validates them against
+ * content/schema.mjs, and writes work/<slug>/index.html plus work/index.html
+ * and an updated sitemap.xml. Output is committed, so GitHub Pages keeps
+ * serving a plain static site with no runtime framework.
+ *
+ *   node tools/build.mjs          build
+ *   node tools/build.mjs --check  validate only, write nothing
+ *
+ * Design rule enforced here rather than in the templates: a section whose
+ * content is absent renders NOTHING — no heading, no empty container, no
+ * stray rule. That is why every renderer below starts by bailing on empty.
+ */
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { validateAll } from '../content/schema.mjs';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const ORIGIN = 'https://yeegz.github.io';
+const CHECK_ONLY = process.argv.includes('--check');
+
+/* ------------------------------------------------------------------ */
+/* helpers                                                             */
+/* ------------------------------------------------------------------ */
+
+const read = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
+const readJSON = (p) => JSON.parse(read(p));
+
+/** Escape for HTML text nodes and quoted attributes. */
+const esc = (s) =>
+  String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+/** Present only if there is something to present. */
+const has = (v) =>
+  v !== undefined && v !== null && !(Array.isArray(v) && v.length === 0) && !(typeof v === 'string' && !v.trim());
+
+/**
+ * Inline emphasis for authored prose: *word* becomes the site's serif-italic
+ * accent voice. Escapes first, so content can never inject markup.
+ */
+const rich = (s) => esc(s).replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+const list = (arr, fn) => (has(arr) ? arr.map(fn).join('\n') : '');
+
+/** Section wrapper. Returns '' when the body is empty so nothing renders. */
+function section(id, num, label, title, body, opts = {}) {
+  if (!has(body)) return '';
+  const ghost = opts.ghost ? ` data-ghost="${esc(opts.ghost)}"` : '';
+  return `
+<section class="cs-section${opts.className ? ' ' + opts.className : ''}" id="${esc(id)}"${ghost} aria-labelledby="${esc(id)}-t">
+  <span class="cs-ghost" aria-hidden="true">${esc(num)}</span>
+  <header class="cs-sec-head" data-reveal>
+    <p class="sec-label">${esc(num)}<span class="slash">/</span>${esc(label)}</p>
+    <h2 class="cs-sec-title" id="${esc(id)}-t">${rich(title)}</h2>
+    <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+  </header>
+  <div class="cs-sec-body" data-reveal>${body}</div>
+</section>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* fragments                                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The schema declares `architecture`, `flow` and friends as objects without
+ * pinning their inner shape, so independently-authored content files drifted:
+ * one used {label, nodes} where another used {title, items}, and one wrote flow
+ * steps as plain strings where another wrote {title, body}. The renderer read
+ * only the first spelling, so a whole architecture diagram rendered as empty
+ * boxes without failing anything.
+ *
+ * normalise() accepts every spelling actually in use and reduces it to one.
+ * assertNothingDropped() then fails the build if the result is empty, so a
+ * future mismatch is a red build rather than a blank section on a live page.
+ */
+function normalise(p) {
+  const a = p.architecture;
+  if (a && Array.isArray(a.groups)) {
+    a.groups = a.groups.map((g) => ({
+      ...g,
+      label: g.label ?? g.title ?? '',
+      nodes: g.nodes ?? g.items ?? [],
+    }));
+  }
+  if (a && Array.isArray(a.edges)) {
+    a.edges = a.edges.map((e) => ({ ...e, via: e.via ?? e.label ?? '' }));
+  }
+  if (p.flow && Array.isArray(p.flow.steps)) {
+    p.flow.steps = p.flow.steps.map((s) =>
+      typeof s === 'string' ? { title: '', body: s } : { title: s.title ?? '', body: s.body ?? '' }
+    );
+  }
+  return p;
+}
+
+function assertNothingDropped(p) {
+  const errs = [];
+  const a = p.architecture;
+  if (a) {
+    if (!has(a.alt)) errs.push(`${p.slug}.architecture.alt: required — the diagram needs a text alternative`);
+    (a.groups || []).forEach((g, i) => {
+      if (!has(g.label)) errs.push(`${p.slug}.architecture.groups[${i}].label: empty after normalising (expected label/title)`);
+      if (!has(g.nodes)) errs.push(`${p.slug}.architecture.groups[${i}].nodes: empty after normalising (expected nodes/items)`);
+    });
+  }
+  (p.flow?.steps || []).forEach((s, i) => {
+    if (!has(s.body)) errs.push(`${p.slug}.flow.steps[${i}]: empty body after normalising`);
+  });
+  return errs;
+}
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+/** "2026-02 – Present" reads like a database row. Render it like a sentence. */
+function humanDate(s) {
+  return String(s).replace(/(\d{4})-(\d{2})/g, (_, y, m) => {
+    const name = MONTHS[Number(m) - 1];
+    return name ? `${name} ${y}` : `${y}`;
+  });
+}
+
+function quickFacts(p) {
+  const rows = [
+    ['Role', p.role],
+    ['Team', p.team],
+    ['Timeline', humanDate(p.timeline)],
+    ['Status', p.status],
+    ['Category', p.category],
+    ['Platforms', has(p.platforms) ? p.platforms.join(' · ') : null],
+  ].filter(([, v]) => has(v));
+
+  // The stack row is a sibling, not a full-width grid child: a `1 / -1` span
+  // makes auto-fit keep every generated track, which left empty cells showing
+  // the container's rule colour whenever the fact count did not divide evenly.
+  return `
+<dl class="cs-facts">
+  ${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('\n  ')}
+</dl>
+${
+  has(p.stack)
+    ? `<dl class="cs-stack"><dt>Built with</dt><dd>${p.stack.map((t) => `<span class="cs-chip">${esc(t)}</span>`).join('')}</dd></dl>`
+    : ''
+}`;
+}
+
+function linkRow(p) {
+  if (!has(p.links)) return '';
+  return `<nav class="cs-links" aria-label="${esc(p.name)} destinations">
+  ${p.links
+    .map((l) => {
+      const external = /^https?:/.test(l.href);
+      const arrow = l.kind === 'store' || l.kind === 'play' ? '↗' : external ? '↗' : '→';
+      return `<a class="cs-link cs-link-${esc(l.kind)}" href="${esc(l.href)}"${
+        external ? ' target="_blank" rel="noopener"' : ''
+      } data-cursor="OPEN">${esc(l.label)}<span class="cta-arr" aria-hidden="true">${arrow}</span></a>`;
+    })
+    .join('\n  ')}
+</nav>`;
+}
+
+function problem(p) {
+  if (!has(p.problem)) return '';
+  const { lead, points } = p.problem;
+  return `<div class="cs-prose">
+  ${has(lead) ? `<p class="cs-lead">${rich(lead)}</p>` : ''}
+  ${has(points) ? `<ul class="cs-points">${points.map((x) => `<li>${rich(x)}</li>`).join('')}</ul>` : ''}
+</div>`;
+}
+
+function contribution(p) {
+  if (!has(p.contribution)) return '';
+  const { owned, notOwned } = p.contribution;
+  return `<div class="cs-split">
+  ${
+    has(owned)
+      ? `<div class="cs-owned"><h3 class="cs-h3">What I designed and engineered</h3><ul class="cs-ticks">${owned
+          .map((x) => `<li>${rich(x)}</li>`)
+          .join('')}</ul></div>`
+      : ''
+  }
+  ${
+    has(notOwned)
+      ? `<div class="cs-not-owned"><h3 class="cs-h3">What I did not own</h3><ul class="cs-ticks cs-ticks-muted">${notOwned
+          .map((x) => `<li>${rich(x)}</li>`)
+          .join('')}</ul></div>`
+      : ''
+  }
+</div>`;
+}
+
+const itemGrid = (arr, cls = '') =>
+  !has(arr)
+    ? ''
+    : `<div class="cs-grid ${cls}">${arr
+        .map(
+          (c) => `<article class="cs-card">
+    <h3 class="cs-card-t">${rich(c.title)}</h3>
+    <p>${rich(c.body)}</p>
+  </article>`,
+        )
+        .join('\n')}</div>`;
+
+function flow(p) {
+  if (!has(p.flow) || !has(p.flow.steps)) return '';
+  return `<figure class="cs-flow">
+  <ol class="cs-flow-steps">
+    ${p.flow.steps
+      .map(
+        (s, i) => `<li class="cs-step">
+      <span class="cs-step-n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+      ${has(s.title) ? `<h3 class="cs-step-t">${esc(s.title)}</h3>` : ''}
+      <p>${rich(s.body)}</p>
+    </li>`,
+      )
+      .join('\n    ')}
+  </ol>
+  ${has(p.flow.caption) ? `<figcaption>${rich(p.flow.caption)}</figcaption>` : ''}
+</figure>`;
+}
+
+/**
+ * Architecture is drawn with layout, not an image, so it stays legible at any
+ * width, works in both themes, and can carry a real text alternative.
+ */
+function architecture(p) {
+  if (!has(p.architecture) || !has(p.architecture.groups)) return '';
+  const a = p.architecture;
+  return `<figure class="cs-arch">
+  <div class="cs-arch-board" role="img" aria-label="${esc(a.alt || a.caption || 'System architecture diagram')}">
+    ${a.groups
+      .map(
+        (g) => `<div class="cs-arch-group" data-tier="${esc(g.tier || 'core')}">
+      <p class="cs-arch-label">${esc(g.label)}</p>
+      <ul class="cs-arch-nodes">${(g.nodes || []).map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
+      ${has(g.note) ? `<p class="cs-arch-note">${esc(g.note)}</p>` : ''}
+    </div>`,
+      )
+      .join('\n    ')}
+  </div>
+  ${
+    has(a.edges)
+      ? `<ul class="cs-arch-edges">${a.edges
+          .map((e) => `<li><b>${esc(e.from)}</b> <span aria-hidden="true">→</span> <b>${esc(e.to)}</b><span>${esc(e.via || '')}</span></li>`)
+          .join('')}</ul>`
+      : ''
+  }
+  ${has(a.caption) ? `<figcaption>${rich(a.caption)}</figcaption>` : ''}
+</figure>`;
+}
+
+function challenges(p) {
+  if (!has(p.challenges)) return '';
+  return p.challenges
+    .map(
+      (c, i) => `<article class="cs-challenge" id="challenge-${i + 1}">
+  <p class="cs-challenge-n" aria-hidden="true">CH.${String(i + 1).padStart(2, '0')}</p>
+  <h3 class="cs-challenge-t">${rich(c.title)}</h3>
+  <div class="cs-challenge-body">
+    <div class="cs-cbeat"><p class="cs-beat-l">Why it was hard</p><p>${rich(c.why)}</p></div>
+    ${
+      has(c.options)
+        ? `<div class="cs-cbeat"><p class="cs-beat-l">Options considered</p><ul class="cs-points">${c.options
+            .map((o) => `<li>${rich(o)}</li>`)
+            .join('')}</ul></div>`
+        : ''
+    }
+    <div class="cs-cbeat"><p class="cs-beat-l">What I built</p><p>${rich(c.solution)}</p></div>
+    ${has(c.tradeoff) ? `<div class="cs-cbeat"><p class="cs-beat-l">What it cost</p><p>${rich(c.tradeoff)}</p></div>` : ''}
+    ${has(c.validation) ? `<div class="cs-cbeat"><p class="cs-beat-l">How I know it works</p><p>${rich(c.validation)}</p></div>` : ''}
+    <div class="cs-cbeat cs-cbeat-out"><p class="cs-beat-l">Result</p><p>${rich(c.result)}</p></div>
+  </div>
+</article>`,
+    )
+    .join('\n');
+}
+
+function decisions(p) {
+  if (!has(p.decisions)) return '';
+  return `<div class="cs-decisions">
+  ${p.decisions
+    .map(
+      (d, i) => `<article class="cs-decision">
+    <p class="cs-dec-n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</p>
+    <h3 class="cs-h3">${rich(d.title)}</h3>
+    <p class="cs-dec-chose"><span>Chose</span> ${rich(d.chose)}</p>
+    <p>${rich(d.because)}</p>
+    ${has(d.instead) ? `<p class="cs-dec-alt"><span>Instead of</span> ${rich(d.instead)}</p>` : ''}
+    ${has(d.cost) ? `<p class="cs-dec-cost"><span>Trade-off</span> ${rich(d.cost)}</p>` : ''}
+  </article>`,
+    )
+    .join('\n  ')}
+</div>`;
+}
+
+function testing(p) {
+  if (!has(p.testing)) return '';
+  const t = p.testing;
+  return `<div class="cs-testing">
+  ${has(t.lead) ? `<p class="cs-lead">${rich(t.lead)}</p>` : ''}
+  ${
+    has(t.stats)
+      ? `<dl class="cs-metrics">${t.stats
+          .map((s) => `<div><dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd></div>`)
+          .join('')}</dl>`
+      : ''
+  }
+  ${
+    has(t.cases)
+      ? `<div class="cs-cases"><h3 class="cs-h3">Representative cases</h3><ul class="cs-points">${t.cases
+          .map((c) => `<li>${rich(c)}</li>`)
+          .join('')}</ul></div>`
+      : ''
+  }
+</div>`;
+}
+
+function results(p) {
+  if (!has(p.results)) return '';
+  return `<dl class="cs-metrics cs-metrics-lg">${p.results
+    .map((r) => `<div><dt>${esc(r.title)}</dt><dd>${rich(r.body)}</dd></div>`)
+    .join('')}</dl>`;
+}
+
+function lessons(p) {
+  if (!has(p.lessons)) return '';
+  const l = p.lessons;
+  const col = (label, arr) =>
+    has(arr) ? `<div><h3 class="cs-h3">${esc(label)}</h3><ul class="cs-points">${arr.map((x) => `<li>${rich(x)}</li>`).join('')}</ul></div>` : '';
+  return `<div class="cs-lessons">
+  ${col('What worked', l.worked)}
+  ${col('What I underestimated', l.underestimated)}
+  ${col('What I would do next', l.next)}
+</div>`;
+}
+
+function media(p) {
+  if (!has(p.media)) return '';
+  return `<div class="cs-media">
+  ${p.media
+    .map(
+      (m, i) => `<figure class="cs-fig">
+    <img src="${esc(m.src)}" alt="${esc(m.alt)}"${m.width ? ` width="${m.width}"` : ''}${
+      m.height ? ` height="${m.height}"` : ''
+    } loading="lazy" decoding="async" />
+    <figcaption><b aria-hidden="true">FIG. ${String(i + 1).padStart(2, '0')}</b>${rich(m.caption)}</figcaption>
+  </figure>`,
+    )
+    .join('\n  ')}
+</div>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* page                                                                */
+/* ------------------------------------------------------------------ */
+
+const NAV = `
+<header class="site-head cs-head" id="siteHead">
+  <a class="brand" href="/#top">ysf.slm<span class="brand-dot"></span></a>
+  <nav class="site-nav" aria-label="Site">
+    <a href="/#work"><sup>01</sup>Work</a>
+    <a href="/#skills"><sup>02</sup>Skills</a>
+    <a href="/#education"><sup>03</sup>Education</a>
+    <a href="/#experience"><sup>04</sup>Experience</a>
+    <a href="/#contact"><sup>05</sup>Contact</a>
+  </nav>
+  <div class="head-actions">
+    <a class="head-resume" href="/Yousof-Selim-Resume.pdf" download data-cursor="PDF">Résumé</a>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Switch to light mode" data-cursor="LIGHT">
+      <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.25"/><path d="M12 2.2v2.1M12 19.7v2.1M2.2 12h2.1M19.7 12h2.1M5.08 5.08l1.49 1.49M17.43 17.43l1.49 1.49M18.92 5.08l-1.49 1.49M6.57 17.43l-1.49 1.49"/></svg>
+      <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.15A8.25 8.25 0 0 1 8.85 4 8.25 8.25 0 1 0 20 15.15Z"/></svg>
+    </button>
+  </div>
+</header>`;
+
+const HEAD_BOOT = `<script>
+document.documentElement.classList.replace('no-js','js');
+try {
+  var t = localStorage.getItem('ysf-theme');
+  document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+} catch (_) { document.documentElement.dataset.theme = 'dark'; }
+</script>`;
+
+/** Only offer a contents entry for a section that actually rendered. */
+function tocFor(parts) {
+  const items = parts.filter((x) => x.html).map((x) => `<li><a href="#${x.id}">${esc(x.label)}</a></li>`);
+  if (items.length < 3) return '';
+  return `<nav class="cs-toc" aria-label="On this page">
+  <p class="cs-toc-l">On this page</p>
+  <ol>${items.join('')}</ol>
+</nav>`;
+}
+
+function renderProject(p, all) {
+  const idx = all.findIndex((x) => x.slug === p.slug);
+  const prev = all[idx - 1];
+  const next = all[idx + 1];
+
+  const parts = [
+    { id: 'overview', label: 'Overview', html: `<div class="cs-prose"><p class="cs-lead">${rich(p.summary)}</p></div>` },
+    { id: 'problem', label: 'The problem', html: problem(p) },
+    { id: 'role', label: 'My role', html: contribution(p) },
+    { id: 'constraints', label: 'Constraints', html: itemGrid(p.constraints) },
+    { id: 'research', label: 'Research', html: itemGrid(p.research) },
+    { id: 'flow', label: 'Product flow', html: flow(p) },
+    { id: 'architecture', label: 'Architecture', html: architecture(p) },
+    { id: 'challenges', label: 'Engineering challenges', html: challenges(p) },
+    { id: 'decisions', label: 'Technical decisions', html: decisions(p) },
+    { id: 'evolution', label: 'Design evolution', html: itemGrid(p.evolution) },
+    { id: 'testing', label: 'Testing', html: testing(p) },
+    { id: 'results', label: 'Results', html: results(p) },
+    { id: 'lessons', label: 'Reflection', html: lessons(p) },
+  ];
+
+  const LABELS = {
+    overview: ['01', 'EXECUTIVE SUMMARY', 'What it *is.*'],
+    problem: ['02', 'THE PROBLEM', 'What was *broken.*'],
+    role: ['03', 'ROLE & OWNERSHIP', 'What I *owned.*'],
+    constraints: ['04', 'CONSTRAINTS', 'What shaped *the build.*'],
+    research: ['05', 'RESEARCH & DISCOVERY', 'What I *found out.*'],
+    flow: ['06', 'PRODUCT FLOW', 'How it *works.*'],
+    architecture: ['07', 'SYSTEM ARCHITECTURE', 'How it *fits together.*'],
+    challenges: ['08', 'ENGINEERING CHALLENGES', 'The hard *parts.*'],
+    decisions: ['09', 'TECHNICAL DECISIONS', 'Why *this way.*'],
+    evolution: ['10', 'DESIGN EVOLUTION', 'How it *changed.*'],
+    testing: ['11', 'TESTING & RELIABILITY', 'How it is *proven.*'],
+    results: ['12', 'RESULTS', 'What *shipped.*'],
+    lessons: ['13', 'REFLECTION', 'What I *learned.*'],
+  };
+
+  const body = parts
+    .map((x) => {
+      if (!x.html) return '';
+      const [n, label, title] = LABELS[x.id];
+      return section(x.id, n, label, title, x.html);
+    })
+    .join('\n');
+
+  const related = `
+<nav class="cs-related" aria-label="More work">
+  ${prev ? `<a class="cs-rel cs-rel-prev" href="/work/${esc(prev.slug)}/"><span>Previous</span><b>${esc(prev.name)}</b></a>` : ''}
+  <a class="cs-rel cs-rel-all" href="/work/"><span>All work</span><b>Selected work</b></a>
+  ${next ? `<a class="cs-rel cs-rel-next" href="/work/${esc(next.slug)}/"><span>Next</span><b>${esc(next.name)}</b></a>` : ''}
+</nav>`;
+
+  const jsonld = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: p.name,
+    description: p.tagline,
+    applicationCategory: p.category,
+    operatingSystem: has(p.platforms) ? p.platforms.join(', ') : undefined,
+    author: { '@type': 'Person', name: 'Yousof Selim', url: ORIGIN + '/' },
+    url: `${ORIGIN}/work/${p.slug}/`,
+  };
+  const store = (p.links || []).find((l) => l.kind === 'store');
+  if (store) jsonld.downloadUrl = store.href;
+
+  const ogImage = p.seo?.image ? `${ORIGIN}/${String(p.seo.image).replace(/^\//, '')}` : `${ORIGIN}/images/og-card.jpg?v=2`;
+
+  return `<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>${esc(p.seo.title)}</title>
+<meta name="description" content="${esc(p.seo.description)}" />
+<meta name="author" content="Yousof Selim" />
+<meta name="theme-color" content="${esc(p.ground)}" />
+<meta name="color-scheme" content="dark light" />
+<link rel="canonical" href="${ORIGIN}/work/${esc(p.slug)}/" />
+
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="ysf.slm" />
+<meta property="og:title" content="${esc(p.seo.title)}" />
+<meta property="og:description" content="${esc(p.seo.description)}" />
+<meta property="og:url" content="${ORIGIN}/work/${esc(p.slug)}/" />
+<meta property="og:image" content="${esc(ogImage)}" />
+<meta property="og:image:alt" content="${esc(p.name)} — ${esc(p.tagline)}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="${esc(p.seo.title)}" />
+<meta name="twitter:description" content="${esc(p.seo.description)}" />
+<meta name="twitter:image" content="${esc(ogImage)}" />
+
+<link rel="icon" href="/favicon.svg" />
+<link rel="apple-touch-icon" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
+
+<link rel="stylesheet" href="/styles.css?v=49" />
+<link rel="stylesheet" href="/case.css?v=7" />
+${HEAD_BOOT}
+<script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
+</head>
+<body class="cs-body" data-project="${esc(p.slug)}" style="--cs-accent:${esc(p.accent)};--cs-ground:${esc(p.ground)}">
+
+<a class="skip-link" href="#overview">Skip to the case study</a>
+${NAV}
+
+<main class="cs-main" id="top">
+  <article class="cs-article">
+
+    <header class="cs-hero">
+      <span class="reg reg-tl" aria-hidden="true">+</span>
+      <span class="reg reg-tr" aria-hidden="true">+</span>
+      <p class="cs-eyebrow" data-reveal><a href="/work/">Selected work</a><span aria-hidden="true">/</span>${esc(p.name)}</p>
+      <h1 class="cs-title" data-reveal>${esc(p.name)}</h1>
+      <p class="cs-tagline" data-reveal>${rich(p.tagline)}</p>
+      <div class="sec-rail cs-hero-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+      <div data-reveal>${linkRow(p)}</div>
+      <div data-reveal>${quickFacts(p)}</div>
+    </header>
+
+    ${tocFor(parts)}
+    ${body}
+    ${media(p)}
+    ${related}
+
+    <aside class="cs-cta">
+      <h2>Want the detail behind any of this?</h2>
+      <p>I am looking for a full-time software engineering internship, January to April 2027, in Kuala Lumpur or remote.</p>
+      <nav class="cs-cta-links" aria-label="Contact">
+        <a href="mailto:yousofselim2@gmail.com" data-cursor="MAIL">yousofselim2@gmail.com<span class="cta-arr" aria-hidden="true">↗</span></a>
+        <a href="/Yousof-Selim-Resume.pdf" download data-cursor="PDF">Résumé<span class="cta-arr" aria-hidden="true">↓</span></a>
+        <a href="/#contact">Contact<span class="cta-arr" aria-hidden="true">→</span></a>
+      </nav>
+    </aside>
+
+  </article>
+</main>
+
+<footer class="site-foot cs-foot">
+  <p>DESIGNED AND BUILT BY HAND · 2026</p>
+  <a href="/#top">Back to top ↑</a>
+</footer>
+
+<script src="/case.js?v=4" defer></script>
+</body>
+</html>
+`;
+}
+
+function renderIndex(projects, site) {
+  const cards = projects
+    .map(
+      (p) => `<li class="wk-item" data-reveal>
+  <a class="wk-card" href="/work/${esc(p.slug)}/" style="--cs-accent:${esc(p.accent)}">
+    <p class="wk-no" aria-hidden="true">${String(p.order).padStart(2, '0')}</p>
+    <h2 class="wk-name">${esc(p.name)}</h2>
+    <p class="wk-tag">${esc(p.tagline)}</p>
+    <dl class="wk-meta">
+      <div><dt>Role</dt><dd>${esc(p.role)}</dd></div>
+      <div><dt>Status</dt><dd>${esc(p.status)}</dd></div>
+      <div><dt>Platforms</dt><dd>${esc((p.platforms || []).join(' · '))}</dd></div>
+    </dl>
+    <p class="wk-open">Read the case study <span aria-hidden="true">→</span></p>
+  </a>
+</li>`,
+    )
+    .join('\n');
+
+  const archive = has(site.archive)
+    ? `<section class="wk-archive" aria-labelledby="arch-t">
+  <header class="cs-sec-head">
+    <p class="sec-label">02<span class="slash">/</span>ARCHIVE</p>
+    <h2 class="cs-sec-title" id="arch-t">Everything <em>else.</em></h2>
+  </header>
+  <ul class="wk-arch-list">
+    ${site.archive
+      .map(
+        (a) => `<li class="wk-arch">
+      <p class="wk-arch-y">${esc(a.year)}</p>
+      <div>
+        <h3>${a.href ? `<a href="${esc(a.href)}" target="_blank" rel="noopener">${esc(a.name)} <span aria-hidden="true">↗</span></a>` : esc(a.name)}</h3>
+        <p class="wk-arch-b">${esc(a.blurb)}</p>
+        <p class="wk-arch-m">${esc(a.category)} · ${esc(a.role)}${has(a.tech) ? ' · ' + esc(a.tech.join(', ')) : ''}</p>
+      </div>
+    </li>`,
+      )
+      .join('\n    ')}
+  </ul>
+</section>`
+    : '';
+
+  return `<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Selected work — Yousof Selim</title>
+<meta name="description" content="Case studies of the products Yousof Selim has designed, engineered, tested and shipped across mobile, web and desktop." />
+<link rel="canonical" href="${ORIGIN}/work/" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Selected work — Yousof Selim" />
+<meta property="og:description" content="Case studies of shipped products across mobile, web and desktop." />
+<meta property="og:url" content="${ORIGIN}/work/" />
+<meta property="og:image" content="${ORIGIN}/images/og-card.jpg?v=2" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="color-scheme" content="dark light" />
+<link rel="icon" href="/favicon.svg" />
+<link rel="apple-touch-icon" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
+<link rel="stylesheet" href="/styles.css?v=49" />
+<link rel="stylesheet" href="/case.css?v=7" />
+${HEAD_BOOT}
+</head>
+<body class="cs-body wk-body">
+<a class="skip-link" href="#work-list">Skip to the work</a>
+${NAV}
+<main class="cs-main" id="top">
+  <header class="wk-hero">
+    <span class="cs-ghost wk-ghost" aria-hidden="true">01</span>
+    <span class="reg reg-tl" aria-hidden="true">+</span>
+    <span class="reg reg-tr" aria-hidden="true">+</span>
+    <p class="sec-label" data-reveal>01<span class="slash">/</span>SELECTED WORK</p>
+    <h1 class="wk-title" data-reveal>Products, <em>start to shipped.</em></h1>
+    <div class="sec-rail cs-hero-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
+    <p class="wk-lead" data-reveal>Each of these was designed, engineered, tested and released by me. The case studies cover what the problem was, what I built, what it cost, and how I know it works.</p>
+  </header>
+  <ul class="wk-list" id="work-list">
+${cards}
+  </ul>
+  ${archive}
+</main>
+<footer class="site-foot cs-foot">
+  <p>DESIGNED AND BUILT BY HAND · 2026</p>
+  <a href="/#top">Back to top ↑</a>
+</footer>
+<script src="/case.js?v=4" defer></script>
+</body>
+</html>
+`;
+}
+
+function renderSitemap(projects) {
+  const urls = [`${ORIGIN}/`, `${ORIGIN}/work/`, ...projects.map((p) => `${ORIGIN}/work/${p.slug}/`)];
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemap.org/schemas/sitemap/0.9">
+${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}
+</urlset>
+`.replace('www.sitemap.org', 'www.sitemaps.org');
+}
+
+/* ------------------------------------------------------------------ */
+/* run                                                                 */
+/* ------------------------------------------------------------------ */
+
+function main() {
+  const site = readJSON('content/site.json');
+  const dir = path.join(ROOT, 'content/projects');
+  const projects = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')))
+    .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+
+  projects.forEach(normalise);
+
+  const errs = validateAll({ projects, archive: site.archive || [], site: site.profile || {} });
+  for (const p of projects) errs.push(...assertNothingDropped(p));
+  if (errs.length) {
+    console.error(`\n✗ content validation failed (${errs.length}):\n`);
+    for (const e of errs) console.error('  - ' + e);
+    process.exit(1);
+  }
+  console.log(`✓ content valid — ${projects.length} case studies, ${(site.archive || []).length} archive entries`);
+
+  if (CHECK_ONLY) return;
+
+  for (const p of projects) {
+    const out = path.join(ROOT, 'work', p.slug);
+    fs.mkdirSync(out, { recursive: true });
+    fs.writeFileSync(path.join(out, 'index.html'), renderProject(p, projects));
+    console.log(`  → work/${p.slug}/index.html`);
+  }
+
+  fs.mkdirSync(path.join(ROOT, 'work'), { recursive: true });
+  fs.writeFileSync(path.join(ROOT, 'work/index.html'), renderIndex(projects, site));
+  console.log('  → work/index.html');
+
+  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), renderSitemap(projects));
+  console.log('  → sitemap.xml');
+}
+
+main();

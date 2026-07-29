@@ -3626,3 +3626,65 @@ html.egypt .head-simple:hover { border-color: var(--eg-gold); color: var(--eg-go
   /* The mobile drawer already carries it; two doors in one bar is clutter. */
   .head-simple { display: none; }
 }
+
+/* ---------- skills: readable without interacting ------------------
+   The lanes are a marquee, and a marquee shows a window onto a list
+   rather than the list. Measured on the live page, the Mobile and
+   Frontend lane had one of its eight tools on screen and Cloud/AI
+   one of six — so a reader scanning the section saw a fraction of
+   the stack and had to hover, or wait, to learn the rest.
+
+   Under reduced motion, where nothing is going to scroll into view
+   at all, the lane stops being a marquee and becomes the list: the
+   track wraps, the duplicate set that makes the loop seamless is
+   removed, and every tool is on screen at once. */
+
+@media (prefers-reduced-motion: reduce) {
+  /* The lane is a fixed 91px window with overflow hidden, which is right for a
+     marquee and wrong for a list — wrapped rows fell straight through into the
+     lane below. It grows to its content here, and the note that only appeared
+     on hover is simply shown, because hover is the interaction this whole block
+     exists to stop depending on. */
+  .skill-lane {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    align-items: start;
+    padding: 1.15rem 0 1.25rem;
+    transition: none;
+  }
+  .skill-lane:hover, .skill-lane:focus-within { height: auto; }
+  .lane-note {
+    position: static;
+    grid-column: 2;
+    opacity: 1;
+    transform: none;
+    margin-top: 0.6rem;
+    transition: none;
+  }
+  /* Billboard type is for something moving past you. A list is read. */
+  .tool-set span { font-size: clamp(15px, 1.5vw, 20px); letter-spacing: -0.01em; }
+  .tool-set { gap: 12px; padding-right: 0; }
+  .tool-set i { width: 6px; height: 6px; }
+  .skill-scroller {
+    overflow: visible;
+    white-space: normal;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+  .skill-track {
+    display: flex;
+    flex-wrap: wrap;
+    width: auto;
+    row-gap: 0.35rem;
+    animation: none !important;
+  }
+  /* The track wraps its children, and it has exactly one: the tool-set, which
+     is itself a 3,000px non-wrapping flex row. It has to wrap too, or wrapping
+     the track achieves nothing. */
+  .skill-track .tool-set { flex-wrap: wrap; width: 100%; row-gap: 0.35rem; }
+  /* The second set exists only to make the loop seamless. */
+  .skill-track .tool-set[aria-hidden='true'] { display: none; }
+  /* Nothing to scroll, so nothing to scroll with. */
+  .skill-lane .edge { display: none; }
+}

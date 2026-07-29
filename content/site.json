@@ -208,28 +208,51 @@
       "dates": "Expected August 2027",
       "status": "In progress",
       "coursework": [
-        "Software Architecture",
-        "Data Structures",
-        "Mobile Development",
-        "Databases",
-        "UI/UX Design"
+        "Programming Principles (A+)",
+        "Software Engineering",
+        "Object-Oriented Programming Fundamentals",
+        "Database Management Systems (A−)",
+        "Web Fundamentals (A−)",
+        "Networking Principles (A−)",
+        "Operating System Fundamentals",
+        "Computer Organisation",
+        "Computer Mathematics"
       ],
-      "evidence": "resume.txt lines 11-12. Graduation month owner-confirmed 2026-07-29 as August 2027; the résumé's bare \"Expected 2027\" is stale."
+      "evidence": "Sunway University progress report, intake 202409, printed 30 April 2026, for the Bachelor of Software Engineering (Hons). Grades quoted are from that report: Programming Principles A+ (4.00), Database Management Systems A−, Web Fundamentals A−, Networking Principles A−, Software Engineering B+. 66 programme credits recorded, academic standing Good Standing in every semester. The report is not an official transcript and is not published; no student or identity numbers are reproduced anywhere on this site."
     },
     {
       "credential": "Foundation in Information Technology",
       "institution": "Multimedia University",
       "programme": "Foundation programme",
       "location": "Cyberjaya, Malaysia",
-      "dates": "May 2023 — Jul 2024",
+      "dates": "May 2023 — Aug 2024",
+      "status": "Completed — CGPA 3.41",
+      "coursework": [
+        "Mini IT Project (A+)",
+        "Problem Solving and Program Design (A−)",
+        "Introduction to Computing Technologies (A−)",
+        "Multimedia Fundamentals (A−)",
+        "Introduction to Digital Systems",
+        "Mathematics I (A) · II · III",
+        "Principles of Physics"
+      ],
+      "evidence": "Multimedia University academic transcript, Faculty of Computing and Informatics, Cyberjaya campus: final CGPA 3.41 over 50 of 50 required credits, with Mini IT Project A+, Problem Solving and Program Design A−, Introduction to Computing Technologies A− and Mathematics I A. MMU Certificate of Achievement for Foundation in Information Technology awarded 8 August 2024. Student ID is not reproduced."
+    },
+    {
+      "credential": "Cambridge IGCSE (9–1)",
+      "institution": "Cambridge Assessment International Education",
+      "programme": "Five subjects across the June and November 2022 series",
+      "location": "Al-Kon International School",
+      "dates": "2022",
       "status": "Completed",
       "coursework": [
-        "Programming",
-        "Data Structures",
-        "Networking",
-        "Web Fundamentals"
+        "Computer Science (8)",
+        "Biology (8)",
+        "Physics (7)",
+        "Mathematics (6)",
+        "English as a Second Language (6)"
       ],
-      "evidence": "resume.txt lines 13-14, verbatim."
+      "evidence": "Two Cambridge Assessment International Education certificates. June 2022 series: Biology 8, English as a Second Language 6, Mathematics 6. November 2022 series: Computer Science 8, Physics 7. On the IGCSE (9–1) scale 9 is the highest grade. Candidate and certificate numbers are not reproduced."
     }
   ],
   "capabilities": [
@@ -357,6 +380,11 @@
         "title": "Bupples",
         "body": "Maintaining the shipped product. It reached the App Store and Google Play on 2 July 2026 and was on version 1.2.5 by 27 July.",
         "evidence": "resume.txt line 24 (\"Feb 2026 - Present\"); iTunes lookup API for id6777620291, verified centrally 2026-07-29."
+      },
+      {
+        "title": "CodeAtlas",
+        "body": "Evidence for what a code change actually does — a change-intelligence system for TypeScript and JavaScript that maps a change through the codebase, picks the tests that can explain its impact, compares behaviour across base and head, and packages the result as a signed Change Passport. *In design and documentation, not a service:* there is no hosted app, no GitHub App, and the runner is local-only.",
+        "evidence": "github.com/yeegz/CodeAtlas — README, CONTRIBUTING, SECURITY and docs/ are committed; the implementation sits on the branch codex/codeatlas-evidence-core. The README's own status note is quoted rather than softened: \"CodeAtlas is under active development. It is not yet a hosted service, GitHub App, or production sandbox.\""
       },
       {
         "title": "Adelante",

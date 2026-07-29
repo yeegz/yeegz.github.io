@@ -641,7 +641,7 @@ function renderProject(p, all) {
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
 <link rel="stylesheet" href="/styles.css?v=90" />
-<link rel="stylesheet" href="/case.css?v=17" />
+<link rel="stylesheet" href="/case.css?v=18" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
 </head>
@@ -757,7 +757,7 @@ function renderIndex(projects, site) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 <link rel="stylesheet" href="/styles.css?v=90" />
-<link rel="stylesheet" href="/case.css?v=17" />
+<link rel="stylesheet" href="/case.css?v=18" />
 ${HEAD_BOOT}
 </head>
 <body class="cs-body wk-body">

@@ -853,7 +853,17 @@ figcaption b {
 }
 .wk-arch h3 a:hover { color: var(--accent); }
 .wk-arch-b { max-width: 62ch; margin-top: 0.5rem; color: var(--ink-soft); font-size: 0.92rem; line-height: 1.58; }
-.wk-arch-m { margin-top: 0.6rem; color: var(--muted); font: 500 0.53rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
+.wk-arch-m {
+  margin-top: 0.6rem;
+  max-width: 88ch;
+  color: var(--muted);
+  font: 500 0.53rem var(--mono);
+  letter-spacing: 0.14em;
+  line-height: 1.75;
+  text-transform: uppercase;
+  /* A single mono run with no wrap point was leaving the page. */
+  overflow-wrap: anywhere;
+}
 
 /* ---------- light theme ----------------------------------------- */
 
@@ -1551,14 +1561,17 @@ html.egypt .cs-arch-group[data-tier="client"] {
     column-gap: clamp(40px, 5vw, 92px);
     align-items: start;
   }
-  .cs-sec-head {
+  /* Direct child only. The work index reuses .cs-sec-head for its archive
+     heading, which is NOT inside this grid — sticking it there gave it no
+     column of its own, so it rode over the list as you scrolled. */
+  .cs-section > .cs-sec-head {
     position: sticky;
     top: calc(var(--cs-head-h) + var(--cs-toc-h) + 30px);
     margin: 0;
   }
   .cs-sec-body { min-width: 0; }
   /* The rail belongs to the head's own column now. */
-  .cs-sec-head .sec-rail { max-width: 100%; }
+  .cs-section > .cs-sec-head .sec-rail { max-width: 100%; }
   /* These two are diagrams, not prose — they take the whole measure. */
   .cs-s-architecture .cs-sec-body { max-width: none; }
 }

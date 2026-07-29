@@ -399,7 +399,7 @@
       {
         "title": "Adelante",
         "body": "Widget-first motivation app for iOS and Android: native WidgetKit and RemoteViews surfaces over a scheduled Firebase content pipeline, with no accounts, analytics or ads.",
-        "evidence": "resume.txt lines 29-33 (\"Jun 2026 - Present\"). Not publicly released — the adelante-showcase repository has no homepage (smaller-projects.md §4)."
+        "evidence": "resume.txt lines 29-33 (\"Jun 2026 - Present\"). The landing page adelante-yeegz.web.app is live (verified 200, 2026-07-29) but the app itself is not released: there is no App Store or Google Play listing."
       },
       {
         "title": "Photoshoot",

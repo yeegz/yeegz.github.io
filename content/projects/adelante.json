@@ -7,7 +7,7 @@
   "role": "Sole developer — Flutter app, both native widget renderers, the content pipeline, and the backend design",
   "team": "Solo",
   "timeline": "2026-06 – Present",
-  "status": "Not released. The iOS app and its widget extension both build for release, with artifacts dated 2026-07-18; the last Android release APK is dated 2026-06-21, before the July overhaul, so Android has not been rebuilt since. There is no App Store or Google Play listing — every account, signing and submission item in docs/store/store-readiness.md is still unchecked. The Firebase backend is written, unit-tested from the client side, and has never run against a live project.",
+  "status": "Landing page live; the app is not released. adelante-yeegz.web.app is reachable and is the product's marketing site, not the app running on the web. The iOS app and its widget extension both build for release, with artifacts dated 2026-07-18; the last Android release APK is dated 2026-06-21, before the July overhaul, so Android has not been rebuilt since. There is no App Store or Google Play listing — every account, signing and submission item in docs/store/store-readiness.md is still unchecked. The Firebase backend is written, unit-tested from the client side, and has never run against a live project.",
   "platforms": [
     "iOS 16+",
     "Android"
@@ -31,6 +31,12 @@
   "accent": "#e97842",
   "ground": "#faf7f0",
   "links": [
+    {
+      "label": "Product site (landing page)",
+      "href": "https://adelante-yeegz.web.app",
+      "kind": "live",
+      "evidence": "Verified reachable 2026-07-29: HTTP 200, title \"Adelante · a widget-first motivation app\". It is the marketing site, not the app — the page carries no Flutter bootstrap and no store links, the same distinction drawn for bupples.web.app."
+    },
     {
       "label": "View showcase",
       "href": "https://github.com/yeegz/adelante-showcase",

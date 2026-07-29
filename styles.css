@@ -2297,28 +2297,36 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 
 /* Values sit ON a rule with tick marks below, like a printed scale —
    no boxes, so it reads as measurement rather than as more cards. */
+/* The rule and its tick comb used to live on the container, and each reading
+   hung a node off its own top edge. That works for exactly one row: the moment
+   the set wrapped — and at nine readings it always does — the second row's
+   nodes floated in open space with no rule under them, which is what made this
+   look broken.
+
+   The scale now belongs to the reading, not to the list. Every item draws its
+   own rule and its own ticks, and the column gap is zero with the padding taken
+   inside, so the segments butt together into one continuous line across each
+   row however many rows there are. */
 .cred-scale {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 clamp(1.4rem, 3vw, 2.8rem);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 158px), 1fr));
+  column-gap: 0;
+  row-gap: clamp(1.5rem, 3vh, 2.4rem);
   list-style: none;
-  padding-top: 0.9rem;
+}
+.cred-scale li {
+  position: relative;
+  min-width: 0;
+  padding: 1.35rem clamp(1.1rem, 2.2vw, 2.4rem) 0.2rem 0;
   border-top: 2px solid color-mix(in srgb, var(--ink) 20%, transparent);
   background:
     repeating-linear-gradient(90deg, color-mix(in srgb, var(--ink) 16%, transparent) 0 1px, transparent 1px 52px)
     top left / 100% 5px no-repeat;
 }
-.cred-scale li {
-  position: relative;
-  flex: 1 1 auto;
-  min-width: 108px;
-  max-width: 15rem;
-  padding: 0.55rem 0 1.1rem;
-}
 .cred-scale li::before {
   content: "";
   position: absolute;
-  top: -0.9rem;
+  top: 0;
   left: 0;
   width: 6px;
   height: 6px;
@@ -2343,7 +2351,7 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 }
 .cred-scale span {
   display: block;
-  max-width: 22ch;
+  max-width: 24ch;
   color: var(--muted);
   font-size: 0.74rem;
   line-height: 1.45;
@@ -2683,7 +2691,7 @@ html[data-theme="light"] .dot-glyph { fill: var(--accent); }
   .pr-item { grid-template-columns: 2.8rem 1fr; }
   .now-col { border-right: 0; border-bottom: 1px solid var(--line); }
   .now-col:last-child { border-bottom: 0; }
-  .cred-scale li { min-width: 46%; }
+  .cred-scale { grid-template-columns: repeat(auto-fit, minmax(min(100%, 132px), 1fr)); }
 }
 
 /* ---------- principles: glyph seat + the third column ---------

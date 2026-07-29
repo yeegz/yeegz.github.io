@@ -101,11 +101,6 @@
       "evidence": "Tajweed — 15 of the repository's 31 commits, working inside another developer's Next.js codebase; the redesign branch was merged to their main on 20 June 2026, changing 51 files. Fallen Asteri — one of three contributors, 179 of 491 commits; I created the repository and set up the branch-and-PR workflow the team worked through, and 37 of its 102 pull-request merges are mine. Chess training page — one of four contributors, 19 of 32 commits. Moon-n-Knight — one of two contributors, 7 of 18 commits."
     },
     {
-      "value": "iOS · ANDROID · WEB",
-      "label": "Platforms with something live and reachable",
-      "evidence": "Bupples on the App Store and Google Play (iTunes lookup id6777620291; Play listing com.bupples.bupples). Photoshoot live in the browser at photoshoot-yeegz.web.app (HTTP 200). Windows is NOT claimed: electron-builder.yml targets it, but the only packaged artifact on disk is release/Photoshoot-1.0.0-arm64-mac.zip and no .exe exists."
-    },
-    {
       "value": "1.2.5",
       "label": "Bupples on the App Store, released 27 July 2026",
       "evidence": "iTunes lookup API for id6777620291: first release 2026-07-02, current version 1.2.5 released 2026-07-27. Verified centrally 2026-07-29."
@@ -216,7 +211,7 @@
       "programme": "Dual-degree programme",
       "location": "Subang Jaya, Malaysia",
       "dates": "Expected August 2027",
-      "status": "In progress",
+      "status": "In progress — CGPA 3.40",
       "coursework": [
         "Programming Principles (A+)",
         "Software Engineering",
@@ -228,7 +223,7 @@
         "Computer Organisation",
         "Computer Mathematics"
       ],
-      "evidence": "Sunway University progress report, intake 202409, printed 30 April 2026, for the Bachelor of Software Engineering (Hons). Grades quoted are from that report: Programming Principles A+ (4.00), Database Management Systems A−, Web Fundamentals A−, Networking Principles A−, Software Engineering B+. 66 programme credits recorded, academic standing Good Standing in every semester. The report is not an official transcript and is not published; no student or identity numbers are reproduced anywhere on this site."
+      "evidence": "Sunway University progress report, intake 202409, printed 30 April 2026, for the Bachelor of Software Engineering (Hons). Grades quoted are from that report: Programming Principles A+ (4.00), Database Management Systems A−, Web Fundamentals A−, Networking Principles A−, Software Engineering B+. CGPA 3.40 over 66 programme credits, academic standing Good Standing in every semester. The same figure appears on the résumé. The report is not an official transcript and is not published; no student or identity numbers are reproduced anywhere on this site."
     },
     {
       "credential": "Foundation in Information Technology",

@@ -30,13 +30,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=60" />
+<link rel="stylesheet" href="/styles.css?v=68" />
 <link rel="stylesheet" href="/case.css?v=8" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 try {
   var t = localStorage.getItem('ysf-theme');
   document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+  if (localStorage.getItem('ysf-egypt')) document.documentElement.classList.add('egypt');
 } catch (_) { document.documentElement.dataset.theme = 'dark'; }
 </script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Photoshoot","description":"A photobooth for desktop and browser that never sends a camera frame anywhere.","applicationCategory":"Photobooth · desktop and web","operatingSystem":"Web (WebGL2 browsers), Desktop (Electron) — built from source, not released","author":{"@type":"Person","name":"Yousof Selim","url":"https://yeegz.github.io/"},"url":"https://yeegz.github.io/work/photoshoot/"}</script>
@@ -460,6 +461,6 @@ try {
   <a href="/#top">Back to top ↑</a>
 </footer>
 
-<script src="/case.js?v=5" defer></script>
+<script src="/case.js?v=6" defer></script>
 </body>
 </html>

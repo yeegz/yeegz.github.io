@@ -174,6 +174,27 @@
     document.title = document.hidden ? 'ysf.slm — archived until you return' : baseTitle;
   });
 
+  /* The header floats sheer over the hero by design. Past the fold it sits on
+     body copy, so it takes a solid backdrop — otherwise text scrolling
+     underneath collides with the nav labels. Hysteresis either side of the
+     threshold stops it flickering when a scroll settles right on the line. */
+  {
+    const docEl2 = document.documentElement;
+    let solid = false;
+    const syncHead = () => {
+      const y = window.scrollY;
+      if (!solid && y > 96) { solid = true; docEl2.classList.add('head-solid'); }
+      else if (solid && y < 64) { solid = false; docEl2.classList.remove('head-solid'); }
+    };
+    let headTick = false;
+    addEventListener('scroll', () => {
+      if (headTick) return;
+      headTick = true;
+      requestAnimationFrame(() => { syncHead(); headTick = false; });
+    }, { passive: true });
+    syncHead();
+  }
+
   const FACTS = [
     'FLUTTER & DART', 'TYPESCRIPT & JS', 'PYTHON & SQL',
     'SWIFT · KOTLIN — NATIVE WIDGETS', 'FIREBASE · FIRESTORE', 'NODE.JS & REST APIS',
@@ -1607,6 +1628,35 @@
         }
       });
     }
+  });
+
+  /* The six rules are introduced rather than faded in: the divider draws
+     across the row, the dotted glyph assembles dot by dot the way the project
+     sigils do, then the number and the copy arrive behind it.
+
+     The initial state is set here, inside the block that only runs when motion
+     is allowed and GSAP is present — so a reduced-motion visitor, or one whose
+     script never loads, is never left looking at hidden content. */
+  gsap.utils.toArray('.pr-item').forEach((item) => {
+    const rule = item.querySelector('.pr-rule');
+    const dots = item.querySelectorAll('.pr-glyph circle');
+    const no = item.querySelector('.pr-no');
+    const body = item.querySelector('.pr-body');
+    const eg = item.querySelector('.pr-eg');
+
+    gsap.set(item, { opacity: 0 });
+    gsap.set(dots, { scale: 0, opacity: 0, transformOrigin: '50% 50%' });
+    gsap.set([no, body, eg].filter(Boolean), { y: 16, opacity: 0 });
+
+    gsap.timeline({ scrollTrigger: { trigger: item, start: 'top 86%', once: true } })
+      .to(item, { opacity: 1, duration: 0.3, ease: 'power1.out' })
+      .to(rule, { scaleX: 1, opacity: 1, duration: 0.75, ease: 'power3.inOut' }, 0)
+      .to(dots, { scale: 1, opacity: 1, duration: 0.5, stagger: { each: 0.018, from: 'random' }, ease: 'back.out(2.4)' }, 0.14)
+      .to(body, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.2)
+      .to(no, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }, 0.34)
+      .to(eg ? eg : {}, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.4)
+      /* Settle the rule back to the hairline once it has finished drawing. */
+      .to(rule, { opacity: 0.28, duration: 0.5, ease: 'power2.out' }, 0.8);
   });
 
   ScrollTrigger.batch('.sys-row', {

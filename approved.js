@@ -214,19 +214,13 @@
     lane.querySelector('.prev')?.addEventListener('click', (event) => nudgeFromControl(event, -1));
     lane.querySelector('.next')?.addEventListener('click', (event) => nudgeFromControl(event, 1));
   });
-  /* WCAG 2.2.2: motion that starts on its own and runs for more than five
-     seconds needs a control that stops it. Hover and tap only cover pointers. */
-  let skillsPaused = false;
-  const skillToggle = document.getElementById('skillsPause');
-  if (skillToggle) {
-    skillToggle.hidden = false;
-    skillToggle.addEventListener('click', () => {
-      skillsPaused = !skillsPaused;
-      skillToggle.setAttribute('aria-pressed', String(skillsPaused));
-      skillToggle.querySelector('.sp-label').textContent = skillsPaused ? 'Resume lanes' : 'Pause lanes';
-      document.querySelector('.skill-lanes')?.classList.toggle('is-paused', skillsPaused);
-    });
-  }
+  /* The explicit pause control was removed by request. WCAG 2.2.2 still has to
+     be answered, so the lanes stop on every other channel: prefers-reduced-
+     motion halts them outright (the `reduceMotion` guard on the tick below),
+     hover and keyboard focus stop the lane under the pointer, a tap holds a
+     lane on touch, and they never run while the section is off screen or the
+     tab is hidden. */
+  const skillsPaused = false;
   /* Nothing to animate while the section is off screen. */
   let skillsOnScreen = true;
   const skillsRoot = document.querySelector('.skill-lanes');
@@ -330,6 +324,51 @@
   });
 
   showChapter('degree');
+
+  /* ---- easter egg: type "egypt" -------------------------------------
+   * A cheat code, so it behaves like one: type it anywhere, the site
+   * repaints in the flag, and typing it again puts it back. The choice
+   * persists so it survives a click through to a case study.
+   */
+  (function egyptEgg() {
+    var CODE = 'egypt';
+    var buf = '';
+    var toast;
+
+    function announce(on) {
+      if (!toast) {
+        toast = document.createElement('p');
+        toast.className = 'egg-toast';
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        toast.innerHTML = '<i aria-hidden="true"></i><span></span>';
+        document.body.appendChild(toast);
+      }
+      toast.querySelector('span').textContent = on ? 'Cheat code activated' : 'Cheat code cleared';
+      toast.classList.add('is-on');
+      clearTimeout(announce.t);
+      announce.t = setTimeout(function () { toast.classList.remove('is-on'); }, 2600);
+    }
+
+    function apply(on, loud) {
+      document.documentElement.classList.toggle('egypt', on);
+      try { on ? localStorage.setItem('ysf-egypt', '1') : localStorage.removeItem('ysf-egypt'); } catch (_) {}
+      if (loud) announce(on);
+    }
+
+    addEventListener('keydown', function (e) {
+      // Never swallow a keystroke meant for a field or a shortcut.
+      var t = e.target;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (e.key.length !== 1) return;
+      buf = (buf + e.key.toLowerCase()).slice(-CODE.length);
+      if (buf === CODE) {
+        buf = '';
+        apply(!document.documentElement.classList.contains('egypt'), true);
+      }
+    });
+  })();
 
   /* Experience calendar filter. */
   const calendar = document.getElementById('campaignCalendar');

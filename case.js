@@ -111,6 +111,51 @@
     }
   }
 
+  /* ---- easter egg: type "egypt" -------------------------------------
+   * A cheat code, so it behaves like one: type it anywhere, the site
+   * repaints in the flag, and typing it again puts it back. The choice
+   * persists so it survives a click through to a case study.
+   */
+  (function egyptEgg() {
+    var CODE = 'egypt';
+    var buf = '';
+    var toast;
+
+    function announce(on) {
+      if (!toast) {
+        toast = document.createElement('p');
+        toast.className = 'egg-toast';
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        toast.innerHTML = '<i aria-hidden="true"></i><span></span>';
+        document.body.appendChild(toast);
+      }
+      toast.querySelector('span').textContent = on ? 'Cheat code activated' : 'Cheat code cleared';
+      toast.classList.add('is-on');
+      clearTimeout(announce.t);
+      announce.t = setTimeout(function () { toast.classList.remove('is-on'); }, 2600);
+    }
+
+    function apply(on, loud) {
+      document.documentElement.classList.toggle('egypt', on);
+      try { on ? localStorage.setItem('ysf-egypt', '1') : localStorage.removeItem('ysf-egypt'); } catch (_) {}
+      if (loud) announce(on);
+    }
+
+    addEventListener('keydown', function (e) {
+      // Never swallow a keystroke meant for a field or a shortcut.
+      var t = e.target;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (e.key.length !== 1) return;
+      buf = (buf + e.key.toLowerCase()).slice(-CODE.length);
+      if (buf === CODE) {
+        buf = '';
+        apply(!document.documentElement.classList.contains('egypt'), true);
+      }
+    });
+  })();
+
   /* ---- reading progress -------------------------------------------- */
 
   var bar = null;

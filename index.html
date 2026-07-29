@@ -40,12 +40,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" fetchpriority="low" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /><link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="styles.css?v=60" />
+<link rel="stylesheet" href="styles.css?v=68" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 try {
   var savedTheme = localStorage.getItem('ysf-theme');
   document.documentElement.dataset.theme = savedTheme === 'light' ? 'light' : 'dark';
+  if (localStorage.getItem('ysf-egypt')) document.documentElement.classList.add('egypt');
 } catch (_) { document.documentElement.dataset.theme = 'dark'; }
 /* If the site's own script never ran, reveal everything rather than leaving
    [data-load]/[data-reveal] parked at opacity 0 forever. script.js takes this
@@ -243,23 +244,26 @@ setTimeout(function () {
             <div><dt>Available</dt><dd>Full-time internship<br />January — April 2027</dd></div><div><dt>Location</dt><dd>Subang Jaya / Kuala Lumpur, Malaysia</dd></div>
             <div><dt>Languages</dt><dd>English · fluent<br />Arabic · native</dd></div>
           </dl>
-          <!--build:credibility-->
-          <div class="cred" data-reveal>
-            <p class="cred-l">FIG. 00.2<span class="slash">/</span>AT A GLANCE</p>
-            <ul class="cred-scale">
-              <li><b>01</b><span>Product live on the App Store and Google Play</span></li>
-              <li><b>03</b><span>Cross-platform products owned end to end, solo</span></li>
-              <li class="is-text"><b>iOS · ANDROID · WEB</b><span>Platforms with something live and reachable</span></li>
-              <li><b>1.2.5</b><span>Bupples on the App Store, released 27 July 2026</span></li>
-              <li class="is-text"><b>AUG 2027</b><span>BSc Software Engineering (Hons) — Sunway University / Lancaster University</span></li>
-              <li class="is-text"><b>JAN—APR 2027</b><span>Available for a full-time internship</span></li>
-            </ul>
-          </div>
-          <!--/build:credibility-->
         </div>
       </div>
 
     </div>
+  </section>
+
+  <section class="scene-credibility" aria-label="At a glance">
+<!--build:credibility-->
+          <div class="cred" data-reveal>
+            <p class="cred-l">FIG. 00.2<span class="slash">/</span>AT A GLANCE</p>
+            <ul class="cred-scale">
+              <li data-cursor="FACT"><b>01</b><span>Product live on the App Store and Google Play</span></li>
+              <li data-cursor="FACT"><b>03</b><span>Cross-platform products owned end to end, solo</span></li>
+              <li class="is-text" data-cursor="FACT"><b>iOS · ANDROID · WEB</b><span>Platforms with something live and reachable</span></li>
+              <li data-cursor="FACT"><b>1.2.5</b><span>Bupples on the App Store, released 27 July 2026</span></li>
+              <li class="is-text" data-cursor="FACT"><b>AUG 2027</b><span>BSc Software Engineering (Hons) — Sunway University / Lancaster University</span></li>
+              <li class="is-text" data-cursor="FACT"><b>JAN—APR 2027</b><span>Available for a full-time internship</span></li>
+            </ul>
+          </div>
+          <!--/build:credibility-->
   </section>
 
   <section class="scene scene-statement" aria-label="Approach">
@@ -274,13 +278,14 @@ setTimeout(function () {
     </p>
     <p class="st-close"><span class="st-serif">End to end, and out to the stores.</span></p>
     <!--build:principles-->
-          <div class="principles" data-reveal>
-      <header class="pr-head">
+          <div class="principles">
+      <header class="pr-head" data-reveal>
         <p class="sec-label">FIG. 00.6<span class="slash">/</span>HOW I WORK</p>
         <h2 class="pr-title">Six rules I <em>actually follow.</em></h2>
       </header>
       <ol class="pr-list">
-        <li class="pr-item">
+        <li class="pr-item" data-cursor="RULE">
+          <i class="pr-rule" aria-hidden="true"></i>
           <span class="pr-no" aria-hidden="true">01</span>
           <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="8.4" cy="5" r="0.62"/><circle cx="7.94" cy="6.7" r="0.62"/><circle cx="6.7" cy="7.94" r="0.62"/><circle cx="5" cy="8.4" r="0.62"/><circle cx="3.3" cy="7.94" r="0.62"/><circle cx="2.06" cy="6.7" r="0.62"/><circle cx="1.6" cy="5" r="0.62"/><circle cx="2.06" cy="3.3" r="0.62"/><circle cx="3.3" cy="2.06" r="0.62"/><circle cx="5" cy="1.6" r="0.62"/><circle cx="6.7" cy="2.06" r="0.62"/><circle cx="7.94" cy="3.3" r="0.62"/><circle cx="5" cy="5" r="0.62"/></svg>
           <div class="pr-body">
@@ -289,7 +294,8 @@ setTimeout(function () {
           </div>
           <p class="pr-eg"><span>In practice</span>A cent-exact ISO 4217 multi-currency ledger, split by largest remainder — RM51.50 across four people resolves to RM12.875 before the remainder is assigned, not after.</p>
         </li>
-        <li class="pr-item">
+        <li class="pr-item" data-cursor="RULE">
+          <i class="pr-rule" aria-hidden="true"></i>
           <span class="pr-no" aria-hidden="true">02</span>
           <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="2" cy="2" r="0.62"/><circle cx="3.5" cy="2" r="0.62"/><circle cx="5" cy="2" r="0.62"/><circle cx="6.5" cy="2" r="0.62"/><circle cx="8" cy="2" r="0.62"/><circle cx="2" cy="3.6" r="0.62"/><circle cx="8" cy="3.6" r="0.62"/><circle cx="2.2" cy="5.2" r="0.62"/><circle cx="7.8" cy="5.2" r="0.62"/><circle cx="3.1" cy="6.6" r="0.62"/><circle cx="6.9" cy="6.6" r="0.62"/><circle cx="4" cy="7.7" r="0.62"/><circle cx="6" cy="7.7" r="0.62"/><circle cx="5" cy="8.5" r="0.62"/></svg>
           <div class="pr-body">
@@ -298,7 +304,8 @@ setTimeout(function () {
           </div>
           <p class="pr-eg"><span>In practice</span>Idempotent Cloud Functions behind Firestore Security Rules, with App Check and Remote Config.</p>
         </li>
-        <li class="pr-item">
+        <li class="pr-item" data-cursor="RULE">
+          <i class="pr-rule" aria-hidden="true"></i>
           <span class="pr-no" aria-hidden="true">03</span>
           <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="5" cy="1.4" r="0.62"/><circle cx="3.9" cy="2.6" r="0.62"/><circle cx="6.1" cy="2.6" r="0.62"/><circle cx="2.9" cy="3.8" r="0.62"/><circle cx="7.1" cy="3.8" r="0.62"/><circle cx="5" cy="3.1" r="0.62"/><circle cx="5" cy="4.6" r="0.62"/><circle cx="5" cy="6.1" r="0.62"/><circle cx="5" cy="7.6" r="0.62"/><circle cx="5" cy="9" r="0.62"/></svg>
           <div class="pr-body">
@@ -307,7 +314,8 @@ setTimeout(function () {
           </div>
           <p class="pr-eg"><span>In practice</span>First released 2 July 2026; version 1.2.5 reached the App Store on 27 July 2026.</p>
         </li>
-        <li class="pr-item">
+        <li class="pr-item" data-cursor="RULE">
+          <i class="pr-rule" aria-hidden="true"></i>
           <span class="pr-no" aria-hidden="true">04</span>
           <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="1.8" cy="5" r="0.62"/><circle cx="2.8" cy="6" r="0.62"/><circle cx="3.8" cy="7" r="0.62"/><circle cx="4.8" cy="7.8" r="0.62"/><circle cx="5.8" cy="6.2" r="0.62"/><circle cx="6.8" cy="4.6" r="0.62"/><circle cx="7.8" cy="3" r="0.62"/><circle cx="8.6" cy="1.8" r="0.62"/></svg>
           <div class="pr-body">
@@ -316,7 +324,8 @@ setTimeout(function () {
           </div>
           <p class="pr-eg"><span>In practice</span>117 Dart unit tests over the client's content layer — library loading, deduplication, strict filtering, quality floor and refresh policy — with widget payload parity covered alongside.</p>
         </li>
-        <li class="pr-item">
+        <li class="pr-item" data-cursor="RULE">
+          <i class="pr-rule" aria-hidden="true"></i>
           <span class="pr-no" aria-hidden="true">05</span>
           <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="3.4" cy="3.6" r="0.62"/><circle cx="3.3" cy="2.6" r="0.62"/><circle cx="4" cy="1.9" r="0.62"/><circle cx="5" cy="1.7" r="0.62"/><circle cx="6" cy="1.9" r="0.62"/><circle cx="6.7" cy="2.6" r="0.62"/><circle cx="6.6" cy="3.6" r="0.62"/><circle cx="2.4" cy="4.6" r="0.62"/><circle cx="3.7" cy="4.6" r="0.62"/><circle cx="5" cy="4.6" r="0.62"/><circle cx="6.3" cy="4.6" r="0.62"/><circle cx="7.6" cy="4.6" r="0.62"/><circle cx="2.4" cy="6" r="0.62"/><circle cx="7.6" cy="6" r="0.62"/><circle cx="2.4" cy="7.6" r="0.62"/><circle cx="3.7" cy="7.6" r="0.62"/><circle cx="5" cy="7.6" r="0.62"/><circle cx="6.3" cy="7.6" r="0.62"/><circle cx="7.6" cy="7.6" r="0.62"/><circle cx="5" cy="6.1" r="0.62"/></svg>
           <div class="pr-body">
@@ -325,7 +334,8 @@ setTimeout(function () {
           </div>
           <p class="pr-eg"><span>In practice</span>Local-first Electron/WebGL2 architecture; camera processing and captures stay on-device, with Firebase Hosting serving only the app itself.</p>
         </li>
-        <li class="pr-item">
+        <li class="pr-item" data-cursor="RULE">
+          <i class="pr-rule" aria-hidden="true"></i>
           <span class="pr-no" aria-hidden="true">06</span>
           <svg class="dot-glyph pr-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="2" cy="2.6" r="0.62"/><circle cx="3.5" cy="2.6" r="0.62"/><circle cx="5" cy="2.6" r="0.62"/><circle cx="6.5" cy="2.6" r="0.62"/><circle cx="8" cy="2.6" r="0.62"/><circle cx="2" cy="5" r="0.62"/><circle cx="3.5" cy="5" r="0.62"/><circle cx="5" cy="5" r="0.62"/><circle cx="6.5" cy="5" r="0.62"/><circle cx="8" cy="5" r="0.62"/><circle cx="2" cy="7.4" r="0.62"/><circle cx="3.5" cy="7.4" r="0.62"/><circle cx="5" cy="7.4" r="0.62"/><circle cx="6.5" cy="7.4" r="0.62"/><circle cx="8" cy="7.4" r="0.62"/></svg>
           <div class="pr-body">
@@ -519,13 +529,13 @@ setTimeout(function () {
   <section class="scene skills-section" id="skills" aria-labelledby="skillsTitle">
     <header class="skills-head">
       <div data-reveal><p class="sec-label">02<span class="slash">/</span>TOOLS IN MOTION</p><h2 id="skillsTitle">What I <em>build with.</em></h2></div>
-      <div class="skills-note" data-reveal><p><span class="hint-fine">The lanes keep moving until you choose one. Hover to pause that lane, then browse it with its shaded edges.</span><span class="hint-touch">The lanes keep moving. Tap a lane to pause it, then browse it with its arrows.</span></p><button class="skills-pause" id="skillsPause" type="button" aria-pressed="false" hidden data-cursor="PAUSE"><i aria-hidden="true"></i><span class="sp-label">Pause lanes</span></button></div>
+      <div class="skills-note" data-reveal><p><span class="hint-fine">The lanes keep moving until you choose one. Hover to pause that lane, then browse it with its shaded edges.</span><span class="hint-touch">The lanes keep moving. Tap a lane to pause it, then browse it with its arrows.</span></p></div>
     </header>
     <!--build:capabilities-->
           <div class="caps" data-reveal>
       <p class="caps-intro">Before the tool list — the things I can take from an empty repository to a release.</p>
       <ul class="cap-rows">
-        <li class="cap-row">
+        <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
             <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="3.6" cy="1.4" r="0.62"/><circle cx="5" cy="1.4" r="0.62"/><circle cx="6.4" cy="1.4" r="0.62"/><circle cx="3" cy="2.6" r="0.62"/><circle cx="7" cy="2.6" r="0.62"/><circle cx="3" cy="4" r="0.62"/><circle cx="7" cy="4" r="0.62"/><circle cx="3" cy="5.4" r="0.62"/><circle cx="7" cy="5.4" r="0.62"/><circle cx="3" cy="6.8" r="0.62"/><circle cx="7" cy="6.8" r="0.62"/><circle cx="3.6" cy="8.2" r="0.62"/><circle cx="5" cy="8.2" r="0.62"/><circle cx="6.4" cy="8.2" r="0.62"/><circle cx="5" cy="7" r="0.62"/></svg>
             <h3>Cross-platform mobile products</h3>
@@ -533,15 +543,15 @@ setTimeout(function () {
           <p class="cap-lead">Take a Flutter application from an empty repository to a listing on both the App Store and Google Play, including the signing, the store paperwork, and the update cadence afterwards.</p>
           <p class="cap-tools">Flutter <i aria-hidden="true">·</i> Dart <i aria-hidden="true">·</i> Riverpod <i aria-hidden="true">·</i> Firebase <i aria-hidden="true">·</i> Xcode</p>
         </li>
-        <li class="cap-row">
+        <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
-            
+            <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="2" cy="2" r="0.62"/><circle cx="4" cy="2" r="0.62"/><circle cx="6" cy="2" r="0.62"/><circle cx="8" cy="2" r="0.62"/><circle cx="2" cy="4" r="0.62"/><circle cx="8" cy="4" r="0.62"/><circle cx="2" cy="6" r="0.62"/><circle cx="8" cy="6" r="0.62"/><circle cx="2" cy="8" r="0.62"/><circle cx="4" cy="8" r="0.62"/><circle cx="6" cy="8" r="0.62"/><circle cx="8" cy="8" r="0.62"/><circle cx="4.4" cy="4.4" r="0.62"/><circle cx="5.6" cy="4.4" r="0.62"/><circle cx="4.4" cy="5.6" r="0.62"/><circle cx="5.6" cy="5.6" r="0.62"/></svg>
             <h3>Native iOS and Android surfaces</h3>
           </div>
           <p class="cap-lead">Leave the framework where the framework cannot go — Home Screen, Lock Screen and StandBy widgets written natively on each platform and wired back into a shared app.</p>
           <p class="cap-tools">Swift <i aria-hidden="true">·</i> SwiftUI <i aria-hidden="true">·</i> WidgetKit <i aria-hidden="true">·</i> Kotlin <i aria-hidden="true">·</i> Android RemoteViews</p>
         </li>
-        <li class="cap-row">
+        <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
             <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="3.1" cy="1.8" r="0.62"/><circle cx="5" cy="1.5" r="0.62"/><circle cx="6.9" cy="1.8" r="0.62"/><circle cx="2.6" cy="2.9" r="0.62"/><circle cx="7.4" cy="2.9" r="0.62"/><circle cx="3.1" cy="3.9" r="0.62"/><circle cx="5" cy="4.2" r="0.62"/><circle cx="6.9" cy="3.9" r="0.62"/><circle cx="2.6" cy="5.1" r="0.62"/><circle cx="7.4" cy="5.1" r="0.62"/><circle cx="3.1" cy="6.1" r="0.62"/><circle cx="5" cy="6.4" r="0.62"/><circle cx="6.9" cy="6.1" r="0.62"/><circle cx="2.6" cy="7.2" r="0.62"/><circle cx="7.4" cy="7.2" r="0.62"/><circle cx="3.1" cy="8.3" r="0.62"/><circle cx="5" cy="8.6" r="0.62"/><circle cx="6.9" cy="8.3" r="0.62"/></svg>
             <h3>Backends, data and rules</h3>
@@ -549,7 +559,7 @@ setTimeout(function () {
           <p class="cap-lead">Model the data, move the writes that decide anything into server-side functions, and constrain the rest with security rules instead of trusting the client.</p>
           <p class="cap-tools">Firestore <i aria-hidden="true">·</i> Cloud Functions <i aria-hidden="true">·</i> Node.js <i aria-hidden="true">·</i> REST APIs <i aria-hidden="true">·</i> App Check</p>
         </li>
-        <li class="cap-row">
+        <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
             <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="3.4" cy="3.4" r="0.62"/><circle cx="5" cy="3.4" r="0.62"/><circle cx="6.6" cy="3.4" r="0.62"/><circle cx="3.4" cy="5" r="0.62"/><circle cx="6.6" cy="5" r="0.62"/><circle cx="3.4" cy="6.6" r="0.62"/><circle cx="5" cy="6.6" r="0.62"/><circle cx="6.6" cy="6.6" r="0.62"/><circle cx="1.9" cy="4.2" r="0.62"/><circle cx="1.9" cy="5.8" r="0.62"/><circle cx="8.1" cy="4.2" r="0.62"/><circle cx="8.1" cy="5.8" r="0.62"/><circle cx="4.2" cy="1.9" r="0.62"/><circle cx="5.8" cy="1.9" r="0.62"/><circle cx="4.2" cy="8.1" r="0.62"/><circle cx="5.8" cy="8.1" r="0.62"/></svg>
             <h3>Real-time graphics and desktop</h3>
@@ -557,7 +567,7 @@ setTimeout(function () {
           <p class="cap-lead">Build interfaces that run on the GPU and ship as a desktop binary as readily as a web page, with the process boundaries locked down.</p>
           <p class="cap-tools">TypeScript <i aria-hidden="true">·</i> JavaScript <i aria-hidden="true">·</i> Electron <i aria-hidden="true">·</i> WebGL2 <i aria-hidden="true">·</i> GLSL <i aria-hidden="true">·</i> HTML/CSS <i aria-hidden="true">·</i> Godot Engine <i aria-hidden="true">·</i> Python</p>
         </li>
-        <li class="cap-row">
+        <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
             <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="5" cy="1.6" r="0.62"/><circle cx="2.4" cy="4" r="0.62"/><circle cx="7.6" cy="4" r="0.62"/><circle cx="3.5" cy="7.8" r="0.62"/><circle cx="6.5" cy="7.8" r="0.62"/><circle cx="5" cy="4.9" r="0.62"/><circle cx="3.8" cy="2.7" r="0.62"/><circle cx="6.2" cy="2.7" r="0.62"/><circle cx="4.1" cy="4.5" r="0.62"/><circle cx="5.9" cy="4.5" r="0.62"/><circle cx="4.1" cy="6.4" r="0.62"/><circle cx="5.9" cy="6.4" r="0.62"/></svg>
             <h3>Applied AI in products</h3>
@@ -565,7 +575,7 @@ setTimeout(function () {
           <p class="cap-lead">Put a model where it does a job a user can check — reading a receipt into structured line items, tracking a face on-device — rather than where it decides a number.</p>
           <p class="cap-tools">Vertex AI <i aria-hidden="true">·</i> Gemini <i aria-hidden="true">·</i> MediaPipe</p>
         </li>
-        <li class="cap-row">
+        <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
             <svg class="dot-glyph cap-glyph" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false"><circle cx="5" cy="1.2" r="0.62"/><circle cx="3.8" cy="2.4" r="0.62"/><circle cx="6.2" cy="2.4" r="0.62"/><circle cx="5" cy="2.5" r="0.62"/><circle cx="5" cy="3.7" r="0.62"/><circle cx="5" cy="4.7" r="0.62"/><circle cx="2.2" cy="5.8" r="0.62"/><circle cx="3.6" cy="5.8" r="0.62"/><circle cx="5" cy="5.8" r="0.62"/><circle cx="6.4" cy="5.8" r="0.62"/><circle cx="7.8" cy="5.8" r="0.62"/><circle cx="2.2" cy="7.1" r="0.62"/><circle cx="7.8" cy="7.1" r="0.62"/><circle cx="2.2" cy="8.4" r="0.62"/><circle cx="3.6" cy="8.4" r="0.62"/><circle cx="5" cy="8.4" r="0.62"/><circle cx="6.4" cy="8.4" r="0.62"/><circle cx="7.8" cy="8.4" r="0.62"/></svg>
             <h3>Release and product operations</h3>
@@ -605,7 +615,7 @@ setTimeout(function () {
           <div class="timeline" data-reveal>
       <p class="sec-label">FIG. 04<span class="slash">/</span>THE RECORD</p>
       <ol class="tl-list">
-        <li class="tl-row">
+        <li class="tl-row" data-cursor="RECORD">
           <p class="tl-when">Jan 2026 — Present</p>
           <div class="tl-what">
             <h3>Digital Marketing Executive</h3>
@@ -616,7 +626,7 @@ setTimeout(function () {
             
           </div>
         </li>
-        <li class="tl-row">
+        <li class="tl-row" data-cursor="RECORD">
           <p class="tl-when">Feb 2026 — Present</p>
           <div class="tl-what">
             <h3>Sole developer</h3>
@@ -625,32 +635,32 @@ setTimeout(function () {
             
             
             <ol class="tl-projects">
-              <li class="tl-project">
+              <li class="tl-project" data-cursor="STUDY">
                 <div class="tl-p-head">
                   <h4>Bupples</h4>
                   <p class="tl-p-when">Feb 2026 — Present</p>
                 </div>
                 <ul><li>Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.</li><li>Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.</li><li>Live on the App Store and Google Play since 2 July 2026; version 1.2.5 shipped on 27 July 2026.</li></ul>
                 <p class="tl-tech">Flutter <i aria-hidden="true">·</i> Dart <i aria-hidden="true">·</i> Firebase <i aria-hidden="true">·</i> Firestore <i aria-hidden="true">·</i> Cloud Functions <i aria-hidden="true">·</i> Vertex AI <i aria-hidden="true">·</i> Gemini <i aria-hidden="true">·</i> RevenueCat <i aria-hidden="true">·</i> App Check <i aria-hidden="true">·</i> Remote Config</p>
-                <a class="tl-study" href="work/bupples/">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
+                <a class="tl-study" href="work/bupples/" data-cursor="READ">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
               </li>
-              <li class="tl-project">
+              <li class="tl-project" data-cursor="STUDY">
                 <div class="tl-p-head">
                   <h4>Adelante</h4>
                   <p class="tl-p-when">Jun 2026 — Present</p>
                 </div>
                 <ul><li>Built a privacy-first motivation app with native WidgetKit/SwiftUI and Android RemoteViews widgets for the Home Screen, Lock Screen, and StandBy — without accounts, analytics, or ads.</li><li>Designed a Firestore and scheduled Cloud Functions content pipeline with offline caching, deduplication, quality scoring, and strict filtering; validated reliability with 117 automated tests.</li></ul>
                 <p class="tl-tech">Flutter <i aria-hidden="true">·</i> Swift <i aria-hidden="true">·</i> SwiftUI <i aria-hidden="true">·</i> WidgetKit <i aria-hidden="true">·</i> Kotlin <i aria-hidden="true">·</i> Android RemoteViews <i aria-hidden="true">·</i> Firebase <i aria-hidden="true">·</i> Cloud Functions</p>
-                <a class="tl-study" href="work/adelante/">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
+                <a class="tl-study" href="work/adelante/" data-cursor="READ">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
               </li>
-              <li class="tl-project">
+              <li class="tl-project" data-cursor="STUDY">
                 <div class="tl-p-head">
                   <h4>Photoshoot</h4>
                   <p class="tl-p-when">Jun 2026 — Present</p>
                 </div>
                 <ul><li>Built and deployed a browser and desktop photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time GLSL effects and 8 on-device MediaPipe face effects.</li><li>Engineered a local-first Electron/WebGL2 architecture with context isolation, sandboxing, strict CSP, and Firebase Hosting, keeping camera processing and captures on-device.</li></ul>
                 <p class="tl-tech">TypeScript <i aria-hidden="true">·</i> Electron <i aria-hidden="true">·</i> WebGL2 <i aria-hidden="true">·</i> GLSL <i aria-hidden="true">·</i> MediaPipe <i aria-hidden="true">·</i> Firebase Hosting</p>
-                <a class="tl-study" href="work/photoshoot/">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
+                <a class="tl-study" href="work/photoshoot/" data-cursor="READ">Case study<span class="cta-arr" aria-hidden="true">→</span></a>
               </li>
             </ol>
           </div>
@@ -670,19 +680,19 @@ setTimeout(function () {
         <p class="now-stamp"><i aria-hidden="true"></i>LAST UPDATED 2026-07-29</p>
       </div>
       <div class="now-grid">
-        <section class="now-col" data-tone="live">
+        <section class="now-col" data-tone="live" data-cursor="NOW">
           <h3 class="now-h"><i class="now-dot" aria-hidden="true"></i>Building</h3>
           <ul><li><b>Bupples</b><p>Maintaining the shipped product. It reached the App Store and Google Play on 2 July 2026 and was on version 1.2.5 by 27 July.</p></li><li><b>Adelante</b><p>Widget-first motivation app for iOS and Android: native WidgetKit and RemoteViews surfaces over a scheduled Firebase content pipeline, with no accounts, analytics or ads.</p></li><li><b>Photoshoot</b><p>Shipped in June 2026 and live in the browser: a local-first Electron and WebGL2 photobooth with 17 real-time GLSL effects and 8 on-device MediaPipe face effects. Not under active development.</p></li></ul>
         </section>
-        <section class="now-col" data-tone="study">
+        <section class="now-col" data-tone="study" data-cursor="NOW">
           <h3 class="now-h"><i class="now-dot" aria-hidden="true"></i>Studying</h3>
           <ul><li><b>BSc Software Engineering (Hons) — Sunway University / Lancaster University</b><p>Software Architecture, Data Structures, Mobile Development, Databases, and UI/UX Design. Expected August 2027.</p></li></ul>
         </section>
-        <section class="now-col" data-tone="seek">
+        <section class="now-col" data-tone="seek" data-cursor="NOW">
           <h3 class="now-h"><i class="now-dot" aria-hidden="true"></i>Looking for</h3>
           <ul><li><b>A full-time software engineering internship, January to April 2027</b><p>Subang Jaya or Kuala Lumpur, Malaysia. Mobile, full-stack, or anything that ships to a real store.</p></li></ul>
         </section>
-        <section class="now-col" data-tone="explore">
+        <section class="now-col" data-tone="explore" data-cursor="NOW">
           <h3 class="now-h"><i class="now-dot" aria-hidden="true"></i>Exploring</h3>
           <ul><li><b>Inference that runs on the device</b><p>MediaPipe face effects executing locally in Photoshoot, so a camera frame never has to be uploaded to become useful.</p></li><li><b>Model output as structured data, not prose</b><p>Gemini receipt extraction in Bupples: the model reads a photographed receipt into line items, and the ledger still does the money.</p></li><li><b>Widgets as the product surface</b><p>Home Screen, Lock Screen and StandBy as places a product lives rather than shortcuts into it — which means two native implementations instead of one shared screen.</p></li></ul>
         </section>
@@ -706,7 +716,7 @@ setTimeout(function () {
   <div class="theater-body">
     <article class="project-stage b-stage" data-project-stage="bupples" hidden>
       <div class="stage-head"><span>01 / Social expense system</span><span>Hover the stack · pull a screen</span></div>
-      <section class="b-copy"><h2>Bupples</h2><em>Money, made social.</em><p>Cent-exact expense sharing, AI receipts, live group chat, and settlement plans on iOS and Android.</p><div class="pip-mark" aria-hidden="true"><i></i><i></i></div><div class="stage-actions"><a href="https://bupples.web.app/" target="_blank" rel="noopener" data-cursor="OPEN">Product site ↗</a><a href="https://github.com/yeegz/Bupples-showcase" target="_blank" rel="noopener" data-cursor="CODE">View showcase ↗</a></div></section>
+      <section class="b-copy"><h2>Bupples</h2><em>Money, made social.</em><p>Cent-exact expense sharing, AI receipts, live group chat, and settlement plans on iOS and Android.</p><div class="pip-mark" aria-hidden="true"><i></i><i></i></div><div class="stage-actions"><a class="sa-study" href="work/bupples/" data-cursor="READ">Read the case study →</a><a href="https://bupples.web.app/" target="_blank" rel="noopener" data-cursor="OPEN">Product site ↗</a><a href="https://github.com/yeegz/Bupples-showcase" target="_blank" rel="noopener" data-cursor="CODE">View showcase ↗</a></div></section>
       <div class="phone-envelope"><div class="bupples-stack">
         <figure class="bupples-screen screen left" tabindex="0"><img src="images/projects/bupples/ask-pip.webp" loading="lazy" decoding="async" alt="Ask Pip assistant screen" width="900" height="1553" /></figure>
         <figure class="bupples-screen screen center" tabindex="0"><img src="images/projects/bupples/profile.webp" loading="lazy" decoding="async" alt="Bupples profile screen" width="830" height="1800" /></figure>
@@ -717,7 +727,7 @@ setTimeout(function () {
 
     <article class="project-stage p-stage" data-project-stage="photoshoot" hidden>
       <div class="stage-head"><span>03 / Local-first photobooth</span><span>Four subjects · one strip</span></div>
-      <section class="p-copy"><h2>Photo<br />shoot<span>Strike a pose.</span></h2><p>Each shutter press captures the current subject into the strip, then advances the viewfinder to the next photo.</p><div class="stage-actions"><a href="https://photoshoot-yeegz.web.app/" target="_blank" rel="noopener" data-cursor="OPEN">Experience it live ↗</a><a href="https://github.com/yeegz/photoshoot" target="_blank" rel="noopener" data-cursor="CODE">View GitHub ↗</a></div></section>
+      <section class="p-copy"><h2>Photo<br />shoot<span>Strike a pose.</span></h2><p>Each shutter press captures the current subject into the strip, then advances the viewfinder to the next photo.</p><div class="stage-actions"><a class="sa-study" href="work/photoshoot/" data-cursor="READ">Read the case study →</a><a href="https://photoshoot-yeegz.web.app/" target="_blank" rel="noopener" data-cursor="OPEN">Experience it live ↗</a><a href="https://github.com/yeegz/photoshoot" target="_blank" rel="noopener" data-cursor="CODE">View GitHub ↗</a></div></section>
       <div class="camera-app">
         <div class="camera-bar"><span class="lights"><i></i><i></i><i></i></span>PHOTOSHOOT</div>
         <div class="viewfinder" id="viewfinder" data-effect="none" data-cursor-surface="dark"><img id="viewImage" src="images/projects/photoshoot/subject-01.webp" alt="Photoshoot subject" style="object-position:50% 56%" /><span class="rec"><i></i>REC</span><span class="subject-label" id="subjectLabel">SUBJECT 01</span><span class="lens-point"></span><span class="readout" id="effectLabel">ISO 400 · F/1.8 · CLEAN</span><span class="flash" id="flash"></span></div>
@@ -729,7 +739,7 @@ setTimeout(function () {
 
     <article class="project-stage a-stage" data-project-stage="adelante" hidden>
       <div class="stage-head"><span>02 / Widget-first motivation</span><span>Hover A · discard quote</span></div>
-      <div class="a-word"><h2>Adelante</h2><div class="stage-actions"><a href="https://github.com/yeegz/adelante-showcase" target="_blank" rel="noopener" data-cursor="CODE">View showcase ↗</a></div></div>
+      <div class="a-word"><h2>Adelante</h2><div class="stage-actions"><a class="sa-study" href="work/adelante/" data-cursor="READ">Read the case study →</a><a href="https://github.com/yeegz/adelante-showcase" target="_blank" rel="noopener" data-cursor="CODE">View showcase ↗</a></div></div>
       <div class="quote-deck" id="quoteDeck" role="button" tabindex="0" aria-label="Discard the current quote and reveal the next one">
         <article class="quote-card tone-ivory" data-position="0"><blockquote>“Difficulties are things that show what men are.”</blockquote><cite>Epictetus · Discourses, Book I.24</cite><span class="discard">Click to move forward</span><span class="card-mark">A →</span></article>
         <article class="quote-card tone-black" data-position="1"><blockquote>“Be still, and know that I am God.”</blockquote><cite>King James Version · Psalm 46:10</cite><span class="discard">Click to move forward</span><span class="card-mark">A →</span></article>

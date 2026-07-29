@@ -365,3 +365,51 @@ test('content passes schema validation', async () => {
   const out = execFileSync('node', ['tools/build.mjs', '--check'], { encoding: 'utf8' });
   expect(out).toContain('content valid');
 });
+
+test.describe('easter egg', () => {
+  test('typing "egypt" repaints the site in the flag and says so', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(1200);
+    const before = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--accent').trim());
+
+    await page.keyboard.type('egypt', { delay: 55 });
+    await page.waitForTimeout(600);
+
+    await expect(page.locator('html')).toHaveClass(/egypt/);
+    const after = await page.evaluate(() => ({
+      accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+      bg: getComputedStyle(document.body).backgroundColor,
+      surname: getComputedStyle(document.querySelector('.nm-egg')).backgroundImage,
+    }));
+    expect(after.accent).not.toBe(before);
+    expect(after.accent).toBe('#d4a017');            // the eagle's gold
+    expect(after.bg).toBe('rgb(0, 0, 0)');           // the flag's black band
+    expect(after.surname).toContain('rgb(206, 17, 38)'); // the flag's red band
+
+    await expect(page.locator('.egg-toast')).toContainText(/cheat code activated/i);
+
+    // It is a toggle, and it persists across a route change.
+    await page.goto('/work/bupples/');
+    await page.waitForTimeout(500);
+    await expect(page.locator('html')).toHaveClass(/egypt/);
+    await page.keyboard.type('egypt', { delay: 55 });
+    await page.waitForTimeout(500);
+    await expect(page.locator('html')).not.toHaveClass(/egypt/);
+  });
+
+  test('the code never steals a keystroke meant for a field', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(900);
+    await page.evaluate(() => {
+      const i = document.createElement('input');
+      i.id = 'probe';
+      document.body.appendChild(i);
+      i.focus();
+    });
+    await page.keyboard.type('egypt', { delay: 40 });
+    await page.waitForTimeout(400);
+    await expect(page.locator('html')).not.toHaveClass(/egypt/);
+    expect(await page.inputValue('#probe')).toBe('egypt');
+  });
+});

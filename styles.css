@@ -58,18 +58,21 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 .site-head {
   position: fixed; inset: 0 0 auto 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 1.5rem var(--pad-x);
+  padding: 1.05rem var(--pad-x);
 }
 .site-head::before {
-  content: ""; position: absolute; inset: 0 0 -40%; pointer-events: none;
-  /* Opaque through the nav band, then fading — a straight .85→0 fade left the
-     nav row barely covered, so text scrolling underneath ran through the
-     labels. The blur keeps the hero legible underneath without letting body
-     copy compete with the navigation. */
+  content: ""; position: absolute; inset: 0 0 -20%; pointer-events: none;
+  /* Sheer over the hero, where the header is meant to float. It only earns a
+     real backdrop once the page has scrolled into body copy — otherwise text
+     scrolling underneath runs straight through the nav labels. */
+  background: linear-gradient(180deg, rgba(10, 10, 11, 0.85), rgba(10, 10, 11, 0));
+  transition: background 0.4s var(--ease-out), backdrop-filter 0.4s var(--ease-out);
+}
+.head-solid .site-head::before {
   background: linear-gradient(180deg,
     rgba(10, 10, 11, 0.97) 0%,
-    rgba(10, 10, 11, 0.94) 52%,
-    rgba(10, 10, 11, 0.72) 74%,
+    rgba(10, 10, 11, 0.95) 64%,
+    rgba(10, 10, 11, 0.62) 84%,
     rgba(10, 10, 11, 0) 100%);
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
@@ -1079,7 +1082,8 @@ html, body, .site-head, .scene-work, .scene-statement, .site-foot {
 }
 html[data-theme="light"] body { background: var(--bg); color: var(--ink); }
 html[data-theme="light"] .stage-bg::before { background: radial-gradient(120% 90% at 38% 80%, #dfe4db 0%, var(--bg) 58%); }
-html[data-theme="light"] .site-head::before { background: linear-gradient(180deg, rgba(238, 232, 219, .97) 0%, rgba(238, 232, 219, .94) 52%, rgba(238, 232, 219, .72) 74%, rgba(238, 232, 219, 0) 100%); }
+html[data-theme="light"] .site-head::before { background: linear-gradient(180deg, rgba(238, 232, 219, .92), rgba(238, 232, 219, 0)); }
+html[data-theme="light"].head-solid .site-head::before { background: linear-gradient(180deg, rgba(238, 232, 219, .97) 0%, rgba(238, 232, 219, .95) 64%, rgba(238, 232, 219, .62) 84%, rgba(238, 232, 219, 0) 100%); }
 html[data-theme="light"] .mobile-nav { background: rgba(238, 232, 219, .985); color: var(--ink); }
 html[data-theme="light"] .grain { opacity: .018; mix-blend-mode: multiply; }
 html[data-theme="light"] .nm-in { background-image: linear-gradient(180deg, #20231f 0%, #383d37 58%, #636b62 105%); }
@@ -1497,7 +1501,10 @@ html.project-open,html.project-open body{overflow:hidden!important}.project-open
   .work-links {
     position: relative; z-index: 3;
     display: flex; flex-wrap: wrap; gap: 0.55rem;
-    margin: 1.15rem 0.2rem 0;
+    /* Sit under the copy, not out in the number's margin. .work-link is a
+       grid of [no | main | side] and these rows are its siblings, so they have
+       to reproduce the first column plus the gap by hand. */
+    margin: 1.15rem 0.2rem 0 calc(0.5rem + 5.5rem + clamp(1.2rem, 2.4vw, 2.4rem));
   }
   .work-links a {
     display: inline-flex; align-items: center; gap: 0.55rem;
@@ -2212,6 +2219,9 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
   z-index: 3;
   margin: 1.05rem 0.2rem 0;
 }
+@media (min-width: 1025px) {
+  .work-study { margin-left: calc(0.5rem + 5.5rem + clamp(1.2rem, 2.4vw, 2.4rem)); }
+}
 .work-study a {
   display: inline-flex;
   align-items: center;
@@ -2780,3 +2790,184 @@ html[data-theme="light"] .cap-row:hover { background: color-mix(in srgb, var(--a
   .pr-item { grid-template-columns: 3.4rem 1fr; }
   .pr-glyph { width: 34px; height: 34px; }
 }
+
+/* The credibility strip used to sit inside the pinned identity panel. That
+   panel is a fixed-height pinned scene, so 200-odd pixels of extra content
+   overflowed it and pushed the portrait below centre. It gets its own band
+   between the identity scene and the statement instead. */
+.scene-credibility {
+  position: relative;
+  z-index: 4;
+  padding: clamp(2.4rem, 6vh, 4.2rem) var(--pad-x) clamp(2rem, 5vh, 3.4rem);
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+}
+.scene-credibility .cred { margin-top: 0; }
+/* The case study is a route, not one of the project's outbound destinations,
+   so it leads the stage actions and is marked in the stage's own accent. */
+.stage-actions .sa-study {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent) !important;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+/* The divider is its own element so it can be drawn on rather than just
+   appearing. The border stays as the no-JS/reduced-motion fallback. */
+.pr-item { position: relative; }
+.pr-rule {
+  position: absolute;
+  inset: -1px 0 auto 0;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The cursor reacts to these blocks via data-cursor; the surfaces answer back
+   so the whole page behaves as one piece rather than a set of imported
+   modules. Kept to the same vocabulary the work rows already use: a faint
+   accent wash and the section's own mark warming up. */
+.cred-scale li,
+.pr-item,
+.tl-row,
+.tl-project,
+.now-col { transition: background 0.32s var(--ease-out); }
+
+.cred-scale li:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.cred-scale li:hover b { color: var(--accent); }
+
+.pr-item:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.pr-item:hover .pr-glyph { fill: var(--accent); }
+
+.tl-row:hover .tl-what::before,
+.tl-project:hover::before { box-shadow: 0 0 14px 4px color-mix(in srgb, var(--accent) 55%, transparent); }
+.tl-project:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+
+.now-col:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.now-col:hover .now-dot { box-shadow: 0 0 10px 3px color-mix(in srgb, var(--accent) 45%, transparent); }
+
+@media (hover: none), (pointer: coarse) {
+  /* Nothing here may depend on a pointer that does not exist. */
+  .cred-scale li:hover, .pr-item:hover, .tl-project:hover, .now-col:hover { background: transparent; }
+}
+
+/* =============================================================
+   Easter egg — type "egypt"
+   -------------------------------------------------------------
+   The flag, mapped onto the site's own token layer rather than
+   painted over it: black ground, white ink, the gold of the eagle
+   for every numeral, dot, spark and highlight, and the red band
+   for the serif italic voice that carries this site's accents.
+   Everything downstream — sigils, rails, ghosts, lane tones —
+   inherits from those tokens, so nothing needs special-casing.
+   ============================================================= */
+
+html.egypt {
+  --bg: #000000;
+  --bg-2: #0a0a0a;
+  --ink: #ffffff;
+  --ink-soft: #ededed;
+  --muted: #a8a8a8;
+  --muted-2: #6f6f6f;
+  --line: rgba(255, 255, 255, 0.20);
+  --line-soft: rgba(255, 255, 255, 0.09);
+  --accent: #d4a017;
+  --shell: #000000;
+  --identity-bg: #050505;
+  --experience-bg: #070707;
+  --contact-bg: #030303;
+  --theme-ink: #ffffff;
+  --theme-muted: #a8a8a8;
+  --cursor-fill: #ce1126;
+  --cursor-text: #ffffff;
+  --section-accent: #d4a017;
+  --eg-red: #ce1126;
+  --eg-gold: #d4a017;
+}
+
+/* The serif italic is this site's accent voice — it takes the flag's red.
+   Marked important deliberately: dozens of per-section rules already colour
+   these to --accent or --section-accent at higher specificity, and a theme
+   override that has to out-specify each of them by hand would rot the moment
+   a new section is added. */
+html.egypt em,
+html.egypt .cs-tagline,
+html.egypt .tl-org,
+html.egypt .caps-intro,
+html.egypt .lane-note,
+html.egypt .work-kicker,
+html.egypt .chapter-aside,
+html.egypt figcaption { color: var(--eg-red) !important; }
+/* …except where the serif is doing duty as a plain label rather than an accent. */
+html.egypt .now-col p em,
+html.egypt .cs-lead em { color: var(--eg-red) !important; }
+
+/* Numerals and marks take the gold. */
+html.egypt .pr-no,
+html.egypt .cred-scale b,
+html.egypt .wk-no,
+html.egypt .cs-step-n,
+html.egypt .cs-dec-n { color: var(--eg-gold); -webkit-text-stroke-color: var(--eg-gold); }
+html.egypt .dot-glyph { fill: var(--eg-gold); }
+
+/* The lane tones run the flag rather than the six-colour spectrum. */
+html.egypt .skill-lane:nth-child(1) { --tone: #ce1126; }
+html.egypt .skill-lane:nth-child(2) { --tone: #ffffff; }
+html.egypt .skill-lane:nth-child(3) { --tone: #d4a017; }
+html.egypt .skill-lane:nth-child(4) { --tone: #ce1126; }
+html.egypt .skill-lane:nth-child(5) { --tone: #ffffff; }
+html.egypt .skill-lane:nth-child(6) { --tone: #d4a017; }
+
+/* A hairline of the flag across the very top, so the state is unmistakable. */
+html.egypt body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 900;
+  height: 3px;
+  pointer-events: none;
+  background: linear-gradient(180deg, #ce1126 0 33.34%, #ffffff 33.34% 66.67%, #000000 66.67% 100%);
+}
+
+.egg-toast {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(24px, 6vh, 56px);
+  z-index: 950;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1.3rem;
+  border: 1px solid var(--eg-gold, #d4a017);
+  background: rgba(0, 0, 0, 0.92);
+  color: #fff;
+  font: 500 0.62rem var(--mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+}
+.egg-toast i {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  background: linear-gradient(180deg, #ce1126 0 33.34%, #ffffff 33.34% 66.67%, #000000 66.67% 100%);
+}
+.egg-toast.is-on { opacity: 1; transition: opacity 0.3s var(--ease-out), translate 0.5s var(--ease-out); }
+.js:not(.reduced) .egg-toast { translate: -50% 14px; }
+.js:not(.reduced) .egg-toast.is-on { translate: -50% 0; }
+
+/* Hardcoded hero colours the token layer never reaches — the name is painted
+   with a background-clip gradient and the role serif is pinned to --ink, so
+   both need saying explicitly. The flag reads top-down: white name, red
+   surname, red serif accents. */
+html.egypt .nm-in {
+  background-image: linear-gradient(180deg, #ffffff 0%, #ededed 58%, #b6b6b6 105%);
+}
+html.egypt .nm-egg {
+  background-image: linear-gradient(180deg, #ce1126 0%, #e0243a 52%, #9c0d1d 108%);
+}
+html.egypt .role-sub em,
+html.egypt .role-sub .ch-em { color: var(--eg-red) !important; }

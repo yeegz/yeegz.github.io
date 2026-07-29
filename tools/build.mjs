@@ -387,6 +387,7 @@ document.documentElement.classList.replace('no-js','js');
 try {
   var t = localStorage.getItem('ysf-theme');
   document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+  if (localStorage.getItem('ysf-egypt')) document.documentElement.classList.add('egypt');
 } catch (_) { document.documentElement.dataset.theme = 'dark'; }
 </script>`;
 
@@ -499,7 +500,7 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=60" />
+<link rel="stylesheet" href="/styles.css?v=68" />
 <link rel="stylesheet" href="/case.css?v=8" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
@@ -546,7 +547,7 @@ ${NAV}
   <a href="/#top">Back to top ↑</a>
 </footer>
 
-<script src="/case.js?v=5" defer></script>
+<script src="/case.js?v=6" defer></script>
 </body>
 </html>
 `;
@@ -615,7 +616,7 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=60" />
+<link rel="stylesheet" href="/styles.css?v=68" />
 <link rel="stylesheet" href="/case.css?v=8" />
 ${HEAD_BOOT}
 </head>
@@ -641,7 +642,7 @@ ${cards}
   <p>DESIGNED AND BUILT BY HAND · 2026</p>
   <a href="/#top">Back to top ↑</a>
 </footer>
-<script src="/case.js?v=5" defer></script>
+<script src="/case.js?v=6" defer></script>
 </body>
 </html>
 `;
@@ -735,11 +736,13 @@ const GLYPHS = {
 };
 
 const GLYPH_ORDER = ['coin', 'shield', 'launch', 'proof', 'lock', 'layers'];
-const CAP_GLYPHS = ['mobile', 'native', 'data', 'gpu', 'ai', 'release'];
+const CAP_GLYPHS = ['mobile', 'widget', 'data', 'gpu', 'ai', 'release'];
 
 function dotGlyph(name, cls = 'dot-glyph') {
   const pts = GLYPHS[name];
-  if (!pts) return '';
+  // A missing name used to render nothing at all, which is how a capability
+  // row lost its icon without anything failing.
+  if (!pts) { console.error(`\n✗ unknown glyph "${name}" — known: ${Object.keys(GLYPHS).join(', ')}`); process.exit(1); }
   const dots = pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="0.62"/>`).join('');
   return `<svg class="${cls}" viewBox="-0.5 -0.5 11 11" aria-hidden="true" focusable="false">${dots}</svg>`;
 }
@@ -754,7 +757,7 @@ function renderCredibility(site) {
 ${site.credibility
   .map((c) => {
     const isNumeral = /^[\d.]+$/.test(String(c.value).trim());
-    return `              <li${isNumeral ? '' : ' class="is-text"'}><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`;
+    return `              <li${isNumeral ? '' : ' class="is-text"'} data-cursor="FACT"><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`;
   })
   .join('\n')}
             </ul>
@@ -765,15 +768,16 @@ ${site.credibility
 
 function renderPrinciples(site) {
   if (!has(site.principles)) return '';
-  return `<div class="principles" data-reveal>
-      <header class="pr-head">
+  return `<div class="principles">
+      <header class="pr-head" data-reveal>
         <p class="sec-label">FIG. 00.6<span class="slash">/</span>HOW I WORK</p>
         <h2 class="pr-title">Six rules I <em>actually follow.</em></h2>
       </header>
       <ol class="pr-list">
 ${site.principles
   .map(
-    (p, i) => `        <li class="pr-item">
+    (p, i) => `        <li class="pr-item" data-cursor="RULE">
+          <i class="pr-rule" aria-hidden="true"></i>
           <span class="pr-no" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
           ${dotGlyph(GLYPH_ORDER[i % GLYPH_ORDER.length], 'dot-glyph pr-glyph')}
           <div class="pr-body">
@@ -797,7 +801,7 @@ function renderCapabilities(site) {
       <ul class="cap-rows">
 ${site.capabilities
   .map(
-    (c, i) => `        <li class="cap-row">
+    (c, i) => `        <li class="cap-row" data-cursor="BUILD">
           <div class="cap-name">
             ${dotGlyph(CAP_GLYPHS[i % CAP_GLYPHS.length], 'dot-glyph cap-glyph')}
             <h3>${esc(c.group)}</h3>
@@ -823,7 +827,7 @@ function renderExperience(site, projects) {
       : `<ol class="tl-projects">
 ${e.projects
   .map(
-    (pr) => `              <li class="tl-project">
+    (pr) => `              <li class="tl-project" data-cursor="STUDY">
                 <div class="tl-p-head">
                   <h4>${esc(pr.name)}</h4>
                   <p class="tl-p-when">${esc(pr.dates)}</p>
@@ -832,7 +836,7 @@ ${e.projects
                 ${has(pr.tech) ? `<p class="tl-tech">${pr.tech.map((t) => esc(t)).join(' <i aria-hidden="true">·</i> ')}</p>` : ''}
                 ${
                   slugs.has(String(pr.slug || '').toLowerCase())
-                    ? `<a class="tl-study" href="work/${esc(String(pr.slug).toLowerCase())}/">Case study<span class="cta-arr" aria-hidden="true">→</span></a>`
+                    ? `<a class="tl-study" href="work/${esc(String(pr.slug).toLowerCase())}/" data-cursor="READ">Case study<span class="cta-arr" aria-hidden="true">→</span></a>`
                     : ''
                 }
               </li>`
@@ -845,7 +849,7 @@ ${e.projects
       <ol class="tl-list">
 ${site.experience
   .map(
-    (e) => `        <li class="tl-row">
+    (e) => `        <li class="tl-row" data-cursor="RECORD">
           <p class="tl-when">${esc(e.dates)}</p>
           <div class="tl-what">
             <h3>${esc(e.role)}</h3>
@@ -870,7 +874,7 @@ function renderNow(site) {
   const col = (label, items, tone) =>
     !has(items)
       ? ''
-      : `<section class="now-col" data-tone="${tone}">
+      : `<section class="now-col" data-tone="${tone}" data-cursor="NOW">
           <h3 class="now-h"><i class="now-dot" aria-hidden="true"></i>${esc(label)}</h3>
           <ul>${items
             .map((i) =>

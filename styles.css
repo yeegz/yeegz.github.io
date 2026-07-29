@@ -61,7 +61,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   padding: 1.05rem var(--pad-x);
 }
 .site-head::before {
-  content: ""; position: absolute; inset: 0 0 -20%; pointer-events: none;
+  content: ""; position: absolute; inset: 0; pointer-events: none;
   /* Sheer over the hero, where the header is meant to float. It only earns a
      real backdrop once the page has scrolled into body copy — otherwise text
      scrolling underneath runs straight through the nav labels. */
@@ -70,9 +70,9 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 }
 .head-solid .site-head::before {
   background: linear-gradient(180deg,
-    rgba(10, 10, 11, 0.97) 0%,
-    rgba(10, 10, 11, 0.95) 64%,
-    rgba(10, 10, 11, 0.62) 84%,
+    rgba(10, 10, 11, 0.98) 0%,
+    rgba(10, 10, 11, 0.97) 72%,
+    rgba(10, 10, 11, 0.55) 90%,
     rgba(10, 10, 11, 0) 100%);
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
@@ -1083,7 +1083,7 @@ html, body, .site-head, .scene-work, .scene-statement, .site-foot {
 html[data-theme="light"] body { background: var(--bg); color: var(--ink); }
 html[data-theme="light"] .stage-bg::before { background: radial-gradient(120% 90% at 38% 80%, #dfe4db 0%, var(--bg) 58%); }
 html[data-theme="light"] .site-head::before { background: linear-gradient(180deg, rgba(238, 232, 219, .92), rgba(238, 232, 219, 0)); }
-html[data-theme="light"].head-solid .site-head::before { background: linear-gradient(180deg, rgba(238, 232, 219, .97) 0%, rgba(238, 232, 219, .95) 64%, rgba(238, 232, 219, .62) 84%, rgba(238, 232, 219, 0) 100%); }
+html[data-theme="light"].head-solid .site-head::before { background: linear-gradient(180deg, rgba(238, 232, 219, .98) 0%, rgba(238, 232, 219, .97) 72%, rgba(238, 232, 219, .55) 90%, rgba(238, 232, 219, 0) 100%); }
 html[data-theme="light"] .mobile-nav { background: rgba(238, 232, 219, .985); color: var(--ink); }
 html[data-theme="light"] .grain { opacity: .018; mix-blend-mode: multiply; }
 html[data-theme="light"] .nm-in { background-image: linear-gradient(180deg, #20231f 0%, #383d37 58%, #636b62 105%); }
@@ -2971,3 +2971,91 @@ html.egypt .nm-egg {
 }
 html.egypt .role-sub em,
 html.egypt .role-sub .ch-em { color: var(--eg-red) !important; }
+
+/* ---------- egg: the hero re-orients ---------------------------
+   Default hero seats the dotted figure inside the step of the name.
+   Under the flag it splits instead: the halftone plate takes the
+   left, the name stacks right-aligned on the right, and the meta
+   follows it. The JS that seats the figure writes `--niche-x` and an
+   inline width, so both are overridden rather than fought with. */
+
+@media (min-width: 901px) {
+  html.egypt .portrait-wrap {
+    left: clamp(24px, 5vw, 110px) !important;
+    bottom: clamp(14svh, 20svh, 26svh) !important;
+    width: min(42vw, 560px) !important;
+  }
+  html.egypt .nm-stack { text-align: right; }
+  html.egypt .nm-line, html.egypt .nm-line-2 { display: block; text-align: right; }
+  html.egypt .nm-line-2 { margin-left: auto; }
+  html.egypt .hero-name { padding-right: clamp(24px, 4vw, 76px); }
+  /* The dimension labels belong to the name, so they follow it across. */
+  html.egypt .dim-top { right: 0; left: auto; text-align: right; }
+}
+
+/* The figure's ambient glow is hardcoded mint; under the flag it is the
+   eagle's gold. */
+html.egypt .halo {
+  background:
+    radial-gradient(circle, rgba(212, 160, 23, 0.10) 0%, rgba(212, 160, 23, 0) 46%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0) 58%);
+}
+html.egypt .nm-ground {
+  background: linear-gradient(90deg, transparent, rgba(212, 160, 23, 0.5), transparent);
+}
+
+/* ---------- egg: hero layout ------------------------------------
+   Under the flag the hero abandons its stepped lockup entirely: the
+   halftone plate takes the left, the two name lines stack plainly on
+   the right at one size, and the quick facts run as a single row
+   across the top instead of a tall column. None of this touches the
+   default hero — every rule is scoped to html.egypt. */
+
+@media (min-width: 901px) {
+  html.egypt .portrait-wrap {
+    left: clamp(24px, 4vw, 96px) !important;
+    bottom: clamp(12svh, 16svh, 22svh) !important;
+    width: min(38vw, 510px) !important;
+  }
+
+  /* Plain stack, one size, no step and no ground bar. */
+  html.egypt .nm-stack { margin-left: min(46vw, 700px); text-align: left; }
+  html.egypt .nm-line, html.egypt .nm-line-2 { display: block; text-align: left; }
+  html.egypt .nm-line-2 .nm-in { font-size: var(--nm); }
+  html.egypt .nm-ground { display: none; }
+  /* The label reads "SET STEPPED — 2 LINES", which is no longer true here. */
+  html.egypt .dim-right { display: none; }
+  html.egypt .dim-top { left: 0; right: auto; }
+
+  /* Quick facts: one row along the top. */
+  html.egypt .hm-data {
+    left: var(--pad-x);
+    right: var(--pad-x);
+    top: clamp(7.2rem, 14svh, 9.4rem);
+    width: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--line);
+  }
+  html.egypt .hm-data div {
+    flex: 1 1 0;
+    min-width: 118px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    padding: 0 1rem 0 0;
+    border: 0;
+  }
+  html.egypt .hm-data dd { text-align: left; }
+  html.egypt .hm-data .dd-name canvas { max-width: 100%; height: auto; }
+}
+/* fitNames() sizes the name to the measured stack width. Pushing the stack
+   right shrinks that measurement, so the egg's name is sized here instead and
+   the fitter's inline value is overridden outright. */
+@media (min-width: 901px) {
+  html.egypt .nm-in { font-size: clamp(4.4rem, 8.4vw, 8.6rem) !important; line-height: 0.88 !important; }
+  html.egypt .nm-stack { margin-left: min(44vw, 660px); }
+}

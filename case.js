@@ -137,10 +137,26 @@
     }
 
     function apply(on, loud) {
+      try {
+        on ? localStorage.setItem('ysf-egypt', '1') : localStorage.removeItem('ysf-egypt');
+        // Survives the reload so the toast still lands on the other side.
+        if (loud) sessionStorage.setItem('ysf-egypt-said', on ? 'on' : 'off');
+      } catch (_) {}
       document.documentElement.classList.toggle('egypt', on);
-      try { on ? localStorage.setItem('ysf-egypt', '1') : localStorage.removeItem('ysf-egypt'); } catch (_) {}
-      if (loud) announce(on);
+      if (!loud) return;
+      /* Reload rather than live-patch. The halftone morph canvas is rendered
+         once from the source images, and the name/figure geometry is measured
+         once at boot — repainting in place would leave the dots, the seating
+         and the scroll choreography describing the previous photograph. */
+      announce(on);
+      setTimeout(function () { location.reload(); }, 820);
     }
+
+    // Announce on the far side of that reload.
+    try {
+      var said = sessionStorage.getItem('ysf-egypt-said');
+      if (said) { sessionStorage.removeItem('ysf-egypt-said'); setTimeout(function () { announce(said === 'on'); }, 420); }
+    } catch (_) {}
 
     addEventListener('keydown', function (e) {
       // Never swallow a keystroke meant for a field or a shortcut.

@@ -1,6 +1,31 @@
 (() => {
   const docEl = document.documentElement;
   docEl.classList.add('booted');
+
+  /* Easter egg imagery. This runs before the halftone morph canvas is built
+     and before the name/figure geometry is measured, so the dotted effect,
+     the seating maths and every downstream animation operate on the egg's
+     photograph rather than the default one. That is also why toggling the
+     code reloads the page: the canvas is rendered once from these sources. */
+  if (docEl.classList.contains('egypt')) {
+    const print = document.getElementById('portrait');
+    if (print) {
+      print.src = 'images/egypt-print.webp';
+      print.removeAttribute('srcset');
+      print.alt = 'Halftone plate of Yousof Selim in an Al Ahly flag at a match, rendered in the colours of the Egyptian flag';
+    }
+    const photo = document.getElementById('gardenImg');
+    if (photo) {
+      photo.src = 'images/egypt-photo-1600.jpg';
+      photo.srcset = 'images/egypt-photo-960.jpg 960w, images/egypt-photo-1600.jpg 1600w';
+      photo.alt = 'Yousof Selim wrapped in an Al Ahly flag in the stand at a match';
+      const webp = photo.parentElement && photo.parentElement.querySelector('source');
+      if (webp) webp.srcset = 'images/egypt-photo-640.webp 640w, images/egypt-photo-960.webp 960w, images/egypt-photo-1600.webp 1600w';
+    }
+    const cap = document.getElementById('figTag');
+    if (cap) cap.textContent = 'FIG. 01 — CAIRO, EG · AL AHLY';
+  }
+
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(pointer: fine)').matches;
   const wideScreen = matchMedia('(min-width: 901px)').matches;
@@ -841,6 +866,13 @@
       slx.fillStyle = '#0b0b0c';
       slx.fillRect(0, 0, sil.width, sil.height);
 
+      /* The morph's dot highlight and its travelling edge tint were hardcoded
+         mint. Under the easter egg they take the eagle's gold, so the figure
+         glows with the flag rather than the default accent. */
+      const EGY = docEl.classList.contains('egypt');
+      const DOT_HI = EGY ? [246, 216, 138] : [201, 238, 209];
+      const DOT_EDGE = EGY ? [212, 160, 23] : [155, 207, 165];
+
       const photoImg = document.getElementById('gardenImg');
       let photoReady = Boolean(photoImg && photoImg.complete && photoImg.naturalWidth);
       if (photoImg && !photoReady) {
@@ -941,7 +973,7 @@
           const g = Math.max(renderG, Math.min(1, band * 0.85 + boost)) * (1 - dq);
           let rC, gC, bC;
           if (g > 0.92) {
-            rC = 201; gC = 238; bC = 209;
+            rC = DOT_HI[0]; gC = DOT_HI[1]; bC = DOT_HI[2];
           } else {
             rC = 242 - 87 * g; gC = 239 - 32 * g; bC = 233 - 68 * g;
           }
@@ -951,9 +983,9 @@
             bC += (d.c2 - bC) * dq;
             const edge = Math.sin(Math.PI * dq) * 0.55;
             if (edge > 0.04) {
-              rC += (155 - rC) * edge;
-              gC += (207 - gC) * edge;
-              bC += (165 - bC) * edge;
+              rC += (DOT_EDGE[0] - rC) * edge;
+              gC += (DOT_EDGE[1] - gC) * edge;
+              bC += (DOT_EDGE[2] - bC) * edge;
             }
           }
           ctx.fillStyle = 'rgb(' + (rC | 0) + ',' + (gC | 0) + ',' + (bC | 0) + ')';

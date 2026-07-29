@@ -132,9 +132,28 @@ function assertNothingDropped(p) {
   const a = p.architecture;
   if (a) {
     if (!has(a.alt)) errs.push(`${p.slug}.architecture.alt: required — the diagram needs a text alternative`);
+    const TIER_NAMES = TIERS.map(([t]) => t);
+    const ids = new Set();
     (a.groups || []).forEach((g, i) => {
       if (!has(g.label)) errs.push(`${p.slug}.architecture.groups[${i}].label: empty after normalising (expected label/title)`);
       if (!has(g.nodes)) errs.push(`${p.slug}.architecture.groups[${i}].nodes: empty after normalising (expected nodes/items)`);
+      /* Both of these shipped broken: every group rendered data-tier="core",
+         which no rule matches, and Photoshoot addressed its groups by display
+         name so all nine of its edges pointed at nothing. Neither failed
+         anything, so both reached the live site. */
+      if (!has(g.id)) errs.push(`${p.slug}.architecture.groups[${i}].id: required — edges address groups by id`);
+      else if (ids.has(g.id)) errs.push(`${p.slug}.architecture.groups[${i}].id: duplicate "${g.id}"`);
+      else ids.add(g.id);
+      if (!TIER_NAMES.includes(g.tier)) {
+        errs.push(`${p.slug}.architecture.groups[${i}].tier: must be one of ${TIER_NAMES.join(' / ')} (got ${JSON.stringify(g.tier)})`);
+      }
+    });
+    (a.edges || []).forEach((e, i) => {
+      for (const end of ['from', 'to']) {
+        if (!ids.has(e[end])) {
+          errs.push(`${p.slug}.architecture.edges[${i}].${end}: "${e[end]}" matches no group id — the edge would point at nothing`);
+        }
+      }
     });
   }
   const stringLists = [
@@ -269,30 +288,71 @@ function flow(p) {
 </figure>`;
 }
 
+/* Where each tier runs. This is the board's reading order, top to bottom. */
+const TIERS = [
+  ['client', 'On the device'],
+  ['server', 'On my infrastructure'],
+  ['external', 'Outside the system'],
+];
+
 /**
  * Architecture is drawn with layout, not an image, so it stays legible at any
  * width, works in both themes, and can carry a real text alternative.
+ *
+ * The board used to be a wrapping flex row of boxes sized by their longest
+ * sentence: leftover space on each line was left unfilled and painted with the
+ * board's own background, which is the empty rectangle that made this section
+ * look broken. Groups are now banded by tier and laid out in equal tracks, so
+ * width is a design decision and no track can be empty.
+ *
+ * `role="img"` used to sit on the board, which prunes every descendant from the
+ * accessibility tree — all 35 node lines were unreachable, leaving one enormous
+ * aria-label as the only channel. The labels and lists are already good markup,
+ * so they are simply exposed, and the prose alternative moves into the figure.
  */
 function architecture(p) {
   if (!has(p.architecture) || !has(p.architecture.groups)) return '';
   const a = p.architecture;
+  const nodeId = (id) => `arch-${esc(p.slug)}-${esc(id)}`;
+  const labelOf = new Map(a.groups.map((g) => [g.id, g.label]));
+
+  const band = ([tier, heading]) => {
+    const groups = a.groups.filter((g) => (g.tier || 'client') === tier);
+    if (!groups.length) return '';
+    return `<section class="cs-arch-band" data-tier="${esc(tier)}">
+      <p class="cs-arch-band-l">${esc(heading)}</p>
+      <div class="cs-arch-groups">
+        ${groups
+          .map(
+            (g) => `<div class="cs-arch-group" id="${nodeId(g.id)}" data-node="${esc(g.id)}" data-tier="${esc(tier)}">
+          <p class="cs-arch-label">${esc(g.label)}</p>
+          <ul class="cs-arch-nodes">${(g.nodes || []).map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
+          ${has(g.note) ? `<p class="cs-arch-note">${esc(g.note)}</p>` : ''}
+        </div>`,
+          )
+          .join('\n        ')}
+      </div>
+    </section>`;
+  };
+
+  /* Edges printed raw ids — "web → functions" named nothing a reader could see
+     on the board. They now resolve to the group's own label and link to it. */
+  const edge = (e) => {
+    const cell = (id) =>
+      labelOf.has(id)
+        ? `<a href="#${nodeId(id)}"><b>${esc(labelOf.get(id))}</b></a>`
+        : `<b>${esc(id)}</b>`;
+    return `<li>${cell(e.from)}<i aria-hidden="true">→</i>${cell(e.to)}<span>${esc(e.via || '')}</span></li>`;
+  };
+
   return `<figure class="cs-arch">
-  <div class="cs-arch-board" role="img" aria-label="${esc(a.alt || a.caption || 'System architecture diagram')}">
-    ${a.groups
-      .map(
-        (g) => `<div class="cs-arch-group" data-tier="${esc(g.tier || 'core')}">
-      <p class="cs-arch-label">${esc(g.label)}</p>
-      <ul class="cs-arch-nodes">${(g.nodes || []).map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
-      ${has(g.note) ? `<p class="cs-arch-note">${esc(g.note)}</p>` : ''}
-    </div>`,
-      )
-      .join('\n    ')}
+  ${has(a.alt) ? `<p class="vh">${esc(a.alt)}</p>` : ''}
+  <div class="cs-arch-board">
+    ${TIERS.map(band).filter(Boolean).join('\n    ')}
   </div>
   ${
     has(a.edges)
-      ? `<ul class="cs-arch-edges">${a.edges
-          .map((e) => `<li><b>${esc(e.from)}</b> <span aria-hidden="true">→</span> <b>${esc(e.to)}</b><span>${esc(e.via || '')}</span></li>`)
-          .join('')}</ul>`
+      ? `<ol class="cs-arch-edges">${a.edges.map(edge).join('')}</ol>`
       : ''
   }
   ${has(a.caption) ? `<figcaption>${rich(a.caption)}</figcaption>` : ''}
@@ -384,12 +444,23 @@ function lessons(p) {
 </div>`;
 }
 
+/**
+ * A phone screenshot and a desktop window are not the same kind of picture, and
+ * letting each one claim the full column made the set read as an accident: the
+ * 830x1800 captures rendered nearly 2,800px tall while the 1202x956 one sat
+ * short and wide. Orientation is derived from the declared size and carried on
+ * the markup so the stylesheet can frame each kind properly — phone captures
+ * stand side by side at a phone's width, wide captures get the column.
+ */
 function media(p) {
   if (!has(p.media)) return '';
-  return `<div class="cs-media">
+  const shapeOf = (m) => (m.width && m.height && m.width / m.height < 0.8 ? 'portrait' : 'landscape');
+  const shapes = new Set(p.media.map(shapeOf));
+  const set = shapes.size > 1 ? 'mixed' : [...shapes][0];
+  return `<div class="cs-media" data-shape="${esc(set)}">
   ${p.media
     .map(
-      (m, i) => `<figure class="cs-fig">
+      (m, i) => `<figure class="cs-fig cs-fig-${shapeOf(m)}">
     <img src="${esc(m.src)}" alt="${esc(m.alt)}"${m.width ? ` width="${m.width}"` : ''}${
       m.height ? ` height="${m.height}"` : ''
     } loading="lazy" decoding="async" />
@@ -430,7 +501,10 @@ if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 try {
   var t = localStorage.getItem('ysf-theme');
   document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
-  if (localStorage.getItem('ysf-egypt')) document.documentElement.classList.add('egypt');
+  if (localStorage.getItem('ysf-egypt')) {
+    document.documentElement.classList.add('egypt');
+    document.documentElement.dataset.theme = 'dark';
+  }
 } catch (_) { document.documentElement.dataset.theme = 'dark'; }
 </script>`;
 
@@ -543,8 +617,8 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=81" />
-<link rel="stylesheet" href="/case.css?v=12" />
+<link rel="stylesheet" href="/styles.css?v=83" />
+<link rel="stylesheet" href="/case.css?v=13" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
 </head>
@@ -590,7 +664,7 @@ ${NAV}
   <a href="/#top">Back to top ↑</a>
 </footer>
 
-<script src="/case.js?v=7" defer></script>
+<script src="/case.js?v=8" defer></script>
 </body>
 </html>
 `;
@@ -659,8 +733,8 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=81" />
-<link rel="stylesheet" href="/case.css?v=12" />
+<link rel="stylesheet" href="/styles.css?v=83" />
+<link rel="stylesheet" href="/case.css?v=13" />
 ${HEAD_BOOT}
 </head>
 <body class="cs-body wk-body">
@@ -685,7 +759,7 @@ ${cards}
   <p>DESIGNED AND BUILT BY HAND · 2026</p>
   <a href="/#top">Back to top ↑</a>
 </footer>
-<script src="/case.js?v=7" defer></script>
+<script src="/case.js?v=8" defer></script>
 </body>
 </html>
 `;

@@ -111,6 +111,17 @@
     "alt": "Photoshoot is an Electron application with three processes plus a browser build that reuses one of them. The shared layer, src/shared/, holds pure types and validators with no Node and no DOM imports, so the same modules bundle into all four contexts: the theme validator, the filter validator, the twenty IPC channel names, and the PhotoshootBridge interface. The renderer holds everything the user sees — camera capture, the WebGL2 pipeline with its twenty-seven fragment shaders, MediaPipe face tracking, background replacement, CSSOM theming, synthesized audio and the three capture modes — and it never talks to Node directly. It talks only to PhotoshootBridge. That interface is implemented twice. On the desktop, the preload script implements it over contextBridge and ipcRenderer, and the Electron main process answers on twenty channels: window control, settings storage, gallery storage, theme import and filter import, each gated by a lexical path-containment check. In the browser, src/web/shim.ts implements the same twenty methods over IndexedDB for captures, localStorage for settings and themes, and a download anchor for exports. Data lives in three places, all of them local: the user's Pictures folder and JSON files in Electron's userData directory on the desktop, and IndexedDB plus localStorage in the browser. Two third parties are involved. MediaPipe Tasks Vision supplies the face landmark model and WASM runtime, both vendored into the app and served from its own app:// origin rather than fetched from a CDN. Firebase Hosting serves the web build as static files. No other network destination exists — the desktop app cancels every request whose URL does not start with app:, file:, devtools:, blob:, data: or chrome-extension:.",
     "groups": [
       {
+        "id": "camera",
+        "tier": "client",
+        "title": "Camera — the user's own hardware",
+        "items": [
+          "getUserMedia — MediaStream held in the page, never uploaded",
+          "Device enumeration with a self-healing deviceId across reconnects"
+        ]
+      },
+      {
+        "id": "renderer",
+        "tier": "client",
         "title": "Renderer — shared by both runtimes",
         "items": [
           "camera.ts — getUserMedia, device enumeration, self-healing deviceId",
@@ -123,6 +134,8 @@
         ]
       },
       {
+        "id": "shared",
+        "tier": "client",
         "title": "Shared — no Node, no DOM",
         "items": [
           "ipc-contract.ts — 20 channel names and the PhotoshootBridge interface",
@@ -131,6 +144,8 @@
         ]
       },
       {
+        "id": "bridge",
+        "tier": "client",
         "title": "Bridge — one interface, two implementations",
         "items": [
           "preload.ts — contextBridge over ipcRenderer, 38 lines, the only seam",
@@ -138,6 +153,8 @@
         ]
       },
       {
+        "id": "main",
+        "tier": "client",
         "title": "Electron main",
         "items": [
           "main.ts — window hardening, CSP, permissions, request cancellation",
@@ -147,6 +164,8 @@
         ]
       },
       {
+        "id": "storage",
+        "tier": "client",
         "title": "On-device storage",
         "items": [
           "Pictures/Photoshoot — captured images and video",
@@ -155,6 +174,8 @@
         ]
       },
       {
+        "id": "third-party",
+        "tier": "external",
         "title": "Third parties",
         "items": [
           "MediaPipe Tasks Vision — model and WASM vendored, served from the app's own origin",
@@ -164,48 +185,48 @@
     ],
     "edges": [
       {
-        "from": "Camera",
-        "to": "Renderer",
+        "from": "camera",
+        "to": "renderer",
         "label": "getUserMedia — MediaStream, local only"
       },
       {
-        "from": "Renderer",
-        "to": "Shared",
+        "from": "renderer",
+        "to": "shared",
         "label": "re-validates every token and parameter before use"
       },
       {
-        "from": "Renderer",
-        "to": "Bridge",
+        "from": "renderer",
+        "to": "bridge",
         "label": "PhotoshootBridge — 20 methods, the only way out"
       },
       {
-        "from": "Bridge",
-        "to": "Electron main",
+        "from": "bridge",
+        "to": "main",
         "label": "desktop: contextBridge over 20 IPC channels"
       },
       {
-        "from": "Bridge",
-        "to": "On-device storage",
+        "from": "bridge",
+        "to": "storage",
         "label": "web: IndexedDB, localStorage, download anchor"
       },
       {
-        "from": "Electron main",
-        "to": "Shared",
+        "from": "main",
+        "to": "shared",
         "label": "validates imports before anything is persisted"
       },
       {
-        "from": "Electron main",
-        "to": "On-device storage",
+        "from": "main",
+        "to": "storage",
         "label": "path-contained reads and writes"
       },
       {
-        "from": "Renderer",
-        "to": "Third parties",
+        "from": "renderer",
+        "to": "third-party",
         "label": "loads the face model from app://photoshoot, not a CDN"
       },
       {
-        "from": "Third parties",
-        "to": "Renderer",
+        "from": "third-party",
+        "to": "renderer",
         "label": "Firebase Hosting serves the web bundle; no runtime API calls"
       }
     ]

@@ -52,14 +52,29 @@ test.describe('case-study routes', () => {
   test('the architecture diagram carries a text alternative', async ({ page }) => {
     await page.goto('/work/bupples/');
     const board = page.locator('.cs-arch-board');
-    await expect(board).toHaveAttribute('role', 'img');
-    const label = await board.getAttribute('aria-label');
-    expect(label && label.length, 'aria-label on the diagram').toBeGreaterThan(40);
+    // role="img" used to sit here. It makes the element a leaf in the
+    // accessibility tree, so all 35 node lines inside were pruned and one
+    // 2,000-character aria-label was the only thing a screen reader could
+    // reach. The prose alternative now lives beside the board and the real
+    // markup underneath it stays readable.
+    await expect(board).not.toHaveAttribute('role', 'img');
+    const alt = await page.locator('.cs-arch .vh').first().textContent();
+    expect(alt && alt.trim().length, 'prose alternative for the diagram').toBeGreaterThan(40);
     // Every group must have carried its label and nodes through the renderer.
     const empties = await page.locator('.cs-arch-label').evaluateAll((ns) =>
       ns.filter((n) => !n.textContent.trim()).length
     );
     expect(empties, 'architecture groups rendered with no label').toBe(0);
+    expect(await page.locator('.cs-arch-nodes li').count(), 'node lines reachable').toBeGreaterThan(20);
+
+    // Every edge must name a box that exists on this page, by its label rather
+    // than a raw slug. Photoshoot shipped nine edges pointing at nothing.
+    const dangling = await page.evaluate(() =>
+      [...document.querySelectorAll('.cs-arch-edges a')]
+        .map((a) => a.getAttribute('href'))
+        .filter((h) => !document.querySelector(h)).length
+    );
+    expect(dangling, 'edge endpoints resolving to no group').toBe(0);
   });
 
   test('in-page contents jumps land clear of the fixed header', async ({ page }) => {
@@ -86,7 +101,7 @@ test.describe('case-study routes', () => {
     await page.goto('/work/bupples/');
     const grids = await page.evaluate(() => {
       const out = [];
-      for (const sel of ['.cs-facts', '.cs-grid', '.cs-arch-board', '.cs-decisions', '.cs-metrics', '.cs-flow-steps', '.cs-related']) {
+      for (const sel of ['.cs-facts', '.cs-grid', '.cs-decisions', '.cs-metrics', '.cs-flow-steps', '.cs-related']) {
         document.querySelectorAll(sel).forEach((el) => {
           if (getComputedStyle(el).display === 'grid') out.push(sel);
         });
@@ -94,6 +109,43 @@ test.describe('case-study routes', () => {
       return out;
     });
     expect(grids, 'containers still using auto-fit grid').toEqual([]);
+  });
+
+  test('the architecture board leaves no unclaimed track', async ({ page }) => {
+    // The board IS a grid, deliberately — but on 1fr tracks, which auto-fit
+    // collapses when empty. Banning `display: grid` was a proxy for the real
+    // rule, and the real rule is this: every box on a row is the same width as
+    // its neighbours, and the row fills the container. The old wrapping flex
+    // row failed exactly this, leaving the board's own background showing as a
+    // dead rectangle. Checked at several widths because the track count moves.
+    for (const width of [1440, 1280, 1100, 950]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/work/bupples/');
+      await page.waitForTimeout(250);
+      const bad = await page.evaluate(() => {
+        const problems = [];
+        document.querySelectorAll('.cs-arch-groups').forEach((g) => {
+          const rows = new Map();
+          [...g.children].forEach((c) => {
+            const r = c.getBoundingClientRect();
+            const key = Math.round(r.top);
+            if (!rows.has(key)) rows.set(key, []);
+            rows.get(key).push(r);
+          });
+          const container = g.getBoundingClientRect();
+          rows.forEach((rects) => {
+            const widths = rects.map((r) => Math.round(r.width));
+            if (new Set(widths).size !== 1) problems.push(`unequal widths ${widths.join('/')}`);
+            const spanned = Math.round(rects[rects.length - 1].right - rects[0].left);
+            if (Math.abs(spanned - Math.round(container.width)) > 3) {
+              problems.push(`row spans ${spanned} of ${Math.round(container.width)}`);
+            }
+          });
+        });
+        return problems;
+      });
+      expect(bad, `architecture board at ${width}px`).toEqual([]);
+    }
   });
 
   test('phones get real navigation and comfortable targets', async ({ browser }) => {

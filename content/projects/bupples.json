@@ -165,6 +165,7 @@
     "groups": [
       {
         "id": "client",
+        "tier": "client",
         "label": "Flutter client — iOS and Android",
         "nodes": [
           "24 features, four layers each: domain / data / application / presentation",
@@ -176,6 +177,7 @@
       },
       {
         "id": "native",
+        "tier": "client",
         "label": "Native surfaces",
         "nodes": [
           "AVFoundation QR scanner (platform channel)",
@@ -187,6 +189,7 @@
       },
       {
         "id": "firebase",
+        "tier": "server",
         "label": "Firebase — managed",
         "nodes": [
           "Auth — Apple, Google, email",
@@ -199,6 +202,7 @@
       },
       {
         "id": "functions",
+        "tier": "server",
         "label": "Cloud Functions — Node 22, TypeScript",
         "nodes": [
           "58 callables — joins, settlements, receipts, ownership, entitlements",
@@ -210,6 +214,7 @@
       },
       {
         "id": "extraction",
+        "tier": "server",
         "label": "Receipt extraction",
         "nodes": [
           "ML Kit text recognition — on device, first pass",
@@ -220,6 +225,7 @@
       },
       {
         "id": "billing",
+        "tier": "external",
         "label": "Subscriptions",
         "nodes": [
           "RevenueCat SDK on device",
@@ -230,6 +236,7 @@
       },
       {
         "id": "web",
+        "tier": "server",
         "label": "Firebase Hosting",
         "nodes": [
           "Static product site and legal pages",

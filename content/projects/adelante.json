@@ -108,6 +108,7 @@
     "groups": [
       {
         "id": "app",
+        "tier": "client",
         "label": "Flutter app — device",
         "nodes": [
           "Riverpod 3 provider graph (lib/app/providers.dart)",
@@ -119,6 +120,7 @@
       },
       {
         "id": "shared",
+        "tier": "client",
         "label": "Shared local store — device",
         "nodes": [
           "App Group container group.com.adelanteapp.adelante (iOS)",
@@ -129,6 +131,7 @@
       },
       {
         "id": "ios",
+        "tier": "client",
         "label": "iOS widget extension",
         "nodes": [
           "WidgetKit bundle — 7 families",
@@ -139,6 +142,7 @@
       },
       {
         "id": "android",
+        "tier": "client",
         "label": "Android widget",
         "nodes": [
           "AppWidgetProvider (RemoteViews)",
@@ -149,6 +153,7 @@
       },
       {
         "id": "pipeline",
+        "tier": "external",
         "label": "Build-time tooling — developer machine",
         "nodes": [
           "tool/generate_library/gate.dart — dedup, quality, license",
@@ -158,6 +163,7 @@
       },
       {
         "id": "backend",
+        "tier": "server",
         "label": "Firebase — written, never deployed",
         "nodes": [
           "getContent (onRequest) — delta sync, 5-min CDN cache",

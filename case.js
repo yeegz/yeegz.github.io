@@ -40,12 +40,27 @@
    * label tucked underneath.
    */
   var head = document.querySelector('.site-head');
+  /* These are written to the element that DECLARES them. case.css sets
+     --cs-head-h in the `.cs-body` block, i.e. on <body>; writing the measured
+     value to <html> as this used to left the declaration on <body> shadowing
+     the inherited value, so the measurement never reached the contents bar and
+     the stale 93px literal was what actually applied. The header composes to
+     78.6px, so the bar sat 14px too low and the page scrolled through the strip
+     between them — the gap you could see through. */
+  var hostEl = document.querySelector('.cs-body') || document.body;
+  var toc = document.querySelector('.cs-toc');
 
   function syncHeadHeight() {
     if (!head) return;
     // Only offset when the header is actually pinned over the content.
     var fixed = getComputedStyle(head).position === 'fixed';
-    root.style.setProperty('--cs-head-h', fixed ? Math.round(head.getBoundingClientRect().height) + 'px' : '0px');
+    hostEl.style.setProperty('--cs-head-h', fixed ? head.getBoundingClientRect().height.toFixed(2) + 'px' : '0px');
+    /* The contents bar's own height feeds every section's scroll-margin, and
+       nothing measured it either — anchor jumps landed 19px behind the bar. */
+    if (toc) {
+      var sticky = getComputedStyle(toc).position === 'sticky';
+      hostEl.style.setProperty('--cs-toc-h', sticky ? toc.getBoundingClientRect().height.toFixed(2) + 'px' : '0px');
+    }
   }
 
   syncHeadHeight();

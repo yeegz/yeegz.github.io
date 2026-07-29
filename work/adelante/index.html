@@ -30,15 +30,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=81" />
-<link rel="stylesheet" href="/case.css?v=12" />
+<link rel="stylesheet" href="/styles.css?v=83" />
+<link rel="stylesheet" href="/case.css?v=13" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 try {
   var t = localStorage.getItem('ysf-theme');
   document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
-  if (localStorage.getItem('ysf-egypt')) document.documentElement.classList.add('egypt');
+  if (localStorage.getItem('ysf-egypt')) {
+    document.documentElement.classList.add('egypt');
+    document.documentElement.dataset.theme = 'dark';
+  }
 } catch (_) { document.documentElement.dataset.theme = 'dark'; }
 </script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Adelante","description":"Widget-first motivation for iOS and Android, read from the Home Screen.","applicationCategory":"Mobile — native widget surfaces","operatingSystem":"iOS 16+, Android","author":{"@type":"Person","name":"Yousof Selim","url":"https://yeegz.github.io/"},"url":"https://yeegz.github.io/work/adelante/"}</script>
@@ -214,39 +217,55 @@ try {
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><figure class="cs-arch">
-  <div class="cs-arch-board" role="img" aria-label="Adelante runs as three independent processes on one device. The Flutter app holds the content repository, search index, recommendation engine and refresh policy, and writes a single serialised payload into a shared local store — an App Group container on iOS, SharedPreferences on Android — using the home_widget package. That shared store also holds the bundled 12,828-entry library.json asset, the cached content, and eighteen preference keys. Two native renderers read the shared store and never write to it and never open a socket: an iOS WidgetKit extension with seven widget families, SwiftUI views, a payload decoder, a copy of the rotation function and a precomputed twelve-entry timeline; and an Android AppWidgetProvider with five baked RemoteViews layout variants, a Canvas-rendered gradient bitmap and its own copy of the same rotation function. A separate build-time toolchain on the developer machine generates library.json through the deterministic gate and automates the Xcode widget target and its font resources. A Firebase project sits outside the device holding five Cloud Functions — getContent for delta sync, scheduledContentImport on a 24-hour schedule, approveContent and rejectContent as admin callables, and a one-time setAdminClaim bootstrap — over Firestore collections for content, content_versions, content_reviews, sources and meta. The app talks to that backend through one anonymous read-only GET carrying no identifiers, and only when an endpoint has been compiled into the build; it is empty by default, so the shipped app is offline-only.">
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Flutter app — device</p>
-      <ul class="cs-arch-nodes"><li>Riverpod 3 provider graph (lib/app/providers.dart)</li><li>QuoteRepository + inverted SearchIndex</li><li>ContentFilter → RecommendationEngine → QuoteRefreshPolicy</li><li>WidgetPayload serialiser (tiering + text fitting)</li><li>Widget studio, onboarding, settings</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Shared local store — device</p>
-      <ul class="cs-arch-nodes"><li>App Group container group.com.adelanteapp.adelante (iOS)</li><li>SharedPreferences (Android)</li><li>Bundled asset library.json — 12,828 entries, 11.8 MB</li><li>18 preference keys + content cache</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">iOS widget extension</p>
-      <ul class="cs-arch-nodes"><li>WidgetKit bundle — 7 families</li><li>SwiftUI views + containerBackground</li><li>AdelantePayload decoder</li><li>currentPoolIndex (Swift copy) + 12-entry timeline</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Android widget</p>
-      <ul class="cs-arch-nodes"><li>AppWidgetProvider (RemoteViews)</li><li>5 baked layout variants — one per typeface</li><li>Canvas-rendered gradient bitmap, 480 px cap</li><li>currentPoolIndex (Kotlin copy)</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Build-time tooling — developer machine</p>
-      <ul class="cs-arch-nodes"><li>tool/generate_library/gate.dart — dedup, quality, license</li><li>ios/setup_widget_target.rb — Xcode extension target</li><li>ios/add_widget_fonts.rb — idempotent font resources</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Firebase — written, never deployed</p>
-      <ul class="cs-arch-nodes"><li>getContent (onRequest) — delta sync, 5-min CDN cache</li><li>scheduledContentImport (onSchedule) — every 24 hours</li><li>approveContent / rejectContent (onCall, admin)</li><li>setAdminClaim (onCall) — one-time bootstrap</li><li>Firestore: content, content_versions, content_reviews, sources, meta</li></ul>
-      
-    </div>
+  <p class="vh">Adelante runs as three independent processes on one device. The Flutter app holds the content repository, search index, recommendation engine and refresh policy, and writes a single serialised payload into a shared local store — an App Group container on iOS, SharedPreferences on Android — using the home_widget package. That shared store also holds the bundled 12,828-entry library.json asset, the cached content, and eighteen preference keys. Two native renderers read the shared store and never write to it and never open a socket: an iOS WidgetKit extension with seven widget families, SwiftUI views, a payload decoder, a copy of the rotation function and a precomputed twelve-entry timeline; and an Android AppWidgetProvider with five baked RemoteViews layout variants, a Canvas-rendered gradient bitmap and its own copy of the same rotation function. A separate build-time toolchain on the developer machine generates library.json through the deterministic gate and automates the Xcode widget target and its font resources. A Firebase project sits outside the device holding five Cloud Functions — getContent for delta sync, scheduledContentImport on a 24-hour schedule, approveContent and rejectContent as admin callables, and a one-time setAdminClaim bootstrap — over Firestore collections for content, content_versions, content_reviews, sources and meta. The app talks to that backend through one anonymous read-only GET carrying no identifiers, and only when an endpoint has been compiled into the build; it is empty by default, so the shipped app is offline-only.</p>
+  <div class="cs-arch-board">
+    <section class="cs-arch-band" data-tier="client">
+      <p class="cs-arch-band-l">On the device</p>
+      <div class="cs-arch-groups">
+        <div class="cs-arch-group" id="arch-adelante-app" data-node="app" data-tier="client">
+          <p class="cs-arch-label">Flutter app — device</p>
+          <ul class="cs-arch-nodes"><li>Riverpod 3 provider graph (lib/app/providers.dart)</li><li>QuoteRepository + inverted SearchIndex</li><li>ContentFilter → RecommendationEngine → QuoteRefreshPolicy</li><li>WidgetPayload serialiser (tiering + text fitting)</li><li>Widget studio, onboarding, settings</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-adelante-shared" data-node="shared" data-tier="client">
+          <p class="cs-arch-label">Shared local store — device</p>
+          <ul class="cs-arch-nodes"><li>App Group container group.com.adelanteapp.adelante (iOS)</li><li>SharedPreferences (Android)</li><li>Bundled asset library.json — 12,828 entries, 11.8 MB</li><li>18 preference keys + content cache</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-adelante-ios" data-node="ios" data-tier="client">
+          <p class="cs-arch-label">iOS widget extension</p>
+          <ul class="cs-arch-nodes"><li>WidgetKit bundle — 7 families</li><li>SwiftUI views + containerBackground</li><li>AdelantePayload decoder</li><li>currentPoolIndex (Swift copy) + 12-entry timeline</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-adelante-android" data-node="android" data-tier="client">
+          <p class="cs-arch-label">Android widget</p>
+          <ul class="cs-arch-nodes"><li>AppWidgetProvider (RemoteViews)</li><li>5 baked layout variants — one per typeface</li><li>Canvas-rendered gradient bitmap, 480 px cap</li><li>currentPoolIndex (Kotlin copy)</li></ul>
+          
+        </div>
+      </div>
+    </section>
+    <section class="cs-arch-band" data-tier="server">
+      <p class="cs-arch-band-l">On my infrastructure</p>
+      <div class="cs-arch-groups">
+        <div class="cs-arch-group" id="arch-adelante-backend" data-node="backend" data-tier="server">
+          <p class="cs-arch-label">Firebase — written, never deployed</p>
+          <ul class="cs-arch-nodes"><li>getContent (onRequest) — delta sync, 5-min CDN cache</li><li>scheduledContentImport (onSchedule) — every 24 hours</li><li>approveContent / rejectContent (onCall, admin)</li><li>setAdminClaim (onCall) — one-time bootstrap</li><li>Firestore: content, content_versions, content_reviews, sources, meta</li></ul>
+          
+        </div>
+      </div>
+    </section>
+    <section class="cs-arch-band" data-tier="external">
+      <p class="cs-arch-band-l">Outside the system</p>
+      <div class="cs-arch-groups">
+        <div class="cs-arch-group" id="arch-adelante-pipeline" data-node="pipeline" data-tier="external">
+          <p class="cs-arch-label">Build-time tooling — developer machine</p>
+          <ul class="cs-arch-nodes"><li>tool/generate_library/gate.dart — dedup, quality, license</li><li>ios/setup_widget_target.rb — Xcode extension target</li><li>ios/add_widget_fonts.rb — idempotent font resources</li></ul>
+          
+        </div>
+      </div>
+    </section>
   </div>
-  <ul class="cs-arch-edges"><li><b>pipeline</b> <span aria-hidden="true">→</span> <b>app</b><span>generates library.json into the app bundle</span></li><li><b>pipeline</b> <span aria-hidden="true">→</span> <b>ios</b><span>creates and repairs the extension target and its font resources</span></li><li><b>app</b> <span aria-hidden="true">→</span> <b>shared</b><span>writes one serialised payload via home_widget</span></li><li><b>shared</b> <span aria-hidden="true">→</span> <b>ios</b><span>read-only — the extension never opens a socket</span></li><li><b>shared</b> <span aria-hidden="true">→</span> <b>android</b><span>read-only — the provider never opens a socket</span></li><li><b>app</b> <span aria-hidden="true">→</span> <b>backend</b><span>anonymous GET ?since=&lt;version&gt; — disabled unless an endpoint is compiled in</span></li></ul>
+  <ol class="cs-arch-edges"><li><a href="#arch-adelante-pipeline"><b>Build-time tooling — developer machine</b></a><i aria-hidden="true">→</i><a href="#arch-adelante-app"><b>Flutter app — device</b></a><span>generates library.json into the app bundle</span></li><li><a href="#arch-adelante-pipeline"><b>Build-time tooling — developer machine</b></a><i aria-hidden="true">→</i><a href="#arch-adelante-ios"><b>iOS widget extension</b></a><span>creates and repairs the extension target and its font resources</span></li><li><a href="#arch-adelante-app"><b>Flutter app — device</b></a><i aria-hidden="true">→</i><a href="#arch-adelante-shared"><b>Shared local store — device</b></a><span>writes one serialised payload via home_widget</span></li><li><a href="#arch-adelante-shared"><b>Shared local store — device</b></a><i aria-hidden="true">→</i><a href="#arch-adelante-ios"><b>iOS widget extension</b></a><span>read-only — the extension never opens a socket</span></li><li><a href="#arch-adelante-shared"><b>Shared local store — device</b></a><i aria-hidden="true">→</i><a href="#arch-adelante-android"><b>Android widget</b></a><span>read-only — the provider never opens a socket</span></li><li><a href="#arch-adelante-app"><b>Flutter app — device</b></a><i aria-hidden="true">→</i><a href="#arch-adelante-backend"><b>Firebase — written, never deployed</b></a><span>anonymous GET ?since=&lt;version&gt; — disabled unless an endpoint is compiled in</span></li></ol>
   <figcaption>Three processes, one shared payload, and a backend the shipped build does not need.</figcaption>
 </figure></div>
 </section>
@@ -463,6 +482,6 @@ try {
   <a href="/#top">Back to top ↑</a>
 </footer>
 
-<script src="/case.js?v=7" defer></script>
+<script src="/case.js?v=8" defer></script>
 </body>
 </html>

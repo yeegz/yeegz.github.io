@@ -30,15 +30,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=81" />
-<link rel="stylesheet" href="/case.css?v=12" />
+<link rel="stylesheet" href="/styles.css?v=83" />
+<link rel="stylesheet" href="/case.css?v=13" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 try {
   var t = localStorage.getItem('ysf-theme');
   document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
-  if (localStorage.getItem('ysf-egypt')) document.documentElement.classList.add('egypt');
+  if (localStorage.getItem('ysf-egypt')) {
+    document.documentElement.classList.add('egypt');
+    document.documentElement.dataset.theme = 'dark';
+  }
 } catch (_) { document.documentElement.dataset.theme = 'dark'; }
 </script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bupples","description":"Group expense splitting with a cent-exact multi-currency ledger and scanned receipts.","applicationCategory":"Social finance app","operatingSystem":"iOS, Android","author":{"@type":"Person","name":"Yousof Selim","url":"https://yeegz.github.io/"},"url":"https://yeegz.github.io/work/bupples/","downloadUrl":"https://apps.apple.com/my/app/bupples/id6777620291"}</script>
@@ -223,44 +226,60 @@ try {
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><figure class="cs-arch">
-  <div class="cs-arch-board" role="img" aria-label="Bupples is a Flutter client on iOS and Android talking to Firebase. The client holds the interface, Riverpod state, a money kernel with no Flutter import at all, and Firestore offline persistence so writes queue when the network drops. Around it sit native surfaces I wrote directly: an AVFoundation QR scanner and a real UITabBar exposed to Flutter through platform channels, plus WidgetKit home, lock-screen and StandBy widgets on iOS and RemoteViews widgets on Android, sharing data through an App Group. The client reads and writes Firestore directly for everything that benefits from realtime listeners, but every write passes through 2,254 lines of Security Rules that bind authorisation to the Firebase auth uid rather than any client-supplied identifier. Anything money-critical or membership-critical does not go through rules at all: it goes to Cloud Functions on Node 22, which write with the Admin SDK. There are 99 deployed handlers — 58 callables, 27 Firestore document triggers, 13 scheduled jobs and one HTTP webhook — including a server mirror of the balance ledger and the exact receipt-claim arithmetic. Receipt reading is two-tier: Google ML Kit runs on the device for an instant first pass, then a Cloud Function calls Gemini 2.5 Flash on Vertex AI using Application Default Credentials, with a second more careful pass only when the first one is not trusted. Subscriptions run through RevenueCat on the device, and RevenueCat posts entitlement changes to an authenticated webhook, which writes the entitlement to Firestore where privileged callables re-read it before granting anything. Firebase Hosting serves a static product site with the legal pages, deep-link landings for join codes and profiles, and one genuinely interactive page: a browser claim flow that signs in anonymously and calls the same Cloud Functions the app does.">
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Flutter client — iOS and Android</p>
-      <ul class="cs-arch-nodes"><li>24 features, four layers each: domain / data / application / presentation</li><li>Riverpod providers and controllers</li><li>Money domain — parsing, split kernel, pairwise debt graph, settlement</li><li>Firestore offline persistence; writes queue and sync on reconnect</li><li>Remote-control gate — maintenance, force-update and degraded states</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Native surfaces</p>
-      <ul class="cs-arch-nodes"><li>AVFoundation QR scanner (platform channel)</li><li>UITabBar embedded as a Flutter platform view</li><li>WidgetKit extension — home, lock screen, StandBy</li><li>Android RemoteViews widget providers</li><li>App Group group.com.bupples.widgets</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Firebase — managed</p>
-      <ul class="cs-arch-nodes"><li>Auth — Apple, Google, email</li><li>Firestore — 25 top-level collections, 30 nested rule blocks</li><li>Security Rules — 2,254 lines, 26 helpers</li><li>16 composite indexes</li><li>Storage, Cloud Messaging, Crashlytics, Analytics</li><li>Remote Config — 15 parameters</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Cloud Functions — Node 22, TypeScript</p>
-      <ul class="cs-arch-nodes"><li>58 callables — joins, settlements, receipts, ownership, entitlements</li><li>27 Firestore document triggers</li><li>13 scheduled jobs — auto-confirm, reminders, sweeps, rollovers</li><li>balance.ts — server mirror of the pairwise ledger</li><li>receipt_math.ts — exact claim arithmetic in BigInt</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Receipt extraction</p>
-      <ul class="cs-arch-nodes"><li>ML Kit text recognition — on device, first pass</li><li>Vertex AI · Gemini 2.5 Flash — fast structured pass</li><li>Vertex AI — accurate pass: thinking budget, zoomed crop</li><li>Merchant layout templates learned from repeat observations</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Subscriptions</p>
-      <ul class="cs-arch-nodes"><li>RevenueCat SDK on device</li><li>revenueCatWebhook — shared secret from Secret Manager</li><li>customers/{uid} entitlement document</li><li>Scheduled lapse, grace, trial and win-back jobs</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Firebase Hosting</p>
-      <ul class="cs-arch-nodes"><li>Static product site and legal pages</li><li>/t — Turbo split claim in the browser, no install</li><li>/j, /te, /@ — deep-link landings</li><li>Universal Links and App Links</li></ul>
-      
-    </div>
+  <p class="vh">Bupples is a Flutter client on iOS and Android talking to Firebase. The client holds the interface, Riverpod state, a money kernel with no Flutter import at all, and Firestore offline persistence so writes queue when the network drops. Around it sit native surfaces I wrote directly: an AVFoundation QR scanner and a real UITabBar exposed to Flutter through platform channels, plus WidgetKit home, lock-screen and StandBy widgets on iOS and RemoteViews widgets on Android, sharing data through an App Group. The client reads and writes Firestore directly for everything that benefits from realtime listeners, but every write passes through 2,254 lines of Security Rules that bind authorisation to the Firebase auth uid rather than any client-supplied identifier. Anything money-critical or membership-critical does not go through rules at all: it goes to Cloud Functions on Node 22, which write with the Admin SDK. There are 99 deployed handlers — 58 callables, 27 Firestore document triggers, 13 scheduled jobs and one HTTP webhook — including a server mirror of the balance ledger and the exact receipt-claim arithmetic. Receipt reading is two-tier: Google ML Kit runs on the device for an instant first pass, then a Cloud Function calls Gemini 2.5 Flash on Vertex AI using Application Default Credentials, with a second more careful pass only when the first one is not trusted. Subscriptions run through RevenueCat on the device, and RevenueCat posts entitlement changes to an authenticated webhook, which writes the entitlement to Firestore where privileged callables re-read it before granting anything. Firebase Hosting serves a static product site with the legal pages, deep-link landings for join codes and profiles, and one genuinely interactive page: a browser claim flow that signs in anonymously and calls the same Cloud Functions the app does.</p>
+  <div class="cs-arch-board">
+    <section class="cs-arch-band" data-tier="client">
+      <p class="cs-arch-band-l">On the device</p>
+      <div class="cs-arch-groups">
+        <div class="cs-arch-group" id="arch-bupples-client" data-node="client" data-tier="client">
+          <p class="cs-arch-label">Flutter client — iOS and Android</p>
+          <ul class="cs-arch-nodes"><li>24 features, four layers each: domain / data / application / presentation</li><li>Riverpod providers and controllers</li><li>Money domain — parsing, split kernel, pairwise debt graph, settlement</li><li>Firestore offline persistence; writes queue and sync on reconnect</li><li>Remote-control gate — maintenance, force-update and degraded states</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-bupples-native" data-node="native" data-tier="client">
+          <p class="cs-arch-label">Native surfaces</p>
+          <ul class="cs-arch-nodes"><li>AVFoundation QR scanner (platform channel)</li><li>UITabBar embedded as a Flutter platform view</li><li>WidgetKit extension — home, lock screen, StandBy</li><li>Android RemoteViews widget providers</li><li>App Group group.com.bupples.widgets</li></ul>
+          
+        </div>
+      </div>
+    </section>
+    <section class="cs-arch-band" data-tier="server">
+      <p class="cs-arch-band-l">On my infrastructure</p>
+      <div class="cs-arch-groups">
+        <div class="cs-arch-group" id="arch-bupples-firebase" data-node="firebase" data-tier="server">
+          <p class="cs-arch-label">Firebase — managed</p>
+          <ul class="cs-arch-nodes"><li>Auth — Apple, Google, email</li><li>Firestore — 25 top-level collections, 30 nested rule blocks</li><li>Security Rules — 2,254 lines, 26 helpers</li><li>16 composite indexes</li><li>Storage, Cloud Messaging, Crashlytics, Analytics</li><li>Remote Config — 15 parameters</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-bupples-functions" data-node="functions" data-tier="server">
+          <p class="cs-arch-label">Cloud Functions — Node 22, TypeScript</p>
+          <ul class="cs-arch-nodes"><li>58 callables — joins, settlements, receipts, ownership, entitlements</li><li>27 Firestore document triggers</li><li>13 scheduled jobs — auto-confirm, reminders, sweeps, rollovers</li><li>balance.ts — server mirror of the pairwise ledger</li><li>receipt_math.ts — exact claim arithmetic in BigInt</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-bupples-extraction" data-node="extraction" data-tier="server">
+          <p class="cs-arch-label">Receipt extraction</p>
+          <ul class="cs-arch-nodes"><li>ML Kit text recognition — on device, first pass</li><li>Vertex AI · Gemini 2.5 Flash — fast structured pass</li><li>Vertex AI — accurate pass: thinking budget, zoomed crop</li><li>Merchant layout templates learned from repeat observations</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-bupples-web" data-node="web" data-tier="server">
+          <p class="cs-arch-label">Firebase Hosting</p>
+          <ul class="cs-arch-nodes"><li>Static product site and legal pages</li><li>/t — Turbo split claim in the browser, no install</li><li>/j, /te, /@ — deep-link landings</li><li>Universal Links and App Links</li></ul>
+          
+        </div>
+      </div>
+    </section>
+    <section class="cs-arch-band" data-tier="external">
+      <p class="cs-arch-band-l">Outside the system</p>
+      <div class="cs-arch-groups">
+        <div class="cs-arch-group" id="arch-bupples-billing" data-node="billing" data-tier="external">
+          <p class="cs-arch-label">Subscriptions</p>
+          <ul class="cs-arch-nodes"><li>RevenueCat SDK on device</li><li>revenueCatWebhook — shared secret from Secret Manager</li><li>customers/{uid} entitlement document</li><li>Scheduled lapse, grace, trial and win-back jobs</li></ul>
+          
+        </div>
+      </div>
+    </section>
   </div>
-  <ul class="cs-arch-edges"><li><b>client</b> <span aria-hidden="true">→</span> <b>native</b><span>Platform channels; widget data through an App Group</span></li><li><b>client</b> <span aria-hidden="true">→</span> <b>extraction</b><span>On-device OCR runs before the network call</span></li><li><b>client</b> <span aria-hidden="true">→</span> <b>firebase</b><span>Direct reads and writes, every one checked by rules</span></li><li><b>firebase</b> <span aria-hidden="true">→</span> <b>client</b><span>Realtime listeners, budgeted at ≤4 per joined hangout</span></li><li><b>client</b> <span aria-hidden="true">→</span> <b>functions</b><span>Callables for anything money- or membership-critical</span></li><li><b>functions</b> <span aria-hidden="true">→</span> <b>firebase</b><span>Admin SDK writes: joins, settlements, finalised receipts, ownership</span></li><li><b>functions</b> <span aria-hidden="true">→</span> <b>extraction</b><span>Vertex AI with Application Default Credentials — no API key</span></li><li><b>client</b> <span aria-hidden="true">→</span> <b>billing</b><span>Purchase and restore through the store</span></li><li><b>billing</b> <span aria-hidden="true">→</span> <b>functions</b><span>Entitlement webhook, authenticated with a Secret Manager secret</span></li><li><b>functions</b> <span aria-hidden="true">→</span> <b>billing</b><span>Live entitlement re-read before any privileged grant</span></li><li><b>web</b> <span aria-hidden="true">→</span> <b>functions</b><span>The browser claim page calls the same callables</span></li><li><b>web</b> <span aria-hidden="true">→</span> <b>firebase</b><span>Anonymous sign-in, then the same rules apply</span></li></ul>
+  <ol class="cs-arch-edges"><li><a href="#arch-bupples-client"><b>Flutter client — iOS and Android</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-native"><b>Native surfaces</b></a><span>Platform channels; widget data through an App Group</span></li><li><a href="#arch-bupples-client"><b>Flutter client — iOS and Android</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-extraction"><b>Receipt extraction</b></a><span>On-device OCR runs before the network call</span></li><li><a href="#arch-bupples-client"><b>Flutter client — iOS and Android</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-firebase"><b>Firebase — managed</b></a><span>Direct reads and writes, every one checked by rules</span></li><li><a href="#arch-bupples-firebase"><b>Firebase — managed</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-client"><b>Flutter client — iOS and Android</b></a><span>Realtime listeners, budgeted at ≤4 per joined hangout</span></li><li><a href="#arch-bupples-client"><b>Flutter client — iOS and Android</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-functions"><b>Cloud Functions — Node 22, TypeScript</b></a><span>Callables for anything money- or membership-critical</span></li><li><a href="#arch-bupples-functions"><b>Cloud Functions — Node 22, TypeScript</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-firebase"><b>Firebase — managed</b></a><span>Admin SDK writes: joins, settlements, finalised receipts, ownership</span></li><li><a href="#arch-bupples-functions"><b>Cloud Functions — Node 22, TypeScript</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-extraction"><b>Receipt extraction</b></a><span>Vertex AI with Application Default Credentials — no API key</span></li><li><a href="#arch-bupples-client"><b>Flutter client — iOS and Android</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-billing"><b>Subscriptions</b></a><span>Purchase and restore through the store</span></li><li><a href="#arch-bupples-billing"><b>Subscriptions</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-functions"><b>Cloud Functions — Node 22, TypeScript</b></a><span>Entitlement webhook, authenticated with a Secret Manager secret</span></li><li><a href="#arch-bupples-functions"><b>Cloud Functions — Node 22, TypeScript</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-billing"><b>Subscriptions</b></a><span>Live entitlement re-read before any privileged grant</span></li><li><a href="#arch-bupples-web"><b>Firebase Hosting</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-functions"><b>Cloud Functions — Node 22, TypeScript</b></a><span>The browser claim page calls the same callables</span></li><li><a href="#arch-bupples-web"><b>Firebase Hosting</b></a><i aria-hidden="true">→</i><a href="#arch-bupples-firebase"><b>Firebase — managed</b></a><span>Anonymous sign-in, then the same rules apply</span></li></ol>
   <figcaption>What runs on the phone, what runs on the server, and where money is allowed to be written.</figcaption>
 </figure></div>
 </section>
@@ -447,16 +466,16 @@ try {
   <div><h3 class="cs-h3">What I would do next</h3><ul class="cs-points"><li>App Check enforcement. The client carries the App Check SDK, but server-side enforcement across the callables sits behind a single constant that is still false in source. Rules already bind every write to the caller's uid; attestation is the layer on top, and turning it on is the next piece of work rather than something already claimed.</li><li>The rest of the audit register. I verified that the highest finding is closed in the current rules. The remaining findings need to be re-checked one by one against the code as it stands now, and recorded, instead of assumed to have been swept up by later work.</li><li>One money implementation, not two. The Dart and TypeScript copies should be generated from a shared specification, or one of them should stop existing, so drift becomes impossible rather than merely tested against.</li></ul></div>
 </div></div>
 </section>
-    <div class="cs-media">
-  <figure class="cs-fig">
+    <div class="cs-media" data-shape="portrait">
+  <figure class="cs-fig cs-fig-portrait">
     <img src="/images/projects/bupples/profile.webp" alt="The Bupples profile screen on a phone. Below the member's name and handle sit two separate balance chips — &quot;you're owed RM17.50&quot; in green and &quot;you owe USD 10.20&quot; in red — above a grid of statistics: hangouts this month, biggest night, most split with, and a running weekend streak." width="830" height="1800" loading="lazy" decoding="async" />
     <figcaption><b aria-hidden="true">FIG. 01</b>Two currencies, two balances, never added together. Each currency is its own ledger and nothing is converted.</figcaption>
   </figure>
-  <figure class="cs-fig">
+  <figure class="cs-fig cs-fig-portrait">
     <img src="/images/projects/bupples/ask-pip.webp" alt="The Pip assistant sheet. A chip under the title reads &quot;Can see: your balances, hangouts and friends&quot;, four suggested questions follow — add an expense, who do I owe, explain my net balance, how much have I spent — and a line above the input reads &quot;Pip can make mistakes, so double-check anything important.&quot;" width="900" height="1553" loading="lazy" decoding="async" />
     <figcaption><b aria-hidden="true">FIG. 02</b>The assistant declares what it can see before it is asked anything, and says plainly that it can be wrong.</figcaption>
   </figure>
-  <figure class="cs-fig">
+  <figure class="cs-fig cs-fig-portrait">
     <img src="/images/projects/bupples/accent.webp" alt="The custom accent sheet, with a hue ring and a tone bar, the resulting hex value shown as #D4EB47, a live preview row of a letter, chip, toggle and button in the chosen colour, six preset swatches, and an Apply accent button." width="830" height="1800" loading="lazy" decoding="async" />
     <figcaption><b aria-hidden="true">FIG. 03</b>Accent customisation, previewed live on real components. The paid cosmetics behind it are granted by a callable that re-reads the entitlement, never by the client.</figcaption>
   </figure>
@@ -486,6 +505,6 @@ try {
   <a href="/#top">Back to top ↑</a>
 </footer>
 
-<script src="/case.js?v=7" defer></script>
+<script src="/case.js?v=8" defer></script>
 </body>
 </html>

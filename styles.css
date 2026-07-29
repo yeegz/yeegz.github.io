@@ -2864,7 +2864,7 @@ html[data-theme="light"] .dot-glyph { fill: var(--accent); }
    inherits from those tokens, so nothing needs special-casing.
    ============================================================= */
 
-html.egypt {
+html.egypt.egypt {
   --bg: #000000;
   --bg-2: #0a0a0a;
   --ink: #ffffff;
@@ -3451,3 +3451,13 @@ html.egypt .site-loader::before,
 @media (prefers-reduced-motion: reduce) {
   .site-loader.egg-veil { transition: none; }
 }
+
+
+/* The egg is a theme in its own right, so the light/dark switch has nothing
+   to offer while it is on — the Exit control beside it is the way out. */
+html.egypt .theme-toggle { display: none; }
+html.egypt .mnav-theme { display: none; }
+
+/* Cursor in the flag: the disc takes the red band, its label the white. */
+html.egypt.egypt { --cursor-fill: #ce1126; --cursor-text: #ffffff; }
+html.egypt .cursor-dot, html.egypt .cursor-ring { border-color: var(--eg-gold); }

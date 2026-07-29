@@ -10,22 +10,31 @@
   if (docEl.classList.contains('egypt')) {
     const print = document.getElementById('portrait');
     if (print) {
-      /* The morph samples this image to place its dots and then dissolves
-         those dots into the photograph. Feeding it the pre-made halftone
-         plate produced dots of dots and never resolved; feeding it the
-         photograph itself means the dot field IS an analysis of that
-         photograph, so it lands on it exactly. */
-      print.src = 'images/egypt-photo-1600.jpg';
+      /* #portrait is only the still that stands in until the live canvas is
+         built — the dot field itself is sampled from egypt-niche.png further
+         down. This used to be pointed at the raw photograph, so anyone on
+         reduced motion or a coarse pointer got a photo where every other
+         visitor gets a halftone. egypt-print.png is the same analysis the
+         canvas draws, rendered once. */
+      print.src = 'images/egypt-print.webp';
       print.removeAttribute('srcset');
-      print.alt = 'Dot-matrix analysis of Yousof Selim wrapped in an Al Ahly flag at a match';
+      print.width = 1144;
+      print.height = 1140;
+      print.alt = 'Halftone print of Yousof Selim wrapped in an Al Ahly flag in the stand at a match';
     }
     const photo = document.getElementById('gardenImg');
     if (photo) {
-      photo.src = 'images/egypt-photo-1600.jpg';
-      photo.srcset = 'images/egypt-photo-960.jpg 960w, images/egypt-photo-1600.jpg 1600w';
+      /* The dots develop INTO this photograph, so it has to be framed exactly
+         like the plate they were sampled from. Pointing it at the full 1600px
+         frame while the plate was a crop is what left the figure sitting off
+         its own photograph on scroll. Both now come from one rect. */
+      photo.src = 'images/egypt-photo-crop.jpg';
+      photo.srcset = 'images/egypt-photo-crop-640.jpg 494w, images/egypt-photo-crop.jpg 988w';
+      photo.width = 988;
+      photo.height = 985;
       photo.alt = 'Yousof Selim wrapped in an Al Ahly flag in the stand at a match';
       const webp = photo.parentElement && photo.parentElement.querySelector('source');
-      if (webp) webp.srcset = 'images/egypt-photo-640.webp 640w, images/egypt-photo-960.webp 960w, images/egypt-photo-1600.webp 1600w';
+      if (webp) webp.srcset = 'images/egypt-photo-crop-640.webp 494w, images/egypt-photo-crop.webp 988w';
     }
     const cap = document.getElementById('figTag');
     if (cap) cap.textContent = 'FIG. 01 — CAIRO, EG · AL AHLY';
@@ -836,8 +845,15 @@
     srcImg.decode().then(() => {
       const sw = srcImg.naturalWidth;
       const sh = srcImg.naturalHeight;
-      const S = 4;
-      const CELL = 26;
+      /* cs — the source pixels behind one dot — is what decides how much of the
+         subject survives, and it stays 6.5 in both modes. What changed is the
+         plate: the egg's was 254px holding the WHOLE stadium frame, so the
+         figure spanned about 22 dot columns and the flag's stars, crest and
+         Arabic could not exist at any threshold. It is now a 572px crop of the
+         subject alone — roughly 81 columns across him. S drops to 2 to keep the
+         backing canvas near its old size rather than growing it fivefold. */
+      const S = EGG_ON ? 2 : 4;
+      const CELL = EGG_ON ? 13 : 26;
       const cs = CELL / S;
       const samp = document.createElement('canvas');
       samp.width = sw; samp.height = sh;
@@ -845,6 +861,12 @@
       sc.drawImage(srcImg, 0, 0);
       const px = sc.getImageData(0, 0, sw, sh).data;
       const dots = [];
+      /* Same reason as the radius curve below: lift the sampled pixel so the
+         flag reads as the red it is rather than maroon, and the hair separates
+         from a near-black page instead of disappearing into it. */
+      const lift = EGG_ON
+        ? (v) => Math.min(255, Math.round(28 + v * 1.12))
+        : (v) => Math.round(v);
       let rowI = 0;
       for (let cy = 0; cy < sh; cy += cs, rowI++) {
         const xo = (rowI % 2) ? cs / 2 : 0;
@@ -866,11 +888,16 @@
           const aSum = a;
           a /= n;
           if (a < 0.42) continue;
-          const r = (CELL * 0.47) * Math.pow(Math.min(1, lum * 1.45 + 0.06), 0.78);
-          if (r < 1.4) continue;
+          /* The egg's photograph was taken at night under stadium floodlights,
+             so its mid-tones sit far lower than the daylit default. Left on the
+             0.78 curve the flag's red — luminance about 0.23 — drew at under
+             half radius and the figure read as a shadow. A shallower exponent
+             gives the mid-tones their size back without blowing out the crest. */
+          const r = (CELL * 0.47) * Math.pow(Math.min(1, lum * 1.45 + 0.06), EGG_ON ? 0.58 : 0.78);
+          if (r < 1.4 * (CELL / 26)) continue;
           dots.push({
             x: (cx + cs / 2) * S, y: (cy + cs / 2) * S, r,
-            c0: Math.round(cr / aSum), c1: Math.round(cg / aSum), c2: Math.round(cb / aSum)
+            c0: lift(cr / aSum), c1: lift(cg / aSum), c2: lift(cb / aSum)
           });
         }
       }
@@ -878,7 +905,9 @@
       const sil = document.createElement('canvas');
       sil.width = sw * S; sil.height = sh * S;
       const slx = sil.getContext('2d');
-      [[0, 0], [3, 0], [-3, 0], [0, 3], [0, -3], [3, 3], [-3, 3], [3, -3], [-3, -3]].forEach(([ox, oy]) => {
+      const spread = 3 * (S / 4);
+      [[0, 0], [spread, 0], [-spread, 0], [0, spread], [0, -spread],
+       [spread, spread], [-spread, spread], [spread, -spread], [-spread, -spread]].forEach(([ox, oy]) => {
         slx.drawImage(srcImg, ox, oy, sil.width, sil.height);
       });
       slx.globalCompositeOperation = 'source-in';
@@ -889,15 +918,17 @@
          mint. Under the easter egg they take the eagle's gold, so the figure
          glows with the flag rather than the default accent.
 
-         DOT_RAMP is the same switch for the third and largest one: every dot is
-         mixed down from bone (242,239,233) by its own lit value, and the amount
-         subtracted per channel is what decides where "fully lit" lands. The
-         default triple resolves to #9bcfa5 — the mint accent — which is why the
-         whole figure still read green under the flag. The egg's triple resolves
-         to #d4a017 instead, so the lit dots are the eagle's gold. */
+         DOT_RAMP is the default figure's base: every dot is mixed down from
+         bone (242,239,233) by its own lit value, which resolves fully-lit dots
+         to #9bcfa5, the mint accent. The egg deliberately does NOT use a ramp.
+         Running one in gold turned a red-and-white flag into a single gold mass
+         — no stars, no crest, no Arabic, no glasses — because a one-hue ramp
+         can only encode luminance, and the whole point of this photograph is
+         its colour. Under the egg each dot keeps what it sampled and the gold
+         arrives as light on top; see the fill below. */
       const DOT_HI = EGG_ON ? [246, 216, 138] : [201, 238, 209];
       const DOT_EDGE = EGG_ON ? [212, 160, 23] : [155, 207, 165];
-      const DOT_RAMP = EGG_ON ? [30, 79, 210] : [87, 32, 68];
+      const DOT_RAMP = [87, 32, 68];
 
       const photoImg = document.getElementById('gardenImg');
       let photoReady = Boolean(photoImg && photoImg.complete && photoImg.naturalWidth);
@@ -998,7 +1029,19 @@
           const r = d.r * grow * breathe * (1 + (band * 0.42 + boost) * (1 - dq) + dq * 0.42);
           const g = Math.max(renderG, Math.min(1, band * 0.85 + boost)) * (1 - dq);
           let rC, gC, bC;
-          if (g > 0.92) {
+          if (EGG_ON) {
+            /* Photograph first, gold as light. The dot already carries the
+               pixel it sampled, so the flag reads red, the crest and stars read
+               white and the hair reads dark from the first frame — and the
+               travelling band and cursor swell lift it toward the eagle's gold
+               instead of replacing it. */
+            rC = d.c0; gC = d.c1; bC = d.c2;
+            if (g > 0) {
+              rC += (DOT_HI[0] - rC) * g;
+              gC += (DOT_HI[1] - gC) * g;
+              bC += (DOT_HI[2] - bC) * g;
+            }
+          } else if (g > 0.92) {
             rC = DOT_HI[0]; gC = DOT_HI[1]; bC = DOT_HI[2];
           } else {
             rC = 242 - DOT_RAMP[0] * g; gC = 239 - DOT_RAMP[1] * g; bC = 233 - DOT_RAMP[2] * g;

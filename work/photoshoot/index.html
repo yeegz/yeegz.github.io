@@ -30,15 +30,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=81" />
-<link rel="stylesheet" href="/case.css?v=12" />
+<link rel="stylesheet" href="/styles.css?v=83" />
+<link rel="stylesheet" href="/case.css?v=13" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 try {
   var t = localStorage.getItem('ysf-theme');
   document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
-  if (localStorage.getItem('ysf-egypt')) document.documentElement.classList.add('egypt');
+  if (localStorage.getItem('ysf-egypt')) {
+    document.documentElement.classList.add('egypt');
+    document.documentElement.dataset.theme = 'dark';
+  }
 } catch (_) { document.documentElement.dataset.theme = 'dark'; }
 </script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Photoshoot","description":"A photobooth for desktop and browser that never sends a camera frame anywhere.","applicationCategory":"Photobooth · desktop and web","operatingSystem":"Web (WebGL2 browsers), Desktop (Electron) — built from source, not released","author":{"@type":"Person","name":"Yousof Selim","url":"https://yeegz.github.io/"},"url":"https://yeegz.github.io/work/photoshoot/"}</script>
@@ -217,39 +220,55 @@ try {
     <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
   </header>
   <div class="cs-sec-body" data-reveal><figure class="cs-arch">
-  <div class="cs-arch-board" role="img" aria-label="Photoshoot is an Electron application with three processes plus a browser build that reuses one of them. The shared layer, src/shared/, holds pure types and validators with no Node and no DOM imports, so the same modules bundle into all four contexts: the theme validator, the filter validator, the twenty IPC channel names, and the PhotoshootBridge interface. The renderer holds everything the user sees — camera capture, the WebGL2 pipeline with its twenty-seven fragment shaders, MediaPipe face tracking, background replacement, CSSOM theming, synthesized audio and the three capture modes — and it never talks to Node directly. It talks only to PhotoshootBridge. That interface is implemented twice. On the desktop, the preload script implements it over contextBridge and ipcRenderer, and the Electron main process answers on twenty channels: window control, settings storage, gallery storage, theme import and filter import, each gated by a lexical path-containment check. In the browser, src/web/shim.ts implements the same twenty methods over IndexedDB for captures, localStorage for settings and themes, and a download anchor for exports. Data lives in three places, all of them local: the user's Pictures folder and JSON files in Electron's userData directory on the desktop, and IndexedDB plus localStorage in the browser. Two third parties are involved. MediaPipe Tasks Vision supplies the face landmark model and WASM runtime, both vendored into the app and served from its own app:// origin rather than fetched from a CDN. Firebase Hosting serves the web build as static files. No other network destination exists — the desktop app cancels every request whose URL does not start with app:, file:, devtools:, blob:, data: or chrome-extension:.">
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Renderer — shared by both runtimes</p>
-      <ul class="cs-arch-nodes"><li>camera.ts — getUserMedia, device enumeration, self-healing deviceId</li><li>gl/ — WebGL2 renderer, 27 fragment shaders, program cache, context-loss recovery</li><li>faceTracker.ts — MediaPipe FaceLandmarker, numFaces: 1, throttled to ~22 fps</li><li>backgroundReplace.ts — 192 px reference diff, GPU-upscaled matte</li><li>capture.ts — single shot, four-shot strip, WebM video</li><li>themes.ts — tokens applied through the CSSOM, never injected CSS</li><li>sound.ts — 8 cues synthesized with the Web Audio API</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Shared — no Node, no DOM</p>
-      <ul class="cs-arch-nodes"><li>ipc-contract.ts — 20 channel names and the PhotoshootBridge interface</li><li>theme-schema.ts — 59 whitelisted tokens, 24 forbidden substrings</li><li>filter-schema.ts — 11 clamped parameters, LUT byte validation</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Bridge — one interface, two implementations</p>
-      <ul class="cs-arch-nodes"><li>preload.ts — contextBridge over ipcRenderer, 38 lines, the only seam</li><li>web/shim.ts — the same 20 methods over browser storage, 448 lines</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Electron main</p>
-      <ul class="cs-arch-nodes"><li>main.ts — window hardening, CSP, permissions, request cancellation</li><li>app:// scheme handler — privileged origin, rejects paths outside dist/</li><li>storage.ts / paths.ts — every read and write gated by isInside()</li><li>themeImport.ts / filterImport.ts — validate, then persist</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">On-device storage</p>
-      <ul class="cs-arch-nodes"><li>Pictures/Photoshoot — captured images and video</li><li>userData — settings.json, gallery.json, themes/index.json, filters/index.json</li><li>Browser — IndexedDB store `captures`, localStorage for settings and themes</li></ul>
-      
-    </div>
-    <div class="cs-arch-group" data-tier="core">
-      <p class="cs-arch-label">Third parties</p>
-      <ul class="cs-arch-nodes"><li>MediaPipe Tasks Vision — model and WASM vendored, served from the app's own origin</li><li>Firebase Hosting — static files only, content-hashed and immutably cached</li></ul>
-      
-    </div>
+  <p class="vh">Photoshoot is an Electron application with three processes plus a browser build that reuses one of them. The shared layer, src/shared/, holds pure types and validators with no Node and no DOM imports, so the same modules bundle into all four contexts: the theme validator, the filter validator, the twenty IPC channel names, and the PhotoshootBridge interface. The renderer holds everything the user sees — camera capture, the WebGL2 pipeline with its twenty-seven fragment shaders, MediaPipe face tracking, background replacement, CSSOM theming, synthesized audio and the three capture modes — and it never talks to Node directly. It talks only to PhotoshootBridge. That interface is implemented twice. On the desktop, the preload script implements it over contextBridge and ipcRenderer, and the Electron main process answers on twenty channels: window control, settings storage, gallery storage, theme import and filter import, each gated by a lexical path-containment check. In the browser, src/web/shim.ts implements the same twenty methods over IndexedDB for captures, localStorage for settings and themes, and a download anchor for exports. Data lives in three places, all of them local: the user's Pictures folder and JSON files in Electron's userData directory on the desktop, and IndexedDB plus localStorage in the browser. Two third parties are involved. MediaPipe Tasks Vision supplies the face landmark model and WASM runtime, both vendored into the app and served from its own app:// origin rather than fetched from a CDN. Firebase Hosting serves the web build as static files. No other network destination exists — the desktop app cancels every request whose URL does not start with app:, file:, devtools:, blob:, data: or chrome-extension:.</p>
+  <div class="cs-arch-board">
+    <section class="cs-arch-band" data-tier="client">
+      <p class="cs-arch-band-l">On the device</p>
+      <div class="cs-arch-groups">
+        <div class="cs-arch-group" id="arch-photoshoot-camera" data-node="camera" data-tier="client">
+          <p class="cs-arch-label">Camera — the user's own hardware</p>
+          <ul class="cs-arch-nodes"><li>getUserMedia — MediaStream held in the page, never uploaded</li><li>Device enumeration with a self-healing deviceId across reconnects</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-photoshoot-renderer" data-node="renderer" data-tier="client">
+          <p class="cs-arch-label">Renderer — shared by both runtimes</p>
+          <ul class="cs-arch-nodes"><li>camera.ts — getUserMedia, device enumeration, self-healing deviceId</li><li>gl/ — WebGL2 renderer, 27 fragment shaders, program cache, context-loss recovery</li><li>faceTracker.ts — MediaPipe FaceLandmarker, numFaces: 1, throttled to ~22 fps</li><li>backgroundReplace.ts — 192 px reference diff, GPU-upscaled matte</li><li>capture.ts — single shot, four-shot strip, WebM video</li><li>themes.ts — tokens applied through the CSSOM, never injected CSS</li><li>sound.ts — 8 cues synthesized with the Web Audio API</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-photoshoot-shared" data-node="shared" data-tier="client">
+          <p class="cs-arch-label">Shared — no Node, no DOM</p>
+          <ul class="cs-arch-nodes"><li>ipc-contract.ts — 20 channel names and the PhotoshootBridge interface</li><li>theme-schema.ts — 59 whitelisted tokens, 24 forbidden substrings</li><li>filter-schema.ts — 11 clamped parameters, LUT byte validation</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-photoshoot-bridge" data-node="bridge" data-tier="client">
+          <p class="cs-arch-label">Bridge — one interface, two implementations</p>
+          <ul class="cs-arch-nodes"><li>preload.ts — contextBridge over ipcRenderer, 38 lines, the only seam</li><li>web/shim.ts — the same 20 methods over browser storage, 448 lines</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-photoshoot-main" data-node="main" data-tier="client">
+          <p class="cs-arch-label">Electron main</p>
+          <ul class="cs-arch-nodes"><li>main.ts — window hardening, CSP, permissions, request cancellation</li><li>app:// scheme handler — privileged origin, rejects paths outside dist/</li><li>storage.ts / paths.ts — every read and write gated by isInside()</li><li>themeImport.ts / filterImport.ts — validate, then persist</li></ul>
+          
+        </div>
+        <div class="cs-arch-group" id="arch-photoshoot-storage" data-node="storage" data-tier="client">
+          <p class="cs-arch-label">On-device storage</p>
+          <ul class="cs-arch-nodes"><li>Pictures/Photoshoot — captured images and video</li><li>userData — settings.json, gallery.json, themes/index.json, filters/index.json</li><li>Browser — IndexedDB store `captures`, localStorage for settings and themes</li></ul>
+          
+        </div>
+      </div>
+    </section>
+    <section class="cs-arch-band" data-tier="external">
+      <p class="cs-arch-band-l">Outside the system</p>
+      <div class="cs-arch-groups">
+        <div class="cs-arch-group" id="arch-photoshoot-third-party" data-node="third-party" data-tier="external">
+          <p class="cs-arch-label">Third parties</p>
+          <ul class="cs-arch-nodes"><li>MediaPipe Tasks Vision — model and WASM vendored, served from the app's own origin</li><li>Firebase Hosting — static files only, content-hashed and immutably cached</li></ul>
+          
+        </div>
+      </div>
+    </section>
   </div>
-  <ul class="cs-arch-edges"><li><b>Camera</b> <span aria-hidden="true">→</span> <b>Renderer</b><span>getUserMedia — MediaStream, local only</span></li><li><b>Renderer</b> <span aria-hidden="true">→</span> <b>Shared</b><span>re-validates every token and parameter before use</span></li><li><b>Renderer</b> <span aria-hidden="true">→</span> <b>Bridge</b><span>PhotoshootBridge — 20 methods, the only way out</span></li><li><b>Bridge</b> <span aria-hidden="true">→</span> <b>Electron main</b><span>desktop: contextBridge over 20 IPC channels</span></li><li><b>Bridge</b> <span aria-hidden="true">→</span> <b>On-device storage</b><span>web: IndexedDB, localStorage, download anchor</span></li><li><b>Electron main</b> <span aria-hidden="true">→</span> <b>Shared</b><span>validates imports before anything is persisted</span></li><li><b>Electron main</b> <span aria-hidden="true">→</span> <b>On-device storage</b><span>path-contained reads and writes</span></li><li><b>Renderer</b> <span aria-hidden="true">→</span> <b>Third parties</b><span>loads the face model from app://photoshoot, not a CDN</span></li><li><b>Third parties</b> <span aria-hidden="true">→</span> <b>Renderer</b><span>Firebase Hosting serves the web bundle; no runtime API calls</span></li></ul>
+  <ol class="cs-arch-edges"><li><a href="#arch-photoshoot-camera"><b>Camera — the user's own hardware</b></a><i aria-hidden="true">→</i><a href="#arch-photoshoot-renderer"><b>Renderer — shared by both runtimes</b></a><span>getUserMedia — MediaStream, local only</span></li><li><a href="#arch-photoshoot-renderer"><b>Renderer — shared by both runtimes</b></a><i aria-hidden="true">→</i><a href="#arch-photoshoot-shared"><b>Shared — no Node, no DOM</b></a><span>re-validates every token and parameter before use</span></li><li><a href="#arch-photoshoot-renderer"><b>Renderer — shared by both runtimes</b></a><i aria-hidden="true">→</i><a href="#arch-photoshoot-bridge"><b>Bridge — one interface, two implementations</b></a><span>PhotoshootBridge — 20 methods, the only way out</span></li><li><a href="#arch-photoshoot-bridge"><b>Bridge — one interface, two implementations</b></a><i aria-hidden="true">→</i><a href="#arch-photoshoot-main"><b>Electron main</b></a><span>desktop: contextBridge over 20 IPC channels</span></li><li><a href="#arch-photoshoot-bridge"><b>Bridge — one interface, two implementations</b></a><i aria-hidden="true">→</i><a href="#arch-photoshoot-storage"><b>On-device storage</b></a><span>web: IndexedDB, localStorage, download anchor</span></li><li><a href="#arch-photoshoot-main"><b>Electron main</b></a><i aria-hidden="true">→</i><a href="#arch-photoshoot-shared"><b>Shared — no Node, no DOM</b></a><span>validates imports before anything is persisted</span></li><li><a href="#arch-photoshoot-main"><b>Electron main</b></a><i aria-hidden="true">→</i><a href="#arch-photoshoot-storage"><b>On-device storage</b></a><span>path-contained reads and writes</span></li><li><a href="#arch-photoshoot-renderer"><b>Renderer — shared by both runtimes</b></a><i aria-hidden="true">→</i><a href="#arch-photoshoot-third-party"><b>Third parties</b></a><span>loads the face model from app://photoshoot, not a CDN</span></li><li><a href="#arch-photoshoot-third-party"><b>Third parties</b></a><i aria-hidden="true">→</i><a href="#arch-photoshoot-renderer"><b>Renderer — shared by both runtimes</b></a><span>Firebase Hosting serves the web bundle; no runtime API calls</span></li></ol>
   <figcaption>Three processes, one shared renderer, and a single audited seam between them.</figcaption>
 </figure></div>
 </section>
@@ -432,8 +451,8 @@ try {
   <div><h3 class="cs-h3">What I would do next</h3><ul class="cs-points"><li>Tests for the theme validator. It is the larger and riskier of the two shared validators and it has none — the honest reading is that the filter path is tested and the theme path is only reviewed.</li><li>A packaged, signed desktop build. electron-builder is configured for a Windows NSIS installer and a portable binary, but no GitHub release exists, so the README's download link and the landing page's download button both currently lead to an empty releases page.</li><li>Symlink rejection currently guards only the lookup-table import path, because isInside() is lexical and a symlink named lut.png could otherwise point anywhere on disk. The same lstat guard belongs on every path that accepts a file from outside the app, not just that one.</li></ul></div>
 </div></div>
 </section>
-    <div class="cs-media">
-  <figure class="cs-fig">
+    <div class="cs-media" data-shape="landscape">
+  <figure class="cs-fig cs-fig-landscape">
     <img src="/images/photoshoot-app.webp" alt="The Photoshoot capture window: a dark viewfinder marked REC with an ISO 400 · F/1.8 · ON-DEVICE readout, a row of effect swatches, a red shutter button, and a four-frame paper strip printed PHOTO·SHOOT alongside it." width="1202" height="956" loading="lazy" decoding="async" />
     <figcaption><b aria-hidden="true">FIG. 01</b>The capture window and the four-shot strip. Drawn for this archive — the repository ships no product screenshots.</figcaption>
   </figure>
@@ -463,6 +482,6 @@ try {
   <a href="/#top">Back to top ↑</a>
 </footer>
 
-<script src="/case.js?v=7" defer></script>
+<script src="/case.js?v=8" defer></script>
 </body>
 </html>

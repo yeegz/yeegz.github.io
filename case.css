@@ -1149,13 +1149,16 @@ html.egypt .cs-arch-group[data-tier="client"] {
 
 /* ---------- 01 overview: the executive plate -------------------- */
 
+/* This was set in the display face at 30ch, which is fine for a one-line
+   statement and disastrous for what is actually here: a 150-word paragraph.
+   At a narrow width it became a column of enormous bold type with no way in.
+   The summary is prose and gets read as prose — a touch larger and brighter
+   than body copy, on a real measure. Section 01's distinction comes from the
+   ghost numeral and the rail it already has. */
 .cs-s-overview .cs-lead {
-  max-width: 30ch;
-  font-family: var(--disp);
-  font-weight: 700;
-  font-size: clamp(1.35rem, 2.9vw, 2.15rem);
-  line-height: 1.14;
-  letter-spacing: -0.015em;
+  max-width: 64ch;
+  font-size: clamp(1.06rem, 1.6vw, 1.32rem);
+  line-height: 1.6;
   color: var(--ink);
 }
 
@@ -1511,58 +1514,10 @@ html.egypt .cs-arch-group[data-tier="client"] {
   .cs-s-challenges .cs-cbeat > :not(.cs-beat-l) { grid-column: 1; }
 }
 
-/* ---------- the flag's bands, on the case-study routes ----------
-   The homepage got two oxblood bands and two bone ones; these routes
-   got gold and nothing else, so a case study opened under the flag
-   read as the dark site with gold numerals. Same token-swap idiom,
-   same reason: a section repaints whole, including its own gold and
-   its own accent voice.
-
-   These come after the per-section designs so they win on source
-   order, and they set --cs-accent, which every section design above
-   already draws its marks and rules from. */
-
-html.egypt .cs-s-problem,
-html.egypt .cs-s-results {
-  --bg: #26050a;
-  --bg-2: #1b0306;
-  --ink: #ffffff;
-  --ink-soft: #f6e2e5;
-  --muted: #eec6ca;
-  --muted-2: #d9a3aa;
-  --line: rgba(255, 255, 255, 0.18);
-  --line-soft: rgba(255, 255, 255, 0.09);
-  --cs-accent: #f3c95c !important;
-  background: #26050a;
-  color: var(--ink);
-}
-
-html.egypt .cs-s-role,
-html.egypt .cs-s-lessons {
-  --bg: #f2efe9;
-  --bg-2: #e7e3da;
-  --ink: #0b0b0c;
-  --ink-soft: #24262a;
-  --muted: #55585e;
-  --muted-2: #74777d;
-  --line: rgba(11, 11, 12, 0.18);
-  --line-soft: rgba(11, 11, 12, 0.08);
-  --cs-accent: #b60f21 !important;
-  background: #f2efe9;
-  color: var(--ink);
-}
-
-/* The ghost numeral behind each head is drawn for a dark ground. */
-html.egypt .cs-s-role .cs-ghost,
-html.egypt .cs-s-lessons .cs-ghost { color: rgba(11, 11, 12, 0.055); }
-html.egypt .cs-s-problem .cs-ghost,
-html.egypt .cs-s-results .cs-ghost { color: rgba(255, 255, 255, 0.05); }
-/* The accent voice is forced red with !important further up; on the oxblood
-   band that is red on red, exactly as it was on the homepage. */
-html.egypt .cs-s-problem .cs-sec-title em,
-html.egypt .cs-s-results .cs-sec-title em,
-html.egypt .cs-s-problem em,
-html.egypt .cs-s-results em { color: #f3c95c !important; }
+/* The homepage's flag bands are scenes; a case study is one continuous
+   document, and a section flipping to bone halfway down it reads as the theme
+   changing by accident rather than as a band of the flag. The routes keep the
+   flag's gold and red on their marks and stay on one ground. */
 
 /* The rail is clipped to zero by styles.css and opened by the homepage's GSAP.
    These routes draw it from case.js instead — same gesture, no animation
@@ -1573,3 +1528,114 @@ html.egypt .cs-s-results em { color: #f3c95c !important; }
   transition-delay: 0.25s;
 }
 .cs-body .sec-rail.drawn { clip-path: inset(-8px 0 -8px 0); }
+
+/* =================================================================
+   The section chassis
+   -----------------------------------------------------------------
+   The per-section instruments above were ported from the homepage
+   but landed in a single full-bleed column, so at 1900px a list of
+   claims ran the whole width as one type size with a hairline under
+   each — a spreadsheet, not a design. The homepage never does this:
+   it always sets an instrument against a column.
+
+   Every section is now a two-track document — the head holds its
+   own column and stays with you while the body scrolls past it —
+   and the body is bound to a real measure so a line of prose is a
+   line, not a ruler.
+   ================================================================= */
+
+@media (min-width: 1080px) {
+  .cs-section {
+    display: grid;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    column-gap: clamp(40px, 5vw, 92px);
+    align-items: start;
+  }
+  .cs-sec-head {
+    position: sticky;
+    top: calc(var(--cs-head-h) + var(--cs-toc-h) + 30px);
+    margin: 0;
+  }
+  .cs-sec-body { min-width: 0; }
+  /* The rail belongs to the head's own column now. */
+  .cs-sec-head .sec-rail { max-width: 100%; }
+  /* These two are diagrams, not prose — they take the whole measure. */
+  .cs-s-architecture .cs-sec-body { max-width: none; }
+}
+
+/* Prose is bound even where the grid does not apply. */
+.cs-sec-body > .cs-prose,
+.cs-sec-body > .cs-testing,
+.cs-s-lessons .cs-points,
+.cs-s-role .cs-ticks li > *:not(:first-child) { max-width: var(--cs-measure); }
+
+/* ---------- the ledger, made an instrument ---------------------
+   Ten identical rows of 0.9rem text with a 9px label is a listing,
+   not a ledger. A ledger has a running index, a weighted entry and
+   a stamp — three tracks, at three different scales. */
+
+.cs-s-role .cs-owned,
+.cs-s-role .cs-not-owned { counter-reset: entry; }
+.cs-s-role .cs-ticks li {
+  counter-increment: entry;
+  grid-template-columns: minmax(0, 3.2rem) minmax(0, 1fr) minmax(0, 6.5rem);
+  gap: 0 clamp(14px, 1.6vw, 26px);
+  align-items: start;
+  padding: 1.15rem 0;
+  font-size: clamp(0.98rem, 1.12vw, 1.1rem);
+  line-height: 1.55;
+  color: var(--ink);
+}
+.cs-s-role .cs-ticks li::before {
+  content: counter(entry, decimal-leading-zero);
+  color: transparent;
+  -webkit-text-stroke: 1.1px var(--cs-accent);
+  font: 900 1.5rem/1 var(--disp);
+  letter-spacing: -0.04em;
+}
+/* The stamp moves to the third track and reads as a stamp. */
+.cs-s-role .cs-ticks li::after {
+  content: 'Owned';
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  padding: 0.22rem 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--cs-accent) 45%, transparent);
+  color: var(--cs-accent);
+  font: 500 0.5rem var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.cs-s-role .cs-ticks-muted li { color: var(--muted); }
+.cs-s-role .cs-ticks-muted li::before { -webkit-text-stroke-color: var(--muted-2); }
+.cs-s-role .cs-ticks-muted li::after {
+  content: 'Not mine';
+  border-color: var(--line);
+  color: var(--muted-2);
+}
+.cs-s-role .cs-h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.4rem;
+  padding-bottom: 0.8rem;
+  font-size: 0.66rem;
+}
+.cs-s-role .cs-h3::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cs-accent);
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--cs-accent) 45%, transparent);
+}
+.cs-s-role .cs-not-owned .cs-h3::before {
+  background: none;
+  border: 1px solid var(--muted-2);
+  box-shadow: none;
+}
+@media (max-width: 700px) {
+  .cs-s-role .cs-ticks li { grid-template-columns: minmax(0, 2.6rem) minmax(0, 1fr); }
+  .cs-s-role .cs-ticks li::after { grid-column: 2; grid-row: 2; justify-self: start; margin-top: 0.5rem; }
+}

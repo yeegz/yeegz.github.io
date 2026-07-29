@@ -2446,7 +2446,7 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
   border-bottom: 1px solid var(--line);
   transition: background 0.3s;
 }
-.cap-row:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.cap-row:hover .cap-glyph { fill: var(--accent); }
 .cap-name { display: flex; align-items: flex-start; gap: 0.7rem; }
 .cap-glyph { margin-top: 0.05rem; }
 .cap-name h3 {
@@ -2664,7 +2664,6 @@ html[data-theme="light"] { --focus-halo: rgba(238, 232, 219, 0.85); }
 /* ---------- light theme --------------------------------------- */
 
 html[data-theme="light"] .dot-glyph { fill: var(--accent); }
-html[data-theme="light"] .cap-row:hover { background: color-mix(in srgb, var(--accent) 7%, transparent); }
 
 /* ---------- responsive ---------------------------------------- */
 
@@ -2837,22 +2836,21 @@ html[data-theme="light"] .cap-row:hover { background: color-mix(in srgb, var(--a
 .tl-project,
 .now-col { transition: background 0.32s var(--ease-out); }
 
-.cred-scale li:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+/* No block fill on hover — the mark lighting up is the whole signal. A wash
+   behind a whole row reads as a selected state, which none of these are. */
 .cred-scale li:hover b { color: var(--accent); }
+.cred-scale li:hover::before { box-shadow: 0 0 14px 4px color-mix(in srgb, var(--accent) 55%, transparent); }
 
-.pr-item:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
 .pr-item:hover .pr-glyph { fill: var(--accent); }
 
 .tl-row:hover .tl-what::before,
 .tl-project:hover::before { box-shadow: 0 0 14px 4px color-mix(in srgb, var(--accent) 55%, transparent); }
-.tl-project:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
 
-.now-col:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
 .now-col:hover .now-dot { box-shadow: 0 0 10px 3px color-mix(in srgb, var(--accent) 45%, transparent); }
 
 @media (hover: none), (pointer: coarse) {
   /* Nothing here may depend on a pointer that does not exist. */
-  .cred-scale li:hover, .pr-item:hover, .tl-project:hover, .now-col:hover { background: transparent; }
+  .cred-scale li:hover::before, .tl-project:hover::before, .now-col:hover .now-dot { box-shadow: none; }
 }
 
 /* =============================================================

@@ -10,9 +10,14 @@
   if (docEl.classList.contains('egypt')) {
     const print = document.getElementById('portrait');
     if (print) {
-      print.src = 'images/egypt-print.webp';
+      /* The morph samples this image to place its dots and then dissolves
+         those dots into the photograph. Feeding it the pre-made halftone
+         plate produced dots of dots and never resolved; feeding it the
+         photograph itself means the dot field IS an analysis of that
+         photograph, so it lands on it exactly. */
+      print.src = 'images/egypt-photo-1600.jpg';
       print.removeAttribute('srcset');
-      print.alt = 'Halftone plate of Yousof Selim in an Al Ahly flag at a match, rendered in the colours of the Egyptian flag';
+      print.alt = 'Dot-matrix analysis of Yousof Selim wrapped in an Al Ahly flag at a match';
     }
     const photo = document.getElementById('gardenImg');
     if (photo) {

@@ -21,7 +21,7 @@
       "label": "Résumé (PDF)",
       "href": "/Yousof-Selim-Resume.pdf",
       "kind": "resume",
-      "evidence": "File present at repository root: /Users/yousofselim/Documents/yeegz.github.io/Yousof-Selim-Resume.pdf; index.html links it from the header, hero, mobile menu and contact."
+      "evidence": "File present at repository root: ~/yeegz.github.io/Yousof-Selim-Resume.pdf; index.html links it from the header, hero, mobile menu and contact."
     },
     {
       "label": "yousofselim2@gmail.com",

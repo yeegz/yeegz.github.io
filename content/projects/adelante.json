@@ -35,7 +35,7 @@
       "label": "View showcase",
       "href": "https://github.com/yeegz/adelante-showcase",
       "kind": "showcase",
-      "evidence": "GitHub API returns HTTP 200 with \"private\": false; created 2026-07-13T05:36:59Z, single commit e5b283a. The application source is private and unpublished: `git remote -v` in /Users/yousofselim/Documents/Adelante returns nothing, and api.github.com/repos/yeegz/adelante returns 404."
+      "evidence": "GitHub API returns HTTP 200 with \"private\": false; created 2026-07-13T05:36:59Z, single commit e5b283a. The application source is private and unpublished: `git remote -v` in ~/Adelante returns nothing, and api.github.com/repos/yeegz/adelante returns 404."
     }
   ],
   "problem": {

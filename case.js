@@ -83,6 +83,8 @@
     if (reduced) {
       // No hiding at all — the class is what hides things.
       revealables.forEach(function (el) { el.classList.add('is-in'); });
+      // No .cs-anim on <html> here, so the rows were never hidden to begin with.
+
     } else {
       root.classList.add('cs-anim');
 
@@ -98,7 +100,38 @@
            sections of every case study. */
         var rail = el.querySelector('.sec-rail');
         if (rail) rail.classList.add('drawn');
+        stagger(el);
       };
+
+      /* A section used to arrive as one block: the whole body faded in at once,
+         so a ledger of ten entries and a board of seven groups looked like the
+         same event. Each section's own rows now arrive in sequence, and the
+         CHARACTER of that arrival is set per section in case.css — rows rise,
+         flow steps come in from the left, architecture bands wipe open. */
+      var ROWS = [
+        '.cs-points > li',
+        '.cs-ticks > li',
+        '.cs-card',
+        '.cs-step',
+        '.cs-decision',
+        '.cs-challenge',
+        '.cs-metrics > div',
+        '.cs-lessons > div',
+        '.cs-arch-band',
+        '.cs-arch-edges > li',
+        '.cs-fig',
+      ].join(',');
+
+      function stagger(el) {
+        var rows = el.querySelectorAll(ROWS);
+        if (!rows.length) return;
+        for (var i = 0; i < rows.length; i++) {
+          rows[i].classList.add('cs-row');
+          // Capped, or a long list leaves its tail invisible for seconds.
+          rows[i].style.setProperty('--rd', (Math.min(i, 9) * 0.055).toFixed(3) + 's');
+          rows[i].classList.add('is-in');
+        }
+      }
 
       var observer = new IntersectionObserver(
         function (entries) {

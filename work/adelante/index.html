@@ -364,45 +364,55 @@ try {
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">01</p>
     <h3 class="cs-h3">Ship the whole library; treat the backend as growth</h3>
-    <p class="cs-dec-chose"><span>Chose</span> An 11.8 MB library.json bundled into the app, with Firebase delta sync as an optional channel</p>
-    <p>The delivery decision was written as hybrid before it was built: ship the full generated library as an offline asset and keep getContent delta-sync as the growth and correction channel, with Blaze activation optional and not required to ship. A widget product whose first frame depends on a network call has a bad first frame.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> Fetching the library on first run and caching it</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> An 11.8 MB library.json bundled into the app, with Firebase delta sync as an optional channel</p>
+      <p class="cs-dec-alt"><span>Instead of</span> Fetching the library on first run and caching it</p>
+    </div>
+    <p class="cs-dec-why">The delivery decision was written as hybrid before it was built: ship the full generated library as an offline asset and keep getContent delta-sync as the growth and correction channel, with Blaze activation optional and not required to ship. A widget product whose first frame depends on a network call has a bad first frame.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> The asset is bundled uncompressed and parsed on the main isolate at boot. The design spec called for a gzipped library.json.gz produced with dart:io GZipCodec; the shipped asset is plain JSON, and the cold-start cost of parsing it has not been measured.</p>
     <p class="cs-cite"><span>Where to look</span>docs/superpowers/specs/2026-07-18-adelante-overhaul-design.md:17-20 and :61; pubspec.yaml asset comment; assets/content/library.json is 11,837,788 bytes and git-tracked; ContentLibraryLoader.load parses it at boot.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">02</p>
     <h3 class="cs-h3">Sync is off unless an endpoint is compiled in</h3>
-    <p class="cs-dec-chose"><span>Chose</span> String.fromEnvironment('ADELANTE_CONTENT_ENDPOINT') with an empty default, which leaves isContentSyncEnabled false</p>
-    <p>Stated in the source: an empty endpoint means sync is disabled and the app stays purely local, which is the safe default so a build with no backend configured still ships and runs. It also makes the privacy posture structural rather than a promise — a build with no endpoint cannot phone anywhere.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> A runtime feature flag, or an endpoint compiled in and toggled in settings</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> String.fromEnvironment('ADELANTE_CONTENT_ENDPOINT') with an empty default, which leaves isContentSyncEnabled false</p>
+      <p class="cs-dec-alt"><span>Instead of</span> A runtime feature flag, or an endpoint compiled in and toggled in settings</p>
+    </div>
+    <p class="cs-dec-why">Stated in the source: an empty endpoint means sync is disabled and the app stays purely local, which is the safe default so a build with no backend configured still ships and runs. It also makes the privacy posture structural rather than a promise — a build with no endpoint cannot phone anywhere.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> The backend is fully written and exercised by client-side tests but has never run against a live project: .firebaserc still contains the placeholder adelante-REPLACE-WITH-YOUR-PROJECT-ID, and there is no google-services.json, GoogleService-Info.plist or firebase_options.dart anywhere in the repo. Infrastructure that has never run is infrastructure that has not been proven.</p>
     <p class="cs-cite"><span>Where to look</span>lib/app/backend_config.dart:6-8 (the quoted comment) and :17; .firebaserc; absence of Firebase config files verified across the repository.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">03</p>
     <h3 class="cs-h3">A JSON asset instead of a compiled Dart list</h3>
-    <p class="cs-dec-chose"><span>Chose</span> assets/content/library.json loaded at boot, with the compiled seed retained as a fallback</p>
-    <p>Written at the loader: this is what lets the library grow to thousands of entries without ballooning the compiled binary or the parse time of a giant source file. Any load or parse failure falls back to the compiled seedMotivationQuotes, so the app is never contentless.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> Keeping the content as compiled Dart, which is what the 1,498-line seed file used to be</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> assets/content/library.json loaded at boot, with the compiled seed retained as a fallback</p>
+      <p class="cs-dec-alt"><span>Instead of</span> Keeping the content as compiled Dart, which is what the 1,498-line seed file used to be</p>
+    </div>
+    <p class="cs-dec-why">Written at the loader: this is what lets the library grow to thousands of entries without ballooning the compiled binary or the parse time of a giant source file. Any load or parse failure falls back to the compiled seedMotivationQuotes, so the app is never contentless.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Two representations of the content now have to stay compatible, and the fallback path is the one least likely to be exercised. The related 'no local database' decision was written with a note to revisit past roughly 10,000 entries; the library is 12,828 and it was not revisited.</p>
     <p class="cs-cite"><span>Where to look</span>lib/features/content/data/content_library_loader.dart:9-12 (the quoted comment and the fallback); lib/features/content/data/seed_content.dart (1,498 lines); design spec lines 166-168 (Non-goals: no local DB migration, revisit past ~10k).</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">04</p>
     <h3 class="cs-h3">No accounts, analytics, or ads — as a constraint, not a feature line</h3>
-    <p class="cs-dec-chose"><span>Chose</span> Zero auth, analytics, attribution, crash-reporting or advertising dependencies, and a sync request that carries nothing</p>
-    <p>It was written as a product non-goal before implementation, so it shaped the architecture rather than being retrofitted. The only sync call is a single GET with an accept header and an optional ?since= version, carrying no body, identifiers or preferences, and its docstring says so; the client re-checks the approved, reviewed and active flags anyway as defence in depth. The only authentication anywhere in the system is a server-side admin custom claim that gates the operator, not users.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> An account layer, which would have let favourites, presets and widget configurations follow a user between devices</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> Zero auth, analytics, attribution, crash-reporting or advertising dependencies, and a sync request that carries nothing</p>
+      <p class="cs-dec-alt"><span>Instead of</span> An account layer, which would have let favourites, presets and widget configurations follow a user between devices</p>
+    </div>
+    <p class="cs-dec-why">It was written as a product non-goal before implementation, so it shaped the architecture rather than being retrofitted. The only sync call is a single GET with an accept header and an optional ?since= version, carrying no body, identifiers or preferences, and its docstring says so; the client re-checks the approved, reviewed and active flags anyway as defence in depth. The only authentication anywhere in the system is a server-side admin custom claim that gates the operator, not users.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Nothing syncs — all 18 preference keys live on one device, so a reinstall loses favourites, presets and widget configurations. There is also no crash reporting and no analytics, which means a field failure is completely invisible.</p>
     <p class="cs-cite"><span>Where to look</span>design spec line 165 (Non-goals); lib/features/content/data/remote_content_source.dart docstring :21-23; lib/app/local_store.dart (18 SharedPreferences keys, no upload path in the codebase); android/app/src/main/AndroidManifest.xml declares zero uses-permission entries; ios/Runner/Info.plist has no NSUserTrackingUsageDescription; firestore.rules requires request.auth.token.admin == true for all writes.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">05</p>
     <h3 class="cs-h3">Firestore over Supabase for the content backend</h3>
-    <p class="cs-dec-chose"><span>Chose</span> Firebase — Firestore, Cloud Functions v2 on Node 20, security rules and composite indexes</p>
-    <p>Recorded in docs/backend/content-system.md under 'Backend Choice': mobile SDKs, offline persistence, security rules, scheduled functions, and a console-based admin path that meant the curation workflow did not need a custom API and review UI built first.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> Supabase and Postgres</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> Firebase — Firestore, Cloud Functions v2 on Node 20, security rules and composite indexes</p>
+      <p class="cs-dec-alt"><span>Instead of</span> Supabase and Postgres</p>
+    </div>
+    <p class="cs-dec-why">Recorded in docs/backend/content-system.md under 'Backend Choice': mobile SDKs, offline persistence, security rules, scheduled functions, and a console-based admin path that meant the curation workflow did not need a custom API and review UI built first.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> The shipped client never uses the Firestore SDK at all — it calls one HTTPS function, which uses the Admin SDK and bypasses rules entirely, as the rules file's own header states. Most of what won the comparison is unused by the path the app actually takes.</p>
     <p class="cs-cite"><span>Where to look</span>docs/backend/content-system.md ('Backend Choice'); functions/package.json (Node 20, firebase-functions ^6.1.0, firebase-admin ^12.6.0); firestore.rules (41 lines, header comment; wc -l, 2026-07-29); functions/src/index.ts:47 (getContent); firestore.indexes.json (3 composite indexes).</p>
   </article>

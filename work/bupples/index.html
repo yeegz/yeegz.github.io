@@ -376,45 +376,55 @@ try {
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">01</p>
     <h3 class="cs-h3">Entitlements are server truth</h3>
-    <p class="cs-dec-chose"><span>Chose</span> RevenueCat webhooks into a server-held entitlement, re-read before any privileged action</p>
-    <p>A purchase state the client reports is a purchase state the client can be persuaded to lie about, and the paid cosmetics are the visible reward, so they are the obvious target. The rules deny a client-written frame id outright; the only route onto one is a callable that reads the live entitlement document first. The webhook is authenticated with a shared secret held in Secret Manager. Scheduled jobs then handle the parts a purchase SDK does not: lapse enforcement, expiring perks, grace status, trial reminders and gifting between subscribers.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> Trusting the purchase SDK's cached entitlement on the device</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> RevenueCat webhooks into a server-held entitlement, re-read before any privileged action</p>
+      <p class="cs-dec-alt"><span>Instead of</span> Trusting the purchase SDK's cached entitlement on the device</p>
+    </div>
+    <p class="cs-dec-why">A purchase state the client reports is a purchase state the client can be persuaded to lie about, and the paid cosmetics are the visible reward, so they are the obvious target. The rules deny a client-written frame id outright; the only route onto one is a callable that reads the live entitlement document first. The webhook is authenticated with a shared secret held in Secret Manager. Scheduled jobs then handle the parts a purchase SDK does not: lapse enforcement, expiring perks, grace status, trial reminders and gifting between subscribers.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Entitlement changes take a network round trip and depend on a webhook being reachable, so a subscriber who upgrades in a tunnel sees their perks a moment after the server hears about it.</p>
     <p class="cs-cite"><span>Where to look</span>firestore.rules clientEquippableFrame comment, verbatim: &quot;Pro frame ids are DENIED here on purpose: the ONLY route onto a Pro frame is the equipProFrame Cloud Function (admin SDK bypasses rules), which re-checks the live customers/{uid} entitlement first.&quot;; functions/src/index.ts revenueCatWebhook with REVENUECAT_WEBHOOK_AUTH from Secret Manager; resetExpiredProPerks, getProLapseGraceStatus, trialReminderNotifier, winBackChurnedPro, giftProFromSubscriber, moveProEntitlementLink; lib/features/pro/data/billing_service.dart.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">02</p>
     <h3 class="cs-h3">A pure Swift Package Manager iOS build, and native code where a plugin would break it</h3>
-    <p class="cs-dec-chose"><span>Chose</span> Writing the camera scanner and the tab bar natively rather than adding plugins</p>
-    <p>Two plugins had already broken this build the same way, so the QR scanner is a hand-written AVFoundation platform channel instead of a dependency. The tab bar follows the same reasoning from the other direction: iOS 26 draws its own material, so the app embeds a genuine UITabBar as a platform view and lets the operating system draw it, rather than imitating the material in Dart and getting it subtly wrong on every OS update.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> Adding the published plugin and accepting a Podfile</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> Writing the camera scanner and the tab bar natively rather than adding plugins</p>
+      <p class="cs-dec-alt"><span>Instead of</span> Adding the published plugin and accepting a Podfile</p>
+    </div>
+    <p class="cs-dec-why">Two plugins had already broken this build the same way, so the QR scanner is a hand-written AVFoundation platform channel instead of a dependency. The tab bar follows the same reasoning from the other direction: iOS 26 draws its own material, so the app embeds a genuine UITabBar as a platform view and lets the operating system draw it, rather than imitating the material in Dart and getting it subtly wrong on every OS update.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Native code I own on two platforms and have to maintain across OS releases. One dependency had to come back regardless — the on-device OCR is CocoaPods-based — so it ships with a written three-step rollback in case it stops surviving an iOS build.</p>
     <p class="cs-cite"><span>Where to look</span>pubspec.yaml SPM comment naming mobile_scanner and workmanager; ios/Runner/QrScannerPlugin.swift (&quot;Deliberately native (AVFoundation) so the project keeps its SPM Firebase setup free of a CocoaPods camera plugin&quot;); ios/Runner/BupplesNativeTabBar.swift (&quot;Nothing here imitates the material; the OS draws it&quot;); the ML Kit rollback steps in pubspec.yaml.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">03</p>
     <h3 class="cs-h3">A country-neutral core with regional adapters</h3>
-    <p class="cs-dec-chose"><span>Chose</span> Treating Malaysian behaviour as one adapter among many rather than the default</p>
-    <p>The app was built in Malaysia and its first bills were in ringgit, which is precisely how a currency becomes a hardcoded fallback and a group in Singapore ends up looking at RM. Region resolution has a documented provenance ladder, currency and cash-rounding behaviour are per-currency tables, and the standing rule forbids hardcoding the local currency as a fallback in new code. Multi-currency then falls out of the same discipline: each currency is its own independent ledger and nothing is ever converted, because a wrong exchange rate inside a shared bill is worse than no exchange rate at all.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> Shipping the local currency as the default and generalising later</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> Treating Malaysian behaviour as one adapter among many rather than the default</p>
+      <p class="cs-dec-alt"><span>Instead of</span> Shipping the local currency as the default and generalising later</p>
+    </div>
+    <p class="cs-dec-why">The app was built in Malaysia and its first bills were in ringgit, which is precisely how a currency becomes a hardcoded fallback and a group in Singapore ends up looking at RM. Region resolution has a documented provenance ladder, currency and cash-rounding behaviour are per-currency tables, and the standing rule forbids hardcoding the local currency as a fallback in new code. Multi-currency then falls out of the same discipline: each currency is its own independent ledger and nothing is ever converted, because a wrong exchange rate inside a shared bill is worse than no exchange rate at all.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Every money surface has to carry a currency and know its exponent, and the display contract now has four hand-maintained mirrors — the Dart formatter, the Cloud Functions copy, the iOS widget and the Android widget provider — which have to change together.</p>
     <p class="cs-cite"><span>Where to look</span>CLAUDE.md: &quot;Any country-specific system (MYR, DuitNow, Malaysian examples) is a regional adapter behind the country-neutral core — never the default … Never hardcode RM/MYR as a fallback in new code&quot;; lib/core/region/region_source.dart provenance ladder; lib/core/utils/currencies.dart (466 lines); the four-mirror format note in CLAUDE.md. docs/APP_OVERVIEW.md §1 is deliberately NOT cited here: line 12 argues the opposite (&quot;Currency: Ringgit (RM) is the default and the whole app is designed around it&quot;) and is stale. It is still cited in challenges[0], where it is used only for &quot;there is no FX conversion&quot;, which §1 does say.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">04</p>
     <h3 class="cs-h3">Timezone names, never offsets</h3>
-    <p class="cs-dec-chose"><span>Chose</span> Persisting the user's IANA zone name and resolving the local hour on the server at send time</p>
-    <p>An offset is only correct until daylight saving moves. A London account that reported +0 in February had its nine o'clock reminder land at ten for the whole of March. A zone name resolves the exact local hour on Node, which has full ICU data, at the moment the job runs.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> Sending the device's UTC offset along with the preferred time</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> Persisting the user's IANA zone name and resolving the local hour on the server at send time</p>
+      <p class="cs-dec-alt"><span>Instead of</span> Sending the device's UTC offset along with the preferred time</p>
+    </div>
+    <p class="cs-dec-why">An offset is only correct until daylight saving moves. A London account that reported +0 in February had its nine o'clock reminder land at ten for the whole of March. A zone name resolves the exact local hour on Node, which has full ICU data, at the moment the job runs.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> A platform dependency on the client purely to read the zone name, and a set of DST-boundary tests that have to be kept honest.</p>
     <p class="cs-cite"><span>Where to look</span>pubspec.yaml flutter_timezone justification, which names the bug verbatim; functions/src/just_you_zone.ts (DST_SEARCH_MARGIN_MINUTES, HOURLY_TICK_MS); functions/test-unit/just_you_dst.test.mjs, just_you_timezone.test.mjs, just_you_zone.test.mjs.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">05</p>
     <h3 class="cs-h3">Cloud Functions are deployed by name</h3>
-    <p class="cs-dec-chose"><span>Chose</span> Naming every function in the deploy command and keeping the order in a runbook</p>
-    <p>There are 99 handlers in one codebase. A bare functions deploy treats the deployed set as something to reconcile against the local build, so anything the build does not emit that day is removed — on a backend that moves money, that is a live outage rather than a tidy-up. The rule is written into the repository's standing rules; rules and index deploys are exempt because they are whole-file replacements anyway. Release steps live in scripts that verify build freshness and signing configuration rather than in someone's memory.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> The one-line deploy that every Firebase tutorial teaches</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> Naming every function in the deploy command and keeping the order in a runbook</p>
+      <p class="cs-dec-alt"><span>Instead of</span> The one-line deploy that every Firebase tutorial teaches</p>
+    </div>
+    <p class="cs-dec-why">There are 99 handlers in one codebase. A bare functions deploy treats the deployed set as something to reconcile against the local build, so anything the build does not emit that day is removed — on a backend that moves money, that is a live outage rather than a tidy-up. The rule is written into the repository's standing rules; rules and index deploys are exempt because they are whole-file replacements anyway. Release steps live in scripts that verify build freshness and signing configuration rather than in someone's memory.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Long deploy commands, and a new function has to be named explicitly or it silently never ships. The checklist trades a loud failure for a quiet one, so the runbook has to list the order.</p>
     <p class="cs-cite"><span>Where to look</span>CLAUDE.md standing rules, verbatim: &quot;Never deploy Cloud Functions with a bare `--only functions`&quot;; 99 handlers enumerated from functions/src/*.ts; tool/verify_build_freshness.sh, scripts/check_release_config.sh, SHIP_CHECKLIST.md, docs/RELEASE.md, docs/releases/1.3.0_deploy_runbook.md.</p>
   </article>

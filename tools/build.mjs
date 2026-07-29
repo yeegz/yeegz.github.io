@@ -403,9 +403,11 @@ function decisions(p) {
       (d, i) => `<article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</p>
     <h3 class="cs-h3">${rich(d.title)}</h3>
-    <p class="cs-dec-chose"><span>Chose</span> ${rich(d.chose)}</p>
-    <p>${rich(d.because)}</p>
-    ${has(d.instead) ? `<p class="cs-dec-alt"><span>Instead of</span> ${rich(d.instead)}</p>` : ''}
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> ${rich(d.chose)}</p>
+      ${has(d.instead) ? `<p class="cs-dec-alt"><span>Instead of</span> ${rich(d.instead)}</p>` : ''}
+    </div>
+    <p class="cs-dec-why">${rich(d.because)}</p>
     ${has(d.cost) ? `<p class="cs-dec-cost"><span>Trade-off</span> ${rich(d.cost)}</p>` : ''}
     ${cite(d.evidence, 'Where to look')}
   </article>`,

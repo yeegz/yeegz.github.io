@@ -1639,3 +1639,152 @@ html.egypt .cs-arch-group[data-tier="client"] {
   .cs-s-role .cs-ticks li { grid-template-columns: minmax(0, 2.6rem) minmax(0, 1fr); }
   .cs-s-role .cs-ticks li::after { grid-column: 2; grid-row: 2; justify-self: start; margin-top: 0.5rem; }
 }
+
+/* =================================================================
+   Arrival
+   -----------------------------------------------------------------
+   Every section used to arrive as one block, so a ledger of ten
+   entries and a board of seven groups were the same event. Rows now
+   arrive in sequence, and each instrument arrives in the manner of
+   the thing it is: a manifesto counts in, a ledger posts, a flow
+   runs left to right, a board wipes open, a scale draws.
+
+   All of it is behind .cs-anim, which case.js only sets when motion
+   is allowed, so nothing here can leave content hidden.
+   ================================================================= */
+
+.cs-anim .cs-row {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.cs-anim .cs-row.is-in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.72s var(--ease-out) var(--rd, 0s),
+    transform 0.72s var(--ease-out) var(--rd, 0s),
+    clip-path 0.9s var(--ease-out) var(--rd, 0s);
+}
+
+/* The manifesto counts in: each fault arrives from its own ordinal. */
+.cs-anim .cs-s-problem .cs-row { transform: translateY(20px) translateX(-10px); }
+
+/* The ledger posts: entries drop onto the line rather than rise to it. */
+.cs-anim .cs-s-role .cs-row { transform: translateY(-12px); }
+
+/* Constraints and evolution are read down a rail, so they arrive down it. */
+.cs-anim .cs-s-constraints .cs-row,
+.cs-anim .cs-s-evolution .cs-row { transform: translateY(22px) scale(0.985); transform-origin: left center; }
+
+/* A flow runs left to right, and so does its arrival. */
+.cs-anim .cs-s-flow .cs-row { transform: translateX(-26px); }
+
+/* The board wipes open band by band. */
+.cs-anim .cs-s-architecture .cs-arch-band {
+  transform: none;
+  clip-path: inset(0 100% 0 0);
+}
+.cs-anim .cs-s-architecture .cs-arch-band.is-in { clip-path: inset(0 0 0 0); }
+
+/* A decision is a fork: it opens from its own hairline. */
+.cs-anim .cs-s-decisions .cs-row { transform: scaleY(0.94); transform-origin: top center; }
+
+/* The scale draws its readings up off the rule. */
+.cs-anim .cs-s-testing .cs-row { transform: translateY(24px); }
+
+/* Results and reflection are verdicts — they settle in place. */
+.cs-anim .cs-s-results .cs-row,
+.cs-anim .cs-s-lessons .cs-row { transform: translateY(14px) scale(0.99); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-anim .cs-row,
+  .cs-anim .cs-row.is-in {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+    transition: none;
+  }
+}
+
+/* =================================================================
+   Telling the instruments apart
+   -----------------------------------------------------------------
+   Constraints and evolution shared a renderer AND a layout, and
+   results and reflection had both become label-left rows. Same
+   shape, different content, which is the sameness reported.
+   ================================================================= */
+
+/* Evolution is a version history, so it reads as one: the revision
+   stamp becomes the loud element and the rail steps rather than runs. */
+.cs-s-evolution .cs-card {
+  grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
+  padding-left: 0;
+  border-left: 0;
+  border-top: 1px solid var(--line);
+}
+.cs-s-evolution .cs-card::before {
+  left: 0;
+  top: -4.5px;
+  box-shadow: 0 0 11px 2px color-mix(in srgb, var(--cs-accent) 40%, transparent);
+}
+.cs-s-evolution .cs-card-n {
+  color: transparent;
+  -webkit-text-stroke: 1.1px var(--cs-accent);
+  font: 900 1.45rem/1 var(--disp);
+  letter-spacing: -0.04em;
+}
+.cs-s-evolution .cs-card-n::after { content: ''; }
+
+/* A decision is a fork. Chosen and rejected sit side by side and meet
+   at a rule, instead of stacking as two more rows. */
+/* The two roads are their own element, so they pair on one line whatever the
+   prose around them does. Placing them by grid-column on the article could not
+   work: the reasoning paragraph sits between them in the source and spanned
+   both tracks, pushing the rejected road onto a later row. */
+.cs-dec-fork { display: grid; gap: clamp(14px, 2vw, 34px); margin: 1.1rem 0 1.2rem; }
+@media (min-width: 860px) {
+  .cs-dec-fork { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+.cs-s-decisions .cs-dec-chose,
+.cs-s-decisions .cs-dec-alt {
+  display: block;
+  max-width: none;
+  padding: 0.85rem 0 0;
+  margin: 0;
+}
+.cs-s-decisions .cs-dec-chose {
+  border-top: 2px solid color-mix(in srgb, var(--cs-accent) 65%, transparent);
+  color: var(--ink);
+}
+.cs-s-decisions .cs-dec-alt {
+  border-top: 2px solid var(--line);
+  color: var(--muted);
+}
+.cs-s-decisions .cs-dec-why { max-width: var(--cs-measure); }
+.cs-s-decisions .cs-dec-chose span,
+.cs-s-decisions .cs-dec-alt span {
+  display: block;
+  margin-bottom: 0.3rem;
+  font: 500 0.5rem var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.cs-s-decisions .cs-dec-chose span { color: var(--cs-accent); }
+
+/* Reflection is three verdicts, not a list of rows: each gets a slab
+   with its own mark, side by side where there is room. */
+@media (min-width: 900px) {
+  .cs-s-lessons .cs-lessons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(24px, 2.6vw, 44px);
+  }
+  .cs-s-lessons .cs-lessons > div {
+    display: block;
+    padding: 1.4rem 0 0;
+    border-top: 2px solid var(--line);
+  }
+  .cs-s-lessons .cs-lessons > div:last-child { border-bottom: 0; }
+  .cs-s-lessons .cs-lessons > div:nth-child(1) { border-top-color: color-mix(in srgb, var(--cs-accent) 65%, transparent); }
+  .cs-s-lessons .cs-h3 { margin-bottom: 0.9rem; }
+}

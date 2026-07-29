@@ -365,45 +365,55 @@ try {
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">01</p>
     <h3 class="cs-h3">Lock the renderer down before writing anything into it</h3>
-    <p class="cs-dec-chose"><span>Chose</span> contextIsolation and sandbox on, nodeIntegration off, a CSP with no 'unsafe-inline', and a network kill-switch</p>
-    <p>The renderer's job is to hold a live camera feed and apply visual data that may have come from a stranger. Everything it does not need, it should not have. The window is created with contextIsolation: true, nodeIntegration: false, sandbox: true, webgl: true, spellcheck: false and devTools: isDev, so production builds ship without dev tools. The preload is the only seam and exposes exactly twenty methods — no ipcRenderer, no require and no Node reaches the page. The CSP exists as two hand-maintained copies — the header injected from main.ts:20-32 and the meta tag in index.html:5-8. They are deliberately not identical, because frame-ancestors is ignored in a meta tag, and that divergence is also the drift risk. Only the media permission is ever granted; geolocation, notifications and MIDI are refused by both the request and the check handler. Every new window is denied and http(s) links are routed to the OS browser instead. And onBeforeRequest cancels any request whose URL does not begin with app:, file:, devtools:, blob:, data: or chrome-extension: — the desktop app cannot make a network call at all.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> Electron's defaults with contextIsolation left on and nothing else touched, which is what most desktop wrappers ship.</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> contextIsolation and sandbox on, nodeIntegration off, a CSP with no 'unsafe-inline', and a network kill-switch</p>
+      <p class="cs-dec-alt"><span>Instead of</span> Electron's defaults with contextIsolation left on and nothing else touched, which is what most desktop wrappers ship.</p>
+    </div>
+    <p class="cs-dec-why">The renderer's job is to hold a live camera feed and apply visual data that may have come from a stranger. Everything it does not need, it should not have. The window is created with contextIsolation: true, nodeIntegration: false, sandbox: true, webgl: true, spellcheck: false and devTools: isDev, so production builds ship without dev tools. The preload is the only seam and exposes exactly twenty methods — no ipcRenderer, no require and no Node reaches the page. The CSP exists as two hand-maintained copies — the header injected from main.ts:20-32 and the meta tag in index.html:5-8. They are deliberately not identical, because frame-ancestors is ignored in a meta tag, and that divergence is also the drift risk. Only the media permission is ever granted; geolocation, notifications and MIDI are refused by both the request and the check handler. Every new window is denied and http(s) links are routed to the OS browser instead. And onBeforeRequest cancels any request whose URL does not begin with app:, file:, devtools:, blob:, data: or chrome-extension: — the desktop app cannot make a network call at all.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Because 'unsafe-inline' is absent, nothing can inject a style tag, so themes had to be applied through the CSSOM instead of by writing CSS. Disabling dev tools in production means a user-reported rendering bug has to be reproduced locally before it can be looked at.</p>
     <p class="cs-cite"><span>Where to look</span>src/main/main.ts:20-33 (CSP), :78-86 (webPreferences), :121-128 (header injection), :131-134 (permission handlers), :138-148 (request cancellation), :95-106 and :178-180 (navigation and window-open denial), :151-160 (single-instance lock). src/preload/preload.ts:1-4 and :14-38. The deployed web build carries the same CSP meta tag, verified against the live /app/ document.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">02</p>
     <h3 class="cs-h3">A custom app:// origin instead of file://</h3>
-    <p class="cs-dec-chose"><span>Chose</span> Register app://photoshoot as a privileged scheme and serve the packaged app from it</p>
-    <p>MediaPipe's FaceLandmarker fetches its WASM runtime and its model file at startup. Chromium blocks fetch() of file:// resources but allows it for a standard scheme, so a file:// app cannot load an on-device model without reaching for the network — which would defeat the entire point of the product. A real origin also gives 'self' in the CSP something to resolve to. The scheme is registered as standard, secure, supportFetchAPI and stream, and its handler rejects anything resolving outside dist/. The reason is written into the code above the constant, not left in a commit message.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> Loading dist/index.html straight from file://, or running a local HTTP server inside the desktop app.</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> Register app://photoshoot as a privileged scheme and serve the packaged app from it</p>
+      <p class="cs-dec-alt"><span>Instead of</span> Loading dist/index.html straight from file://, or running a local HTTP server inside the desktop app.</p>
+    </div>
+    <p class="cs-dec-why">MediaPipe's FaceLandmarker fetches its WASM runtime and its model file at startup. Chromium blocks fetch() of file:// resources but allows it for a standard scheme, so a file:// app cannot load an on-device model without reaching for the network — which would defeat the entire point of the product. A real origin also gives 'self' in the CSP something to resolve to. The scheme is registered as standard, secure, supportFetchAPI and stream, and its handler rejects anything resolving outside dist/. The reason is written into the code above the constant, not left in a commit message.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> A scheme handler is code I own and have to keep correct. A path-containment mistake in it would be a file-read primitive, which is why it is one of the places isInside() is applied.</p>
     <p class="cs-cite"><span>Where to look</span>src/main/main.ts:16-18 (the rationale, in a comment), :39-44 (scheme registration), :49-65 (the handler and its containment check). Model and WASM paths at src/renderer/faceTracker.ts:63-68.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">03</p>
     <h3 class="cs-h3">Hand-written GLSL rather than a graphics library</h3>
-    <p class="cs-dec-chose"><span>Chose</span> Raw WebGL2 with GLSL ES 3.00 — 27 fragment shaders written by hand over a single full-screen quad</p>
-    <p>The entire app is one quad with a different fragment shader on it. A scene-graph library would have added a dependency, a bundle and an abstraction whose value — meshes, cameras, lighting, material systems — is entirely unused here. CSS filter functions cannot express the seven pointer-driven warps or the face-tracked distortions, and a Canvas2D pixel loop cannot run them at display refresh. Writing the shaders directly is also what made the single fixed custom-filter program possible, which is the thing that makes untrusted filters safe.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> three.js or PixiJS for the pipeline, or CSS filter functions and Canvas2D for the effects.</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> Raw WebGL2 with GLSL ES 3.00 — 27 fragment shaders written by hand over a single full-screen quad</p>
+      <p class="cs-dec-alt"><span>Instead of</span> three.js or PixiJS for the pipeline, or CSS filter functions and Canvas2D for the effects.</p>
+    </div>
+    <p class="cs-dec-why">The entire app is one quad with a different fragment shader on it. A scene-graph library would have added a dependency, a bundle and an abstraction whose value — meshes, cameras, lighting, material systems — is entirely unused here. CSS filter functions cannot express the seven pointer-driven warps or the face-tracked distortions, and a Canvas2D pixel loop cannot run them at display refresh. Writing the shaders directly is also what made the single fixed custom-filter program possible, which is the thing that makes untrusted filters safe.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Everything a library would have handled is mine: compilation, linking, VAO setup, uniform plumbing and context loss. Programs are compiled lazily and cached per effect id; webglcontextlost and webglcontextrestored handlers clear and rebuild every program and re-upload every LUT texture; a shader that fails to compile falls back to the pass-through effect once and raises a toast rather than crashing the app.</p>
     <p class="cs-cite"><span>Where to look</span>src/renderer/gl/shaders.ts (411 lines, 27 fragment sources), glcore.ts (compile/link/VAO), renderer.ts (395 lines) — one reusable video texture and one quad created once at :95-96, lazy program cache at :104-124, context-loss handlers at :63-79, compile fallback at :112-123. package.json:29-31 — @mediapipe/tasks-vision is the only runtime dependency.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">04</p>
     <h3 class="cs-h3">No UI framework, no state library, esbuild for everything</h3>
-    <p class="cs-dec-chose"><span>Chose</span> Plain DOM built with createElement, a 43-line mutable singleton for shared state, and three esbuild targets</p>
-    <p>The interface is a viewfinder, a control bar, a 3×3 effects grid and a few sheets. Reconciliation buys nothing when the thing changing sixty times a second is a GPU texture rather than a DOM tree. esbuild produces the main, preload and renderer bundles from one script with no plugin system to learn, and type checking is deliberately a separate command — esbuild does none, so a type error can never stop the app from building and running while I am debugging something unrelated.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> React or Svelte on Vite, with a store library for shared state.</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> Plain DOM built with createElement, a 43-line mutable singleton for shared state, and three esbuild targets</p>
+      <p class="cs-dec-alt"><span>Instead of</span> React or Svelte on Vite, with a store library for shared state.</p>
+    </div>
+    <p class="cs-dec-why">The interface is a viewfinder, a control bar, a 3×3 effects grid and a few sheets. Reconciliation buys nothing when the thing changing sixty times a second is a GPU texture rather than a DOM tree. esbuild produces the main, preload and renderer bundles from one script with no plugin system to learn, and type checking is deliberately a separate command — esbuild does none, so a type error can never stop the app from building and running while I am debugging something unrelated.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> There is no component model, so UI code is imperative, and shared state is a singleton any module can mutate. That is workable at 5,902 lines and would not be at five times that.</p>
     <p class="cs-cite"><span>Where to look</span>package.json:23-26 (esbuild, Electron, electron-builder, TypeScript as devDependencies). esbuild.mjs:1-4 (the rationale) and :30-66 (three targets: main and preload as cjs/node20, renderer as iife/chrome120). src/renderer/settings.ts:1-3 (built with createElement, no innerHTML). src/renderer/app.ts (43 lines). tsconfig.json:3-19 — strict, ES2021, isolatedModules, noEmit.</p>
   </article>
   <article class="cs-decision">
     <p class="cs-dec-n" aria-hidden="true">05</p>
     <h3 class="cs-h3">Content-hashed static assets instead of a versioned deploy</h3>
-    <p class="cs-dec-chose"><span>Chose</span> sha256-prefixed filenames cached immutably for a year, with the HTML documents served no-cache</p>
-    <p>Every bundle and stylesheet is emitted with an eight-character content hash and Cache-Control: public, max-age=31536000, immutable, while the HTML and the /, /app and /app/ routes revalidate on every load. A push therefore reaches users on their next page load without anyone clearing a cache, and a stale HTML document can never pair with a mismatched bundle, because the document names the exact files it needs. There is no backend to version alongside it.</p>
-    <p class="cs-dec-alt"><span>Instead of</span> Query-string cache busting, or a short max-age on everything and hoping.</p>
+    <div class="cs-dec-fork">
+      <p class="cs-dec-chose"><span>Chose</span> sha256-prefixed filenames cached immutably for a year, with the HTML documents served no-cache</p>
+      <p class="cs-dec-alt"><span>Instead of</span> Query-string cache busting, or a short max-age on everything and hoping.</p>
+    </div>
+    <p class="cs-dec-why">Every bundle and stylesheet is emitted with an eight-character content hash and Cache-Control: public, max-age=31536000, immutable, while the HTML and the /, /app and /app/ routes revalidate on every load. A push therefore reaches users on their next page load without anyone clearing a cache, and a stale HTML document can never pair with a mismatched bundle, because the document names the exact files it needs. There is no backend to version alongside it.</p>
     <p class="cs-dec-cost"><span>Trade-off</span> Every deploy writes new filenames, so the hosting bucket accumulates the old ones.</p>
     <p class="cs-cite"><span>Where to look</span>web/build-web.mjs:1-11 (rationale) and :26-53 (sha256-8 hashing of bundles and stylesheets); firebase.json:9-33 (cache headers); commit 0797177, 2026-06-17. Verified live: the deployed /app/ references shim-E227B433.js and main-NDNDSI2B.js, byte-identical to the local web-dist/ build, and Firebase reports last-modified 2026-06-17 15:04:23 GMT, thirteen seconds after the final commit (d219ad6, 2026-06-17 23:04:10 +0800 = 15:04:10 GMT) — it is the deploy timestamp, not the commit timestamp.</p>
   </article>

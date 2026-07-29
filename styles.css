@@ -69,13 +69,17 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   transition: background 0.4s var(--ease-out), backdrop-filter 0.4s var(--ease-out);
 }
 .head-solid .site-head::before {
-  background: linear-gradient(180deg,
-    rgba(10, 10, 11, 0.98) 0%,
-    rgba(10, 10, 11, 0.97) 72%,
-    rgba(10, 10, 11, 0.55) 90%,
-    rgba(10, 10, 11, 0) 100%);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
+  /* Flat, not a fade. Any gradient that reaches transparent leaves a band at
+     the header's bottom edge where copy is half-visible AND blurred by the
+     backdrop-filter — a smear rather than a clean edge. A solid fill with a
+     hairline underneath ends the header exactly where it should. */
+  background: rgb(10, 10, 11);
+  /* Opaque, not var(--line): a translucent hairline lets content through in
+     the header's last pixel row, which is exactly the smear this rule exists
+     to remove. This is --line already composited over the header fill. */
+  border-bottom: 1px solid rgb(33, 33, 34);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .site-head > * { position: relative; }
 .brand {
@@ -1083,8 +1087,8 @@ html, body, .site-head, .scene-work, .scene-statement, .site-foot {
 html[data-theme="light"] body { background: var(--bg); color: var(--ink); }
 html[data-theme="light"] .stage-bg::before { background: radial-gradient(120% 90% at 38% 80%, #dfe4db 0%, var(--bg) 58%); }
 html[data-theme="light"] .site-head::before { background: linear-gradient(180deg, rgba(238, 232, 219, .92), rgba(238, 232, 219, 0)); }
-html[data-theme="light"].head-solid .site-head::before { background: linear-gradient(180deg, rgba(238, 232, 219, .98) 0%, rgba(238, 232, 219, .97) 72%, rgba(238, 232, 219, .55) 90%, rgba(238, 232, 219, 0) 100%); }
-html[data-theme="light"] .mobile-nav { background: rgba(238, 232, 219, .985); color: var(--ink); }
+html[data-theme="light"].head-solid .site-head::before { background: rgb(238, 232, 219); border-bottom-color: rgb(203, 198, 187); }
+html[data-theme="light"] .mobile-nav { background: rgb(238, 232, 219); color: var(--ink); }
 html[data-theme="light"] .grain { opacity: .018; mix-blend-mode: multiply; }
 html[data-theme="light"] .nm-in { background-image: linear-gradient(180deg, #20231f 0%, #383d37 58%, #636b62 105%); }
 html[data-theme="light"] .nm-egg { background-image: linear-gradient(180deg, #315d43 0%, #477a58 52%, #244934 108%); }

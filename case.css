@@ -39,9 +39,9 @@
 /* The homepage header sits over a pinned hero and can afford to be sheer.
    A case study is a scrolling document, so body copy ran straight through it.
    These routes get a real backdrop. */
-.cs-head { background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px); }
+.cs-head { background: var(--bg); backdrop-filter: blur(12px); }
 .cs-head::before { display: none; }
-.cs-head { border-bottom: 1px solid var(--line); }
+.cs-head { border-bottom: 1px solid rgb(33, 33, 34); }
 .cs-main { padding-top: clamp(96px, 12vh, 148px); }
 
 /* ---------- shared type ---------------------------------------- */
@@ -738,6 +738,7 @@ html[data-theme="light"] .cs-rel,
 html[data-theme="light"] .cs-body { background: var(--bg); }
 html[data-theme="light"] .cs-arch-group[data-tier="server"] { background: var(--bg-2); }
 html[data-theme="light"] .cs-toc { background: var(--bg); }
+html[data-theme="light"] .cs-head { border-bottom-color: rgb(203, 198, 187); }
 
 /* ---------- responsive ------------------------------------------ */
 

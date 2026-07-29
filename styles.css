@@ -62,7 +62,17 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 }
 .site-head::before {
   content: ""; position: absolute; inset: 0 0 -40%; pointer-events: none;
-  background: linear-gradient(180deg, rgba(10, 10, 11, 0.85), rgba(10, 10, 11, 0));
+  /* Opaque through the nav band, then fading — a straight .85→0 fade left the
+     nav row barely covered, so text scrolling underneath ran through the
+     labels. The blur keeps the hero legible underneath without letting body
+     copy compete with the navigation. */
+  background: linear-gradient(180deg,
+    rgba(10, 10, 11, 0.97) 0%,
+    rgba(10, 10, 11, 0.94) 52%,
+    rgba(10, 10, 11, 0.72) 74%,
+    rgba(10, 10, 11, 0) 100%);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
 }
 .site-head > * { position: relative; }
 .brand {
@@ -1069,7 +1079,7 @@ html, body, .site-head, .scene-work, .scene-statement, .site-foot {
 }
 html[data-theme="light"] body { background: var(--bg); color: var(--ink); }
 html[data-theme="light"] .stage-bg::before { background: radial-gradient(120% 90% at 38% 80%, #dfe4db 0%, var(--bg) 58%); }
-html[data-theme="light"] .site-head::before { background: linear-gradient(180deg, rgba(238, 232, 219, .92), rgba(238, 232, 219, 0)); }
+html[data-theme="light"] .site-head::before { background: linear-gradient(180deg, rgba(238, 232, 219, .97) 0%, rgba(238, 232, 219, .94) 52%, rgba(238, 232, 219, .72) 74%, rgba(238, 232, 219, 0) 100%); }
 html[data-theme="light"] .mobile-nav { background: rgba(238, 232, 219, .985); color: var(--ink); }
 html[data-theme="light"] .grain { opacity: .018; mix-blend-mode: multiply; }
 html[data-theme="light"] .nm-in { background-image: linear-gradient(180deg, #20231f 0%, #383d37 58%, #636b62 105%); }
@@ -2738,3 +2748,35 @@ html[data-theme="light"] .cap-row:hover { background: color-mix(in srgb, var(--a
 /* Belt and braces for long tool lists: allow a break inside an over-long
    token rather than letting it run past the column. */
 .cap-tools, .tl-tech { overflow-wrap: anywhere; }
+
+/* ---------- principles: glyph leads, numeral captions ---------
+   The outlined display numeral was the loudest thing in the row and
+   the glyph a footnote to it. Invert that: the dotted mark carries
+   the idea, and the number drops to a mono caption beneath it —
+   the same treatment the rest of the site gives its FIG./SYS. marks. */
+
+.pr-glyph {
+  grid-row: 1;
+  width: clamp(38px, 3.4vw, 50px);
+  height: clamp(38px, 3.4vw, 50px);
+  margin-top: 0.1rem;
+  opacity: 1;
+}
+.pr-no {
+  grid-row: 2;
+  align-self: start;
+  margin-top: 0.75rem;
+  -webkit-text-stroke: 0;
+  color: var(--muted-2);
+  font: 500 0.56rem var(--mono);
+  font-stretch: normal;
+  letter-spacing: 0.22em;
+  transition: color 0.35s var(--ease-out);
+}
+.pr-item:hover .pr-no { color: var(--accent); }
+.pr-item:hover .pr-glyph { opacity: 1; }
+
+@media (max-width: 760px) {
+  .pr-item { grid-template-columns: 3.4rem 1fr; }
+  .pr-glyph { width: 34px; height: 34px; }
+}

@@ -553,20 +553,26 @@ function renderProject(p, all) {
     { id: 'lessons', label: 'Reflection', html: lessons(p) },
   ];
 
+  /* The display line with a serif-italic phrase dropped under it is this site's
+     signature. Used on all thirteen of these it stopped being a voice and became
+     a stamp — the same construction thirty-nine times across three case studies,
+     which reads as generated rather than written. Seven of the thirteen are now
+     plain statements; the device is kept for the ones where the turn actually
+     earns it. */
   const LABELS = {
-    overview: ['01', 'EXECUTIVE SUMMARY', 'What it *is.*'],
+    overview: ['01', 'EXECUTIVE SUMMARY', 'The short version'],
     problem: ['02', 'THE PROBLEM', 'What was *broken.*'],
-    role: ['03', 'ROLE & OWNERSHIP', 'What I *owned.*'],
-    constraints: ['04', 'CONSTRAINTS', 'What shaped *the build.*'],
+    role: ['03', 'ROLE & OWNERSHIP', 'Mine, and not mine'],
+    constraints: ['04', 'CONSTRAINTS', 'The boundaries it was built inside'],
     research: ['05', 'RESEARCH & DISCOVERY', 'What I *found out.*'],
-    flow: ['06', 'PRODUCT FLOW', 'How it *works.*'],
+    flow: ['06', 'PRODUCT FLOW', 'The path through it'],
     architecture: ['07', 'SYSTEM ARCHITECTURE', 'How it *fits together.*'],
-    challenges: ['08', 'ENGINEERING CHALLENGES', 'The hard *parts.*'],
+    challenges: ['08', 'ENGINEERING CHALLENGES', 'Where it got difficult'],
     decisions: ['09', 'TECHNICAL DECISIONS', 'Why *this way.*'],
-    evolution: ['10', 'DESIGN EVOLUTION', 'How it *changed.*'],
+    evolution: ['10', 'DESIGN EVOLUTION', 'What changed, and when'],
     testing: ['11', 'TESTING & RELIABILITY', 'How it is *proven.*'],
     results: ['12', 'RESULTS', 'What *shipped.*'],
-    lessons: ['13', 'REFLECTION', 'What I *learned.*'],
+    lessons: ['13', 'REFLECTION', 'In hindsight'],
   };
 
   /* Numbering follows what actually rendered. The numbers used to be a fixed
@@ -640,7 +646,7 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=90" />
+<link rel="stylesheet" href="/styles.css?v=91" />
 <link rel="stylesheet" href="/case.css?v=18" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
@@ -756,7 +762,7 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=90" />
+<link rel="stylesheet" href="/styles.css?v=91" />
 <link rel="stylesheet" href="/case.css?v=18" />
 ${HEAD_BOOT}
 </head>
@@ -1237,7 +1243,7 @@ function renderPrinciples(site) {
   return `<div class="principles">
       <header class="pr-head" data-reveal>
         <p class="sec-label">FIG. 00.6<span class="slash">/</span>HOW I WORK</p>
-        <h2 class="pr-title">Six rules I <em>actually follow.</em></h2>
+        <h2 class="pr-title">Six rules I actually follow</h2>
       </header>
       <ol class="pr-list">
 ${site.principles

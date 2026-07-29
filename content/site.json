@@ -33,7 +33,7 @@
   "profile": {
     "name": "Yousof Selim",
     "title": "Mobile & Full-Stack Developer",
-    "positioning": "Software Engineering student at Sunway University and Lancaster University, building products that reach real stores rather than demos that reach a repository. The work runs across a Flutter expense app live on the App Store and Google Play, native iOS and Android widget extensions written outside the framework, a local-first Electron and WebGL2 photobooth live in the browser and packaged for desktop, and the Firebase backends — Cloud Functions and Firestore Security Rules — sitting behind them. The through-line is end-to-end ownership: the data model, the rules that guard it, the interface, the tests, and the release that puts it in someone's hands.",
+    "positioning": "Software Engineering student at Sunway University and Lancaster University, building products that reach real stores rather than demos that reach a repository. The work runs across a Flutter expense app live on the App Store and Google Play, native iOS and Android widget extensions written outside the framework, a local-first Electron and WebGL2 photobooth live in the browser and packaged for desktop, and the Firebase backends — Cloud Functions and Firestore Security Rules — sitting behind them. The through-line is end-to-end ownership: the data model, the rules that guard it, the interface, the tests, and the release that puts it in someone's hands. Not all of it is solo: four of these repositories are shared with other developers — including a redesign built inside someone else's Next.js codebase and merged to their main, and a game whose branch-and-pull-request workflow I set up for the team that used it.",
     "location": "Subang Jaya / Kuala Lumpur, Malaysia",
     "availability": "Full-time internship — January to April 2027",
     "email": "yousofselim2@gmail.com",
@@ -81,14 +81,24 @@
       "evidence": "Bupples, Adelante, Photoshoot. resume.txt line 8: \"Sole developer of cross-platform applications spanning iOS, Android, web, and Windows\"; per-project bullets at lines 24-38. Deliberately 03 and not 05 — Fallen Asteri is a three-person team project and Tajweed is a redesign contribution to another developer's product."
     },
     {
-      "value": "35",
-      "label": "People who completed a profile in Bupples",
-      "evidence": "Firestore count() aggregation over project bupples, 2026-07-29: 146 user documents, 35 of them with a handle set. The smaller number is the one used because the rest never completed a profile."
+      "value": "146",
+      "label": "Accounts registered in Bupples",
+      "evidence": "Firestore count() aggregation over project bupples, 2026-07-29: 146 user documents, 35 of them with a completed profile. The case study carries the smaller number and the reason it is the one worth defending."
     },
     {
-      "value": "9,206",
-      "label": "Cloud Function executions behind it in 30 days",
-      "evidence": "Cloud Monitoring, project bupples, 2026-07-29 — total executions across all deployed functions over the preceding 30 days."
+      "value": "61",
+      "label": "Hangouts real people created in it",
+      "evidence": "Firestore count() aggregation over project bupples, 2026-07-29: 61 sessions, holding 65 expenses, 30 photographed receipts, 21 settlement requests and 108 chat messages between them."
+    },
+    {
+      "value": "117",
+      "label": "Tests protecting Adelante's content contracts",
+      "evidence": "117 test declarations across 18 files and 1,898 lines in the Adelante repository, counted as test( and testWidgets( declarations under test/ on 2026-07-29, with 284 assertions. The suite is aimed at data, contracts and cross-platform invariants — there are no Flutter widget tests, and the case study says so."
+    },
+    {
+      "value": "04",
+      "label": "Codebases shared with other developers",
+      "evidence": "Tajweed — 15 of the repository's 31 commits, working inside another developer's Next.js codebase; the redesign branch was merged to their main on 20 June 2026, changing 51 files. Fallen Asteri — one of three contributors, 179 of 491 commits; I created the repository and set up the branch-and-PR workflow the team worked through, and 37 of its 102 pull-request merges are mine. Chess training page — one of four contributors, 19 of 32 commits. Moon-n-Knight — one of two contributors, 7 of 18 commits."
     },
     {
       "value": "iOS · ANDROID · WEB",
@@ -436,7 +446,7 @@
       "year": "2026",
       "category": "Learning platform — redesign contribution",
       "status": "Live · repository private",
-      "blurb": "A Quranic recitation platform that paints tajweed rules into the script itself, so a learner sees a rule before having to remember it. Working inside another developer's Next.js codebase, I rebuilt the navigation and information architecture around a staged learning path, replaced a progress model that returned unlocked for every lesson with real gating, and added the model layer test-first — the repository had no test harness before. The recitation reader, the speech analysis and the curriculum already existed and stayed.",
+      "blurb": "Working inside another developer's codebase, to their conventions, with the work reviewed and merged to their main. Tajweed is a Quranic recitation platform that paints tajweed rules into the script itself, so a learner sees a rule before having to remember it. I rebuilt the navigation and information architecture around a staged learning path, replaced a progress model that returned unlocked for every lesson with real gating, and added the model layer test-first — the repository had no test harness before. The recitation reader, the speech analysis and the curriculum already existed and stayed.",
       "role": "Collaborator on someone else's product — 15 of the repository's 31 commits; the redesign branch was merged to main on 20 June 2026, changing 51 files.",
       "tech": [
         "Next.js",
@@ -458,7 +468,7 @@
       "year": "2024",
       "category": "2D souls-like platformer — team project",
       "status": "Released · playable in the browser",
-      "blurb": "A stamina-based souls-like where you grow stronger by beating the enemy in front of you, built in Godot by three people between April and June 2024 and released on itch.io. My share was the level and camera work across the game's scenes, player and boss sprite animation, the title, pause, options and death screens with the health and stamina HUD, and combat tuning — hitboxes, slash timing, and a life-steal system on kill.",
+      "blurb": "A team of three, working through branches and pull requests — a workflow I set up for the repository. Fallen Asteri is a stamina-based souls-like where you grow stronger by beating the enemy in front of you, built in Godot between April and June 2024 and released on itch.io. My share was the level and camera work across the game's scenes, player and boss sprite animation, the title, pause, options and death screens with the health and stamina HUD, and combat tuning — hitboxes, slash timing, and a life-steal system on kill.",
       "role": "One of three contributors — 179 of 491 commits. I created the repository and set up the branch-and-PR workflow the team worked through; 37 of its 102 pull-request merges are mine.",
       "tech": [
         "Godot Engine",

@@ -499,7 +499,7 @@ function renderProject(p, all) {
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="/styles.css?v=49" />
+<link rel="stylesheet" href="/styles.css?v=51" />
 <link rel="stylesheet" href="/case.css?v=7" />
 ${HEAD_BOOT}
 <script type="application/ld+json">${JSON.stringify(jsonld, null, 0)}</script>
@@ -615,7 +615,7 @@ function renderIndex(projects, site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
-<link rel="stylesheet" href="/styles.css?v=49" />
+<link rel="stylesheet" href="/styles.css?v=51" />
 <link rel="stylesheet" href="/case.css?v=7" />
 ${HEAD_BOOT}
 </head>
@@ -695,6 +695,139 @@ function main() {
 
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), renderSitemap(projects));
   console.log('  → sitemap.xml');
+
+  injectHomepage(site, projects);
+}
+
+/* ------------------------------------------------------------------ */
+/* homepage sections                                                   */
+/*                                                                     */
+/* index.html stays hand-authored — its GSAP choreography, pinned      */
+/* identity scene and easter egg are not worth generating. Only the    */
+/* evidence-bearing blocks are injected, between markers, so the       */
+/* résumé-derived content has exactly one source of truth.             */
+/* ------------------------------------------------------------------ */
+
+function renderCredibility(site) {
+  if (!has(site.credibility)) return '';
+  return `<ul class="cred-strip" data-reveal aria-label="At a glance">
+${site.credibility
+  .map(
+    (c) => `            <li><b>${esc(c.value)}</b><span>${esc(c.label)}</span></li>`
+  )
+  .join('\n')}
+          </ul>`;
+}
+
+function renderPrinciples(site) {
+  if (!has(site.principles)) return '';
+  return `<div class="principles" data-reveal>
+      <p class="sec-label">FIG. 00.6<span class="slash">/</span>HOW I WORK</p>
+      <ol class="principle-list">
+${site.principles
+  .map(
+    (p, i) => `        <li>
+          <span class="pr-no" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+          <h3>${rich(p.title)}</h3>
+          <p>${rich(p.body)}</p>
+          ${has(p.exampleDetail) ? `<p class="pr-eg"><span>In practice</span>${rich(p.exampleDetail)}</p>` : ''}
+        </li>`
+  )
+  .join('\n')}
+      </ol>
+    </div>`;
+}
+
+function renderCapabilities(site) {
+  if (!has(site.capabilities)) return '';
+  return `<div class="caps" data-reveal>
+      <p class="caps-intro">Before the tool list: the things I can take from an empty repository to a release.</p>
+      <ul class="cap-list">
+${site.capabilities
+  .map(
+    (c) => `        <li>
+          <h3>${esc(c.group)}</h3>
+          <p>${rich(c.lead)}</p>
+          ${has(c.tools) ? `<p class="cap-tools">${c.tools.map((t) => esc(t)).join(' · ')}</p>` : ''}
+        </li>`
+  )
+  .join('\n')}
+      </ul>
+    </div>`;
+}
+
+function renderExperience(site, projects) {
+  if (!has(site.experience)) return '';
+  const slugs = new Set(projects.map((p) => p.slug));
+  return `<div class="timeline" data-reveal>
+      <p class="sec-label">FIG. 04<span class="slash">/</span>THE RECORD</p>
+      <ol class="tl-list">
+${site.experience
+  .map((e) => {
+    const slug = (e.projectSlug || '').toLowerCase();
+    const study = slugs.has(slug)
+      ? `<a class="tl-study" href="work/${esc(slug)}/">Case study <span class="cta-arr" aria-hidden="true">→</span></a>`
+      : '';
+    return `        <li class="tl-row">
+          <p class="tl-when">${esc(e.dates)}</p>
+          <div class="tl-what">
+            <h3>${esc(e.role)}</h3>
+            <p class="tl-org">${esc(e.org)}${has(e.location) ? ` <i aria-hidden="true">·</i> ${esc(e.location)}` : ''}</p>
+            ${has(e.bullets) ? `<ul>${e.bullets.map((b) => `<li>${rich(b)}</li>`).join('')}</ul>` : ''}
+            ${has(e.tech) ? `<p class="tl-tech">${e.tech.map((t) => esc(t)).join(' · ')}</p>` : ''}
+            ${study}
+          </div>
+        </li>`;
+  })
+  .join('\n')}
+      </ol>
+    </div>`;
+}
+
+function renderNow(site) {
+  const n = site.now;
+  if (!n) return '';
+  const col = (label, items) =>
+    !has(items)
+      ? ''
+      : `<div><dt>${esc(label)}</dt><dd><ul>${items
+          .map((i) => `<li>${typeof i === 'string' ? rich(i) : `<b>${esc(i.title)}</b>${rich(i.body || '')}`}</li>`)
+          .join('')}</ul></dd></div>`;
+  return `<div class="now-block" data-reveal>
+      <p class="sec-label">NOW<span class="slash">/</span>CURRENT FOCUS</p>
+      <dl class="now-grid">
+        ${col('Building', n.building)}
+        ${col('Studying', n.studying)}
+        ${col('Looking for', n.seeking)}
+        ${col('Exploring', n.exploring)}
+      </dl>
+      ${has(n.updated) ? `<p class="now-stamp">LAST UPDATED · ${esc(String(n.updated).toUpperCase())}</p>` : ''}
+    </div>`;
+}
+
+/** Replace the body between <!--build:name--> and <!--/build:name-->. */
+function injectHomepage(site, projects) {
+  const file = path.join(ROOT, 'index.html');
+  let html = fs.readFileSync(file, 'utf8');
+  const blocks = {
+    credibility: renderCredibility(site),
+    principles: renderPrinciples(site),
+    capabilities: renderCapabilities(site),
+    experience: renderExperience(site, projects),
+    now: renderNow(site),
+  };
+  const missing = [];
+  for (const [name, body] of Object.entries(blocks)) {
+    const re = new RegExp(`(<!--build:${name}-->)[\\s\\S]*?(<!--/build:${name}-->)`);
+    if (!re.test(html)) { missing.push(name); continue; }
+    html = html.replace(re, `$1\n          ${body}\n          $2`);
+  }
+  if (missing.length) {
+    console.error(`\n✗ index.html is missing markers: ${missing.join(', ')}`);
+    process.exit(1);
+  }
+  fs.writeFileSync(file, html);
+  console.log(`  → index.html (${Object.values(blocks).filter(Boolean).length} sections injected)`);
 }
 
 main();

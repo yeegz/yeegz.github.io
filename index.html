@@ -40,7 +40,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" fetchpriority="low" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /><link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="styles.css?v=49" />
+<link rel="stylesheet" href="styles.css?v=51" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 try {
@@ -205,8 +205,8 @@ setTimeout(function () {
         </div>
         <dl class="hm hm-data" aria-label="Quick facts">
           <div data-load><dt>Name</dt><dd class="dd-name"><span class="vh"><span lang="ar" dir="rtl">يوسف سليم</span> — Yousof Selim</span><canvas id="nameDots" width="460" height="60" aria-hidden="true"></canvas></dd></div>
-          <div data-load><dt>Building since</dt><dd>2023</dd></div>
-          <div data-load><dt>Products shipped</dt><dd>05</dd></div>
+          <div data-load><dt>Shipping since</dt><dd>2024</dd></div>
+          <div data-load><dt>Built solo, end to end</dt><dd>03</dd></div>
           <div data-load><dt>Degree expected</dt><dd>AUG 2027</dd></div>
           <div data-load><dt>Available</dt><dd>JAN—APR 2027</dd></div>
           <div data-load><dt>Languages</dt><dd>EN / AR</dd></div>
@@ -243,6 +243,16 @@ setTimeout(function () {
             <div><dt>Available</dt><dd>Full-time internship<br />January — April 2027</dd></div><div><dt>Location</dt><dd>Subang Jaya / Kuala Lumpur, Malaysia</dd></div>
             <div><dt>Languages</dt><dd>English · fluent<br />Arabic · native</dd></div>
           </dl>
+          <!--build:credibility-->
+          <ul class="cred-strip" data-reveal aria-label="At a glance">
+            <li><b>01</b><span>Product live on the App Store and Google Play</span></li>
+            <li><b>03</b><span>Cross-platform products built solo, end to end</span></li>
+            <li><b>04</b><span>Platforms shipped to — iOS, Android, web, Windows</span></li>
+            <li><b>1.2.5</b><span>Bupples on the App Store, released 27 July 2026</span></li>
+            <li><b>2027</b><span>BSc Software Engineering (Hons) — Sunway University / Lancaster University</span></li>
+            <li><b>JAN—APR 2027</b><span>Available for a full-time internship</span></li>
+          </ul>
+          <!--/build:credibility-->
         </div>
       </div>
 
@@ -259,7 +269,50 @@ setTimeout(function () {
       <i class="pipe-glow" aria-hidden="true"></i>
       <i class="pipe-spark" aria-hidden="true"></i>
     </p>
-    <p class="st-close"><span class="st-serif">End to end, since 2023.</span></p>
+    <p class="st-close"><span class="st-serif">End to end, and out to the stores.</span></p>
+    <!--build:principles-->
+          <div class="principles" data-reveal>
+      <p class="sec-label">FIG. 00.6<span class="slash">/</span>HOW I WORK</p>
+      <ol class="principle-list">
+        <li>
+          <span class="pr-no" aria-hidden="true">01</span>
+          <h3>Money is integer arithmetic</h3>
+          <p>Currency does not survive floating point, and a shared bill is only trustworthy when every participant's device computes the same figure. Amounts are held and split as integer minor units under their ISO 4217 exponent, with the leftover cent distributed deterministically rather than rounded out of existence.</p>
+          <p class="pr-eg"><span>In practice</span>A cent-exact ISO 4217 multi-currency ledger, split by largest remainder — RM51.50 across four people resolves to RM12.875 before the remainder is assigned, not after.</p>
+        </li>
+        <li>
+          <span class="pr-no" aria-hidden="true">02</span>
+          <h3>Trust the server, not the client</h3>
+          <p>Anything a client can compute, a client can also lie about. The writes that decide who owes whom run in Cloud Functions and are idempotent, so a retried request cannot double a debt, and everything else is bounded by Firestore Security Rules with App Check turning away clients that are not the app.</p>
+          <p class="pr-eg"><span>In practice</span>Idempotent Cloud Functions behind Firestore Security Rules, with App Check and Remote Config.</p>
+        </li>
+        <li>
+          <span class="pr-no" aria-hidden="true">03</span>
+          <h3>Launch is the start of the work</h3>
+          <p>A store listing is a commitment to keep shipping, not a finish line — the interesting version of a product is the one that survives its first month of real use.</p>
+          <p class="pr-eg"><span>In practice</span>First released 2 July 2026; version 1.2.5 reached the App Store on 27 July 2026.</p>
+        </li>
+        <li>
+          <span class="pr-no" aria-hidden="true">04</span>
+          <h3>Reliability claims need a test behind them</h3>
+          <p>&quot;It works&quot; describes one run, not a system. Adelante's content pipeline — caching, deduplication, quality scoring, strict filtering — is covered by automated tests because a scheduled pipeline fails quietly, and the failure shows up on someone's Lock Screen rather than in a crash report.</p>
+          <p class="pr-eg"><span>In practice</span>117 automated tests over the Firestore and scheduled Cloud Functions content pipeline.</p>
+        </li>
+        <li>
+          <span class="pr-no" aria-hidden="true">05</span>
+          <h3>Keep private data on the device</h3>
+          <p>The safest place for a camera frame is the machine that captured it. Photoshoot runs its entire pipeline locally — Electron with context isolation, sandboxing and a strict CSP, WebGL2 for the effects, MediaPipe for face tracking — so nothing is uploaded in order to be processed.</p>
+          <p class="pr-eg"><span>In practice</span>Local-first Electron/WebGL2 architecture; camera processing and captures stay on-device, with Firebase Hosting serving only the app itself.</p>
+        </li>
+        <li>
+          <span class="pr-no" aria-hidden="true">06</span>
+          <h3>Go native where the platform is the product</h3>
+          <p>Cross-platform tooling is a default, not a rule. When the product surface is a widget rather than a screen, the framework has nothing to render into, so the widget gets written twice — properly — in the platform's own toolkit.</p>
+          <p class="pr-eg"><span>In practice</span>WidgetKit/SwiftUI on iOS and Android RemoteViews on Android, for Home Screen, Lock Screen and StandBy, over a shared Flutter app.</p>
+        </li>
+      </ol>
+    </div>
+          <!--/build:principles-->
   </section>
 
   <section class="scene scene-work" id="work" aria-label="Selected work">
@@ -269,6 +322,7 @@ setTimeout(function () {
       <h2 class="sec-title"><span class="line"><span class="line-in t-outline">SELECTED</span></span><span class="line line-shift"><span class="line-in">WORK<i class="t-accent" aria-hidden="true">.</i></span></span></h2>
       <div class="sec-rail" aria-hidden="true"><i class="sec-rail-spark"></i></div>
       <p class="sec-tag"><b>05</b>CASE FILES <i aria-hidden="true">·</i> 04 OPEN</p>
+      <p class="work-all"><a href="work/" data-cursor="READ">All work &amp; archive<span class="cta-arr" aria-hidden="true">→</span></a></p>
     </header>
 
     <div class="work-wrap work-archive">
@@ -378,10 +432,10 @@ setTimeout(function () {
             <span class="work-no" aria-hidden="true">04</span>
             <div class="work-main">
               <h3 class="work-name">Tajweed</h3>
-              <p class="work-kicker">Quranic recitation platform · Next.js · Frontend &amp; UI/UX</p>
+              <p class="work-kicker">Quranic recitation platform · Frontend &amp; UI/UX</p>
               <p class="work-case">Redesigned the navigation, information architecture, and lesson flows of a Quranic recitation platform. A staged learning journey, a Qur’an reader that paints recitation rules into the script itself, self-testing, and an AI teacher — restructured so a learner always knows where they are and what comes next.</p>
               <dl class="work-spec">
-                <div><dt>Stack</dt><dd>Next.js · React · UI/UX</dd></div>
+                <div><dt>Stack</dt><dd>Frontend · UI/UX</dd></div>
                 <div><dt>Role</dt><dd>Frontend · information architecture</dd></div>
                 <div><dt>Platform</dt><dd>Web</dd></div>
               </dl>
@@ -443,6 +497,43 @@ setTimeout(function () {
       <div data-reveal><p class="sec-label">02<span class="slash">/</span>TOOLS IN MOTION</p><h2 id="skillsTitle">What I <em>build with.</em></h2></div>
       <div class="skills-note" data-reveal><p><span class="hint-fine">The lanes keep moving until you choose one. Hover to pause that lane, then browse it with its shaded edges.</span><span class="hint-touch">The lanes keep moving. Tap a lane to pause it, then browse it with its arrows.</span></p><button class="skills-pause" id="skillsPause" type="button" aria-pressed="false" hidden data-cursor="PAUSE"><i aria-hidden="true"></i><span class="sp-label">Pause lanes</span></button></div>
     </header>
+    <!--build:capabilities-->
+          <div class="caps" data-reveal>
+      <p class="caps-intro">Before the tool list: the things I can take from an empty repository to a release.</p>
+      <ul class="cap-list">
+        <li>
+          <h3>Cross-platform mobile products</h3>
+          <p>Take a Flutter application from an empty repository to a listing on both the App Store and Google Play, including the signing, the store paperwork, and the update cadence afterwards.</p>
+          <p class="cap-tools">Flutter · Dart · Riverpod · Firebase · Xcode</p>
+        </li>
+        <li>
+          <h3>Native iOS and Android surfaces</h3>
+          <p>Leave the framework where the framework cannot go — Home Screen, Lock Screen and StandBy widgets written natively on each platform and wired back into a shared app.</p>
+          <p class="cap-tools">Swift · SwiftUI · WidgetKit · Kotlin · Android RemoteViews</p>
+        </li>
+        <li>
+          <h3>Backends, data and rules</h3>
+          <p>Model the data, move the writes that decide anything into server-side functions, and constrain the rest with security rules instead of trusting the client.</p>
+          <p class="cap-tools">Firestore · Cloud Functions · Node.js · REST APIs · Supabase/PostgreSQL · SQL · App Check</p>
+        </li>
+        <li>
+          <h3>Real-time graphics and desktop</h3>
+          <p>Build interfaces that run on the GPU and ship as a desktop binary as readily as a web page, with the process boundaries locked down.</p>
+          <p class="cap-tools">TypeScript · JavaScript · Electron · WebGL2 · GLSL · HTML/CSS · Godot Engine · Python</p>
+        </li>
+        <li>
+          <h3>Applied AI in products</h3>
+          <p>Put a model where it does a job a user can check — reading a receipt into structured line items, tracking a face on-device — rather than where it decides a number.</p>
+          <p class="cap-tools">Vertex AI · Gemini · MediaPipe</p>
+        </li>
+        <li>
+          <h3>Release and product operations</h3>
+          <p>Run the unglamorous half — versioning, subscriptions, remote flags, design handoff, and the release itself — so a build can be shipped on a schedule rather than when it happens to be ready.</p>
+          <p class="cap-tools">Git/GitHub · RevenueCat · Remote Config · Figma</p>
+        </li>
+      </ul>
+    </div>
+          <!--/build:capabilities-->
     <div class="skill-lanes">
       <div class="skill-lane" data-skill-lane data-direction="1" role="group" aria-labelledby="laneLbl1"><span class="lane-label" id="laneLbl1"><b>SYS.01</b>Languages</span><div class="skill-scroller"><div class="skill-track"><span class="tool-set"><span>Dart</span><i></i><span>TypeScript</span><i></i><span>JavaScript</span><i></i><span>Python</span><i></i><span>SQL</span><i></i><span>HTML/CSS</span><i></i></span><span class="tool-set" aria-hidden="true"><span>Dart</span><i></i><span>TypeScript</span><i></i><span>JavaScript</span><i></i><span>Python</span><i></i><span>SQL</span><i></i><span>HTML/CSS</span><i></i></span></div></div><button class="edge prev" type="button" aria-label="Scroll Languages left"></button><button class="edge next" type="button" aria-label="Scroll Languages right"></button><p class="lane-note">The exact language set behind the shipped work.</p></div>
       <div class="skill-lane" data-skill-lane data-direction="-1" role="group" aria-labelledby="laneLbl2"><span class="lane-label" id="laneLbl2"><b>SYS.02</b>Mobile + frontend</span><div class="skill-scroller"><div class="skill-track"><span class="tool-set"><span>Flutter</span><i></i><span>Riverpod</span><i></i><span>Swift/SwiftUI</span><i></i><span>Kotlin</span><i></i><span>WidgetKit</span><i></i><span>RemoteViews</span><i></i><span>Electron</span><i></i><span>WebGL2</span><i></i></span><span class="tool-set" aria-hidden="true"><span>Flutter</span><i></i><span>Riverpod</span><i></i><span>Swift/SwiftUI</span><i></i><span>Kotlin</span><i></i><span>WidgetKit</span><i></i><span>RemoteViews</span><i></i><span>Electron</span><i></i><span>WebGL2</span><i></i></span></div></div><button class="edge prev" type="button" aria-label="Scroll Mobile and Frontend left"></button><button class="edge next" type="button" aria-label="Scroll Mobile and Frontend right"></button><p class="lane-note">Cross-platform products and the native surfaces around them.</p></div>
@@ -468,11 +559,70 @@ setTimeout(function () {
     <header class="exp-head" data-reveal><h2 id="experienceTitle">Content with <em>direction.</em></h2><div class="role-summary"><h3>Digital Marketing Executive</h3><p class="org">Sunway Cybersecurity Club</p><p class="dates">SUBANG JAYA · JAN 2026—PRESENT</p></div></header>
     <div class="cal-wrap"><div class="calendar" id="campaignCalendar" role="img" aria-label="Illustration of the content mix produced across the club calendar from January 2026: recruitment, industry visits, awards, and event recaps."><div class="month"><span class="month-name">Jan</span><i class="post recruitment"></i><i class="post recap"></i></div><div class="month"><span class="month-name">Feb</span><i class="post recruitment"></i></div><div class="month"><span class="month-name">Mar</span><i class="post visit"></i><i class="post recap"></i></div><div class="month"><span class="month-name">Apr</span><i class="post award"></i></div><div class="month"><span class="month-name">May</span><i class="post visit"></i><i class="post recruitment"></i></div><div class="month"><span class="month-name">Jun</span><i class="post award"></i><i class="post recap"></i></div><div class="month"><span class="month-name">Now</span><i class="post recruitment"></i></div></div><button class="cal-edge prev" type="button" aria-label="Scroll calendar left">←</button><button class="cal-edge next" type="button" aria-label="Scroll calendar right">→</button></div>
     <div class="campaign-controls" data-reveal><p class="cal-caption">CONTENT MIX <i aria-hidden="true">·</i> JAN 2026 → NOW</p><div class="filters" role="group" aria-label="Highlight a content category"><button class="filter" type="button" aria-pressed="false" data-filter="recruitment" data-cursor="FILTER">Recruitment</button><button class="filter" type="button" aria-pressed="false" data-filter="visit" data-cursor="FILTER">Industry visits</button><button class="filter" type="button" aria-pressed="false" data-filter="award" data-cursor="FILTER">Awards</button><button class="filter" type="button" aria-pressed="false" data-filter="recap" data-cursor="FILTER">Event recaps</button></div><ul class="exp-copy"><li>Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.</li><li>Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners.</li></ul></div>
+    <!--build:experience-->
+          <div class="timeline" data-reveal>
+      <p class="sec-label">FIG. 04<span class="slash">/</span>THE RECORD</p>
+      <ol class="tl-list">
+        <li class="tl-row">
+          <p class="tl-when">Jan 2026 — Present</p>
+          <div class="tl-what">
+            <h3>Digital Marketing Executive</h3>
+            <p class="tl-org">Sunway Cybersecurity Club <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
+            <ul><li>Planned 10+ LinkedIn posts and campaign assets, coordinating the club's content calendar for recruitment, events, awards, and industry activities.</li><li>Produced recruitment, industry-visit, award-announcement, and event-recap graphics in Canva while collaborating with the committee and external partners.</li></ul>
+            <p class="tl-tech">Canva · LinkedIn</p>
+            
+          </div>
+        </li>
+        <li class="tl-row">
+          <p class="tl-when">Feb 2026 — Present</p>
+          <div class="tl-what">
+            <h3>Sole developer</h3>
+            <p class="tl-org">Bupples — personal product <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
+            <ul><li>Built and launched a social expense-sharing product for iOS and Android, owning product design, Flutter development, Firebase backend architecture, security, and release workflows.</li><li>Engineered a cent-exact ISO 4217 multi-currency ledger on idempotent Cloud Functions behind Firestore Security Rules, with Gemini receipt extraction, real-time chat, RevenueCat subscriptions, App Check, and Remote Config.</li><li>Live on the App Store and Google Play since 2 July 2026; version 1.2.5 shipped on 27 July 2026.</li></ul>
+            <p class="tl-tech">Flutter · Dart · Firebase · Firestore · Cloud Functions · Vertex AI · Gemini · RevenueCat · App Check · Remote Config</p>
+            <a class="tl-study" href="work/bupples/">Case study <span class="cta-arr" aria-hidden="true">→</span></a>
+          </div>
+        </li>
+        <li class="tl-row">
+          <p class="tl-when">Jun 2026 — Present</p>
+          <div class="tl-what">
+            <h3>Sole developer</h3>
+            <p class="tl-org">Adelante — personal product <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
+            <ul><li>Built a privacy-first motivation app with native WidgetKit/SwiftUI and Android RemoteViews widgets for the Home Screen, Lock Screen, and StandBy — without accounts, analytics, or ads.</li><li>Designed a Firestore and scheduled Cloud Functions content pipeline with offline caching, deduplication, quality scoring, and strict filtering; validated reliability with 117 automated tests.</li></ul>
+            <p class="tl-tech">Flutter · Swift · SwiftUI · WidgetKit · Kotlin · Android RemoteViews · Firebase · Cloud Functions</p>
+            <a class="tl-study" href="work/adelante/">Case study <span class="cta-arr" aria-hidden="true">→</span></a>
+          </div>
+        </li>
+        <li class="tl-row">
+          <p class="tl-when">Jun 2026 — Present</p>
+          <div class="tl-what">
+            <h3>Sole developer</h3>
+            <p class="tl-org">Photoshoot — personal product <i aria-hidden="true">·</i> Subang Jaya, Malaysia</p>
+            <ul><li>Built and deployed a Windows and browser photobooth with single-shot, four-shot strip, and video modes, plus 17 real-time GLSL effects and 8 on-device MediaPipe face effects.</li><li>Engineered a local-first Electron/WebGL2 architecture with context isolation, sandboxing, strict CSP, and Firebase Hosting, keeping camera processing and captures on-device.</li></ul>
+            <p class="tl-tech">TypeScript · Electron · WebGL2 · GLSL · MediaPipe · Firebase Hosting</p>
+            <a class="tl-study" href="work/photoshoot/">Case study <span class="cta-arr" aria-hidden="true">→</span></a>
+          </div>
+        </li>
+      </ol>
+    </div>
+          <!--/build:experience-->
   </section>
 
   <section class="scene contact-section" id="contact" aria-labelledby="contactTitle">
     <p class="contact-label" data-reveal>05<span class="slash">/</span>CONTACT · OPEN CHANNEL</p>
     <div class="contact-top" data-reveal><p class="available">AVAILABLE FOR FULL-TIME INTERNSHIP · JAN—APR 2027</p><p class="location">SUBANG JAYA / KUALA LUMPUR · MALAYSIA</p></div>
+    <!--build:now-->
+          <div class="now-block" data-reveal>
+      <p class="sec-label">NOW<span class="slash">/</span>CURRENT FOCUS</p>
+      <dl class="now-grid">
+        <div><dt>Building</dt><dd><ul><li><b>Bupples</b>Maintaining the shipped product. It reached the App Store and Google Play on 2 July 2026 and was on version 1.2.5 by 27 July.</li><li><b>Adelante</b>Widget-first motivation app for iOS and Android: native WidgetKit and RemoteViews surfaces over a scheduled Firebase content pipeline, with no accounts, analytics or ads.</li><li><b>Photoshoot</b>Windows and browser photobooth on a local-first Electron and WebGL2 architecture, with 17 real-time GLSL effects and 8 on-device MediaPipe face effects.</li></ul></dd></div>
+        <div><dt>Studying</dt><dd><ul><li><b>BSc Software Engineering (Hons) — Sunway University / Lancaster University</b>Software Architecture, Data Structures, Mobile Development, Databases, and UI/UX Design. Expected 2027.</li></ul></dd></div>
+        <div><dt>Looking for</dt><dd><ul><li><b>A full-time software engineering internship, January to April 2027</b>Subang Jaya or Kuala Lumpur, Malaysia. Mobile, full-stack, or anything that ships to a real store.</li></ul></dd></div>
+        <div><dt>Exploring</dt><dd><ul><li><b>Inference that runs on the device</b>MediaPipe face effects executing locally in Photoshoot, so a camera frame never has to be uploaded to become useful.</li><li><b>Model output as structured data, not prose</b>Gemini receipt extraction in Bupples: the model reads a photographed receipt into line items, and the ledger still does the money.</li><li><b>Widgets as the product surface</b>Home Screen, Lock Screen and StandBy as places a product lives rather than shortcuts into it — which means two native implementations instead of one shared screen.</li></ul></dd></div>
+      </dl>
+      <p class="now-stamp">LAST UPDATED · 2026-07-29</p>
+    </div>
+          <!--/build:now-->
     <div class="contact-poster" data-reveal><h2 id="contactTitle">Let's build <em>something memorable.</em></h2><aside class="contact-aside"><b>Looking for</b>A full-time software engineering internship, January to April 2027, in Kuala Lumpur or remote. Mobile, full-stack, or anything that ships to a real store.<span class="aside-hint hint-fine">Nudge the address around — click without dragging to open your mail client.</span><span class="aside-hint hint-touch">Tap the address to open your mail app.</span></aside></div>
     <div class="mail-track" id="mailTrack"><span class="track-label"><span class="hint-fine">TAKE IT WITH YOU · DRAG GENTLY</span><span class="hint-touch">TAKE IT WITH YOU</span></span><a class="drag-mail" id="dragMail" href="mailto:yousofselim2@gmail.com" draggable="false" data-cursor="DRAG">yousofselim2@gmail.com</a><button class="copy-address" id="copyMail" type="button" data-cursor="COPY">Copy address ↗</button></div>
     <div class="contact-foot" data-reveal><nav class="socials" aria-label="Profiles"><a href="https://github.com/yeegz" target="_blank" rel="noopener" data-cursor="OPEN">GitHub ↗</a><a href="https://www.linkedin.com/in/ysf-slm" target="_blank" rel="noopener" data-cursor="OPEN">LinkedIn ↗</a><a href="Yousof-Selim-Resume.pdf" download data-cursor="PDF">Résumé ↓</a></nav><p class="signoff">DESIGNED AND BUILT BY HAND · 2026</p></div>

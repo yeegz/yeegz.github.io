@@ -202,8 +202,23 @@ test.describe('homepage repairs', () => {
     const count = await links.count();
     for (let i = 0; i < count; i++) {
       const a = links.nth(i);
-      await a.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(120);
+      // Centre it: scrollIntoViewIfNeeded parks an element at the very top of
+      // the viewport, which on this page is underneath the fixed header.
+      await a.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+      // The row reveals with a GSAP y-transform. Hit-testing mid-tween reports
+      // whatever sits at the pre-transform position, so wait for the row to
+      // settle rather than sleeping an arbitrary amount.
+      await a.evaluate((el) =>
+        new Promise((resolve) => {
+          const row = el.closest('.work-row');
+          const settled = () => {
+            const cs = getComputedStyle(row);
+            return cs.opacity === '1' && (cs.transform === 'none' || cs.transform === 'matrix(1, 0, 0, 1, 0, 0)');
+          };
+          const tick = () => (settled() ? resolve() : requestAnimationFrame(tick));
+          tick();
+        })
+      );
       const reachable = await a.evaluate((el) => {
         const r = el.getBoundingClientRect();
         const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);

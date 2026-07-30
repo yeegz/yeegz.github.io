@@ -3939,3 +3939,54 @@ html.cx-on .site-head { transition: opacity 0.3s ease, filter 0.3s ease; }
     animation: none;
   }
 }
+
+/* =============================================================
+   Eight ball — the "pool" egg (pool.js)
+   ============================================================= */
+
+.pl-host {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  place-items: center;
+  gap: 14px;
+  padding: 24px 16px 20px;
+  background: rgba(5, 6, 10, 0.94);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pl-host.pl-in { opacity: 1; }
+.pl-canvas {
+  align-self: end;
+  border-radius: 10px;
+  box-shadow:
+    0 30px 90px -30px rgba(0, 0, 0, 0.95),
+    0 0 80px -24px rgba(155, 207, 165, 0.18);
+  transform: scale(1.03) translateY(10px);
+  opacity: 0;
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+.pl-in .pl-canvas { transform: none; opacity: 1; }
+.pl-hud,
+.pl-help {
+  margin: 0;
+  color: var(--muted, #8e8b85);
+  font: 500 0.6rem var(--mono, monospace);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s ease 0.2s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+}
+.pl-in .pl-hud, .pl-in .pl-help { opacity: 1; transform: none; }
+.pl-hud { color: #f2efe9; letter-spacing: 0.2em; }
+.pl-help b { color: #9bcfa5; font-weight: 500; }
+body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pl-host, .pl-canvas, .pl-hud, .pl-help { transition: none; }
+}

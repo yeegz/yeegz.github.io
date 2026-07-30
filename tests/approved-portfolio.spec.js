@@ -727,3 +727,30 @@ test('the code is ignored while a field has focus', async ({ page }) => {
   await expect(page.locator('.cx-host')).toHaveCount(0);
   expect(await page.inputValue('#kfield')).toContain('ba');
 });
+
+test('typing "pool" racks a table that actually plays', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForTimeout(1200);
+  for (const ch of 'pool') await page.keyboard.press(ch);
+  await expect(page.locator('.pl-host')).toBeVisible();
+  await expect(page.locator('.pl-host')).toHaveClass(/pl-in/);
+
+  const rack = await page.evaluate(() => window.__eightBall.state());
+  expect(rack.onTable, 'a full rack plus the cue ball').toBe(16);
+  expect(rack.state).toBe('aim');
+
+  // Straight at the top-left pocket from the head spot: it has to drop, be
+  // scored as a scratch, and put the cue ball back on the spot.
+  await page.evaluate(() => window.__eightBall.shoot(Math.atan2(-200, -200), 0.55));
+  await expect
+    .poll(async () => (await page.evaluate(() => window.__eightBall.state())).state, { timeout: 12000 })
+    .toBe('aim');
+  const after = await page.evaluate(() => window.__eightBall.state());
+  expect(after.fouls, 'potting the cue ball is a scratch').toBe(1);
+  expect(after.cue).toEqual({ x: 200, y: 200 });
+
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(500);
+  await expect(page.locator('.pl-host')).toHaveCount(0);
+  expect(await page.evaluate(() => document.body.classList.contains('pl-lock'))).toBe(false);
+});

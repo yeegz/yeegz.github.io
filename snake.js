@@ -21,6 +21,7 @@
   var nmLast = document.getElementById('nmLast');
   if (!nmLast || !document.body) return;
 
+  var INTRO_MS = 760;
   var GOLD = '#d4a017';
   var GOLD_LIT = '#f2cd6b';
   var RED = '#ce1126';
@@ -265,29 +266,67 @@
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, COLS * cell, ROWS * cell);
 
-    paintEagle(ctx, cell);
+    var intro = g.intro > 0 ? Math.max(0, Math.min(1, 1 - g.intro / INTRO_MS)) : 1;
 
-    // Food: the flag's red, hairlined in gold so it never disappears into black.
+    if (intro < 1 && !reduced()) {
+      /* Reveal from the breast outward, so the bird opens its wings. */
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc((COLS / 2) * cell, (ROWS * 0.52) * cell, intro * COLS * cell * 0.78, 0, 6.2832);
+      ctx.clip();
+    }
+    paintEagle(ctx, cell);
+    if (intro < 1 && !reduced()) ctx.restore();
+    if (intro < 1) return;
+
+    // Food: the flag's red, hairlined in gold so it never disappears into
+    // black, and haloed so the eye finds it against the wing hatching.
     var k = reduced() ? 1 : 0.86 + 0.14 * Math.sin(performance.now() / 210);
     var fs = Math.max(3, (cell - 3) * k);
     var fx = g.food.x * cell + (cell - fs) / 2;
     var fy = g.food.y * cell + (cell - fs) / 2;
+    if (!reduced()) {
+      var halo = ctx.createRadialGradient(fx + fs / 2, fy + fs / 2, 0, fx + fs / 2, fy + fs / 2, fs * 2.1);
+      halo.addColorStop(0, 'rgba(206,17,38,.5)');
+      halo.addColorStop(1, 'rgba(206,17,38,0)');
+      ctx.fillStyle = halo;
+      ctx.fillRect(fx - fs * 2, fy - fs * 2, fs * 5, fs * 5);
+    }
     ctx.fillStyle = RED;
     ctx.fillRect(fx, fy, fs, fs);
     ctx.strokeStyle = 'rgba(212, 160, 23, 0.85)';
     ctx.lineWidth = 1;
     ctx.strokeRect(fx + 0.5, fy + 0.5, fs - 1, fs - 1);
 
-    // Snake: gold, head lit, tail fading out.
+    // Snake: gold, tapering to the tail, with a head that faces its heading.
     var n = g.snake.length;
     for (var i = n - 1; i >= 0; i--) {
       var seg = g.snake[i];
-      ctx.globalAlpha = i === 0 ? 1 : 0.5 + 0.45 * (1 - i / n);
+      var tail = i / Math.max(1, n - 1);
+      ctx.globalAlpha = i === 0 ? 1 : 0.42 + 0.5 * (1 - tail);
       ctx.fillStyle = i === 0 ? GOLD_LIT : GOLD;
-      var inset = i === 0 ? 0.5 : 1.5;
+      var inset = i === 0 ? 0.5 : 1 + tail * 1.6;   // the body thins toward the tail
       ctx.fillRect(seg.x * cell + inset, seg.y * cell + inset, cell - inset * 2, cell - inset * 2);
     }
     ctx.globalAlpha = 1;
+
+    /* The head gets an eye on the side it is travelling, which is the whole
+       difference between a moving square and something alive. */
+    var h = g.snake[0];
+    if (h) {
+      var hx = h.x * cell, hy = h.y * cell;
+      var ex = hx + cell / 2 + g.dir[0] * cell * 0.22 - cell * 0.09;
+      var ey = hy + cell / 2 + g.dir[1] * cell * 0.22 - cell * 0.09;
+      ctx.fillStyle = '#1a1206';
+      ctx.fillRect(ex, ey, Math.max(1, cell * 0.18), Math.max(1, cell * 0.18));
+      if (!reduced()) {
+        var gl = ctx.createRadialGradient(hx + cell / 2, hy + cell / 2, 0, hx + cell / 2, hy + cell / 2, cell * 1.6);
+        gl.addColorStop(0, 'rgba(242,205,107,.28)');
+        gl.addColorStop(1, 'rgba(242,205,107,0)');
+        ctx.fillStyle = gl;
+        ctx.fillRect(hx - cell * 1.6, hy - cell * 1.6, cell * 4.2, cell * 4.2);
+      }
+    }
   }
 
   /* ---- the game --------------------------------------------------------- */
@@ -328,7 +367,7 @@
     g.queue = [];
     g.score = 0;
     g.dead = false;
-    g.step = 135;
+    g.step = 118;
     g.acc = 0;
     g.last = 0;
     placeFood(g);
@@ -336,6 +375,7 @@
     g.over.hidden = true;
     g.overlay.dataset.state = 'running';
     g.canvas.dataset.heading = 'right';
+    g.intro = INTRO_MS;
   }
 
   function steer(g, d) {
@@ -343,7 +383,9 @@
     var from = g.queue.length ? g.queue[g.queue.length - 1] : g.dir;
     if (d[0] === -from[0] && d[1] === -from[1]) return;   // no instant reversal
     if (d[0] === from[0] && d[1] === from[1]) return;
-    if (g.queue.length < 2) g.queue.push(d);
+    /* Two buffered turns drops the second half of a quick zig-zag, which
+       reads as the game ignoring you. Three covers a corner taken at speed. */
+    if (g.queue.length < 3) g.queue.push(d);
   }
 
   function die(g) {
@@ -373,7 +415,7 @@
       g.score++;
       g.scoreVal.textContent = String(g.score);
       g.lives.textContent = 'Score ' + g.score;
-      g.step = Math.max(72, 135 - g.score * 2.5);
+      g.step = Math.max(70, 118 - g.score * 2.4);
       placeFood(g);
     } else {
       g.snake.pop();
@@ -387,6 +429,10 @@
     if (!g.last) g.last = now;
     var dt = Math.min(240, now - g.last);
     g.last = now;
+    /* The eagle used to be simply there on the first frame. It draws itself
+       in first — the wings out from the breast — and the run only starts once
+       the bird is whole. */
+    if (g.intro > 0) { g.intro -= dt; paint(g); return; }
     if (!g.dead) {
       g.acc += dt;
       while (g.acc >= g.step && !g.dead) { g.acc -= g.step; tick(g); }

@@ -1069,6 +1069,11 @@
        re-querying the document on every pointer sample. */
     let surfaceZones = null;
     const zones = () => (surfaceZones || (surfaceZones = [...document.querySelectorAll('[data-cursor-surface]')]));
+    /* The cache is populated on the first pointer sample and was never
+       invalidated, so a zone belonging to something mounted later — a hidden
+       game, a dialog — could never be seen. Anything that adds or removes a
+       [data-cursor-surface] element calls this. */
+    window.ysfCursorZonesChanged = () => { surfaceZones = null; };
     /* Both engines serialize color-mix() as `color(srgb 0.61 0.81 0.65 / .45)`
        — components 0..1, not 0..255. Reading those as bytes made every
        colour-mixed surface compute as near-black, so the cursor stayed light
@@ -1144,7 +1149,7 @@
       }, 120);
     });
 
-    let sizedAction = null;
+    let sizedAction = null, sizedVerb = null;
     const updateCursorAction = (target) => {
       const element = target instanceof Element ? target : null;
       applySurface(element, false);
@@ -1153,16 +1158,43 @@
       const action = element?.closest('[data-cursor],a,button,[role="button"]');
       const verb = action?.dataset.cursor || (action?.tagName === 'A' ? 'OPEN' : action ? 'SELECT' : '');
       label.textContent = verb;
-      /* The disc sizes itself to the hovered control so it never swallows it. */
+      /* The disc sizes itself to the hovered control so it never swallows it —
+         and to the label, so the label never overruns it. Sizing on the
+         control alone assumed every verb was about as long as SELECT; the
+         easter-egg tells carry things like the Konami code, ten glyphs wide,
+         which spilled straight out of a 76px circle and over the page.
+         Measuring the label is the only honest answer, because how wide ten
+         glyphs of mono are is a question only layout can settle.
+
+         The verb is part of the cache key, not just the element: a chess
+         square is the same button whether it means LIFT KNIGHT or TAKE. */
       if (action && verb && !inAsteri) {
-        if (action !== sizedAction) {
+        if (action !== sizedAction || verb !== sizedVerb) {
           sizedAction = action;
+          sizedVerb = verb;
           const rect = action.getBoundingClientRect();
-          const size = clamp(Math.round(Math.min(rect.width, rect.height) * 1.2), 54, 76);
+          /* The control term keeps its original ceiling. Only the label is
+             allowed to push past it — otherwise a big control (a 99px chess
+             square) grew a disc that swallowed the very thing it sized to. */
+          /* A control may ask for a smaller dial than its own size implies.
+             A chess square is a hundred pixels of board, and a disc sized to
+             it hides the very piece you are pointing at — on a board, what is
+             under the pointer is the thing you are reading. */
+          const asked = Number(action.dataset.cursorSize) || 0;
+          const fit = asked || clamp(Math.round(Math.min(rect.width, rect.height) * 1.2), 54, 76);
+          /* A secret gets room to breathe. Reading a cheat code off a cursor
+             is the payoff for having found it, so it is drawn larger than a
+             workaday verb rather than merely fitting. */
+          const secret = !!action.closest('.egg-tell');
+          const need = Math.ceil(label.scrollWidth) + (secret ? 40 : 22);
+          const size = clamp(Math.max(fit, need), secret ? 84 : asked ? asked : 54, 168);
           cursor.style.setProperty('--cur-size', `${size}px`);
+          cursor.classList.toggle('cur-secret', secret);
         }
       } else {
         sizedAction = null;
+        sizedVerb = null;
+        cursor.classList.remove('cur-secret');
         cursor.style.removeProperty('--cur-size');
       }
       const project = (!inAsteri && action) ? (action.dataset.openProject || action.dataset.cursorSigil || '') : '';
@@ -1177,6 +1209,13 @@
         updateCursorAction(document.elementFromPoint(cursorX, cursorY));
       });
     };
+    /* Something changed under a stationary pointer. The label is normally
+       re-read on pointermove, pointerover, click and scroll, which covers a
+       page that only changes when you touch it — but a game moves on its own,
+       and after the engine replied the cursor was still reading WAIT over a
+       board that was waiting for the player. */
+    window.ysfCursorRefresh = () => { if (cursorOn) refreshCursorAction(); };
+
     /* ── Live on/off. ────────────────────────────────────────────────────────
        The drawn cursor is only ever on while a real mouse is the pointer in
        use. Touching the screen on a hybrid machine turns it off (and gives the

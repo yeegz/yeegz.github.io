@@ -56,6 +56,11 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 .slash { color: var(--accent); margin: 0 0.55em; font-style: normal; }
 
 .site-head {
+  /* The fade lives here, not inside the rules that hide it. Declared only in
+     `html.cx-on .site-head` and friends, the transition disappeared with the
+     class, so the header faded out politely and then snapped back the instant
+     a game closed. */
+  transition: opacity .34s ease, filter .34s ease;
   position: fixed; inset: 0 0 auto 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
   padding: 1.05rem var(--pad-x);
@@ -704,6 +709,7 @@ html.gaming { overflow: hidden; }
 .site-foot a { color: var(--muted); transition: color 0.35s; }
 .site-foot a:hover { color: var(--ink); }
 
+.progress-rail { transition: opacity .34s ease; }
 .progress-rail {
   position: fixed; left: 1.05rem; top: 50%; translate: 0 -50%; z-index: 90;
   display: flex; flex-direction: column; align-items: center; gap: 1.1rem;
@@ -1317,7 +1323,13 @@ html[data-theme="light"] .experience-section{background:linear-gradient(to botto
 
 /* Corrected dotted cursor: one coordinate system, inverse filled action state. */
 .cursor[hidden] { display:none !important; }
-.cur .cursor { display:block; position:fixed; inset:0 auto auto 0; width:0; height:0; z-index:700; pointer-events:none; opacity:0; transition:opacity .18s; will-change:transform; }
+/* The drawn cursor is the topmost thing on the page, above every overlay.
+   It sat at 700 while the hidden games mount hosts at 9000-9600, so inside a
+   game the real cursor was hidden by `cursor: none` and the drawn one was
+   painted underneath the board — pointing at a chess square showed nothing
+   at all. A <dialog> in the top layer still beats every z-index there is,
+   which is what window.ysfCursorHost() is for. */
+.cur .cursor { display:block; position:fixed; inset:0 auto auto 0; width:0; height:0; z-index:10000; pointer-events:none; opacity:0; transition:opacity .18s; will-change:transform; }
 .cur .cursor.is-visible { opacity:1; }
 /* Surface-aware ink: approved.js samples the background under the pointer
    and picks the pair that stays visible on it. */
@@ -1328,7 +1340,11 @@ html[data-theme="light"] .experience-section{background:linear-gradient(to botto
 .cursor-disc { position:absolute; inset:4px; z-index:0; border-radius:50%; background:var(--cursor-fill); opacity:0; scale:.18; transition:scale .34s cubic-bezier(.2,.72,.25,1),opacity .24s,background-color .25s; }
 .ring-dots { position:absolute; inset:0; z-index:1; width:100%; height:100%; overflow:visible; stroke:var(--cursor-fill); opacity:.34; transform:none; animation:none; transition:stroke .3s,opacity .25s,inset .34s cubic-bezier(.2,.72,.25,1),width .34s cubic-bezier(.2,.72,.25,1),height .34s cubic-bezier(.2,.72,.25,1); }
 .ring-dots circle{stroke-dashoffset:0}.js:not(.reduced) .ring-dots circle{animation:ringOrbit 14s linear infinite}@keyframes ringOrbit{to{stroke-dashoffset:-1}}
-.cursor-label { position:relative; z-index:2; font:650 7px var(--mono); letter-spacing:.12em; text-transform:uppercase; text-align:center; color:var(--cursor-text); opacity:0; transform:scale(.8); transition:opacity .18s .05s,transform .3s cubic-bezier(.2,.72,.25,1),color .25s; }
+/* One line, always. The label is measured to size the disc around it, and a
+   label that wraps measures narrow and then overflows anyway. */
+.cursor-label { position:relative; z-index:2; white-space:nowrap; font:650 7px var(--mono); letter-spacing:.12em; text-transform:uppercase; text-align:center; color:var(--cursor-text); opacity:0; transform:scale(.8); transition:opacity .18s .05s,transform .3s cubic-bezier(.2,.72,.25,1),color .25s; }
+/* A code found in the page is worth a bigger dial and a slightly larger face. */
+.cursor.cur-secret .cursor-label { font-size:8px; letter-spacing:.14em; }
 .cursor-sigil { position:relative; z-index:2; display:none; }
 .cursor-sigil canvas { display:block; }
 .cur-view .cursor-ring { width:var(--cur-size,76px); height:var(--cur-size,76px); margin:0; background:transparent; }
@@ -3125,10 +3141,13 @@ html.egypt .head-egg-off { display: inline-flex; }
 html.snake-on { overflow: hidden; }
 /* The game's room is an opaque sheet at z-index 995 and the custom cursor sits
    at 700, so the cursor was painted underneath it — and since `.cur` hides the
-   native pointer, the eagle game had no visible cursor at all. It lifts over
-   the room here but stays under the loader at 1000, which is meant to cover
-   everything. The cursor is pointer-events:none, so nothing else changes. */
-html.snake-on .cursor { z-index: 996; }
+   native pointer, the eagle game had no visible cursor at all.
+
+   That per-game lift is gone: the cursor now sits at 10000 for every route,
+   which covers this room and the other three. The rule is kept as a comment
+   rather than as CSS because at equal specificity and a later source position
+   it would have *lowered* the cursor back to 996 whenever the eagle was
+   open — a one-game regression hiding inside a site-wide fix. */
 
 .snk {
   position: fixed;
@@ -4074,11 +4093,20 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
 
 /* =============================================================
    CHESS — the third hidden game.
+
    A board should not look like a toy. This one is built out of
    the same material as the rest of the site: a dark stage, bone
-   ink, one accent, mono labels, and type doing the work. Pieces
-   sit in their own layer and move by transform, so a move is a
-   transition and a capture is something you watch happen.
+   ink, one accent, mono labels, and type doing the work.
+
+   The motion has one governing rule. Every piece is TWO
+   elements: an outer .ch-pc that carries nothing but the inline
+   transform putting it on its square, and an inner .ch-pc-i that
+   every animation touches. Nothing here may animate or
+   transition `transform` on .ch-pc — a filled animation on that
+   property outranks the inline style the game writes and holds
+   the override for good, which is how the runner in the name
+   game came to be frozen in a corner, and how every capture on
+   this board was silently reduced to a blink.
    ============================================================= */
 
 .ch-host {
@@ -4088,22 +4116,22 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
   background: radial-gradient(circle at 50% 42%, rgba(22, 23, 28, .985), rgba(5, 5, 6, .995) 58%);
   backdrop-filter: blur(10px) saturate(.6);
   opacity: 0;
-  transition: opacity .38s ease;
+  transition: opacity .42s ease;
 }
 .ch-host.in { opacity: 1; }
-.ch-host.out { opacity: 0; }
+.ch-host.out { opacity: 0; transition: opacity .34s ease .06s; }
 
 .ch-wrap {
   display: grid;
   grid-template-columns: minmax(0, min(84vh, 58vw)) minmax(250px, 320px);
   gap: clamp(20px, 3vw, 46px);
   align-items: start;
-  transform: translateY(14px) scale(.985);
+  transform: translateY(16px) scale(.984);
   opacity: 0;
-  transition: transform .5s cubic-bezier(.16, 1, .3, 1), opacity .44s ease;
+  transition: transform .58s cubic-bezier(.16, 1, .3, 1), opacity .46s ease;
 }
 .ch-host.in .ch-wrap { transform: none; opacity: 1; }
-.ch-host.out .ch-wrap { transform: translateY(8px) scale(.99); opacity: 0; }
+.ch-host.out .ch-wrap { transform: translateY(10px) scale(.99); opacity: 0; transition-duration: .34s, .3s; }
 
 /* ---- the board --------------------------------------------- */
 
@@ -4114,6 +4142,20 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
   border: 1px solid rgba(239, 237, 231, .16);
   box-shadow: 0 40px 90px rgba(0, 0, 0, .6), 0 0 0 1px rgba(0, 0, 0, .5);
 }
+/* The frame draws itself before anything is set on it. */
+.ch-board-wrap::before {
+  content: '';
+  position: absolute; inset: -1px;
+  border: 1px solid var(--accent);
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path .6s cubic-bezier(.16, 1, .3, 1), opacity .5s ease .5s;
+  pointer-events: none;
+  z-index: 6;
+}
+.ch-host.in .ch-board-wrap::before { clip-path: inset(0 0 0 0); opacity: 0; }
+.ch-host.in:not(.dealt) .ch-board-wrap::before { opacity: .55; }
+
 .ch-board {
   position: absolute; inset: 0;
   display: grid;
@@ -4125,39 +4167,71 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
   border: 0; padding: 0; margin: 0;
   cursor: pointer;
   outline: none;
-  /* Dealt in from the near corner rather than all at once. */
-  animation: chSq .32s cubic-bezier(.16, 1, .3, 1) both;
-  animation-delay: calc(var(--d) * 1ms);
+  background: #131418;
+  opacity: 0;
+  transform: scale(.9);
+  /* Dealt in from the near corner. The delay is applied only once the room
+     has arrived — running the deal underneath the overlay's own fade made it
+     a cross-fade with extra steps. */
+  transition: opacity .3s ease, transform .38s cubic-bezier(.16, 1, .3, 1);
+  transition-delay: calc(var(--d) * 1ms);
 }
+.ch-host.dealt .ch-sq { opacity: 1; transform: none; }
+.ch-host.ready .ch-sq { transition-delay: 0s; }
 .ch-sq.light { background: #1d1f24; }
-.ch-sq.dark { background: #131418; }
 .ch-sq::after {
   content: ''; position: absolute; inset: 0;
   background: transparent;
-  transition: background .18s ease, box-shadow .18s ease;
+  transition: background .2s ease, box-shadow .2s ease;
 }
-.ch-sq.from::after, .ch-sq.to::after { background: rgba(155, 207, 165, .13); }
-.ch-sq.sel::after { background: rgba(155, 207, 165, .2); box-shadow: inset 0 0 0 1px rgba(155, 207, 165, .5); }
-.ch-sq:focus-visible::after { box-shadow: inset 0 0 0 2px var(--accent); }
-.ch-sq.check::after {
-  background: rgba(206, 17, 38, .22);
+/* Hover is the weakest state on the board and must lose to every meaningful
+   one. It used to be declared last at equal specificity, so pointing at the
+   piece you had just selected erased the very highlight telling you so. */
+.ch-sq:hover::after { background: rgba(239, 237, 231, .05); }
+.ch-sq.from::after, .ch-sq.to::after { background: rgba(155, 207, 165, .16); }
+.ch-sq.sel::after,
+.ch-sq.sel:hover::after {
+  background: rgba(155, 207, 165, .24);
+  box-shadow: inset 0 0 0 1px rgba(155, 207, 165, .62);
+}
+.ch-sq.check::after,
+.ch-sq.check:hover::after {
+  background: rgba(206, 17, 38, .24);
   box-shadow: inset 0 0 0 1px rgba(206, 17, 38, .6);
   animation: chCheck 1.1s ease-in-out infinite;
 }
+.ch-sq.check-hit::after { animation: chCheckHit .6s cubic-bezier(.16, 1, .3, 1); }
+.ch-sq.mate::after,
+.ch-sq.mate:hover::after {
+  background: rgba(206, 17, 38, .34);
+  box-shadow: inset 0 0 0 2px rgba(206, 17, 38, .85);
+  animation: chMate .9s cubic-bezier(.16, 1, .3, 1);
+}
+/* The focus ring outranks every one of them — it was previously beaten by
+   the check square, so keyboard-focusing the king in check showed nothing. */
+.ch-sq:focus-visible::after,
+.ch-sq.check:focus-visible::after,
+.ch-sq.mate:focus-visible::after {
+  box-shadow: inset 0 0 0 2px var(--accent);
+  animation: none;
+}
+.ch-sq.nope { animation: chNope .4s cubic-bezier(.36, .07, .19, .97); }
+
 /* A quiet move is a dot; a capture is a ring around what you take. */
 .ch-sq.go::before {
   content: ''; position: absolute; left: 50%; top: 50%;
   width: 22%; height: 22%; margin: -11% 0 0 -11%;
-  border-radius: 50%; background: rgba(239, 237, 231, .3);
-  animation: chDot .22s cubic-bezier(.16, 1, .3, 1) both;
+  border-radius: 50%; background: rgba(239, 237, 231, .32);
+  animation: chDot .26s cubic-bezier(.16, 1, .3, 1) both;
 }
 .ch-sq.take::before {
   content: ''; position: absolute; inset: 8%;
   border-radius: 50%;
   border: 2px solid rgba(206, 17, 38, .62);
-  animation: chDot .22s cubic-bezier(.16, 1, .3, 1) both;
+  animation: chRing .3s cubic-bezier(.16, 1, .3, 1) both;
 }
-.ch-sq:hover::after { background: rgba(239, 237, 231, .05); }
+
+/* ---- the pieces -------------------------------------------- */
 
 .ch-pieces {
   position: absolute; inset: 0;
@@ -4166,35 +4240,63 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
   grid-template-rows: repeat(8, 1fr);
   pointer-events: none;
 }
+/* OUTER — position only. Never animate transform here. */
 .ch-pc {
   grid-area: 1 / 1;
   display: grid; place-items: center;
+  transition: transform .3s cubic-bezier(.34, 1.32, .52, 1);
+}
+.ch-pc.moving { z-index: 4; }
+.ch-pc.castling { transition-duration: .38s; }
+.ch-pc.reply { z-index: 5; }
+
+/* INNER — everything else. */
+.ch-pc-i {
+  display: block;
   font-size: min(6.6vh, 5.4vw);
+  font-style: normal;
   line-height: 1;
   user-select: none;
-  transition: transform .28s cubic-bezier(.34, 1.4, .5, 1), opacity .24s ease, filter .24s ease;
-  animation: chPc .4s cubic-bezier(.16, 1, .3, 1) both;
+  opacity: 0;
+  transform: translateY(-8px) scale(.86);
+  transition: opacity .34s ease, transform .46s cubic-bezier(.16, 1, .3, 1), filter .24s ease, color .3s ease;
 }
-.ch-pc.w { color: #f4f2ec; text-shadow: 0 2px 5px rgba(0, 0, 0, .75); }
-/* Black is nearly the board's own black with a bone edge drawn round it —
-   the classic outlined piece. A mid-grey fill read as a dimmer white at
-   playing size, which is the one thing a chess set may never do. */
-.ch-pc.b {
+/* Set down rank by rank, white from the near side, black from the far one. */
+.ch-host.dealt .ch-pc-i { transition-delay: calc(var(--ord, 0) * 34ms + 120ms); }
+.ch-host.ready .ch-pc-i { transition-delay: 0s; }
+.ch-host.dealt .ch-pc.set .ch-pc-i,
+.ch-host.ready .ch-pc .ch-pc-i { opacity: 1; transform: none; }
+
+.ch-pc.w .ch-pc-i { color: #f4f2ec; text-shadow: 0 2px 5px rgba(0, 0, 0, .75); }
+.ch-pc.b .ch-pc-i {
   color: #0b0c0e;
   -webkit-text-stroke: 1.4px rgba(242, 239, 233, .92);
   paint-order: stroke fill;
   text-shadow: 0 2px 6px rgba(0, 0, 0, .8);
 }
-.ch-pc.moving { z-index: 4; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .55)); }
-.ch-pc.gone { opacity: 0; transform: scale(.55) rotate(9deg) translate(var(--gx, 0), var(--gy, 0)); }
-.ch-pc.promoted { animation: chPromo .5s cubic-bezier(.16, 1, .3, 1); }
+.ch-pc.moving .ch-pc-i { filter: drop-shadow(0 9px 15px rgba(0, 0, 0, .6)); }
+/* Picked up: it rises off the board and casts. */
+.ch-pc.lift .ch-pc-i {
+  transform: translateY(-9%) scale(1.1);
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .65)) drop-shadow(0 0 12px rgba(155, 207, 165, .45));
+}
+.ch-pc.striking .ch-pc-i { animation: chStrike .36s cubic-bezier(.16, 1, .3, 1); }
+.ch-pc.reply .ch-pc-i { animation: chReply .8s cubic-bezier(.16, 1, .3, 1); }
+.ch-pc.struck .ch-pc-i { animation: chStruck .42s cubic-bezier(.36, .07, .19, .97) forwards; }
+.ch-pc.gone .ch-pc-i { opacity: 0; transform: scale(.5) rotate(14deg); transition-duration: .28s; }
+.ch-pc.promoted .ch-pc-i { animation: chPromo .6s cubic-bezier(.16, 1, .3, 1); }
+.ch-pc.flinch .ch-pc-i { animation: chFlinch .66s cubic-bezier(.36, .07, .19, .97); }
+.ch-pc.mated .ch-pc-i { animation: chMated .9s cubic-bezier(.16, 1, .3, 1) forwards; }
 
 .ch-files, .ch-ranks {
   position: absolute;
   font: 500 8px var(--mono); letter-spacing: .14em; color: rgba(239, 237, 231, .34);
   text-transform: uppercase;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity .5s ease .55s;
 }
+.ch-host.dealt .ch-files, .ch-host.dealt .ch-ranks { opacity: 1; }
 .ch-files { left: 0; right: 0; bottom: -17px; display: grid; grid-template-columns: repeat(8, 1fr); text-align: center; }
 .ch-ranks { top: 0; bottom: 0; left: -15px; display: grid; grid-template-rows: repeat(8, 1fr); align-items: center; text-align: right; }
 
@@ -4205,6 +4307,22 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
   color: var(--ink);
   min-width: 0;
 }
+/* The panel follows the board in, top to bottom. */
+.ch-panel > * {
+  opacity: 0;
+  transform: translateY(9px);
+  transition: opacity .42s ease, transform .5s cubic-bezier(.16, 1, .3, 1);
+}
+.ch-host.dealt .ch-panel > * { opacity: 1; transform: none; }
+.ch-host.dealt .ch-panel > :nth-child(1) { transition-delay: .1s; }
+.ch-host.dealt .ch-panel > :nth-child(2) { transition-delay: .17s; }
+.ch-host.dealt .ch-panel > :nth-child(3) { transition-delay: .24s; }
+.ch-host.dealt .ch-panel > :nth-child(4) { transition-delay: .31s; }
+.ch-host.dealt .ch-panel > :nth-child(5) { transition-delay: .38s; }
+.ch-host.dealt .ch-panel > :nth-child(6) { transition-delay: .45s; }
+.ch-host.dealt .ch-panel > :nth-child(7) { transition-delay: .52s; }
+.ch-host.ready .ch-panel > * { transition-delay: 0s; }
+
 .ch-eyebrow { margin: 0; font: 500 8px var(--mono); letter-spacing: .18em; color: #8f8ab8; }
 .ch-panel h2 { margin: 6px 0 0; font: 900 clamp(30px, 3.4vw, 46px)/.86 var(--disp); font-stretch: 122%; letter-spacing: -.045em; text-transform: uppercase; }
 .ch-sub { margin: 9px 0 0; font-size: 11px; line-height: 1.55; color: var(--muted); }
@@ -4214,39 +4332,75 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
   padding: 11px 13px;
   border: 1px solid var(--line);
   background: rgba(239, 237, 231, .03);
+  transition: opacity .42s ease, transform .5s cubic-bezier(.16, 1, .3, 1),
+              border-color .35s ease, background .35s ease;
 }
+.ch-turn.cpu { border-color: rgba(143, 138, 184, .5); background: rgba(143, 138, 184, .07); }
+.ch-turn.done { border-color: var(--line); background: transparent; }
 .ch-turn i {
   width: 7px; height: 7px; border-radius: 50%; flex: none;
   background: #9bcfa5; box-shadow: 0 0 10px 2px rgba(155, 207, 165, .5);
   transition: background .3s ease, box-shadow .3s ease;
   animation: chPulse 1.9s ease-in-out infinite;
 }
-.ch-turn.cpu i { background: #8f8ab8; box-shadow: 0 0 10px 2px rgba(143, 138, 184, .5); }
+.ch-turn.cpu i { background: #8f8ab8; box-shadow: 0 0 10px 2px rgba(143, 138, 184, .5); animation-duration: .9s; }
 .ch-turn.done i { background: var(--muted); box-shadow: none; animation: none; }
-.ch-turn b { font: 500 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+.ch-turn b { font: 500 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; transition: color .3s ease; }
+.ch-turn.cpu b { color: #b3aee0; }
 .ch-turn span { margin-left: auto; font: 500 9px var(--mono); letter-spacing: .1em; color: var(--muted); }
 
 .ch-score { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); }
 .ch-side { padding: 11px 12px; background: #0d0e10; min-width: 0; }
 .ch-side-k { margin: 0; font: 500 8px var(--mono); letter-spacing: .13em; color: var(--muted); }
-.ch-side-v { margin: 5px 0 0; font: 900 22px/1 var(--disp); font-stretch: 118%; letter-spacing: -.03em; color: var(--muted); }
+.ch-side-v {
+  margin: 5px 0 0; font: 900 22px/1 var(--disp); font-stretch: 118%;
+  letter-spacing: -.03em; color: var(--muted);
+  transition: color .4s ease;
+}
 .ch-side-v.up { color: #9bcfa5; }
+.ch-side-v.bump { animation: chBump .55s cubic-bezier(.16, 1, .3, 1); }
 .ch-taken { margin: 6px 0 0; min-height: 15px; font-size: 13px; line-height: 1.15; color: rgba(239, 237, 231, .42); word-break: break-all; }
+/* Each captured piece is its own element, so it can arrive rather than
+   appear — the tray used to be one text node that silently got longer. */
+.ch-trophy {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(-7px) scale(1.5);
+  transition: opacity .34s ease, transform .5s cubic-bezier(.34, 1.36, .5, 1), color .4s ease;
+  color: rgba(239, 237, 231, .9);
+}
+.ch-trophy.in { opacity: 1; transform: none; color: rgba(239, 237, 231, .42); }
 
-.ch-moves { max-height: 190px; overflow: auto; border: 1px solid var(--line); scrollbar-width: thin; }
+.ch-moves { max-height: 190px; overflow: auto; border: 1px solid var(--line); scrollbar-width: thin; scroll-behavior: smooth; }
 .ch-moves ol { margin: 0; padding: 6px 0; list-style: none; counter-reset: mv; }
 .ch-moves li {
   counter-increment: mv;
   display: grid; grid-template-columns: 26px 1fr 1fr; gap: 8px;
   padding: 3px 12px;
   font: 500 10px var(--mono); letter-spacing: .04em;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity .3s ease, transform .38s cubic-bezier(.16, 1, .3, 1);
 }
+.ch-moves li.in { opacity: 1; transform: none; }
 .ch-moves li::before { content: counter(mv); color: var(--muted); }
-.ch-moves li b { font-weight: 500; color: var(--ink); }
+.ch-moves li b, .ch-moves li span {
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity .26s ease, transform .34s cubic-bezier(.16, 1, .3, 1), color .5s ease;
+}
+.ch-moves li b { color: var(--ink); }
 .ch-moves li span { color: rgba(239, 237, 231, .6); }
+.ch-moves li b.in, .ch-moves li span.in { opacity: 1; transform: none; }
 .ch-moves li:last-child b, .ch-moves li:last-child span { color: #9bcfa5; }
 
-.ch-stat { margin: 0; min-height: 13px; font: 500 8px var(--mono); letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+.ch-stat {
+  margin: 0; min-height: 13px;
+  font: 500 8px var(--mono); letter-spacing: .1em; color: var(--muted); text-transform: uppercase;
+  transition: color .3s ease, opacity .3s ease;
+}
+.ch-turn.cpu ~ .ch-stat { color: #8f8ab8; animation: chWork 1.4s ease-in-out infinite; }
 
 .ch-acts { display: flex; flex-wrap: wrap; gap: 8px; }
 .ch-btn {
@@ -4257,6 +4411,7 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
   transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
 }
 .ch-btn:hover { transform: translateY(-1px); }
+.ch-btn:active { transform: translateY(0) scale(.97); }
 .ch-btn-q { background: transparent; color: var(--ink); border-color: var(--line); }
 .ch-btn-q:hover { border-color: var(--ink); }
 .ch-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -4267,10 +4422,10 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
 .ch-promo, .ch-banner {
   position: absolute; inset: 0;
   display: grid; place-items: center;
-  background: rgba(6, 6, 7, .8);
+  background: rgba(6, 6, 7, .82);
   backdrop-filter: blur(3px);
   opacity: 0; pointer-events: none;
-  transition: opacity .3s ease;
+  transition: opacity .34s ease;
 }
 .ch-promo.on, .ch-banner.on { opacity: 1; pointer-events: auto; }
 .ch-promo-in, .ch-banner-in {
@@ -4278,11 +4433,12 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
   border: 1px solid var(--line);
   background: #0d0e10;
   text-align: center;
-  transform: translateY(10px) scale(.98);
-  transition: transform .38s cubic-bezier(.16, 1, .3, 1);
+  transform: translateY(12px) scale(.975);
+  opacity: 0;
+  transition: transform .5s cubic-bezier(.16, 1, .3, 1), opacity .38s ease;
   box-shadow: 0 30px 70px rgba(0, 0, 0, .6);
 }
-.ch-promo.on .ch-promo-in, .ch-banner.on .ch-banner-in { transform: none; }
+.ch-promo.on .ch-promo-in, .ch-banner.on .ch-banner-in { transform: none; opacity: 1; }
 .ch-promo-in p { margin: 0 0 14px; font: 500 9px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
 .ch-promo-row { display: flex; gap: 8px; }
 .ch-promo-b {
@@ -4290,34 +4446,118 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
   display: grid; place-items: center;
   border: 1px solid var(--line); background: #15161a; color: #f4f2ec;
   font-size: 30px; line-height: 1; cursor: pointer;
-  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+  transition: background .2s ease, border-color .2s ease, transform .24s cubic-bezier(.34, 1.36, .5, 1);
 }
-.ch-promo-b:hover { background: #1d1f24; border-color: var(--ink); transform: translateY(-2px); }
+.ch-promo-b:hover { background: #1d1f24; border-color: var(--ink); transform: translateY(-3px) scale(1.06); }
 .ch-promo-b:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ch-promo.on .ch-promo-b { animation: chPromoIn .42s cubic-bezier(.16, 1, .3, 1) both; }
+.ch-promo.on .ch-promo-b:nth-child(1) { animation-delay: .1s; }
+.ch-promo.on .ch-promo-b:nth-child(2) { animation-delay: .16s; }
+.ch-promo.on .ch-promo-b:nth-child(3) { animation-delay: .22s; }
+.ch-promo.on .ch-promo-b:nth-child(4) { animation-delay: .28s; }
 
 .ch-banner-in h3 { margin: 0; font: 900 clamp(34px, 4.6vw, 62px)/.85 var(--disp); font-stretch: 122%; letter-spacing: -.05em; text-transform: uppercase; color: var(--ink); }
 .ch-banner-in p { margin: 12px 0 20px; font-size: 12px; color: var(--muted); }
+.ch-banner-in.win h3 { color: #9bcfa5; }
+.ch-banner-in.lose h3 { color: #ce1126; }
+.ch-banner.on .ch-banner-in h3 { animation: chBannerIn .6s cubic-bezier(.16, 1, .3, 1) both .08s; }
+.ch-banner.on .ch-banner-in p { animation: chBannerIn .6s cubic-bezier(.16, 1, .3, 1) both .18s; }
+.ch-banner.on .ch-banner-in .ch-btn { animation: chBannerIn .6s cubic-bezier(.16, 1, .3, 1) both .28s; }
+
+/* The last position is held for a beat before the card lands on it. */
+.ch-host.settled .ch-board-wrap { box-shadow: 0 40px 90px rgba(0, 0, 0, .6), 0 0 0 1px rgba(206, 17, 38, .3); }
 
 /* ---- motion ------------------------------------------------- */
 
-@keyframes chSq { from { opacity: 0; transform: scale(.86); } to { opacity: 1; transform: none; } }
-@keyframes chPc { from { opacity: 0; } to { opacity: 1; } }
-@keyframes chDot { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
-@keyframes chPromo { 0% { filter: brightness(2.6); transform: scale(1.28); } 100% { filter: none; } }
+@keyframes chDot { from { opacity: 0; transform: scale(.35); } to { opacity: 1; transform: none; } }
+@keyframes chRing { 0% { opacity: 0; transform: scale(1.5); } 60% { opacity: 1; } 100% { opacity: 1; transform: none; } }
 @keyframes chPulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
-@keyframes chCheck { 0%, 100% { background: rgba(206, 17, 38, .22); } 50% { background: rgba(206, 17, 38, .4); } }
+@keyframes chWork { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+@keyframes chCheck { 0%, 100% { background: rgba(206, 17, 38, .24); } 50% { background: rgba(206, 17, 38, .42); } }
+@keyframes chCheckHit {
+  0% { background: rgba(255, 255, 255, .8); }
+  30% { background: rgba(206, 17, 38, .62); }
+  100% { background: rgba(206, 17, 38, .24); }
+}
+@keyframes chMate {
+  0% { background: rgba(255, 255, 255, .9); box-shadow: inset 0 0 0 3px #fff; }
+  100% { background: rgba(206, 17, 38, .34); box-shadow: inset 0 0 0 2px rgba(206, 17, 38, .85); }
+}
+@keyframes chNope {
+  0%, 100% { transform: none; }
+  20% { transform: translateX(-3px); }
+  45% { transform: translateX(3px); }
+  70% { transform: translateX(-2px); }
+}
+@keyframes chStrike {
+  0% { transform: none; }
+  40% { transform: scale(1.16); }
+  100% { transform: none; }
+}
+@keyframes chReply {
+  0% { filter: drop-shadow(0 0 0 rgba(143, 138, 184, 0)); }
+  25% { filter: drop-shadow(0 0 14px rgba(143, 138, 184, .95)); }
+  100% { filter: drop-shadow(0 0 0 rgba(143, 138, 184, 0)); }
+}
+@keyframes chStruck {
+  0% { transform: none; filter: none; }
+  22% { transform: scale(1.14); filter: brightness(2.4); }
+  100% { transform: scale(.5) rotate(16deg) translateY(9px); filter: brightness(1); opacity: 0; }
+}
+@keyframes chPromo {
+  0% { transform: scale(1.34); filter: brightness(2.8); }
+  55% { transform: scale(.96); }
+  100% { transform: none; filter: none; }
+}
+@keyframes chFlinch {
+  0%, 100% { transform: none; }
+  15% { transform: translateX(-4px) rotate(-5deg); }
+  35% { transform: translateX(4px) rotate(5deg); }
+  55% { transform: translateX(-3px) rotate(-3deg); }
+  75% { transform: translateX(2px) rotate(2deg); }
+}
+@keyframes chMated {
+  0% { transform: none; }
+  100% { transform: rotate(74deg) translateY(12%); filter: saturate(.4) brightness(.8); }
+}
+@keyframes chBump {
+  0% { transform: none; }
+  35% { transform: translateY(-5px) scale(1.16); }
+  100% { transform: none; }
+}
+@keyframes chPromoIn { from { opacity: 0; transform: translateY(10px) scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes chBannerIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
 
 html.ch-on body { overflow: hidden; }
-html.ch-on .site-head, html.ch-on .progress-rail { opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+html.ch-on .site-head, html.ch-on .progress-rail { opacity: 0; pointer-events: none; }
 
 @media (max-width: 1000px) {
   .ch-wrap { grid-template-columns: minmax(0, min(58vh, 84vw)); justify-content: center; }
   .ch-moves { max-height: 120px; }
-  .ch-pc { font-size: min(6.4vh, 9vw); }
+  .ch-pc-i { font-size: min(6.4vh, 9vw); }
 }
 
+/* Reduced motion switches the whole board off, pseudo-elements included —
+   the previous reset targeted .ch-sq and .ch-pc, which left every ::after
+   and ::before animation on this board still running. */
 @media (prefers-reduced-motion: reduce) {
-  .ch-host, .ch-wrap, .ch-pc, .ch-sq, .ch-promo, .ch-banner,
-  .ch-promo-in, .ch-banner-in { transition: none; animation: none; }
-  .ch-turn i { animation: none; }
+  .ch-host, .ch-wrap, .ch-pc, .ch-pc-i, .ch-sq, .ch-promo, .ch-banner,
+  .ch-promo-in, .ch-banner-in, .ch-promo-b, .ch-trophy, .ch-moves li,
+  .ch-moves li b, .ch-moves li span, .ch-side-v, .ch-turn, .ch-panel > *,
+  .ch-files, .ch-ranks, .ch-stat, .ch-btn,
+  .ch-sq::after, .ch-sq::before, .ch-board-wrap::before,
+  .ch-turn i, .ch-banner.on .ch-banner-in h3, .ch-banner.on .ch-banner-in p,
+  .ch-banner.on .ch-banner-in .ch-btn {
+    transition: none !important;
+    animation: none !important;
+    transition-delay: 0s !important;
+  }
+  /* Everything that motion would have revealed has to be visible anyway. */
+  .ch-sq, .ch-pc-i, .ch-panel > *, .ch-files, .ch-ranks,
+  .ch-moves li, .ch-moves li b, .ch-moves li span, .ch-trophy {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .ch-host.in, .ch-host.in .ch-wrap { opacity: 1; }
+  .ch-promo.on .ch-promo-in, .ch-banner.on .ch-banner-in { opacity: 1; transform: none; }
 }

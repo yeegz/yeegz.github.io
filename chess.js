@@ -631,6 +631,7 @@
     host.setAttribute('role', 'dialog');
     host.setAttribute('aria-modal', 'true');
     host.setAttribute('aria-label', 'Chess against the machine');
+    host.setAttribute('data-cursor-surface', 'dark');
 
     var wrap = el('div', 'ch-wrap');
     host.appendChild(wrap);
@@ -709,10 +710,13 @@
     var acts = el('div', 'ch-acts');
     var againBtn = el('button', 'ch-btn', 'New game');
     againBtn.type = 'button';
+    againBtn.dataset.cursor = 'RESTART';
     var undoBtn = el('button', 'ch-btn ch-btn-q', 'Take back');
     undoBtn.type = 'button';
+    undoBtn.dataset.cursor = 'UNDO';
     var quitBtn = el('button', 'ch-btn ch-btn-q', 'Leave');
     quitBtn.type = 'button';
+    quitBtn.dataset.cursor = 'CLOSE';
     acts.appendChild(againBtn);
     acts.appendChild(undoBtn);
     acts.appendChild(quitBtn);
@@ -731,6 +735,7 @@
       var b = el('button', 'ch-promo-b', GLYPH[k]);
       b.type = 'button';
       b.setAttribute('aria-label', { q: 'Queen', r: 'Rook', b: 'Bishop', n: 'Knight' }[k]);
+      b.dataset.cursor = { q: 'QUEEN', r: 'ROOK', b: 'BISHOP', n: 'KNIGHT' }[k];
       b.addEventListener('click', function () { choosePromo(k); });
       promoRow.appendChild(b);
     });
@@ -746,6 +751,7 @@
     var bannerP = el('p', null, '');
     var bannerB = el('button', 'ch-btn', 'Play again');
     bannerB.type = 'button';
+    bannerB.dataset.cursor = 'RESTART';
     bannerIn.appendChild(bannerH);
     bannerIn.appendChild(bannerP);
     bannerIn.appendChild(bannerB);
@@ -757,27 +763,91 @@
 
     /* --- rendering ------------------------------------------------------ */
 
+    /* Every piece is two elements: an OUTER that only ever carries the inline
+       transform putting it on its square, and an INNER that everything else
+       animates — lifting, being taken, promoting, flinching in check.
+
+       They are separate because they have to be. A CSS animation or a class
+       that touches `transform` on the outer would outrank the inline style the
+       game writes, and with a filled animation it would hold that override for
+       good. That exact collision froze the runner in the name game earlier;
+       here it silently killed every capture, because `.ch-pc.gone`'s scale and
+       opacity were both pinned by a filled entrance animation and a capture
+       became a blink. Two elements, two jobs, no cascade fight. */
     function place(e, i) {
       e.style.transform = 'translate(' + (fileOf(i) * 100) + '%,' + (rankOf(i) * 100) + '%)';
+    }
+
+    function addPiece(p, i, quiet) {
+      var e = el('span', 'ch-pc ' + (isWhite(p) ? 'w' : 'b'));
+      e.setAttribute('aria-hidden', 'true');
+      var inner = el('i', 'ch-pc-i', GLYPH[p.toLowerCase()]);
+      e.appendChild(inner);
+      e.style.setProperty('--ord', String((7 - rankOf(i)) * (isWhite(p) ? 1 : -1) + 8));
+      place(e, i);
+      layer.appendChild(e);
+      pieceEls[i] = e;
+      if (!quiet) requestAnimationFrame(function () { e.classList.add('set'); });
+      return e;
     }
 
     function buildPieces() {
       layer.textContent = '';
       pieceEls = {};
       for (var i = 0; i < 64; i++) {
-        var p = state.bd[i];
-        if (p === '.') continue;
-        addPiece(p, i);
+        if (state.bd[i] !== '.') addPiece(state.bd[i], i, true);
       }
     }
 
-    function addPiece(p, i) {
-      var e = el('span', 'ch-pc ' + (isWhite(p) ? 'w' : 'b'), GLYPH[p.toLowerCase()]);
-      e.setAttribute('aria-hidden', 'true');
-      place(e, i);
-      layer.appendChild(e);
-      pieceEls[i] = e;
-      return e;
+    /* Re-render an arbitrary position by MOVING what is already on the board
+       rather than rebuilding it. Take-back and new-game both used to wipe the
+       layer and recreate all thirty-two pieces, which meant undo — the one
+       operation whose whole job is to show you the board going backwards —
+       was a hard cut. Same piece, same colour, nearest square: it travels. */
+    function renderPosition() {
+      var want = [];
+      var i;
+      for (i = 0; i < 64; i++) if (state.bd[i] !== '.') want.push({ sq: i, p: state.bd[i] });
+
+      var have = [];
+      Object.keys(pieceEls).forEach(function (k) {
+        have.push({ sq: Number(k), el: pieceEls[k], glyph: pieceEls[k].firstChild.textContent, white: pieceEls[k].classList.contains('w') });
+      });
+
+      var next = {};
+      var used = {};
+      want.forEach(function (w) {
+        var glyph = GLYPH[w.p.toLowerCase()];
+        var white = isWhite(w.p);
+        var best = -1, bestD = 1e9;
+        have.forEach(function (h, hi) {
+          if (used[hi] || h.glyph !== glyph || h.white !== white) return;
+          var d = Math.abs(fileOf(h.sq) - fileOf(w.sq)) + Math.abs(rankOf(h.sq) - rankOf(w.sq));
+          if (d < bestD) { bestD = d; best = hi; }
+        });
+        if (best >= 0) {
+          used[best] = true;
+          var e = have[best].el;
+          if (have[best].sq !== w.sq) {
+            e.classList.add('moving');
+            place(e, w.sq);
+            setTimeout(function () { e.classList.remove('moving'); }, 340);
+          }
+          next[w.sq] = e;
+        } else {
+          next[w.sq] = null;   // filled in below, once the survivors are placed
+        }
+      });
+
+      have.forEach(function (h, hi) {
+        if (used[hi]) return;
+        h.el.classList.add('gone');
+        setTimeout(function () { h.el.remove(); }, 300);
+      });
+
+      pieceEls = {};
+      Object.keys(next).forEach(function (sq) { if (next[sq]) pieceEls[sq] = next[sq]; });
+      want.forEach(function (w) { if (!pieceEls[w.sq]) addPiece(w.p, w.sq); });
     }
 
     function marks() {
@@ -785,18 +855,63 @@
         sq.classList.toggle('sel', i === sel);
         sq.classList.toggle('from', !!lastMove && lastMove.from === i);
         sq.classList.toggle('to', !!lastMove && lastMove.to === i);
-        sq.classList.remove('go', 'take');
-        sq.classList.remove('check');
+        sq.classList.remove('go', 'take', 'check', 'mate');
       });
+      Object.keys(pieceEls).forEach(function (k2) { pieceEls[k2].classList.toggle('lift', Number(k2) === sel); });
       if (sel >= 0) {
         moves.filter(function (m) { return m.from === sel; }).forEach(function (m) {
           squares[m.to].classList.add(m.cap ? 'take' : 'go');
         });
       }
-      if (!over && inCheck(state, state.turn)) {
+      /* Checkmate used to REMOVE the red square from the mated king at the
+         exact instant it meant the most — the guard was `if (!over …)` and
+         finish() repaints. The mark stays, and turns into the mate mark. */
+      if (inCheck(state, state.turn)) {
         var k = kingSq(state.bd, state.turn);
-        if (k >= 0) squares[k].classList.add('check');
+        if (k >= 0) squares[k].classList.add(over && over !== 'draw' ? 'mate' : 'check');
       }
+      cursorVerbs();
+    }
+
+    /* The site draws its own cursor and reads the verb off data-cursor. A
+       chess square does not have one meaning — the same square is a piece to
+       lift, a square to move to, or nothing at all, depending on what is
+       already selected. So the verbs are rewritten every time the position
+       or the selection changes, and approved.js re-reads the label on click
+       without needing the pointer to move. */
+    var NAMES = { k: 'KING', q: 'QUEEN', r: 'ROOK', b: 'BISHOP', n: 'KNIGHT', p: 'PAWN' };
+    function cursorVerbs() {
+      var targets = {};
+      if (sel >= 0) {
+        moves.forEach(function (m) { if (m.from === sel) targets[m.to] = m.cap ? 'TAKE' : 'MOVE'; });
+      }
+      var mine = {};
+      moves.forEach(function (m) { mine[m.from] = true; });
+      squares.forEach(function (sq, i) {
+        var verb;
+        if (over) verb = sqName(i).toUpperCase();
+        else if (thinking || state.turn !== 'w') verb = 'WAIT';
+        else if (i === sel) verb = 'BACK';
+        else if (targets[i]) verb = targets[i];
+        else if (mine[i]) verb = NAMES[state.bd[i].toLowerCase()];
+        else verb = sqName(i).toUpperCase();
+        sq.dataset.cursor = verb;
+        sq.dataset.cursorSize = '54';
+        /* The accessible name names the square and what is standing on it —
+           the stable fact — and appends the action only when there is one.
+           A screen reader should be able to survey the board without every
+           button renaming itself, which is why the piece comes before the
+           verb rather than instead of it. */
+        var here = state.bd[i];
+        var what = here === '.' ? 'empty'
+          : (isWhite(here) ? 'white ' : 'black ') + NAMES[here.toLowerCase()].toLowerCase();
+        var act = (verb === sqName(i).toUpperCase() || verb === 'WAIT') ? ''
+          : ', ' + ({ BACK: 'put back', MOVE: 'move here', TAKE: 'capture here' }[verb] || ('lift ' + verb.toLowerCase()));
+        sq.setAttribute('aria-label', sqName(i) + ', ' + what + act);
+      });
+      /* The board can change while the mouse sits still — the engine moves on
+         its own — so the drawn cursor is asked to look again. */
+      if (window.ysfCursorRefresh) window.ysfCursorRefresh();
     }
 
     function material() {
@@ -809,6 +924,21 @@
       return { w: w, b: b };
     }
 
+    /* The trays are per-piece elements rather than one string. A capture used
+       to make a text node one character longer, which cannot be animated even
+       in principle — there was nothing there to animate. */
+    function paintTray(box, list) {
+      while (box.childNodes.length > list.length) box.removeChild(box.lastChild);
+      for (var i = 0; i < list.length; i++) {
+        var glyph = GLYPH[list[i].toLowerCase()];
+        if (box.childNodes[i]) { box.childNodes[i].textContent = glyph; continue; }
+        var s2 = el('span', 'ch-trophy', glyph);
+        box.appendChild(s2);
+        (function (node) { requestAnimationFrame(function () { node.classList.add('in'); }); })(s2);
+      }
+    }
+
+    var lastEdge = 0;
     function panelPaint() {
       var m = material();
       var edge = Math.round((m.w - m.b) / 100 * 10) / 10;
@@ -816,8 +946,16 @@
       cpuVal.textContent = edge < 0 ? '+' + (-edge) : String(edge === 0 ? 0 : -edge);
       youVal.classList.toggle('up', edge > 0);
       cpuVal.classList.toggle('up', edge < 0);
-      youTaken.textContent = taken.w.map(function (p) { return GLYPH[p.toLowerCase()]; }).join('');
-      cpuTaken.textContent = taken.b.map(function (p) { return GLYPH[p.toLowerCase()]; }).join('');
+      /* The number that changed is the one that gets the beat. */
+      if (edge !== lastEdge) {
+        var grew = edge > lastEdge ? youVal : cpuVal;
+        grew.classList.remove('bump');
+        void grew.offsetWidth;
+        grew.classList.add('bump');
+        lastEdge = edge;
+      }
+      paintTray(youTaken, taken.w);
+      paintTray(cpuTaken, taken.b);
 
       turnBar.classList.toggle('cpu', state.turn === 'b');
       turnBar.classList.toggle('done', !!over);
@@ -829,16 +967,24 @@
 
     function logMove(txt, side) {
       history.push({ san: txt, side: side });
+      var arrive = function (node) { requestAnimationFrame(function () { node.classList.add('in'); }); };
       if (side === 'w') {
         var li = el('li');
-        li.appendChild(el('b', null, txt));
+        var b2 = el('b', null, txt);
+        li.appendChild(b2);
         movesList.appendChild(li);
+        arrive(li);
+        arrive(b2);
       } else {
         var last = movesList.lastChild;
-        if (!last) { last = el('li'); last.appendChild(el('b', null, '…')); movesList.appendChild(last); }
-        last.appendChild(el('span', null, txt));
+        if (!last) { last = el('li'); last.classList.add('in'); last.appendChild(el('b', 'in', '…')); movesList.appendChild(last); }
+        var sp = el('span', null, txt);
+        last.appendChild(sp);
+        arrive(sp);
       }
-      movesBox.scrollTop = movesBox.scrollHeight;
+      /* Scrolled, not jumped. */
+      if (movesBox.scrollTo) movesBox.scrollTo({ top: movesBox.scrollHeight, behavior: 'smooth' });
+      else movesBox.scrollTop = movesBox.scrollHeight;
     }
 
     /* --- applying a move ------------------------------------------------ */
@@ -853,29 +999,41 @@
       make(state, m);
       var text = san(before, m, state);
 
-      /* The captured piece fades and shrinks where it stood rather than
-         vanishing on the frame the mover lands. */
+      /* A capture is the loudest thing that happens on a board, so it is
+         given the longest beat: the taken piece is struck, turns, drops away,
+         and only then does it reappear in the taker's tray. */
       if (capturedPiece && capturedPiece !== '.') {
         var gone = pieceEls[capSq];
         if (gone) {
-          gone.classList.add('gone');
-          setTimeout(function () { gone.remove(); }, 260);
+          gone.classList.add('struck');
+          setTimeout(function () { gone.classList.add('gone'); }, 90);
+          setTimeout(function () { gone.remove(); }, 470);
         }
         delete pieceEls[capSq];
-        taken[moverSide].push(capturedPiece);
+        setTimeout(function () {
+          taken[moverSide].push(capturedPiece);
+          panelPaint();
+        }, 260);
       }
 
       if (mover) {
         delete pieceEls[m.from];
         pieceEls[m.to] = mover;
+        mover.classList.remove('lift');
         mover.classList.add('moving');
+        /* The engine's answer arrives with more weight than your own move, so
+           looking away for a second does not cost you knowing what happened. */
+        if (moverSide === 'b') mover.classList.add('reply');
+        if (m.cap) mover.classList.add('striking');
         place(mover, m.to);
-        setTimeout(function () { mover.classList.remove('moving'); }, 300);
+        setTimeout(function () { mover.classList.remove('moving', 'striking'); }, 360);
+        setTimeout(function () { mover.classList.remove('reply'); }, 900);
         if (m.promo) {
           setTimeout(function () {
-            mover.textContent = GLYPH[m.promo];
+            mover.firstChild.textContent = GLYPH[m.promo];
             mover.classList.add('promoted');
-          }, 190);
+            setTimeout(function () { mover.classList.remove('promoted'); }, 620);
+          }, 210);
         }
       }
 
@@ -887,9 +1045,13 @@
         if (rook) {
           delete pieceEls[rf];
           pieceEls[rt] = rook;
-          rook.classList.add('moving');
-          place(rook, rt);
-          setTimeout(function () { rook.classList.remove('moving'); }, 300);
+          /* Castling is one move, not two pieces that happened to move at the
+             same instant. The king commits, then the rook sweeps in behind it. */
+          setTimeout(function () {
+            rook.classList.add('moving', 'castling');
+            place(rook, rt);
+            setTimeout(function () { rook.classList.remove('moving', 'castling'); }, 380);
+          }, 130);
         }
       }
 
@@ -903,6 +1065,25 @@
       moves = legal(state);
       marks();
       panelPaint();
+      /* Check has an onset, not just a state. Being put in check and having
+         been in check for three moves used to look identical. */
+      if (!over && inCheck(state, state.turn)) {
+        var ks = kingSq(state.bd, state.turn);
+        var kel = pieceEls[ks];
+        if (kel) {
+          kel.classList.remove('flinch');
+          void kel.offsetWidth;
+          kel.classList.add('flinch');
+          setTimeout(function () { kel.classList.remove('flinch'); }, 700);
+        }
+        if (squares[ks]) {
+          squares[ks].classList.remove('check-hit');
+          void squares[ks].offsetWidth;
+          squares[ks].classList.add('check-hit');
+          setTimeout(function () { if (squares[ks]) squares[ks].classList.remove('check-hit'); }, 620);
+        }
+        blip(210, 0.2, 'sawtooth', 0.2, 120);
+      }
       checkEnd();
     }
 
@@ -933,13 +1114,27 @@
     function finish(title, note) {
       bannerH.textContent = title;
       bannerP.textContent = note;
-      banner.classList.add('on');
-      banner.setAttribute('aria-hidden', 'false');
+      bannerIn.classList.remove('win', 'lose', 'draw');
+      bannerIn.classList.add(over === 'win' ? 'win' : over === 'lose' ? 'lose' : 'draw');
       stat.textContent = '';
       panelPaint();
       marks();
+      /* The board holds the last position for a beat before the card covers
+         it. A game that ends should be seen to end on the board, not only in
+         a dialog placed over it. */
+      host.classList.add('settled');
+      if (over && over !== 'draw') {
+        var mk = kingSq(state.bd, state.turn);
+        var mel = pieceEls[mk];
+        if (mel) mel.classList.add('mated');
+      }
       blip(over === 'win' ? 660 : 200, 0.4, 'triangle', 0.24, over === 'win' ? 1320 : 90);
-      setTimeout(function () { bannerB.focus(); }, 420);
+      setTimeout(function () {
+        if (!game) return;
+        banner.classList.add('on');
+        banner.setAttribute('aria-hidden', 'false');
+        setTimeout(function () { if (game) bannerB.focus(); }, 420);
+      }, 820);
     }
 
     /* --- the engine's turn ---------------------------------------------- */
@@ -948,6 +1143,7 @@
       if (over || state.turn !== 'b') return;
       thinking = true;
       panelPaint();
+      cursorVerbs();
       stat.textContent = 'thinking…';
       /* Off the click's frame, so the board has painted the human's move and
          the "thinking" state before the search takes the thread. */
@@ -974,8 +1170,21 @@
       if (m) { apply(m); if (!over) engineTurn(); }
     }
 
+    /* A refused click has to look refused. Silence reads as a broken button,
+       and the engine's turn is exactly when a player will click. */
+    function refuse(i) {
+      var sq = squares[i];
+      if (!sq) return;
+      sq.classList.remove('nope');
+      void sq.offsetWidth;
+      sq.classList.add('nope');
+      setTimeout(function () { sq.classList.remove('nope'); }, 420);
+      blip(150, 0.06, 'square', 0.09, 110);
+    }
+
     function onSquare(i) {
-      if (over || thinking || pending || state.turn !== 'w') return;
+      if (over || pending) { refuse(i); return; }
+      if (thinking || state.turn !== 'w') { refuse(i); return; }
       var p = state.bd[i];
       if (sel >= 0) {
         var picks = moves.filter(function (m) { return m.from === sel && m.to === i; });
@@ -997,6 +1206,11 @@
         sel = i;
         blip(760, 0.04, 'sine', 0.09);
       } else {
+        /* Clicking an enemy piece, a pinned piece with nowhere to go, or an
+           unreachable square is a real answer — it just is not the one you
+           wanted, and it should say so rather than silently dropping your
+           selection. */
+        if (sel >= 0 || p !== '.') refuse(i);
         sel = -1;
       }
       marks();
@@ -1020,8 +1234,11 @@
       banner.classList.remove('on');
       banner.setAttribute('aria-hidden', 'true');
       promo.classList.remove('on');
+      host.classList.remove('settled');
+      lastEdge = 0;
       moves = legal(state);
-      buildPieces();
+      /* The pieces walk home rather than being deleted and remade. */
+      renderPosition();
       marks();
       panelPaint();
       blip(520, 0.18, 'triangle', 0.2, 780);
@@ -1030,7 +1247,7 @@
     /* Take back the pair — yours and the reply — because taking back only
        your own move would hand the engine a free tempo. */
     function takeBack() {
-      if (thinking || !history.length) return;
+      if (thinking || !history.length) { blip(150, 0.06, 'square', 0.09, 110); return; }
       var target = Math.max(0, history.length - (history.length % 2 === 0 ? 2 : 1));
       var replay = history.slice(0, target);
       var sans = replay.map(function (h) { return h.san; });
@@ -1062,7 +1279,11 @@
         }
       });
       moves = legal(state);
-      buildPieces();
+      host.classList.remove('settled');
+      lastEdge = 0;
+      /* Undo is the one operation whose whole job is to show the board going
+         backwards, so the pieces travel to where they were. */
+      renderPosition();
       marks();
       stat.textContent = '';
       panelPaint();
@@ -1087,16 +1308,47 @@
       if (!game) return;
       game = null;
       window.removeEventListener('keydown', onKey, true);
+      /* `in` has to come OFF, not merely be joined by `out` — they are the
+         same specificity and the exit was working only because `out` happens
+         to be declared one line later in the stylesheet. */
+      host.classList.remove('in');
       host.classList.add('out');
-      document.documentElement.classList.remove('ch-on');
-      setTimeout(function () { host.remove(); }, 380);
+      /* And `ch-on` stays until the fade is over. Dropping it here released
+         the scroll lock and snapped the header back to full opacity while the
+         board was still on screen. */
+      setTimeout(function () {
+        document.documentElement.classList.remove('ch-on');
+        host.remove();
+        if (window.ysfCursorZonesChanged) window.ysfCursorZonesChanged();
+      }, 520);
     }
 
     moves = legal(state);
     buildPieces();
     marks();
     panelPaint();
-    requestAnimationFrame(function () { host.classList.add('in'); });
+    /* The overlay is appended, then its layout is READ, and only then does it
+       get the class that starts the transition. Without the read, the browser
+       may never see the "before" state at all: a rAF callback runs before
+       style recalc, so the element's first computed style already contains
+       `in` and there is nothing to transition from. It happened to work
+       because GSAP and Lenis hold earlier rAF callbacks that read layout —
+       an entrance that depends on a third-party ticker is not an entrance.
+
+       The sequence after that is deliberate: the room arrives, the board deals
+       itself out from the near corner, the pieces are set down, the panel
+       follows. Everything used to land on the same frame. */
+    void host.offsetHeight;
+    host.classList.add('in');
+    if (window.ysfCursorZonesChanged) window.ysfCursorZonesChanged();
+    setTimeout(function () {
+      if (!game) return;
+      host.classList.add('dealt');
+      /* The opening position is set down rank by rank once the squares are
+         there to set it on — white from the near side, black from the far. */
+      Object.keys(pieceEls).forEach(function (k) { pieceEls[k].classList.add('set'); });
+    }, 180);
+    setTimeout(function () { if (game) host.classList.add('ready'); }, 1150);
 
     return { close: close, state: function () { return state; }, board: function () { return state.bd.join(''); }, over: function () { return over; } };
   }

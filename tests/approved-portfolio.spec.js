@@ -743,17 +743,19 @@ test('chess: typing the word deals a board you can actually play', async ({ page
   await expect(page.locator('.ch-host')).toHaveClass(/in/);
   await expect(page.locator('.ch-pc')).toHaveCount(32);
   await expect(page.locator('.ch-turn b')).toHaveText('Your move');
+  // The accessible name says what is on the square, not just where it is.
+  await expect(page.locator('.ch-sq[aria-label^="e2,"]')).toHaveAttribute('aria-label', /white pawn/);
 
   // A pawn on its home square offers exactly two moves, and a rook behind an
   // unmoved pawn offers none. Legality is visible before it is played.
-  await page.locator('.ch-sq[aria-label="e2"]').click();
+  await page.locator('.ch-sq[aria-label^="e2,"]').click();
   await expect(page.locator('.ch-sq.go, .ch-sq.take')).toHaveCount(2);
-  await page.locator('.ch-sq[aria-label="a1"]').click();
+  await page.locator('.ch-sq[aria-label^="a1,"]').click();
   await expect(page.locator('.ch-sq.go, .ch-sq.take')).toHaveCount(0);
 
   // Play 1. e4 and the engine has to answer with a legal reply of its own.
-  await page.locator('.ch-sq[aria-label="e2"]').click();
-  await page.locator('.ch-sq[aria-label="e4"]').click();
+  await page.locator('.ch-sq[aria-label^="e2,"]').click();
+  await page.locator('.ch-sq[aria-label^="e4,"]').click();
   await expect(page.locator('.ch-moves li b')).toHaveText('e4');
   await expect(page.locator('.ch-moves li span')).not.toHaveText('', { timeout: 8000 });
   await expect(page.locator('.ch-turn b')).toHaveText('Your move');

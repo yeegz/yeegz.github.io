@@ -141,6 +141,15 @@
       '....vvvvvvvvv.....', '...vmmmmmmmmmv....', '..vmrwwrmmmmmmmv..', '..vmmmmmmmmmmmmvvv',
       '...vmmmmmmmmv..vvv', '....vnn....nv.....', '..................', '..................',
     ],
+    /* The sniper kneels. A silhouette that never walks, with a barrel longer
+       than it is tall, so from across the screen you know what is about to
+       happen to you before the light comes on. */
+    sniper: [
+      '............', '............', '............', '....oooo....',
+      '...orrrro...', '...orrrro...', '...oroorro..', 'mmmmorrrro..',
+      '..orrrrrro..', '..orrrrrro..', '..orrrrrroo.', '..oro.orro..',
+      '.oro...orro.', 'okko....okko', 'ooo......ooo', '............',
+    ],
     turret: [
       '............', '............', '...oooooo...', '..onnnnnno..',
       '.onmmmmmmno.', 'onmmrrrrmmno', 'onmmrwwrmmno', 'onmmrrrrmmno',
@@ -161,17 +170,18 @@
 
   /* ---- the level -------------------------------------------------------
      '#' ground, '=' a platform, '^' a turret mount, 'g' a grunt, 'j' a
-     leaper, 'v' a bomber holding station overhead, 'w' a wave line, 'B' the
+     leaper, 's' a sniper on high ground, 'v' a bomber holding station
+     overhead, 'w' a wave line, 'B' the
      gate, '_' a pit. Authored as text so the level is legible in the source
      rather than a list of coordinates. */
   var MAP = [
     '................................................................................................',
     '................................................................................................',
-    '.................v............g..............v............g...................v.................',
+    '.................v............gs.............v............g...................v.................',
     '.............................====.....................====......................................',
-    '................................................................................................',
+    '................s.................................................s.............................',
     '...............====....................====......................====...........................',
-    '.................................g................j.........................j.......g...........',
+    '.................................g................j.s.......................j.......g...........',
     '..........................^....................########..^................########......^.......',
     '....................g....................^.....############...j...........#######w.........B....',
     '################___#########################___####################___##########################',
@@ -351,6 +361,12 @@
           w: 18, h: 12, hp: 2, cd: 70 + ((rx * 29) % 70), f: 0, y0: ry * CELL,
           vx: 0.55, range: 78, bob: (rx % 10) * 0.6,
         });
+        /* On high ground and out of a grunt's reach, so the answer is to
+           break the line rather than to out-shoot it. */
+        if (ch === 's') foes.push({
+          k: 'sniper', x: rx * CELL, y: groundUnder(rx, ry, 15), w: 10, h: 15,
+          hp: 2, cd: 90 + ((rx * 41) % 80), face: -1, charge: 0, aimX: -1, aimY: 0,
+        });
         if (ch === '^') foes.push({ k: 'turret', x: rx * CELL, y: groundUnder(rx, ry, 12) - 4, w: 12, h: 12, hp: 3, cd: 40 + ((rx * 23) % 50) });
         /* A leaper closes the distance instead of pacing it, so a gap or a
            ledge stops being safe ground to stand and shoot from. */
@@ -426,6 +442,13 @@
           var below = f.y + (f.k === 'turret' ? 4 : 0) + f.h + 2;
           return !solidAt(f.x + f.w / 2, below, true);
         }).map(function (f) { return f.k + '@' + Math.round(f.x); });
+      },
+      /* What is alive and what it is doing. A telegraphed shot is only fair
+         if the telegraph actually renders, and that has to be checkable. */
+      foes: function () {
+        return foes.filter(function (f) { return f.hp > 0; }).map(function (f) {
+          return { k: f.k, x: Math.round(f.x), y: Math.round(f.y), charge: f.charge || 0 };
+        });
       },
       state: function () {
         return {
@@ -644,6 +667,36 @@
           }
           sprite(f.f < 4 ? E.bomb1 : E.bomb2, f.x, f.y, false);
         }
+        else if (f.k === 'sniper') {
+          sprite(E.sniper, f.x, f.y, f.face > 0);
+          if (f.charge > 0) {
+            /* The sight brightens as it settles and goes solid the instant it
+               locks — the change in the line is the warning, not its presence. */
+            var locked = f.charge <= 16;
+            var mx = f.x + 5 + f.aimX * 7, my = f.y + 6 + f.aimY * 7;
+            /* Stop the line at the first thing it cannot see through. A sight
+               drawn through a rock is not a sight, and it tells you the shot
+               is coming when the shot is not. */
+            var reach = 300;
+            for (var rr = 8; rr < 300; rr += 4) {
+              if (solidAt(mx + f.aimX * rr, my + f.aimY * rr)) { reach = rr; break; }
+            }
+            ctx.save();
+            ctx.globalAlpha = locked ? 0.9 : 0.14 + (1 - f.charge / 50) * 0.3;
+            ctx.strokeStyle = '#ce1126';
+            ctx.lineWidth = 1;
+            if (!locked) ctx.setLineDash([2, 3]);
+            ctx.beginPath();
+            ctx.moveTo(mx, my);
+            ctx.lineTo(mx + f.aimX * reach, my + f.aimY * reach);
+            ctx.stroke();
+            ctx.restore();
+            if (locked) {
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(Math.round(mx) - 1, Math.round(my) - 1, 2, 2);
+            }
+          }
+        }
         else if (f.k === 'turret') sprite(E.turret, f.x, f.y + 4, false);
         else if (f.k === 'pick') {
           /* A lit capsule with its letter, bobbing where it fell. */
@@ -675,6 +728,21 @@
           ctx.fillStyle = '#f2cd6b';
           ctx.fillRect(bx2 - 1, by2 + 2, 2, 1);
           ctx.fillRect(bx2 - 2, by2 - 4, 4, 1);
+          return;
+        }
+        if (b.sniper) {
+          var sx3 = Math.round(b.x), sy3 = Math.round(b.y);
+          var n3 = Math.sqrt(b.vx * b.vx + b.vy * b.vy) || 1;
+          ctx.globalAlpha = 0.4;
+          ctx.strokeStyle = '#ce1126';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(sx3, sy3);
+          ctx.lineTo(sx3 - (b.vx / n3) * 11, sy3 - (b.vy / n3) * 11);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(sx3 - 1, sy3 - 1, 3, 3);
           return;
         }
         var bc = b.mine ? (b.col || '#f2cd6b') : '#ce1126';
@@ -934,6 +1002,32 @@
             f.ground = true;
           }
           if (f.y > H + 40) f.hp = 0;
+        } else if (f.k === 'sniper') {
+          var sdx = (player.x + 5) - (f.x + 5);
+          var sdy = (player.y + 7) - (f.y + 6);
+          var sd = Math.sqrt(sdx * sdx + sdy * sdy);
+          if (!player.dead) f.face = sdx > 0 ? 1 : -1;
+          if (f.charge > 0) {
+            f.charge--;
+            /* The line tracks you for the first two thirds and then LOCKS.
+               A sight that follows you until the trigger is not a telegraph,
+               it is a guarantee — the lock is the moment the shot becomes
+               dodgeable, and it is why this is fair. */
+            if (f.charge > 16 && sd > 0) { f.aimX = sdx / sd; f.aimY = sdy / sd; }
+            if (f.charge === 16) blip(1400, 0.05, 'sine', 0.12, 1900);
+            if (f.charge === 0) {
+              bullets.push({
+                x: f.x + 5 + f.aimX * 7, y: f.y + 6 + f.aimY * 7,
+                vx: f.aimX * 4.6, vy: f.aimY * 4.6,
+                mine: false, life: 220, sniper: true,
+              });
+              burst(f.x + 5 + f.aimX * 8, f.y + 6 + f.aimY * 8, 4, '#ce1126', 1.2);
+              f.cd = 160 + Math.random() * 70;
+              blip(300, 0.14, 'sawtooth', 0.22, 90);
+            }
+          } else if (--f.cd <= 0 && !player.dead && sd < 300) {
+            f.charge = 50;
+          }
         } else if (f.k === 'bomber') {
           f.f = (f.f + 1) % 12;
           f.bob += 0.05;
@@ -1010,6 +1104,11 @@
           for (var j = 0; j < foes.length; j++) {
             var f2 = foes[j];
             if (f2.hp <= 0) continue;
+            /* A weapon you shot out of the air is a reward the game took back
+               for aiming — spray fire is the whole point of the spread gun,
+               and it should not cost you the pick-up you just earned. Shots
+               pass straight through a drop. */
+            if (f2.k === 'pick') continue;
             var fh = f2.h + (f2.k === 'turret' ? 6 : 0);
             if (b.x > f2.x && b.x < f2.x + f2.w && b.y > f2.y && b.y < f2.y + fh) {
               if (b.pierce && b.hit.indexOf(j) >= 0) continue;
@@ -1019,8 +1118,9 @@
               blip(520, 0.05, 'square', 0.2, 300);
               if (f2.k === 'gate') { f2.flash = 3; shake = Math.max(shake, 3); }
               if (f2.hp <= 0) {
-                var pts = f2.k === 'gate' ? 500 : f2.k === 'bomber' ? 75
-                  : f2.k === 'turret' ? 60 : f2.k === 'leap' ? 40 : 25;
+                var pts = f2.k === 'gate' ? 500 : f2.k === 'sniper' ? 90
+                  : f2.k === 'bomber' ? 75 : f2.k === 'turret' ? 60
+                  : f2.k === 'leap' ? 40 : 25;
                 score += pts;
                 pops.push({ x: f2.x + f2.w / 2, y: f2.y, t: 0, txt: '+' + pts });
                 burst(f2.x + f2.w / 2, f2.y + f2.h / 2, f2.k === 'gate' ? 60 : 18, '#ce1126', f2.k === 'gate' ? 3.4 : 2);
@@ -1029,8 +1129,8 @@
                 blip(120, 0.35, 'sawtooth', 0.3, 50);
                 if (f2.k === 'gate') { won = 1; blip(660, 0.5, 'triangle', 0.3, 1320); }
                 /* Turrets and leapers are carrying; grunts sometimes are. */
-                var drops = f2.k === 'bomber' ? 0.85 : f2.k === 'turret' ? 0.8
-                  : f2.k === 'leap' ? 0.55 : 0.16;
+                var drops = f2.k === 'sniper' ? 0.9 : f2.k === 'bomber' ? 0.85
+                  : f2.k === 'turret' ? 0.8 : f2.k === 'leap' ? 0.55 : 0.16;
                 if (f2.k === 'bomber') { burst(f2.x + 8, f2.y + 8, 26, '#f2cd6b', 2.6); shake = Math.max(shake, 9); }
                 if (f2.k !== 'gate' && Math.random() < drops) {
                   var pool2 = ['S', 'M', 'L'];

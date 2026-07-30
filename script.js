@@ -549,6 +549,26 @@
       let nameDir = 1;
       let nameHold = 2.6;
       let nameLast = performance.now();
+      /* The ink was read with getComputedStyle(docEl) on EVERY frame, which
+         forces a style recalculation of the root element sixty times a second
+         for the sake of a colour that changes only when the theme or the egg
+         does. On a throttled phone that one line was the single most expensive
+         thing in the boot profile. It is cached against the only two states
+         that can change it. */
+      let inkKey = '';
+      let inkVal = '#f2efe9';
+      const nameInk = () => {
+        const key = (docEl.dataset.theme || '') + (docEl.classList.contains('egypt') ? '|eg' : '');
+        if (key !== inkKey) {
+          inkKey = key;
+          inkVal = docEl.classList.contains('egypt')
+            ? '#d4a017'
+            : getComputedStyle(docEl).getPropertyValue('--ink').trim() || '#f2efe9';
+        }
+        return inkVal;
+      };
+
+      let namePainted = -1;
       const nameTick = (now) => {
         requestAnimationFrame(nameTick);
         const dt = Math.min(0.05, (now - nameLast) / 1000);
@@ -561,9 +581,11 @@
           if (namePhase >= 1) { namePhase = 1; nameDir = -1; nameHold = 3.4; }
           if (namePhase <= 0) { namePhase = 0; nameDir = 1; nameHold = 3.4; }
         }
-        const ink = docEl.classList.contains('egypt')
-          ? '#d4a017'
-          : getComputedStyle(docEl).getPropertyValue('--ink').trim() || '#f2efe9';
+        /* The dissolve holds for over three seconds at each end, and every one
+           of those frames used to redraw a bitmap identical to the last. */
+        const ink = nameInk();
+        if (namePhase === namePainted && ink === inkVal && nameHold > 0) return;
+        namePainted = namePhase;
         nameCanvases.forEach((t) => {
           if (!t.on) return;
           t.x.clearRect(0, 0, NW, NH);
@@ -654,7 +676,13 @@
   ScrollTrigger.config({ ignoreMobileResize: true });
 
   let lenis = null;
-  if (window.Lenis) {
+  /* Smooth-wheel is a mouse affordance. A phone already has momentum scrolling
+     in the compositor, and Lenis cannot improve on it — with syncTouch off it
+     simply sits there costing a gsap.ticker callback every frame and bridging
+     every native scroll event into ScrollTrigger by hand. Touch gets the
+     platform's own scrolling, and its lag smoothing back with it, so a hitch
+     recovers instead of being caught up on the next frame. */
+  if (window.Lenis && finePointer) {
     /* `duration: 1.15` with an expo-out ease means a single wheel impulse
        takes over a second to settle — and ScrollTrigger's scrub then adds its
        own catch-up on top, so the pinned hero trailed the wheel by more than a
@@ -666,6 +694,8 @@
     });
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((t) => lenis.raf(t * 1000));
+    /* Off only where Lenis drives the scroll: with it disabled the default
+       smoothing is what keeps a dropped frame from becoming a visible jump. */
     gsap.ticker.lagSmoothing(0);
     window.lenis = lenis;
   }

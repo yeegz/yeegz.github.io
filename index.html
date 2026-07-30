@@ -32,7 +32,9 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="preload" as="image" href="images/yousof-print.webp" type="image/webp" fetchpriority="high" />
+<link rel="preload" as="image" href="images/yousof-print.webp"
+      imagesrcset="images/yousof-print-620.webp 620w, images/yousof-print.webp 1016w"
+      imagesizes="(max-width: 900px) 92vw, min(38vw, 510px)" type="image/webp" fetchpriority="high" />
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <!-- Stage-only faces (Cardo, Press Start 2P): needed by the project theater
@@ -208,6 +210,8 @@ setTimeout(function () {
 
       <div class="portrait-wrap" data-depth="3" id="portraitWrap">
         <img class="portrait" id="portrait" src="images/yousof-print.webp"
+             srcset="images/yousof-print-620.webp 620w, images/yousof-print.webp 1016w"
+             sizes="(max-width: 900px) 92vw, min(38vw, 510px)"
              alt="Halftone print of Yousof Selim sitting relaxed in the step of his own name, knees up, gazing across the letters" width="1016" height="796" fetchpriority="high" />
       </div>
 
@@ -773,7 +777,7 @@ setTimeout(function () {
       <section class="p-copy"><h2>Photo<br />shoot<span>Strike a pose.</span></h2><p>Each shutter press captures the current subject into the strip, then advances the viewfinder to the next photo.</p><div class="stage-actions"><a class="sa-study" href="work/photoshoot/" data-cursor="READ">Read the case study →</a><a href="https://photoshoot-yeegz.web.app/" target="_blank" rel="noopener" data-cursor="OPEN">Experience it live ↗</a><a href="https://github.com/yeegz/photoshoot" target="_blank" rel="noopener" data-cursor="CODE">View GitHub ↗</a></div></section>
       <div class="camera-app">
         <div class="camera-bar"><span class="lights"><i></i><i></i><i></i></span>PHOTOSHOOT</div>
-        <div class="viewfinder" id="viewfinder" data-effect="none" data-cursor-surface="dark"><img id="viewImage" src="images/projects/photoshoot/subject-01.webp" alt="Photoshoot subject" style="object-position:50% 56%" /><span class="rec"><i></i>REC</span><span class="subject-label" id="subjectLabel">SUBJECT 01</span><span class="lens-point"></span><span class="readout" id="effectLabel">ISO 400 · F/1.8 · CLEAN</span><span class="flash" id="flash"></span></div>
+        <div class="viewfinder" id="viewfinder" data-effect="none" data-cursor-surface="dark"><img id="viewImage" src="images/projects/photoshoot/subject-01.webp" alt="Photoshoot subject" loading="lazy" decoding="async" style="object-position:50% 56%" /><span class="rec"><i></i>REC</span><span class="subject-label" id="subjectLabel">SUBJECT 01</span><span class="lens-point"></span><span class="readout" id="effectLabel">ISO 400 · F/1.8 · CLEAN</span><span class="flash" id="flash"></span></div>
         <div class="camera-controls"><div class="effects" id="effects"><button class="effect active" type="button" data-effect="none" aria-label="Clean" data-cursor="APPLY"></button><button class="effect" type="button" data-effect="mono" aria-label="Black and white" data-cursor="APPLY"></button><button class="effect" type="button" data-effect="sepia" aria-label="Sepia" data-cursor="APPLY"></button><button class="effect" type="button" data-effect="pop" aria-label="Pop art" data-cursor="APPLY"></button></div><button class="shutter" id="shutter" type="button" aria-label="Take a photo" data-cursor="SHOOT"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5 8.6 3h6.8L17 5.5h3A2 2 0 0 1 22 7.5v10A2 2 0 0 1 20 19.5H4a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2h3Zm5 2.2a4.6 4.6 0 1 0 0 9.2 4.6 4.6 0 0 0 0-9.2Z" /></svg></button><span class="shot-count" id="shotCount">0 / 4 captured</span></div>
         <div class="strip" id="strip"><div class="strip-slot"></div><div class="strip-slot"></div><div class="strip-slot"></div><div class="strip-slot"></div></div>
       </div>

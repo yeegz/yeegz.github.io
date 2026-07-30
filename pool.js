@@ -88,7 +88,7 @@
 
     var help = document.createElement('p');
     help.className = 'pl-help';
-    [['Move', 'to aim'], ['Hold', 'to draw back'], ['Release', 'to strike'], ['Esc', 'to leave']]
+    [['Move', 'to aim'], ['Drag back', 'from the ball'], ['Release', 'to strike'], ['R', 'to re-rack'], ['Esc', 'to leave']]
       .forEach(function (pair, i) {
         if (i) help.appendChild(document.createTextNode('   '));
         var b = document.createElement('b');
@@ -174,11 +174,25 @@
       if (turn !== 'you') return;
       var p = pointerAt(e);
       var c = cue();
-      aim = Math.atan2(p.y - c.y, p.x - c.x);
+      var dx = p.x - c.x, dy = p.y - c.y;
+      var d = Math.hypot(dx, dy);
+      if (state === 'power') {
+        /* Dragging back: the ball goes the opposite way to your hand. */
+        aim = Math.atan2(-dy, -dx);
+        power = Math.max(0, Math.min(1, (d - R) / DRAG_MAX));
+      } else if (d > R) {
+        aim = Math.atan2(dy, dx);
+      }
     }
+    /* Holding a button while an invisible meter filled meant the strength of
+       the shot depended on reacting to something you could not see. You pull
+       the cue back instead: the further you drag away from the ball, the
+       harder it hits, and the stick moves with your hand the whole way. */
+    var DRAG_MAX = 150;
     function onDown(e) {
       if (state !== 'aim' || turn !== 'you') return;
       e.preventDefault();
+      cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
       state = 'power';
       powering = true;
       power = 0;
@@ -186,7 +200,8 @@
     function onUp() {
       if (state !== 'power') return;
       powering = false;
-      strike(Math.max(0.12, power));
+      if (power < 0.06) { state = 'aim'; power = 0; return; }   // a tap is not a shot
+      strike(power);
     }
     cv.addEventListener('pointermove', onMove);
     cv.addEventListener('pointerdown', onDown);
@@ -543,7 +558,7 @@
       // cue, aim line and power
       if ((state === 'aim' || state === 'power') && turn === 'you') {
         var c = cue();
-        var back = 26 + power * 60;
+        var back = 22 + power * DRAG_MAX * 0.86;
         ctx.strokeStyle = 'rgba(242,239,233,.22)';
         ctx.setLineDash([5, 7]);
         ctx.lineWidth = 1;
@@ -565,12 +580,51 @@
         ctx.beginPath(); ctx.moveTo(cx1, cy1); ctx.lineTo(cx2, cy2); ctx.stroke();
 
         if (power > 0.01) {
-          ctx.fillStyle = 'rgba(206,17,38,.9)';
-          ctx.fillRect(10, TH - 22, power * 180, 8);
-          ctx.strokeStyle = 'rgba(242,239,233,.35)';
+          /* The meter sits on the shot line, not in a corner, so the strength
+             is read in the same glance as the aim. */
+          var mx = c.x + Math.cos(aim) * 46, my = c.y + Math.sin(aim) * 46;
+          ctx.save();
+          ctx.translate(mx, my);
+          ctx.rotate(aim);
+          ctx.fillStyle = 'rgba(7,8,10,.7)';
+          ctx.fillRect(-34, -5, 68, 10);
+          var pw = ctx.createLinearGradient(-32, 0, 32, 0);
+          pw.addColorStop(0, '#9bcfa5');
+          pw.addColorStop(1, '#ce1126');
+          ctx.fillStyle = pw;
+          ctx.fillRect(-32, -3, 64 * power, 6);
+          ctx.strokeStyle = 'rgba(242,239,233,.4)';
           ctx.lineWidth = 1;
-          ctx.strokeRect(10.5, TH - 22.5, 180, 9);
+          ctx.strokeRect(-32.5, -3.5, 65, 7);
+          ctx.restore();
         }
+      }
+
+      /* Whose shot it is, stated on the table rather than only in the strip
+         underneath — during their turn there is no cue on screen to tell you. */
+      if (state !== 'over' && state !== 'rack') {
+        var yours = turn === 'you' && state !== 'think';
+        var label = yours ? 'YOUR SHOT' : 'OPPONENT';
+        ctx.save();
+        ctx.globalAlpha = yours ? 0.5 : 0.95;
+        ctx.fillStyle = 'rgba(7,8,10,.72)';
+        ctx.fillRect(TW / 2 - 78, 8, 156, 22);
+        ctx.fillStyle = yours ? '#9bcfa5' : '#ce1126';
+        ctx.fillRect(TW / 2 - 78, 8, 3, 22);
+        if (!yours) {
+          /* Three dots that fill while it is deciding. */
+          var dot = Math.floor(t / 12) % 4;
+          for (var q2 = 0; q2 < 3; q2++) {
+            ctx.globalAlpha = q2 < dot ? 0.95 : 0.25;
+            ctx.beginPath(); ctx.arc(TW / 2 + 46 + q2 * 9, 19, 2.4, 0, 6.2832); ctx.fill();
+          }
+          ctx.globalAlpha = 0.95;
+        }
+        ctx.fillStyle = '#f2efe9';
+        ctx.font = '600 10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(label, TW / 2 - 68, 20);
+        ctx.restore();
       }
 
       if (state === 'over') {
@@ -595,7 +649,6 @@
         rackT++;
         if (rackT > 74) { state = 'aim'; message = 'Your break'; }
       }
-      if (powering) power = Math.min(1, power + 0.017);
       if (state === 'think') {
         if (--think <= 0) {
           var plan = aiPlan();

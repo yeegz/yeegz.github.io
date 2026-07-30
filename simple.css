@@ -654,7 +654,8 @@ html:not(.s-anim) .s-stat::before { transform: scaleX(1); }
 
 /* ---------- the portrait, grounded ------------------------------- */
 
-.s-portrait { position: relative; align-self: end; }
+/* Level with the name, not sunk to the bottom of a tall column. */
+.s-portrait { position: relative; align-self: start; margin-top: 0.4rem; }
 /* A pool of light under the figure so a cut-out reads as placed rather than
    floating, and a baseline for it to stand on. */
 .s-portrait::before {
@@ -683,7 +684,7 @@ html:not(.s-anim) .s-stat::before { transform: scaleX(1); }
   vertical-align: 0.08em;
   background: var(--accent);
 }
-@media (min-width: 820px) { .s-hero:has(.s-portrait) { grid-template-columns: minmax(0, 268px) minmax(0, 1fr); align-items: end; } }
+@media (min-width: 820px) { .s-hero:has(.s-portrait) { grid-template-columns: minmax(0, 268px) minmax(0, 1fr); align-items: start; } }
 
 /* ---------- the bar ---------------------------------------------- */
 

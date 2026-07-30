@@ -672,3 +672,58 @@ test('phone case cards are self-contained: no theater, links and new art on the 
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   await context.close();
 });
+
+test('the Konami code opens a playable level, and Escape gives the page back', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForTimeout(1200);
+  for (const key of ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']) {
+    await page.keyboard.press(key);
+  }
+  await expect(page.locator('.cx-host')).toBeVisible();
+  // It arrives rather than appears: the entrance class is what drives that.
+  await expect(page.locator('.cx-host')).toHaveClass(/cx-in/);
+
+  // The machine boots before the level runs.
+  expect((await page.evaluate(() => window.__opBone.state())).phase).toBe('boot');
+  await page.waitForTimeout(3000);
+  expect((await page.evaluate(() => window.__opBone.state())).phase).toBe('play');
+
+  // Running right and firing makes progress and kills something — the level
+  // has to be playable, not merely present.
+  await page.keyboard.down('ArrowRight');
+  for (let i = 0; i < 60; i++) {
+    await page.keyboard.press('z');
+    const s = await page.evaluate(() => window.__opBone.state());
+    // Jump on the approach to a pit edge, the way a player does. Mashing jump
+    // continuously is the one input guaranteed never to clear one.
+    for (const edge of [256, 704, 1152]) {
+      if (s.ground && s.x > edge - 30 && s.x < edge - 6) { await page.keyboard.press('x'); break; }
+    }
+    await page.waitForTimeout(40);
+  }
+  await page.keyboard.up('ArrowRight');
+  const mid = await page.evaluate(() => window.__opBone.state());
+  expect(mid.x, 'the player advanced through the level').toBeGreaterThan(200);
+  expect(mid.deaths.filter((d) => d.why === 'pit').length, 'pits are jumpable').toBe(0);
+
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(500);
+  await expect(page.locator('.cx-host')).toHaveCount(0);
+  expect(await page.evaluate(() => document.body.classList.contains('cx-lock'))).toBe(false);
+});
+
+test('the code is ignored while a field has focus', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForTimeout(800);
+  await page.evaluate(() => {
+    const i = document.createElement('input');
+    i.id = 'kfield';
+    document.body.appendChild(i);
+    i.focus();
+  });
+  for (const key of ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']) {
+    await page.keyboard.press(key);
+  }
+  await expect(page.locator('.cx-host')).toHaveCount(0);
+  expect(await page.inputValue('#kfield')).toContain('ba');
+});

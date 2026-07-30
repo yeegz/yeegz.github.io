@@ -3819,3 +3819,123 @@ html.egypt .egg-tell { color: var(--eg-gold); border-bottom-color: var(--eg-gold
      unequal. They take the full width here, as they did before the wrapper. */
   .work-links { grid-column: 1 / -1; }
 }
+
+/* =============================================================
+   Operation Bone — the Konami code egg (contra.js)
+   -------------------------------------------------------------
+   A fixed playfield over a locked page. It arrives rather than
+   appears: the backdrop fades, the cabinet scales down into
+   place, and the game's own boot sequence takes it from there.
+   ============================================================= */
+
+.cx-host {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  place-items: center;
+  gap: 14px;
+  padding: 24px 16px 20px;
+  background: rgba(5, 6, 10, 0.94);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-host.cx-in { opacity: 1; }
+
+.cx-canvas {
+  align-self: end;
+  image-rendering: pixelated;
+  border: 1px solid rgba(155, 207, 165, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.8),
+    0 30px 90px -30px rgba(0, 0, 0, 0.95),
+    0 0 90px -20px rgba(155, 207, 165, 0.22);
+  transform: scale(1.035) translateY(8px);
+  opacity: 0;
+  transition: transform 0.52s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+.cx-in .cx-canvas { transform: none; opacity: 1; }
+
+.cx-hud,
+.cx-help {
+  margin: 0;
+  color: var(--muted, #8e8b85);
+  font: 500 0.6rem var(--mono, monospace);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s ease 0.18s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.18s;
+}
+.cx-in .cx-hud,
+.cx-in .cx-help { opacity: 1; transform: none; }
+.cx-hud { color: #f2efe9; letter-spacing: 0.22em; }
+.cx-help b { color: #9bcfa5; font-weight: 500; }
+
+/* The page must not scroll under a fixed playfield. */
+body.cx-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
+
+.cx-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 9000;
+  margin: 0;
+  padding: 0.75rem 1.1rem;
+  border: 1px solid rgba(155, 207, 165, 0.4);
+  background: rgba(10, 10, 11, 0.94);
+  color: #f2efe9;
+  font: 500 0.58rem var(--mono, monospace);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  transition: opacity 0.34s, transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cx-toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cx-host, .cx-canvas, .cx-hud, .cx-help, .cx-toast { transition: none; }
+}
+
+/* ---------- the games arrive, they do not appear -----------------
+   All three secrets used to snap into place on the frame they were
+   triggered, which read as a glitch rather than a reveal. Each gets
+   the same short entrance: the layer fades up, its playfield eases
+   down into place, and the chrome behind it dims a beat earlier so
+   the eye is already somewhere else when the game lands. */
+
+.egg-layer,
+.egg-runner,
+.egg-fx,
+.egg-hud {
+  animation: gameIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.egg-hud { animation-delay: 0.1s; }
+
+html.snake-on .snake-layer,
+html.snake-on canvas.snake-canvas,
+html.snake-on .snake-hud {
+  animation: gameIn 0.46s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+html.snake-on .snake-hud { animation-delay: 0.12s; }
+
+@keyframes gameIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+/* The page behind a game steps back before the game steps forward. */
+html.gaming .site-head,
+html.snake-on .site-head,
+html.cx-on .site-head { transition: opacity 0.3s ease, filter 0.3s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .egg-layer, .egg-runner, .egg-fx, .egg-hud,
+  html.snake-on .snake-layer, html.snake-on canvas.snake-canvas, html.snake-on .snake-hud {
+    animation: none;
+  }
+}

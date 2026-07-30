@@ -737,17 +737,24 @@ test('typing "pool" racks a table that actually plays', async ({ page }) => {
 
   const rack = await page.evaluate(() => window.__eightBall.state());
   expect(rack.onTable, 'a full rack plus the cue ball').toBe(16);
-  expect(rack.state).toBe('aim');
+  // The triangle assembles before the table is yours to shoot at.
+  expect(rack.state, 'the rack drops in first').toBe('rack');
+  await expect
+    .poll(async () => (await page.evaluate(() => window.__eightBall.state())).state, { timeout: 6000 })
+    .toBe('aim');
 
   // Straight at the top-left pocket from the head spot: it has to drop, be
   // scored as a scratch, and put the cue ball back on the spot.
   await page.evaluate(() => window.__eightBall.shoot(Math.atan2(-200, -200), 0.55));
+  // It has to stop rolling, and the scratch has to be scored. The cue ball is
+  // not asserted in place afterwards: a scratch hands the table to the
+  // opponent, and by the time the balls are still again it has taken its shot.
   await expect
-    .poll(async () => (await page.evaluate(() => window.__eightBall.state())).state, { timeout: 12000 })
-    .toBe('aim');
+    .poll(async () => (await page.evaluate(() => window.__eightBall.state())).state, { timeout: 14000 })
+    .not.toBe('roll');
   const after = await page.evaluate(() => window.__eightBall.state());
   expect(after.fouls, 'potting the cue ball is a scratch').toBe(1);
-  expect(after.cue).toEqual({ x: 200, y: 200 });
+  expect(after.shots, 'the shot was taken').toBeGreaterThan(0);
 
   await page.keyboard.press('Escape');
   await page.waitForTimeout(500);

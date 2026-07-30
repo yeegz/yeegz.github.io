@@ -192,8 +192,32 @@
     } catch (_) {}
   }
 
+
+  /* Every code announces itself in the colour of what it opened — the three
+     eggs are one system, not three accidents. */
+  function codeToast(text, colour) {
+    var el = document.createElement('p');
+    el.className = 'egg-code-toast';
+    el.setAttribute('role', 'status');
+    el.style.setProperty('--code-colour', colour);
+    var mark = document.createElement('i');
+    mark.setAttribute('aria-hidden', 'true');
+    el.appendChild(mark);
+    el.appendChild(document.createTextNode(text));
+    document.body.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('on'); });
+    setTimeout(function () {
+      el.classList.remove('on');
+      setTimeout(function () { el.remove(); }, 460);
+    }, 2600);
+  }
+
   var game = null;
-  function open() { if (!game) game = build(); }
+  function open() {
+    if (game) return;
+    codeToast('Konami code — Operation Bone', '#9bcfa5');
+    game = build();
+  }
 
   function build() {
     var host = document.createElement('div');
@@ -272,9 +296,9 @@
       face: 1, aim: 0, ground: false, prone: false,
       /* Dropped in under fire: the first grunt is in range from frame one, so
          the drop itself is covered. */
-      lives: 3, inv: 90, dead: 0, frame: 0, fireCd: 0, spread: false,
+      lives: 3, inv: 90, dead: 0, frame: 0, fireCd: 0, gun: 'R',
     };
-    var bullets = [], foes = [], parts = [], waves = [];
+    var bullets = [], foes = [], parts = [], waves = [], pops = [];
     var cam = 0, shake = 0, score = 0, won = 0, lost = 0, t = 0;
 
     /* ---- boot ------------------------------------------------------------
@@ -318,19 +342,35 @@
       }
     }
 
+    /* Four guns, each with a reason to want it: the rifle is the floor, spread
+       covers width, machine covers time, laser covers a line all the way
+       through whatever is standing in it. */
+    var GUNS = {
+      R: { cd: 10, speed: 4.4, dmg: 1, tone: 700, col: '#f2cd6b' },
+      S: { cd: 8, speed: 4.2, dmg: 1, tone: 900, col: '#f2cd6b' },
+      M: { cd: 4, speed: 5.0, dmg: 1, tone: 1050, col: '#e7f0c9' },
+      L: { cd: 16, speed: 8.2, dmg: 3, tone: 1500, col: '#9bcfa5', pierce: true },
+    };
+
     function fire() {
       if (phase !== 'play' || player.fireCd > 0 || player.dead || won || lost) return;
-      player.fireCd = player.spread ? 7 : 10;
+      var G = GUNS[player.gun] || GUNS.R;
+      player.fireCd = G.cd;
       var bx = player.x + (player.face > 0 ? player.w : 0);
       var by = player.y + (player.prone ? 11 : 6);
       var dirs = [];
       if (player.aim < 0) dirs.push([0, -1]);
       else if (player.aim > 0 && !player.ground) dirs.push([0, 1]);
       else dirs.push([player.face, 0]);
-      if (player.spread) { dirs.push([player.face * 0.86, -0.5]); dirs.push([player.face * 0.86, 0.5]); }
-      dirs.forEach(function (d) { bullets.push({ x: bx, y: by, vx: d[0] * 4.4, vy: d[1] * 4.4, mine: true, life: 90 }); });
-      burst(bx, by, 3, '#f2cd6b', 0.7);
-      blip(player.spread ? 900 : 700, 0.05, 'square', 0.32, 240);
+      if (player.gun === 'S') { dirs.push([player.face * 0.86, -0.5]); dirs.push([player.face * 0.86, 0.5]); }
+      dirs.forEach(function (d) {
+        bullets.push({
+          x: bx, y: by, vx: d[0] * G.speed, vy: d[1] * G.speed,
+          mine: true, life: 90, dmg: G.dmg, col: G.col, pierce: G.pierce, hit: [],
+        });
+      });
+      burst(bx, by, player.gun === 'L' ? 6 : 3, G.col, 0.7);
+      blip(G.tone, 0.05, player.gun === 'L' ? 'sawtooth' : 'square', 0.3, 240);
     }
 
     /* A read-only seam. The level has to be provably fair rather than
@@ -366,7 +406,7 @@
       log.push({ why: why || '?', x: Math.round(player.x), y: Math.round(player.y) });
       player.lives--;
       player.dead = 46;
-      player.spread = false;
+      player.gun = 'R';
       shake = 12;
       burst(player.x + 5, player.y + 8, 26, '#ce1126', 2.4);
       noise(0.4, 0.5);
@@ -550,14 +590,28 @@
         if (f.k === 'grunt') sprite(f.f < 8 ? E.grunt1 : E.grunt2, f.x, f.y, f.vx > 0);
         else if (f.k === 'leap') sprite(f.ground ? E.grunt1 : E.grunt2, f.x, f.y, f.vx > 0, f.ground ? null : '#f2cd6b');
         else if (f.k === 'turret') sprite(E.turret, f.x, f.y + 4, false);
+        else if (f.k === 'pick') {
+          /* A lit capsule with its letter, bobbing where it fell. */
+          var by2 = f.y + Math.sin(f.bob / 9) * 2;
+          ctx.fillStyle = '#0a0a0b'; ctx.fillRect(f.x - 1, by2 - 1, 12, 12);
+          ctx.fillStyle = '#9bcfa5'; ctx.fillRect(f.x, by2, 10, 10);
+          ctx.fillStyle = '#0a0a0b';
+          ctx.font = '8px "JetBrains Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(f.gun, f.x + 5, by2 + 8);
+          ctx.textAlign = 'left';
+        }
         else if (f.k === 'gate') sprite(GATE, f.x, f.y, false, f.flash > 0 ? '#ffffff' : null);
       });
 
       bullets.forEach(function (b) {
-        ctx.fillStyle = b.mine ? 'rgba(242,205,107,.35)' : 'rgba(206,17,38,.35)';
-        ctx.fillRect(Math.round(b.x) - 4, Math.round(b.y), 4, 1);
-        ctx.fillStyle = b.mine ? '#f2cd6b' : '#ce1126';
-        ctx.fillRect(Math.round(b.x) - 1, Math.round(b.y) - 1, 3, 2);
+        var bc = b.mine ? (b.col || '#f2cd6b') : '#ce1126';
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = bc;
+        ctx.fillRect(Math.round(b.x) - (b.pierce ? 9 : 4), Math.round(b.y), b.pierce ? 9 : 4, 1);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = bc;
+        ctx.fillRect(Math.round(b.x) - 1, Math.round(b.y) - 1, b.pierce ? 5 : 3, 2);
       });
 
       if (!player.dead || Math.floor(t / 3) % 2) {
@@ -570,6 +624,16 @@
           sprite(art, player.x - 1, player.y, player.face < 0);
         }
       }
+
+      pops.forEach(function (q) {
+        ctx.globalAlpha = Math.max(0, 1 - q.t / 46);
+        ctx.fillStyle = q.txt.charAt(0) === '+' ? '#f2cd6b' : '#9bcfa5';
+        ctx.font = '7px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(q.txt, q.x, q.y - q.t * 0.42);
+        ctx.textAlign = 'left';
+        ctx.globalAlpha = 1;
+      });
 
       parts.forEach(function (p) {
         ctx.globalAlpha = Math.max(0, Math.min(1, p.life / 18));
@@ -764,6 +828,19 @@
             f.ground = true;
           }
           if (f.y > H + 40) f.hp = 0;
+        } else if (f.k === 'pick') {
+          f.bob++;
+          f.vy = Math.min(4, f.vy + GRAV * 0.5);
+          f.y += f.vy;
+          if (solidAt(f.x + 5, f.y + f.h, true)) { f.y = Math.floor((f.y + f.h) / CELL) * CELL - f.h; f.vy = 0; }
+          if (!player.dead && Math.abs(f.x - player.x) < 12 && Math.abs(f.y - player.y) < 16) {
+            f.hp = 0;
+            player.gun = f.gun;
+            score += 40;
+            pops.push({ x: f.x, y: f.y, t: 0, txt: { S: 'SPREAD', M: 'MACHINE', L: 'LASER' }[f.gun] });
+            burst(f.x + 5, f.y + 5, 12, '#9bcfa5', 1.6);
+            blip(880, 0.3, 'triangle', 0.3, 1760);
+          }
         } else if (f.k === 'turret') {
           if (--f.cd <= 0) {
             f.cd = 78;
@@ -792,21 +869,29 @@
             if (f2.hp <= 0) continue;
             var fh = f2.h + (f2.k === 'turret' ? 6 : 0);
             if (b.x > f2.x && b.x < f2.x + f2.w && b.y > f2.y && b.y < f2.y + fh) {
-              f2.hp--;
-              bullets.splice(i, 1);
+              if (b.pierce && b.hit.indexOf(j) >= 0) continue;
+              f2.hp -= (b.dmg || 1);
+              if (b.pierce) b.hit.push(j); else bullets.splice(i, 1);
               burst(b.x, b.y, 5, '#f2cd6b', 1.4);
               blip(520, 0.05, 'square', 0.2, 300);
               if (f2.k === 'gate') { f2.flash = 3; shake = Math.max(shake, 3); }
               if (f2.hp <= 0) {
-                score += f2.k === 'gate' ? 500 : f2.k === 'turret' ? 60 : 25;
+                var pts = f2.k === 'gate' ? 500 : f2.k === 'turret' ? 60 : f2.k === 'leap' ? 40 : 25;
+                score += pts;
+                pops.push({ x: f2.x + f2.w / 2, y: f2.y, t: 0, txt: '+' + pts });
                 burst(f2.x + f2.w / 2, f2.y + f2.h / 2, f2.k === 'gate' ? 60 : 18, '#ce1126', f2.k === 'gate' ? 3.4 : 2);
                 shake = Math.max(shake, f2.k === 'gate' ? 20 : 6);
                 noise(0.3, 0.4);
                 blip(120, 0.35, 'sawtooth', 0.3, 50);
                 if (f2.k === 'gate') { won = 1; blip(660, 0.5, 'triangle', 0.3, 1320); }
-                if (f2.k === 'grunt' && !player.spread && Math.random() < 0.3) {
-                  player.spread = true;
-                  blip(880, 0.3, 'triangle', 0.28, 1760);
+                /* Turrets and leapers are carrying; grunts sometimes are. */
+                var drops = f2.k === 'turret' ? 0.8 : f2.k === 'leap' ? 0.55 : 0.16;
+                if (f2.k !== 'gate' && Math.random() < drops) {
+                  var pool2 = ['S', 'M', 'L'];
+                  foes.push({
+                    k: 'pick', gun: pool2[(Math.random() * pool2.length) | 0],
+                    x: f2.x, y: f2.y, vy: -1.6, w: 10, h: 10, hp: 1, bob: 0,
+                  });
                 }
               }
               break;
@@ -829,6 +914,10 @@
         }
       }
 
+      for (var pk = pops.length - 1; pk >= 0; pk--) {
+        pops[pk].t++;
+        if (pops[pk].t > 46) pops.splice(pk, 1);
+      }
       for (var p2 = parts.length - 1; p2 >= 0; p2--) {
         var pp = parts[p2];
         pp.x += pp.vx; pp.y += pp.vy; pp.vy += 0.12; pp.life--;
@@ -837,7 +926,7 @@
 
       hud.textContent =
         'LIVES ' + new Array(Math.max(0, player.lives + 1) + 1).join('▮') +
-        '   ·   ' + (player.spread ? 'SPREAD' : 'RIFLE') +
+        '   ·   ' + ({ R: 'RIFLE', S: 'SPREAD', L: 'LASER', M: 'MACHINE' }[player.gun] || 'RIFLE') +
         '   ·   ' + ('00000' + score).slice(-5);
     }
 

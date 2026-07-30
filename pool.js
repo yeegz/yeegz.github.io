@@ -44,8 +44,32 @@
     14: '#2e8b57', 15: '#8d3b2f',
   };
 
+
+  /* Every code announces itself in the colour of what it opened — the three
+     eggs are one system, not three accidents. */
+  function codeToast(text, colour) {
+    var el = document.createElement('p');
+    el.className = 'egg-code-toast';
+    el.setAttribute('role', 'status');
+    el.style.setProperty('--code-colour', colour);
+    var mark = document.createElement('i');
+    mark.setAttribute('aria-hidden', 'true');
+    el.appendChild(mark);
+    el.appendChild(document.createTextNode(text));
+    document.body.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('on'); });
+    setTimeout(function () {
+      el.classList.remove('on');
+      setTimeout(function () { el.remove(); }, 460);
+    }, 2600);
+  }
+
   var game = null;
-  function open() { if (!game) game = build(); }
+  function open() {
+    if (game) return;
+    codeToast('POOL — eight ball', '#3f7f5a');
+    game = build();
+  }
 
   function build() {
     var host = document.createElement('div');
@@ -123,13 +147,17 @@
     }
     rack();
 
-    var state = 'aim';        // aim | power | roll | over
+    var state = 'rack';       // rack | aim | power | roll | think | over
     var aim = 0, power = 0, powering = false;
-    var group = null;         // 'solid' | 'stripe' once assigned
+    var group = null;         // the player's group, once assigned
     var potted = [];
-    var message = 'Break';
+    var message = 'Racking';
     var shots = 0, fouls = 0, won = false;
     var t = 0;
+    var turn = 'you';         // you | ai
+    var think = 0;            // the opponent's pause before it shoots
+    var rackT = 0;
+    var drops = [];           // balls mid-fall, drawn after they leave play
 
     var cue = function () { return balls[0]; };
 
@@ -142,13 +170,14 @@
     }
 
     function onMove(e) {
-      if (state === 'roll' || state === 'over') return;
+      if (state !== 'aim' && state !== 'power') return;
+      if (turn !== 'you') return;
       var p = pointerAt(e);
       var c = cue();
       aim = Math.atan2(p.y - c.y, p.x - c.x);
     }
     function onDown(e) {
-      if (state !== 'aim') return;
+      if (state !== 'aim' || turn !== 'you') return;
       e.preventDefault();
       state = 'power';
       powering = true;
@@ -255,7 +284,96 @@
       b.in = true;
       b.vx = b.vy = 0;
       potted.push(b.n);
+      /* Find the mouth it went down so the fall is toward the right hole. */
+      var near = POCKETS[0], nd = 1e9;
+      POCKETS.forEach(function (pk) {
+        var d = (b.x - pk.x) * (b.x - pk.x) + (b.y - pk.y) * (b.y - pk.y);
+        if (d < nd) { nd = d; near = pk; }
+      });
+      drops.push({ n: b.n, x: b.x, y: b.y, tx: near.x, ty: near.y, t: 0 });
       click(0.22, 110, 0.14);
+      setTimeout(function () { click(0.13, 74, 0.1); }, 130);   // the drop into the net
+    }
+
+    /* ---- the opponent -----------------------------------------------------
+       It plays the same rules it is bound by: its own group first, the eight
+       only once that group is gone. For every ball it owns and every pocket,
+       it works out where the cue ball must strike — the ghost ball — checks
+       both halves of the path are clear, and scores the shot by how thin the
+       cut is and how far the ball has to travel. It takes the best one and
+       misses it by a little, because an opponent that never misses is not an
+       opponent, it is a wall. */
+    function groupOf(b) { return b.n >= 1 && b.n <= 7 ? 'solid' : b.n >= 9 ? 'stripe' : 'eight'; }
+
+    function pathClear(fromX, fromY, toX, toY, ignore) {
+      var dx = toX - fromX, dy = toY - fromY;
+      var len = Math.hypot(dx, dy);
+      if (len < 0.001) return true;
+      var ux = dx / len, uy = dy / len;
+      for (var i = 0; i < balls.length; i++) {
+        var b = balls[i];
+        if (b.in || b === ignore) continue;
+        var rx = b.x - fromX, ry = b.y - fromY;
+        var along = rx * ux + ry * uy;
+        if (along <= 0 || along >= len) continue;
+        var perp = Math.abs(rx * uy - ry * ux);
+        if (perp < R * 1.95) return false;
+      }
+      return true;
+    }
+
+    function aiGroupName() {
+      if (!group) return null;
+      return group === 'solid' ? 'stripe' : 'solid';
+    }
+
+    function aiPlan() {
+      var c = cue();
+      var mine = balls.filter(function (b) {
+        if (b.in || b.n === 0) return false;
+        var g = groupOf(b);
+        var want = aiGroupName();
+        if (!want) return g !== 'eight';               // table still open
+        if (remaining(want) === 0) return g === 'eight';
+        return g === want;
+      });
+      var best = null;
+      mine.forEach(function (o) {
+        POCKETS.forEach(function (pk) {
+          var dx = pk.x - o.x, dy = pk.y - o.y;
+          var d = Math.hypot(dx, dy);
+          if (d < 1) return;
+          var gx = o.x - (dx / d) * R * 2.02;
+          var gy = o.y - (dy / d) * R * 2.02;
+          var cdx = gx - c.x, cdy = gy - c.y;
+          var cd = Math.hypot(cdx, cdy);
+          if (cd < R) return;
+          var cut = Math.acos(Math.max(-1, Math.min(1, ((cdx / cd) * (dx / d)) + ((cdy / cd) * (dy / d)))));
+          if (cut > 1.05) return;                       // too thin to make
+          if (!pathClear(c.x, c.y, gx, gy, o)) return;
+          if (!pathClear(o.x, o.y, pk.x, pk.y, o)) return;
+          var score = Math.cos(cut) * (260 / (160 + d)) * (320 / (220 + cd));
+          if (!best || score > best.score) {
+            best = {
+              score: score,
+              angle: Math.atan2(cdy, cdx),
+              power: Math.max(0.3, Math.min(0.92, 0.28 + (d + cd) / 900)),
+            };
+          }
+        });
+      });
+      if (best) {
+        /* Miss by a little, more on the harder shots. */
+        var slop = (1 - Math.min(1, best.score * 2.2)) * 0.05;
+        best.angle += (Math.random() - 0.5) * slop;
+        return best;
+      }
+      /* Nothing on: roll safe at the nearest ball it is allowed to hit. */
+      var target = mine.sort(function (a2, b2) {
+        return Math.hypot(a2.x - c.x, a2.y - c.y) - Math.hypot(b2.x - c.x, b2.y - c.y);
+      })[0];
+      if (!target) return null;
+      return { angle: Math.atan2(target.y - c.y, target.x - c.x), power: 0.3, score: 0 };
     }
 
     function remaining(kind) {
@@ -286,13 +404,23 @@
         cue().x = TW * 0.25;
         cue().y = TH / 2;
         cue().vx = cue().vy = 0;
-        message = 'Scratch. Ball in hand.';
+        message = (turn === 'you' ? 'You scratch.' : 'They scratch.') + ' Ball in hand.';
+        turn = 'ai';
       } else if (potted.length) {
-        message = potted.length + ' down' + (group ? ' — you are ' + group + 's' : '');
+        /* You only keep the table if what went down was yours. */
+        var ownGroup = turn === 'you' ? group : aiGroupName();
+        var mine = potted.filter(function (n) {
+          return n !== 8 && ownGroup && groupOf({ n: n }) === ownGroup;
+        }).length;
+        message = (turn === 'you' ? 'You pot ' : 'They pot ') + potted.length +
+                  (group ? ' — you are ' + group + 's' : '');
+        if (!mine && ownGroup) turn = turn === 'you' ? 'ai' : 'you';
       } else {
-        message = 'No pot.';
+        message = turn === 'you' ? 'No pot — their table.' : 'They miss.';
+        turn = turn === 'you' ? 'ai' : 'you';
       }
       state = 'aim';
+      if (turn === 'ai') { state = 'think'; think = 46; }
     }
 
     /* ---- draw ------------------------------------------------------------- */
@@ -330,12 +458,50 @@
         ctx.beginPath(); ctx.arc(p.x, p.y, POCKET, 0, 6.2832); ctx.stroke();
       });
 
+      // balls falling into a mouth, drawn under the rails so they vanish into it
+      drops.forEach(function (d) {
+        var k = d.t / 26;
+        var bx = d.x + (d.tx - d.x) * k;
+        var by = d.y + (d.ty - d.y) * k;
+        var rr = R * (1 - k * 0.85);
+        ctx.globalAlpha = 1 - k * 0.7;
+        ctx.fillStyle = d.n === 0 ? '#f2efe9' : COLOURS[d.n];
+        ctx.beginPath(); ctx.arc(bx, by, Math.max(0.5, rr), 0, 6.2832); ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+
       // balls
       balls.forEach(function (b) {
         if (b.in) return;
         var col = b.n === 0 ? '#f2efe9' : COLOURS[b.n];
+        /* The rack drops in rather than being there: each ball falls the last
+           few pixels on its own beat, so the triangle assembles. */
+        var settle2 = 1;
+        if (state === 'rack') {
+          var when = 8 + b.n * 3.4;
+          settle2 = Math.max(0, Math.min(1, (rackT - when) / 13));
+          if (settle2 <= 0) return;
+        }
+        var lift = (1 - settle2) * (1 - settle2) * 46;
+        var sq = 1 + (1 - settle2) * 0.18;
+        ctx.save();
+        ctx.translate(0, -lift);
+        ctx.globalAlpha = settle2;
+
+        /* A ball moving fast smears a little behind itself. */
+        var sp = Math.hypot(b.vx, b.vy);
+        if (sp > 2.2) {
+          ctx.strokeStyle = 'rgba(242,239,233,.10)';
+          ctx.lineWidth = R * 1.7;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(b.x - b.vx * 1.4, b.y - b.vy * 1.4);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+
         ctx.fillStyle = 'rgba(0,0,0,.34)';
-        ctx.beginPath(); ctx.ellipse(b.x + 2, b.y + 3.5, R * 0.95, R * 0.6, 0, 0, 6.2832); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(b.x + 2 + lift * 0.3, b.y + 3.5 + lift * 0.35, R * 0.95 * sq, R * 0.6 * sq, 0, 0, 6.2832); ctx.fill();
 
         ctx.fillStyle = col;
         ctx.beginPath(); ctx.arc(b.x, b.y, R, 0, 6.2832); ctx.fill();
@@ -348,23 +514,34 @@
           ctx.fillRect(b.x - R, b.y + R * 0.38, R * 2, R * 0.62);
           ctx.restore();
         }
-        if (b.n > 0) {                      // the number patch
+        if (b.n > 0) {
+          /* The patch rides the surface: as the ball rolls it swings around
+             and shrinks toward the edge, which is what makes it read as
+             turning rather than sliding. */
+          b.roll = (b.roll || 0) + (b.vx * 0.055);
+          b.rollY = (b.rollY || 0) + (b.vy * 0.055);
+          var ox = Math.sin(b.roll) * R * 0.42;
+          var oy = Math.sin(b.rollY) * R * 0.42;
+          var face = Math.max(0.25, 1 - (Math.abs(ox) + Math.abs(oy)) / (R * 0.85));
           ctx.fillStyle = '#f5f3ee';
-          ctx.beginPath(); ctx.arc(b.x, b.y, R * 0.46, 0, 6.2832); ctx.fill();
-          ctx.fillStyle = '#15151a';
-          ctx.font = '600 ' + (R * 0.72) + 'px "JetBrains Mono", monospace';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.fillText(String(b.n), b.x, b.y + 0.5);
+          ctx.beginPath(); ctx.ellipse(b.x + ox, b.y + oy, R * 0.46 * face, R * 0.46, 0, 0, 6.2832); ctx.fill();
+          if (face > 0.55) {
+            ctx.fillStyle = '#15151a';
+            ctx.font = '600 ' + (R * 0.72) + 'px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(String(b.n), b.x + ox, b.y + oy + 0.5);
+          }
         }
         var sh = ctx.createRadialGradient(b.x - R * 0.35, b.y - R * 0.4, 0, b.x, b.y, R);
         sh.addColorStop(0, 'rgba(255,255,255,.42)');
         sh.addColorStop(0.55, 'rgba(255,255,255,0)');
         ctx.fillStyle = sh;
         ctx.beginPath(); ctx.arc(b.x, b.y, R, 0, 6.2832); ctx.fill();
+        ctx.restore();
       });
 
       // cue, aim line and power
-      if (state === 'aim' || state === 'power') {
+      if ((state === 'aim' || state === 'power') && turn === 'you') {
         var c = cue();
         var back = 26 + power * 60;
         ctx.strokeStyle = 'rgba(242,239,233,.22)';
@@ -414,11 +591,27 @@
 
     function step() {
       t++;
+      if (state === 'rack') {
+        rackT++;
+        if (rackT > 74) { state = 'aim'; message = 'Your break'; }
+      }
       if (powering) power = Math.min(1, power + 0.017);
+      if (state === 'think') {
+        if (--think <= 0) {
+          var plan = aiPlan();
+          if (plan) { aim = plan.angle; strike(plan.power); }
+          else { turn = 'you'; state = 'aim'; message = 'They pass.'; }
+        }
+      }
       if (state === 'roll') {
         if (!physics()) { settle(); }
       }
+      for (var di = drops.length - 1; di >= 0; di--) {
+        drops[di].t++;
+        if (drops[di].t > 26) drops.splice(di, 1);
+      }
       hud.textContent =
+        (state === 'think' ? 'THEIR SHOT' : turn === 'you' ? 'YOUR SHOT' : 'THEIR SHOT') + '   ·   ' +
         message.toUpperCase() +
         '   ·   SHOT ' + shots +
         (group ? '   ·   ' + group.toUpperCase() + 'S — ' + remaining(group) + ' LEFT' : '') +

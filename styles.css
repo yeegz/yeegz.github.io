@@ -3990,3 +3990,45 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .pl-host, .pl-canvas, .pl-hud, .pl-help { transition: none; }
 }
+
+/* ---------- every code announces itself ---------------------------
+   One shape for all three eggs, taking the colour of what it opened:
+   the accent for Operation Bone, felt green for the table, the
+   eagle's gold for the flag. */
+
+.egg-code-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  z-index: 9100;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid color-mix(in srgb, var(--code-colour, #9bcfa5) 55%, transparent);
+  background: rgba(8, 9, 12, 0.95);
+  color: #f2efe9;
+  font: 500 0.58rem var(--mono, monospace);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: 0 0 34px -8px color-mix(in srgb, var(--code-colour, #9bcfa5) 55%, transparent);
+  opacity: 0;
+  transform: translate(-50%, 14px);
+  transition: opacity 0.42s cubic-bezier(0.16, 1, 0.3, 1), transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.egg-code-toast.on { opacity: 1; transform: translate(-50%, 0); }
+.egg-code-toast i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--code-colour, #9bcfa5);
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--code-colour, #9bcfa5) 60%, transparent);
+  animation: codePulse 1.5s ease-in-out infinite;
+}
+@keyframes codePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .egg-code-toast { transition: none; }
+  .egg-code-toast i { animation: none; }
+}

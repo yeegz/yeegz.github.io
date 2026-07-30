@@ -4032,3 +4032,8 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
   .egg-code-toast { transition: none; }
   .egg-code-toast i { animation: none; }
 }
+
+/* The hint marks sit inside real sentences, so they must not shout — a dotted
+   accent underline and a cursor that says what to do with them, nothing more. */
+.aside-hint .egg-tell { color: inherit; }
+.work-kicker .egg-tell { border-bottom-color: color-mix(in srgb, var(--accent) 45%, transparent); }

@@ -42,7 +42,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" fetchpriority="low" />
 <noscript><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /><link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" /></noscript>
 
-<link rel="stylesheet" href="styles.css?v=112" />
+<link rel="stylesheet" href="styles.css?v=115" />
 <script>
 document.documentElement.classList.replace('no-js','js');
 /* A refresh restores the old scroll position by default, which drops the
@@ -203,7 +203,7 @@ setTimeout(function () {
           <span class="dim dim-top" aria-hidden="true">FIG. 00 — THE IDENTITY</span>
           <span class="dim dim-right" aria-hidden="true">SET STEPPED — 2 LINES</span>
           <span class="nm-line"><span class="nm-in" id="nmFirst">YOUSOF</span></span>
-          <span class="nm-line nm-line-2"><span class="nm-in nm-egg" id="nmLast">SELIM</span></span>
+          <span class="nm-line nm-line-2"><span class="nm-in nm-egg" id="nmLast" data-cursor="PRESS ×3">SELIM</span></span>
           <span class="nm-ground" id="nmGround" aria-hidden="true"></span>
         </span>
       </h1>
@@ -264,10 +264,10 @@ setTimeout(function () {
           <dl class="about-facts" data-reveal>
             <div><dt>Strengths</dt><dd>Flutter/Dart, Firebase, TypeScript/Node.js, SQL/NoSQL</dd></div>
             <div><dt>Practice</dt><dd>Native integrations, automated testing, end-to-end delivery</dd></div>
-            <div><dt>Available</dt><dd>Full-time internship<br />January — April 2027</dd></div><div><dt>Location</dt><dd>Subang Jaya / Kuala Lumpur, Malaysia</dd></div>
+            <div><dt>Available</dt><dd>Full-time internship<br />January — April 2027</dd></div>
+            <div><dt>Location</dt><dd>Subang Jaya / Kuala Lumpur, Malaysia</dd></div>
             <div><dt>Languages</dt><dd>English · fluent<br />Arabic · native</dd></div>
             <div><dt>Roots</dt><dd><span class="egg-tell" data-cursor="TYPE IT">Egypt</span> · living in Malaysia</dd></div>
-            <div><dt>Off duty</dt><dd><span class="egg-tell" data-cursor="↑↑↓↓←→←→BA">the old cheat</span>, a <span class="egg-tell" data-cursor="TYPE POOL">table</span>, and the <span class="egg-tell" data-cursor="PRESS ×3">name above</span></dd></div>
           </dl>
         </div>
       </div>
@@ -571,7 +571,7 @@ setTimeout(function () {
   <section class="scene skills-section" id="skills" aria-labelledby="skillsTitle">
     <header class="skills-head">
       <div data-reveal><p class="sec-label">02<span class="slash">/</span>TOOLS IN MOTION</p><h2 id="skillsTitle">What I <em>build with.</em></h2></div>
-      <div class="skills-note" data-reveal><p><span class="hint-fine">The lanes keep moving until you choose one. Hover to pause that lane, then browse it with its shaded edges.</span><span class="hint-touch">The lanes keep moving. Tap a lane to pause it, then browse it with its arrows.</span></p></div>
+      <div class="skills-note" data-reveal><p><span class="hint-fine">The lanes keep moving until you choose one. Hover to pause that lane, then browse it with its shaded edges. I learned most of this the long way, and the rest with <span class="egg-tell" data-cursor="↑↑↓↓←→←→BA">the old cheat</span>.</span><span class="hint-touch">The lanes keep moving. Tap a lane to pause it, then browse it with its arrows.</span></p></div>
     </header>
     <!--build:capabilities-->
           <div class="caps" data-reveal>
@@ -844,7 +844,7 @@ setTimeout(function () {
 <footer class="site-foot">
   <p>© 2026 Yousof Selim</p>
   <p>Subang Jaya, Malaysia — <span id="localTime">--:--</span> MYT<span id="dayPhase"></span></p>
-  <p>Designed &amp; built by hand</p>
+  <p>Designed &amp; built by hand — between <span class="egg-tell" data-cursor="TYPE CHESS">moves</span></p>
   <a href="#top" data-scrollto data-cursor="TOP">Back to top ↑</a>
 </footer>
 
@@ -868,11 +868,12 @@ setTimeout(function () {
 <script src="vendor/gsap.min.js?v=3.12.5" defer></script>
 <script src="vendor/ScrollTrigger.min.js?v=3.12.5" defer></script>
 <script src="vendor/lenis.min.js?v=1.1.18" defer></script>
-<script src="script.js?v=50" defer></script>
+<script src="script.js?v=52" defer></script>
 <script src="approved.js?v=23" defer></script>
 <!-- Homepage only: it hangs off the hero name, which no other route has. -->
 <script src="snake.js?v=2" defer></script>
-<script src="contra.js?v=14" defer></script>
+<script src="contra.js?v=6" defer></script>
 <script src="pool.js?v=6" defer></script>
+<script src="chess.js?v=1" defer></script>
 </body>
 </html>

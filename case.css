@@ -1572,6 +1572,15 @@ html.egypt .cs-arch-group[data-tier="client"] {
   .cs-sec-body { min-width: 0; }
   /* The rail belongs to the head's own column now. */
   .cs-section > .cs-sec-head .sec-rail { max-width: 100%; }
+  /* The title is sized by its own column, not by the viewport. On a wide
+     screen a viewport clamp put a word like THROUGH well past the 20rem
+     track, and because grid does not clip, the display type sat on top of
+     the body text beside it. Container units cannot outgrow the track. */
+  .cs-section > .cs-sec-head { container-type: inline-size; }
+  .cs-section > .cs-sec-head .cs-sec-title {
+    font-size: clamp(1.85rem, 17cqw, 4.3rem);
+    overflow-wrap: break-word;
+  }
   /* These two are diagrams, not prose — they take the whole measure. */
   .cs-s-architecture .cs-sec-body { max-width: none; }
 }

@@ -289,6 +289,31 @@ test.describe('homepage repairs', () => {
     }
   });
 
+  test('the identity plate lines up on the same columns on every row', async ({ page }) => {
+    /* The plate was flex with the padding keyed off :nth-child(even). At two
+       across that alternates by column; at three across it alternates by
+       row, so every second row stepped sideways. */
+    await page.goto('/');
+    await page.waitForTimeout(1800);
+    for (const width of [1600, 1440, 1150, 900]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.waitForTimeout(350);
+      const rows = await page.evaluate(() => {
+        const byTop = {};
+        document.querySelectorAll('.about-facts > div').forEach((c) => {
+          const b = c.getBoundingClientRect();
+          (byTop[Math.round(b.top)] ||= []).push(Math.round(b.left));
+        });
+        return Object.values(byTop);
+      });
+      rows.forEach((row) => {
+        row.forEach((x, i) => {
+          expect(x, `${width}px: column ${i} shares one left edge on every row`).toBe(rows[0][i]);
+        });
+      });
+    }
+  });
+
   test('the education tablist is fully keyboard operable', async ({ page }) => {
     // Roving tabindex was applied without arrow-key handling, so the entire
     // Foundation chapter was unreachable without a mouse.
@@ -348,6 +373,33 @@ test.describe('homepage repairs', () => {
       expect(lane.clipped, 'caption clipped by the lane').toBeLessThanOrEqual(0);
     }
     await context.close();
+  });
+
+  test('a section head never rides over the prose beside it', async ({ page }) => {
+    /* The two-track chassis gives the sticky head a 20rem column, but the
+       title was sized in vw. On a wide screen a word like THROUGH grew past
+       the track, and grid does not clip, so the display type sat on top of
+       the body text. */
+    await page.goto('/work/bupples/');
+    await page.waitForTimeout(1200);
+    for (const width of [2560, 1920, 1440, 1120]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.waitForTimeout(320);
+      const overruns = await page.evaluate(() => {
+        const out = [];
+        document.querySelectorAll('.cs-section > .cs-sec-head').forEach((h) => {
+          const body = h.parentElement.querySelector('.cs-sec-body');
+          if (!body) return;
+          const edge = body.getBoundingClientRect().left;
+          h.querySelectorAll('*').forEach((el) => {
+            const r = el.getBoundingClientRect();
+            if (r.width && r.right > edge + 1) out.push(h.parentElement.className.split(' ').pop());
+          });
+        });
+        return [...new Set(out)];
+      });
+      expect(overruns, `${width}px: no head overruns its column`).toEqual([]);
+    }
   });
 
   test('each flagship links to its case study', async ({ page }) => {
@@ -504,6 +556,35 @@ test.describe('easter egg', () => {
     await expect(page.locator('#snkOverlay')).toHaveCount(0);
     // …and what SELIM has always done still happens.
     await expect(page.locator('html')).toHaveClass(/gaming/);
+  });
+
+  test('the runner in the name game actually moves', async ({ page }) => {
+    /* It froze once, and invisibly: the entrance animation added for the
+       games listed .egg-runner, and a CSS animation on transform outranks
+       the inline transform the game loop writes — with fill-mode both it
+       then held the last keyframe for good, parking the figure in the
+       top-left corner of the stage for the whole game. */
+    await page.goto('/');
+    await page.waitForTimeout(2200);
+    await page.locator('#nmLast').click({ clickCount: 3, delay: 90 });
+    await expect(page.locator('.egg-runner')).toBeVisible();
+    await page.waitForTimeout(900);
+
+    const at = () => page.evaluate(() => {
+      const m = new DOMMatrix(getComputedStyle(document.querySelector('.egg-runner')).transform);
+      return { x: Math.round(m.m41), y: Math.round(m.m42) };
+    });
+    const start = await at();
+    expect(start.x, 'he starts somewhere on the stage, not at its origin').toBeGreaterThan(20);
+
+    await page.keyboard.down('ArrowLeft');
+    await page.waitForTimeout(600);
+    await page.keyboard.up('ArrowLeft');
+    const moved = await at();
+    expect(moved.x, 'holding left moves him left').toBeLessThan(start.x);
+
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(600);
   });
 
   test('Escape closes the snake and hands the page back', async ({ page }) => {

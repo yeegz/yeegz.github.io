@@ -712,6 +712,59 @@ test('the Konami code opens a playable level, and Escape gives the page back', a
   expect(await page.evaluate(() => document.body.classList.contains('cx-lock'))).toBe(false);
 });
 
+test('chess: the engine obeys the rules of chess', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForTimeout(900);
+
+  /* Perft is the only honest test of a move generator: it counts every legal
+     move sequence to a depth and compares against numbers the whole of chess
+     agrees on. Kiwipete is the standard position for castling and pins; the
+     third is the standard position for en passant and promotion. If these
+     match, the rules are implemented — not approximately, exactly. */
+  const perft = await page.evaluate(() => {
+    const C = window.__chessEgg;
+    return {
+      start: [1, 2, 3].map((d) => C.perft(d)),
+      kiwipete: [1, 2].map((d) => C.perft(d, C.fromFen('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1'))),
+      passant: [1, 2, 3].map((d) => C.perft(d, C.fromFen('8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1'))),
+    };
+  });
+  expect(perft.start, 'opening position').toEqual([20, 400, 8902]);
+  expect(perft.kiwipete, 'castling and pins').toEqual([48, 2039]);
+  expect(perft.passant, 'en passant and promotion').toEqual([14, 191, 2812]);
+});
+
+test('chess: typing the word deals a board you can actually play', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForTimeout(900);
+  for (const key of ['c', 'h', 'e', 's', 's']) await page.keyboard.press(key);
+
+  await expect(page.locator('.ch-host')).toBeVisible();
+  await expect(page.locator('.ch-host')).toHaveClass(/in/);
+  await expect(page.locator('.ch-pc')).toHaveCount(32);
+  await expect(page.locator('.ch-turn b')).toHaveText('Your move');
+
+  // A pawn on its home square offers exactly two moves, and a rook behind an
+  // unmoved pawn offers none. Legality is visible before it is played.
+  await page.locator('.ch-sq[aria-label="e2"]').click();
+  await expect(page.locator('.ch-sq.go, .ch-sq.take')).toHaveCount(2);
+  await page.locator('.ch-sq[aria-label="a1"]').click();
+  await expect(page.locator('.ch-sq.go, .ch-sq.take')).toHaveCount(0);
+
+  // Play 1. e4 and the engine has to answer with a legal reply of its own.
+  await page.locator('.ch-sq[aria-label="e2"]').click();
+  await page.locator('.ch-sq[aria-label="e4"]').click();
+  await expect(page.locator('.ch-moves li b')).toHaveText('e4');
+  await expect(page.locator('.ch-moves li span')).not.toHaveText('', { timeout: 8000 });
+  await expect(page.locator('.ch-turn b')).toHaveText('Your move');
+  await expect(page.locator('.ch-stat')).toContainText('depth');
+
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(600);
+  await expect(page.locator('.ch-host')).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.classList.contains('ch-on'))).toBe(false);
+});
+
 test('the code is ignored while a field has focus', async ({ page }) => {
   await page.goto('/');
   await page.waitForTimeout(800);

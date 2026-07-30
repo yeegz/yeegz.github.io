@@ -1380,8 +1380,14 @@
       };
 
       const wr = portraitWrapEl ? portraitWrapEl.getBoundingClientRect() : null;
+      /* He drops in where the figure was sitting — but only if that rect is
+         real. A hidden or not-yet-measured portrait wrap reports zeros, and
+         the runner then spawned hard against the left edge near the top of the
+         stage, outside every platform, which is the stuck figure. */
+      const seat = wr && wr.width > 20 ? wr.left + wr.width / 2 - sr.left : null;
+      const startX = Math.max(40, Math.min(sr.width - 40, seat === null ? sr.width * 0.55 : seat));
       const st = {
-        x: wr ? (wr.left + wr.width / 2 - sr.left) : sr.width * 0.6,
+        x: startX,
         y: 60, vx: 0, vy: 0, face: 1, grounded: false, wasGrounded: false,
         lit: 0, t0: performance.now() / 1000, anim: 0,
         coyote: 0, buffer: 0, sq: 0, sqv: 0, dustT: 0, startT: performance.now(),

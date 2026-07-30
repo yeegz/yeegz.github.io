@@ -111,6 +111,33 @@
       '..orrrrrromm', '...orrrro.on', '...orrrro...', '...orrrro...',
       '...oro.oro..', '..oro..oro..', '.okko...okko', '.ooo.....ooo',
     ],
+    /* The leaper is not a red soldier at all — it is the thing the base
+       lets off the leash. Reading it apart from a grunt at a glance is the
+       difference between standing your ground and moving. */
+    leap1: [
+      '............', '...o....o...', '...og..go...', '....oggo....',
+      '...ogggggo..', '..oggwwggo..', '..oggggggo..', '.oggggggggo.',
+      'ogg.oooo.ggo', 'ogg......ggo', '.oggggggggo.', '..og.oo.go..',
+      '.ogg....ggo.', 'ogo......ogo', 'oo........oo', '............',
+    ],
+    leap2: [
+      '..o......o..', '..og....go..', '...oggggo...', '..oggwwggo..',
+      '..oggggggo..', 'o.oggggggo.o', 'og.oggggo.go', 'ogg.oggo.ggo',
+      '.ogg.oo.ggo.', '..og....go..', '.og......go.', 'og........go',
+      'o..........o', '............', '............', '............',
+    ],
+    /* And the bomber owns the air: rotors, a lit cockpit and an open bay.
+       You cannot shoot it by walking — you have to look up. */
+    bomb1: [
+      '................', '...o........o...', 'ooooooo..ooooooo', '...om......mo...',
+      '....ommmmmmo....', '...omnnnnnnmo...', '..omnnrwwrnnmo..', '..omnnnnnnnnmo..',
+      '...ommmmmmmmo...', '....o.oooo.o....', '.......og.......', '................',
+    ],
+    bomb2: [
+      '................', '...o........o...', '.oooo......oooo.', '...om......mo...',
+      '....ommmmmmo....', '...omnnnnnnmo...', '..omnnrwwrnnmo..', '..omnnnnnnnnmo..',
+      '...ommmmmmmmo...', '....o.oooo.o....', '................', '................',
+    ],
     turret: [
       '............', '............', '...oooooo...', '..onnnnnno..',
       '.onmmmmmmno.', 'onmmrrrrmmno', 'onmmrwwrmmno', 'onmmrrrrmmno',
@@ -130,13 +157,14 @@
   ];
 
   /* ---- the level -------------------------------------------------------
-     '#' ground, '=' a platform, '^' a turret mount, 'g' a grunt, 'B' the
+     '#' ground, '=' a platform, '^' a turret mount, 'g' a grunt, 'j' a
+     leaper, 'v' a bomber holding station overhead, 'w' a wave line, 'B' the
      gate, '_' a pit. Authored as text so the level is legible in the source
      rather than a list of coordinates. */
   var MAP = [
     '................................................................................................',
     '................................................................................................',
-    '..............................g...........................g.....................................',
+    '.................v............g..............v............g...................v.................',
     '.............................====.....................====......................................',
     '................................................................................................',
     '...............====....................====......................====...........................',
@@ -313,6 +341,13 @@
       for (var rx = 0; rx < MAP[0].length; rx++) {
         var ch = MAP[ry][rx];
         if (ch === 'g') foes.push({ k: 'grunt', x: rx * CELL, home: rx * CELL, vx: -0.62, vy: 0, y: groundUnder(rx, ry, 15), w: 10, h: 15, hp: 1, cd: 60 + ((rx * 37) % 60), f: 0 });
+        /* A bomber holds a lane of sky and drifts along it, so it is a
+           position to solve rather than an obstacle that walks into you. */
+        if (ch === 'v') foes.push({
+          k: 'bomber', x: rx * CELL, y: ry * CELL, home: rx * CELL,
+          w: 16, h: 12, hp: 2, cd: 70 + ((rx * 29) % 70), f: 0, y0: ry * CELL,
+          vx: 0.55, range: 78, bob: (rx % 10) * 0.6,
+        });
         if (ch === '^') foes.push({ k: 'turret', x: rx * CELL, y: groundUnder(rx, ry, 12) - 4, w: 12, h: 12, hp: 3, cd: 40 + ((rx * 23) % 50) });
         /* A leaper closes the distance instead of pacing it, so a gap or a
            ledge stops being safe ground to stand and shoot from. */
@@ -380,7 +415,9 @@
     window.__opBone = {
       floating: function () {
         return foes.filter(function (f) {
-          if (f.hp <= 0 || f.k === 'gate') return false;
+          /* Bombers are supposed to be in the air — this seam is asking which
+             ground enemies were placed over nothing, not which ones fly. */
+          if (f.hp <= 0 || f.k === 'gate' || f.k === 'bomber' || f.k === 'pick') return false;
           /* The turret is drawn four pixels below its collision box, so the
              check has to ask about the sprite's feet, not the box's. */
           var below = f.y + (f.k === 'turret' ? 4 : 0) + f.h + 2;
@@ -588,7 +625,22 @@
       foes.forEach(function (f) {
         if (f.hp <= 0) return;
         if (f.k === 'grunt') sprite(f.f < 8 ? E.grunt1 : E.grunt2, f.x, f.y, f.vx > 0);
-        else if (f.k === 'leap') sprite(f.ground ? E.grunt1 : E.grunt2, f.x, f.y, f.vx > 0, f.ground ? null : '#f2cd6b');
+        else if (f.k === 'leap') sprite(f.ground ? E.leap1 : E.leap2, f.x, f.y, f.vx > 0);
+        else if (f.k === 'bomber') {
+          /* The shadow is the warning. It lands where the bomb will — and
+             over a pit there is no floor to land on, so there is none. */
+          var scol = Math.max(0, Math.min(MAP[0].length - 1, Math.round((f.x + 8) / CELL)));
+          var sfloor = -1;
+          for (var sr = 0; sr < MAP.length; sr++) {
+            var sc = MAP[sr][scol];
+            if (sc === '#' || sc === '=') { sfloor = sr * CELL; break; }
+          }
+          if (sfloor >= 0) {
+            ctx.fillStyle = 'rgba(10,10,11,.42)';
+            ctx.fillRect(Math.round(f.x + 4), sfloor - 1, 8, 2);
+          }
+          sprite(f.f < 6 ? E.bomb1 : E.bomb2, f.x, f.y, false);
+        }
         else if (f.k === 'turret') sprite(E.turret, f.x, f.y + 4, false);
         else if (f.k === 'pick') {
           /* A lit capsule with its letter, bobbing where it fell. */
@@ -605,6 +657,23 @@
       });
 
       bullets.forEach(function (b) {
+        /* A bomb reads as a falling object, not as a shot: a body, a nose and
+           a fin, with the tail streaking up behind it as it accelerates. */
+        if (b.bomb) {
+          var bx2 = Math.round(b.x), by2 = Math.round(b.y);
+          ctx.globalAlpha = 0.3;
+          ctx.fillStyle = '#f2cd6b';
+          ctx.fillRect(bx2 - 1, by2 - 7, 2, 5);
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = '#0a0a0b';
+          ctx.fillRect(bx2 - 2, by2 - 3, 4, 6);
+          ctx.fillStyle = '#ce1126';
+          ctx.fillRect(bx2 - 1, by2 - 2, 2, 3);
+          ctx.fillStyle = '#f2cd6b';
+          ctx.fillRect(bx2 - 1, by2 + 2, 2, 1);
+          ctx.fillRect(bx2 - 2, by2 - 4, 4, 1);
+          return;
+        }
         var bc = b.mine ? (b.col || '#f2cd6b') : '#ce1126';
         ctx.globalAlpha = 0.35;
         ctx.fillStyle = bc;
@@ -850,6 +919,25 @@
             f.ground = true;
           }
           if (f.y > H + 40) f.hp = 0;
+        } else if (f.k === 'bomber') {
+          f.f = (f.f + 1) % 12;
+          f.bob += 0.05;
+          /* It drifts toward you inside its own lane rather than chasing you
+             across the level: the sky stays a place you pass under, not a
+             thing that follows you home. */
+          var want = Math.max(f.home - f.range, Math.min(f.home + f.range, player.x - 3));
+          f.x += Math.max(-f.vx, Math.min(f.vx, want - f.x));
+          f.y = f.y0 + Math.sin(f.bob) * 3;
+          /* Bombs come straight down, and only when it is actually over you,
+             so the tell is the shadow arriving before the bomb does. */
+          if (--f.cd <= 0 && Math.abs((f.x + 8) - (player.x + 5)) < 26 && player.y > f.y) {
+            f.cd = 105 + Math.random() * 55;
+            bullets.push({
+              x: f.x + 7, y: f.y + 11, vx: 0, vy: 0.6,
+              mine: false, life: 260, bomb: true,
+            });
+            blip(140, 0.12, 'sawtooth', 0.16, 90);
+          }
         } else if (f.k === 'pick') {
           f.bob++;
           f.vy = Math.min(4, f.vy + GRAV * 0.5);
@@ -882,9 +970,27 @@
 
       for (var i = bullets.length - 1; i >= 0; i--) {
         var b = bullets[i];
+        /* A bomb is a bullet that falls. It gathers speed, so the window to
+           move out from under one closes the longer you leave it. */
+        if (b.bomb) b.vy = Math.min(4.6, b.vy + 0.14);
         b.x += b.vx; b.y += b.vy; b.life--;
         if (b.life <= 0 || b.x < cam - 24 || b.x > cam + VW + 24 || b.y < -12 || b.y > H + 12) { bullets.splice(i, 1); continue; }
-        if (solidAt(b.x, b.y)) { burst(b.x, b.y, 2, '#6f6d68', 0.8); bullets.splice(i, 1); continue; }
+        if (solidAt(b.x, b.y)) {
+          if (b.bomb) {
+            burst(b.x, b.y, 14, '#f2cd6b', 2.2);
+            shake = Math.max(shake, 5);
+            blip(90, 0.22, 'sawtooth', 0.26, 40);
+            noise(0.16, 0.3);
+            /* The blast has reach the shell did not — standing right beside
+               the impact still costs you. */
+            if (!player.dead && player.inv <= 0 &&
+                Math.abs((b.x) - (player.x + 5)) < 13 && Math.abs(b.y - (player.y + 8)) < 15) hurt('blast');
+          } else {
+            burst(b.x, b.y, 2, '#6f6d68', 0.8);
+          }
+          bullets.splice(i, 1);
+          continue;
+        }
         if (b.mine) {
           for (var j = 0; j < foes.length; j++) {
             var f2 = foes[j];
@@ -898,7 +1004,8 @@
               blip(520, 0.05, 'square', 0.2, 300);
               if (f2.k === 'gate') { f2.flash = 3; shake = Math.max(shake, 3); }
               if (f2.hp <= 0) {
-                var pts = f2.k === 'gate' ? 500 : f2.k === 'turret' ? 60 : f2.k === 'leap' ? 40 : 25;
+                var pts = f2.k === 'gate' ? 500 : f2.k === 'bomber' ? 75
+                  : f2.k === 'turret' ? 60 : f2.k === 'leap' ? 40 : 25;
                 score += pts;
                 pops.push({ x: f2.x + f2.w / 2, y: f2.y, t: 0, txt: '+' + pts });
                 burst(f2.x + f2.w / 2, f2.y + f2.h / 2, f2.k === 'gate' ? 60 : 18, '#ce1126', f2.k === 'gate' ? 3.4 : 2);
@@ -907,7 +1014,9 @@
                 blip(120, 0.35, 'sawtooth', 0.3, 50);
                 if (f2.k === 'gate') { won = 1; blip(660, 0.5, 'triangle', 0.3, 1320); }
                 /* Turrets and leapers are carrying; grunts sometimes are. */
-                var drops = f2.k === 'turret' ? 0.8 : f2.k === 'leap' ? 0.55 : 0.16;
+                var drops = f2.k === 'bomber' ? 0.85 : f2.k === 'turret' ? 0.8
+                  : f2.k === 'leap' ? 0.55 : 0.16;
+                if (f2.k === 'bomber') { burst(f2.x + 8, f2.y + 8, 26, '#f2cd6b', 2.6); shake = Math.max(shake, 9); }
                 if (f2.k !== 'gate' && Math.random() < drops) {
                   var pool2 = ['S', 'M', 'L'];
                   foes.push({

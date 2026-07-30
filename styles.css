@@ -1168,7 +1168,7 @@ html[data-theme="light"] .nm-egg { background-image: linear-gradient(180deg, #31
 /* Flex, not a 2-col grid: five facts in two columns left a dead cell. */
 .pin .about-facts > div { flex: 1 1 min(100%, 46%); }
 .pin .about-facts > div { padding: 15px 12px 15px 0; border-bottom: 1px solid var(--line); }
-.pin .about-facts > div:nth-child(odd) { border-right: 1px solid var(--line); }
+.pin .about-facts > div:not(:last-child) { border-right: 1px solid var(--line); }
 .pin .about-facts > div:nth-child(even) { padding-left: 18px; }
 .pin .about-facts dt { color: var(--muted); font: 500 8px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
 .pin .about-facts dd { margin-top: 7px; color: var(--ink-soft); font-size: 11px; line-height: 1.45; }
@@ -3959,8 +3959,10 @@ html.cx-on .site-head { transition: opacity 0.3s ease, filter 0.3s ease; }
   transition: opacity 0.36s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .pl-host.pl-in { opacity: 1; }
+/* Centred in the space it is given. It was pinned to the bottom of a 1fr
+   row, which left the table low with a screen of black above it. */
 .pl-canvas {
-  align-self: end;
+  align-self: center;
   border-radius: 10px;
   box-shadow:
     0 30px 90px -30px rgba(0, 0, 0, 0.95),
@@ -4037,3 +4039,20 @@ body.pl-lock { position: fixed; left: 0; right: 0; overflow: hidden; }
    accent underline and a cursor that says what to do with them, nothing more. */
 .aside-hint .egg-tell { color: inherit; }
 .work-kicker .egg-tell { border-bottom-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+
+/* A hint inside a work row sits under .work-open, which is an absolutely
+   positioned button covering the whole card — so the pointer never reached the
+   span and the cursor showed the row's own OPEN sigil instead of the code.
+   It rides above the overlay, the way the card's links already do. */
+.work-kicker .egg-tell {
+  position: relative;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+/* The identity plate held five facts in two fixed columns, which left the last
+   one alone in a row of its own at every width. It packs now, and the rule
+   between columns only draws where there is a neighbour to divide. */
+.pin .about-facts > div { flex: 1 1 min(100%, 30%); }
+@media (max-width: 1180px) { .pin .about-facts > div { flex-basis: min(100%, 46%); } }
+@media (max-width: 620px) { .pin .about-facts > div { flex-basis: 100%; padding-left: 0; } }

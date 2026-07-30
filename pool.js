@@ -177,9 +177,12 @@
       var dx = p.x - c.x, dy = p.y - c.y;
       var d = Math.hypot(dx, dy);
       if (state === 'power') {
-        /* Dragging back: the ball goes the opposite way to your hand. */
-        aim = Math.atan2(-dy, -dx);
-        power = Math.max(0, Math.min(1, (d - R) / DRAG_MAX));
+        /* The aim is already locked. Pulling only decides how hard, measured
+           along the shot line, so a wobble sideways cannot steer it. It used to
+           re-aim from the cursor here, which flipped the shot 180 degrees the
+           instant you pressed. */
+        var along = -(dx * Math.cos(aim) + dy * Math.sin(aim));
+        power = Math.max(0, Math.min(1, (along - R) / DRAG_MAX));
       } else if (d > R) {
         aim = Math.atan2(dy, dx);
       }
@@ -364,10 +367,12 @@
           var cd = Math.hypot(cdx, cdy);
           if (cd < R) return;
           var cut = Math.acos(Math.max(-1, Math.min(1, ((cdx / cd) * (dx / d)) + ((cdy / cd) * (dy / d)))));
-          if (cut > 1.05) return;                       // too thin to make
+          if (cut > 0.92) return;                       // too thin to trust
           if (!pathClear(c.x, c.y, gx, gy, o)) return;
           if (!pathClear(o.x, o.y, pk.x, pk.y, o)) return;
-          var score = Math.cos(cut) * (260 / (160 + d)) * (320 / (220 + cd));
+          /* Straighter is better, squared, so an easy ball wins clearly. */
+          var straight = Math.cos(cut);
+          var score = straight * straight * (300 / (150 + d)) * (360 / (200 + cd));
           if (!best || score > best.score) {
             best = {
               score: score,
@@ -379,7 +384,7 @@
       });
       if (best) {
         /* Miss by a little, more on the harder shots. */
-        var slop = (1 - Math.min(1, best.score * 2.2)) * 0.05;
+        var slop = (1 - Math.min(1, best.score * 2.6)) * 0.022;
         best.angle += (Math.random() - 0.5) * slop;
         return best;
       }
@@ -558,7 +563,9 @@
       // cue, aim line and power
       if ((state === 'aim' || state === 'power') && turn === 'you') {
         var c = cue();
-        var back = 22 + power * DRAG_MAX * 0.86;
+        /* The backswing shows, but capped — a stick 150px off the ball
+           reads as a second cue lying on the table. */
+        var back = 18 + power * 52;
         ctx.strokeStyle = 'rgba(242,239,233,.22)';
         ctx.setLineDash([5, 7]);
         ctx.lineWidth = 1;
@@ -571,13 +578,21 @@
         var cx1 = c.x - Math.cos(aim) * back, cy1 = c.y - Math.sin(aim) * back;
         var cx2 = c.x - Math.cos(aim) * (back + 190), cy2 = c.y - Math.sin(aim) * (back + 190);
         var cueGrad = ctx.createLinearGradient(cx1, cy1, cx2, cy2);
-        cueGrad.addColorStop(0, '#e8dcc3');
-        cueGrad.addColorStop(0.12, '#c9a86b');
-        cueGrad.addColorStop(1, '#5d3f22');
+        cueGrad.addColorStop(0, '#d8c49a');
+        cueGrad.addColorStop(0.35, '#b98f52');
+        cueGrad.addColorStop(1, '#4a3018');
         ctx.strokeStyle = cueGrad;
-        ctx.lineWidth = 4.5;
-        ctx.lineCap = 'round';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'butt';
         ctx.beginPath(); ctx.moveTo(cx1, cy1); ctx.lineTo(cx2, cy2); ctx.stroke();
+        // ferrule, then the chalked tip on the end that meets the ball
+        ctx.strokeStyle = '#f4efe4'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(cx1, cy1);
+        ctx.lineTo(cx1 - Math.cos(aim) * 7, cy1 - Math.sin(aim) * 7); ctx.stroke();
+        ctx.strokeStyle = '#3b6a86'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(cx1, cy1);
+        ctx.lineTo(cx1 - Math.cos(aim) * 2.4, cy1 - Math.sin(aim) * 2.4); ctx.stroke();
+        ctx.lineCap = 'round';
 
         if (power > 0.01) {
           /* The meter sits on the shot line, not in a corner, so the strength

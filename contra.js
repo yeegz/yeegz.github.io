@@ -719,6 +719,28 @@
         if (won) banner('MISSION COMPLETE', '#9bcfa5');
         else if (lost) banner('GAME OVER', '#ce1126');
       }
+      if (phase === 'play' || phase === 'wipe') {
+        /* Lives, weapon and score across the top, the way the genre puts them
+           — the strip under the canvas is chrome, not the game. */
+        ctx.fillStyle = 'rgba(5,6,10,.55)';
+        ctx.fillRect(0, 0, VW, 13);
+        ctx.fillStyle = '#9bcfa5';
+        ctx.fillRect(0, 13, VW, 1);
+        ctx.font = '7px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#ce1126';
+        for (var lv = 0; lv <= player.lives; lv++) ctx.fillRect(6 + lv * 7, 4, 5, 6);
+        ctx.fillStyle = '#8e8b85';
+        ctx.fillText('LIVES', 6 + Math.max(1, player.lives + 1) * 7 + 4, 10);
+        ctx.fillStyle = '#f2cd6b';
+        ctx.textAlign = 'center';
+        ctx.fillText({ R: 'RIFLE', S: 'SPREAD', L: 'LASER', M: 'MACHINE' }[player.gun] || 'RIFLE', VW / 2, 10);
+        ctx.fillStyle = '#f2efe9';
+        ctx.textAlign = 'right';
+        ctx.fillText(('0000000' + score).slice(-7), VW - 6, 10);
+        ctx.textAlign = 'left';
+      }
+
       ctx.fillStyle = 'rgba(0,0,0,.16)';
       for (var yy = 0; yy < VH; yy += 3) ctx.fillRect(0, yy, VW, 1);
     }

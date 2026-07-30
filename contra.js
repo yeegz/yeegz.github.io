@@ -136,13 +136,13 @@
   var MAP = [
     '................................................................................................',
     '................................................................................................',
-    '................................................................................................',
+    '..............................g...........................g.....................................',
     '.............................====.....................====......................................',
     '................................................................................................',
     '...............====....................====......................====...........................',
-    '..............................g................g........g.....................g.................',
-    '..........................^............................########...........########..............',
-    '.............g...........................g.....############g..............########....g....B....',
+    '.................................g................j.........................j.......g...........',
+    '..........................^....................########..^................########......^.......',
+    '....................g....................^.....############...j...........#######w.........B....',
     '################___#########################___####################___##########################',
   ];
 
@@ -247,6 +247,15 @@
     var W = MAP[0].length * CELL;
     var H = MAP.length * CELL;
 
+    /* Deterministic per-cell noise. Math.random() here would make the whole
+       level shimmer as it scrolled, because every cell would be redrawn
+       differently on every frame. */
+    function hash(a, b) {
+      var n = (a * 374761393 + b * 668265263) ^ 0x5bf03635;
+      n = (n ^ (n >> 13)) * 1274126177;
+      return ((n ^ (n >> 16)) >>> 0) % 997;
+    }
+
     function cellAt(cx, cy) {
       if (cy < 0 || cy >= MAP.length || cx < 0 || cx >= MAP[0].length) return '.';
       return MAP[cy][cx];
@@ -265,7 +274,7 @@
          the drop itself is covered. */
       lives: 3, inv: 90, dead: 0, frame: 0, fireCd: 0, spread: false,
     };
-    var bullets = [], foes = [], parts = [];
+    var bullets = [], foes = [], parts = [], waves = [];
     var cam = 0, shake = 0, score = 0, won = 0, lost = 0, t = 0;
 
     /* ---- boot ------------------------------------------------------------
@@ -281,6 +290,12 @@
         var ch = MAP[ry][rx];
         if (ch === 'g') foes.push({ k: 'grunt', x: rx * CELL, home: rx * CELL, vx: -0.62, vy: 0, y: groundUnder(rx, ry, 15), w: 10, h: 15, hp: 1, cd: 60 + ((rx * 37) % 60), f: 0 });
         if (ch === '^') foes.push({ k: 'turret', x: rx * CELL, y: groundUnder(rx, ry, 12) - 4, w: 12, h: 12, hp: 3, cd: 40 + ((rx * 23) % 50) });
+        /* A leaper closes the distance instead of pacing it, so a gap or a
+           ledge stops being safe ground to stand and shoot from. */
+        if (ch === 'j') foes.push({ k: 'leap', x: rx * CELL, home: rx * CELL, y: groundUnder(rx, ry, 15), vx: 0, vy: 0, w: 10, h: 15, hp: 2, cd: 50 + ((rx * 17) % 40), f: 0, ground: true });
+        /* A line you cross that sends a squad in from the right — the one
+           thing the genre does that a static map cannot. */
+        if (ch === 'w') waves.push({ x: rx * CELL, fired: false });
         if (ch === 'B') foes.push({ k: 'gate', x: rx * CELL, y: ry * CELL - CELL * 0.5, w: 20, h: 16, hp: 24, cd: 90, flash: 0 });
       }
     }
@@ -326,7 +341,9 @@
       floating: function () {
         return foes.filter(function (f) {
           if (f.hp <= 0 || f.k === 'gate') return false;
-          var below = f.y + f.h + 2;
+          /* The turret is drawn four pixels below its collision box, so the
+             check has to ask about the sprite's feet, not the box's. */
+          var below = f.y + (f.k === 'turret' ? 4 : 0) + f.h + 2;
           return !solidAt(f.x + f.w / 2, below, true);
         }).map(function (f) { return f.k + '@' + Math.round(f.x); });
       },
@@ -458,16 +475,72 @@
         for (var cx = c0; cx < c1; cx++) {
           var ch2 = MAP[cy][cx], px = cx * CELL, py = cy * CELL;
           if (ch2 === '#') {
-            ctx.fillStyle = '#2a2f26'; ctx.fillRect(px, py, CELL, CELL);
-            ctx.fillStyle = '#3a4133'; ctx.fillRect(px, py, CELL, 3);
-            ctx.fillStyle = '#9bcfa5'; ctx.fillRect(px, py, CELL, 1);
-            ctx.fillStyle = '#20241d';
-            for (var d = 0; d < 3; d++) ctx.fillRect(px + ((cx * 7 + d * 5) % 13), py + 5 + d * 4, 2, 1);
+            var lip = cellAt(cx, cy - 1) !== '#';        // is this the surface?
+            ctx.fillStyle = '#242A21';
+            ctx.fillRect(px, py, CELL, CELL);
+            /* Strata: three bands of rock rather than one flat fill, offset per
+               column so the seam never runs straight across the level. */
+            ctx.fillStyle = '#2C3327';
+            ctx.fillRect(px, py + 4 + (hash(cx, cy) % 2), CELL, 4);
+            ctx.fillStyle = '#1C211A';
+            ctx.fillRect(px, py + 11 - (hash(cx, cy + 9) % 2), CELL, 3);
+            /* Grain: a deterministic speckle, so the same cell is always the
+               same rock and the level does not shimmer as it scrolls. */
+            ctx.fillStyle = '#171C16';
+            for (var d = 0; d < 4; d++) {
+              var hx = hash(cx * 3 + d, cy * 5);
+              ctx.fillRect(px + (hx % 14), py + 3 + ((hx >> 3) % 12), 1 + (hx & 1), 1);
+            }
+            ctx.fillStyle = '#333B2D';
+            for (var d2 = 0; d2 < 2; d2++) {
+              var hy = hash(cx * 7 + d2, cy * 11);
+              ctx.fillRect(px + (hy % 13), py + 5 + ((hy >> 4) % 9), 1, 1);
+            }
+            if (lip) {
+              /* The lit edge, then moss hanging off it in uneven tufts. */
+              ctx.fillStyle = '#4A5540';
+              ctx.fillRect(px, py, CELL, 2);
+              ctx.fillStyle = '#9bcfa5';
+              ctx.fillRect(px, py, CELL, 1);
+              ctx.fillStyle = '#6E8F62';
+              for (var g2 = 0; g2 < CELL; g2 += 2) {
+                var t2 = hash(cx * 13 + g2, cy);
+                if (t2 % 3) ctx.fillRect(px + g2, py + 1, 1, 1 + (t2 % 3));
+              }
+              /* A blade or two standing up out of it. */
+              if (hash(cx, 7) % 3 === 0) {
+                ctx.fillStyle = '#8FB683';
+                var bx2 = px + (hash(cx, 3) % 12) + 2;
+                ctx.fillRect(bx2, py - 3, 1, 3);
+                ctx.fillRect(bx2 + 1, py - 2, 1, 2);
+              }
+            }
+            /* Where the ground ends, the cut face is darker and beaded. */
+            if (cellAt(cx - 1, cy) === '.' || cellAt(cx - 1, cy) === '_') {
+              ctx.fillStyle = '#171C16'; ctx.fillRect(px, py, 1, CELL);
+              ctx.fillStyle = '#3A4433'; ctx.fillRect(px + 1, py, 1, CELL);
+            }
+            if (cellAt(cx + 1, cy) === '.' || cellAt(cx + 1, cy) === '_') {
+              ctx.fillStyle = '#171C16'; ctx.fillRect(px + CELL - 1, py, 1, CELL);
+              ctx.fillStyle = '#3A4433'; ctx.fillRect(px + CELL - 2, py, 1, CELL);
+            }
           } else if (ch2 === '=') {
-            ctx.fillStyle = '#3a4133'; ctx.fillRect(px, py, CELL, 5);
+            /* A girder, not a slab: plate, rivets, shadowed underside. */
+            ctx.fillStyle = '#39412F'; ctx.fillRect(px, py, CELL, 5);
+            ctx.fillStyle = '#232A1D'; ctx.fillRect(px, py + 5, CELL, 2);
             ctx.fillStyle = '#9bcfa5'; ctx.fillRect(px, py, CELL, 1);
+            ctx.fillStyle = '#5B6A4B';
+            ctx.fillRect(px + 3, py + 2, 1, 1);
+            ctx.fillRect(px + 11, py + 2, 1, 1);
           } else if (ch2 === '_') {
-            ctx.fillStyle = '#07080a'; ctx.fillRect(px, py, CELL, CELL);
+            /* The pit reads as depth: a lit rim, then dark that gets darker. */
+            var gp = ctx.createLinearGradient(0, py, 0, py + CELL);
+            gp.addColorStop(0, '#101410');
+            gp.addColorStop(1, '#05060a');
+            ctx.fillStyle = gp;
+            ctx.fillRect(px, py, CELL, CELL);
+            if (cellAt(cx - 1, cy) === '#') { ctx.fillStyle = '#4A5540'; ctx.fillRect(px, py, 1, 4); }
+            if (cellAt(cx + 1, cy) === '#') { ctx.fillStyle = '#4A5540'; ctx.fillRect(px + CELL - 1, py, 1, 4); }
           }
         }
       }
@@ -475,6 +548,7 @@
       foes.forEach(function (f) {
         if (f.hp <= 0) return;
         if (f.k === 'grunt') sprite(f.f < 8 ? E.grunt1 : E.grunt2, f.x, f.y, f.vx > 0);
+        else if (f.k === 'leap') sprite(f.ground ? E.grunt1 : E.grunt2, f.x, f.y, f.vx > 0, f.ground ? null : '#f2cd6b');
         else if (f.k === 'turret') sprite(E.turret, f.x, f.y + 4, false);
         else if (f.k === 'gate') sprite(GATE, f.x, f.y, false, f.flash > 0 ? '#ffffff' : null);
       });
@@ -638,6 +712,20 @@
 
       cam = Math.max(cam, Math.min(W - VW, player.x - VW * 0.38));
 
+      /* Crossing the line sends a squad in from the right edge, running. */
+      waves.forEach(function (wv) {
+        if (wv.fired || player.x < wv.x) return;
+        wv.fired = true;
+        for (var n = 0; n < 3; n++) {
+          foes.push({
+            k: 'grunt', x: cam + VW + 12 + n * 26, home: cam + VW,
+            y: (MAP.length - 1) * CELL - 15, vx: -1.35, vy: 0,
+            w: 10, h: 15, hp: 1, cd: 40 + n * 22, f: 0, charging: true,
+          });
+        }
+        blip(150, 0.4, 'sawtooth', 0.22, 70);
+      });
+
       foes.forEach(function (f) {
         if (f.hp <= 0) return;
         if (f.x < cam - 48 || f.x > cam + VW + 48) return;
@@ -646,12 +734,36 @@
           f.x += f.vx;
           if (solidAt(f.x + (f.vx > 0 ? f.w : 0), f.y + 8) ||
               !solidAt(f.x + f.w / 2, f.y + f.h + 2, true) ||
-              Math.abs(f.x - f.home) > 44) f.vx *= -1;
+              (!f.charging && Math.abs(f.x - f.home) > 44)) f.vx *= -1;
           if (--f.cd <= 0 && Math.abs(player.x - f.x) < 150 && Math.abs(player.y - f.y) < 26) {
             f.cd = 95 + Math.random() * 60;
             bullets.push({ x: f.x + 5, y: f.y + 7, vx: player.x > f.x ? 2.1 : -2.1, vy: 0, mine: false, life: 130 });
             blip(240, 0.06, 'square', 0.18, 140);
           }
+        } else if (f.k === 'leap') {
+          f.f = (f.f + 1) % 16;
+          f.vy = Math.min(9, f.vy + GRAV);
+          var toward = player.x > f.x ? 1 : -1;
+          if (f.ground) {
+            f.vx *= 0.82;
+            if (--f.cd <= 0 && Math.abs(player.x - f.x) < 130) {
+              f.cd = 70 + Math.random() * 40;
+              f.vy = -6.4;
+              f.vx = toward * 1.55;
+              f.ground = false;
+              blip(320, 0.09, 'triangle', 0.14, 520);
+            }
+          }
+          f.x += f.vx;
+          if (solidAt(f.x + (f.vx > 0 ? f.w : 0), f.y + 8)) { f.x -= f.vx; f.vx = 0; }
+          f.y += f.vy;
+          f.ground = false;
+          if (f.vy >= 0 && (solidAt(f.x + 2, f.y + f.h, true) || solidAt(f.x + f.w - 2, f.y + f.h, true))) {
+            f.y = Math.floor((f.y + f.h) / CELL) * CELL - f.h;
+            f.vy = 0;
+            f.ground = true;
+          }
+          if (f.y > H + 40) f.hp = 0;
         } else if (f.k === 'turret') {
           if (--f.cd <= 0) {
             f.cd = 78;

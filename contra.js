@@ -139,11 +139,11 @@
     '................................................................................................',
     '.............................====.....................====......................................',
     '................................................................................................',
-    '...............====....................====.....................====............................',
-    '..............................g................g................................................',
-    '..........................^................................^....................................',
-    '.............g...........................g.........................g...........g...........B....',
-    '################___#########################___#########################___####################',
+    '...............====....................====......................====...........................',
+    '..............................g................g........g.....................g.................',
+    '..........................^............................########...........########..............',
+    '.............g...........................g.....############g..............########....g....B....',
+    '################___#########################___####################___##########################',
   ];
 
   var CELL = 16;
@@ -279,10 +279,21 @@
     for (var ry = 0; ry < MAP.length; ry++) {
       for (var rx = 0; rx < MAP[0].length; rx++) {
         var ch = MAP[ry][rx];
-        if (ch === 'g') foes.push({ k: 'grunt', x: rx * CELL, home: rx * CELL, vx: -0.62, vy: 0, y: ry * CELL, w: 10, h: 15, hp: 1, cd: 60 + ((rx * 37) % 60), f: 0 });
-        if (ch === '^') foes.push({ k: 'turret', x: rx * CELL, y: ry * CELL, w: 12, h: 12, hp: 3, cd: 40 + ((rx * 23) % 50) });
+        if (ch === 'g') foes.push({ k: 'grunt', x: rx * CELL, home: rx * CELL, vx: -0.62, vy: 0, y: groundUnder(rx, ry, 15), w: 10, h: 15, hp: 1, cd: 60 + ((rx * 37) % 60), f: 0 });
+        if (ch === '^') foes.push({ k: 'turret', x: rx * CELL, y: groundUnder(rx, ry, 12) - 4, w: 12, h: 12, hp: 3, cd: 40 + ((rx * 23) % 50) });
         if (ch === 'B') foes.push({ k: 'gate', x: rx * CELL, y: ry * CELL - CELL * 0.5, w: 20, h: 16, hp: 24, cd: 90, flash: 0 });
       }
+    }
+
+    /* Whatever row a spawn is authored on it stands on the first surface
+       below it — a turret hanging two cells above the floor is the tell that
+       placement was left to the map rather than to the terrain. */
+    function groundUnder(rx, ry, h) {
+      for (var y = ry; y < MAP.length; y++) {
+        var c = MAP[y][rx];
+        if (c === '#' || c === '=') return y * CELL - h;
+      }
+      return (MAP.length - 1) * CELL - h;
     }
 
     function burst(x, y, n, col, spd) {
@@ -312,6 +323,13 @@
        what actually killed the player and where. */
     var log = [];
     window.__opBone = {
+      floating: function () {
+        return foes.filter(function (f) {
+          if (f.hp <= 0 || f.k === 'gate') return false;
+          var below = f.y + f.h + 2;
+          return !solidAt(f.x + f.w / 2, below, true);
+        }).map(function (f) { return f.k + '@' + Math.round(f.x); });
+      },
       state: function () {
         return {
           phase: phase, lives: player.lives, score: score, won: won, lost: lost,
@@ -364,11 +382,21 @@
       var k = String(e.key || '');
       if (k === 'Escape') { e.preventDefault(); close(); return; }
       var down = e.type === 'keydown';
-      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' ', 'z', 'Z', 'x', 'X'].indexOf(k) >= 0) {
+      var lower = k.toLowerCase();
+      var JUMPK = [' ', 'x', 'k', 'w'];
+      var FIREK = ['z', 'j', 'f'];
+      var MOVEK = ['arrowleft', 'arrowright', 'arrowup', 'arrowdown', 'a', 'd', 's'];
+      if (MOVEK.indexOf(lower) >= 0 || JUMPK.indexOf(lower) >= 0 || FIREK.indexOf(lower) >= 0) {
         e.preventDefault();
-        keys[k.toLowerCase()] = down;
-        if (down && (k === 'x' || k === 'X')) jump();
-        if (down && (k === 'z' || k === 'Z' || k === ' ')) fire();
+        /* WASD mirrors the arrows so either hand works, and space jumps because
+           on a web page space is what jumps. Up stays aim: making it jump would
+           launch you every time you tried to shoot something above you. */
+        if (lower === 'a') keys.arrowleft = down;
+        else if (lower === 'd') keys.arrowright = down;
+        else if (lower === 's') keys.arrowdown = down;
+        else keys[lower] = down;
+        if (down && JUMPK.indexOf(lower) >= 0) jump();
+        if (down && FIREK.indexOf(lower) >= 0) fire();
       }
     }
     function jump() {
@@ -701,9 +729,22 @@
         '   ·   ' + ('00000' + score).slice(-5);
     }
 
-    var raf = 0;
-    function loop() { raf = requestAnimationFrame(loop); step(); draw(); }
-    loop();
+    /* step() used to run once per animation frame, so the whole game ran at
+       the refresh rate of the panel it was on — double speed on any 120Hz
+       display, which is every recent Mac. The simulation is pinned to 60Hz and
+       the frame only decides how often it is drawn. */
+    var raf = 0, acc = 0, prev = 0;
+    var STEP = 1000 / 60;
+    function loop(now) {
+      raf = requestAnimationFrame(loop);
+      if (!prev) prev = now;
+      acc += Math.min(100, now - prev);   // a backgrounded tab must not fast-forward
+      prev = now;
+      var guard = 0;
+      while (acc >= STEP && guard++ < 5) { acc -= STEP; step(); }
+      draw();
+    }
+    raf = requestAnimationFrame(loop);
 
     function close() {
       cancelAnimationFrame(raf);

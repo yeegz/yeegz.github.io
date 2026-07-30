@@ -127,16 +127,19 @@
       'o..........o', '............', '............', '............',
     ],
     /* And the bomber owns the air: rotors, a lit cockpit and an open bay.
-       You cannot shoot it by walking — you have to look up. */
+       You cannot shoot it by walking — you have to look up. It is drawn in
+       the light greys rather than the outline black the ground enemies use:
+       against a night sky a black-edged shape is a smudge, and an enemy you
+       cannot see coming is not difficulty, it is a bug. */
     bomb1: [
-      '................', '...o........o...', 'ooooooo..ooooooo', '...om......mo...',
-      '....ommmmmmo....', '...omnnnnnnmo...', '..omnnrwwrnnmo..', '..omnnnnnnnnmo..',
-      '...ommmmmmmmo...', '....o.oooo.o....', '.......og.......', '................',
+      '..................', '......v....v......', 'vvvvvvvvvvvvvvvvvv', '.......vmv........',
+      '....vvvvvvvvv.....', '...vmmmmmmmmmv....', '..vmrwwrmmmmmmmv..', '..vmmmmmmmmmmmmvvv',
+      '...vmmmmmmmmv..vvv', '....vnn.gg.nv.....', '......v.gg.v......', '..................',
     ],
     bomb2: [
-      '................', '...o........o...', '.oooo......oooo.', '...om......mo...',
-      '....ommmmmmo....', '...omnnnnnnmo...', '..omnnrwwrnnmo..', '..omnnnnnnnnmo..',
-      '...ommmmmmmmo...', '....o.oooo.o....', '................', '................',
+      '..................', '......v....v......', '.vv.vv.vv.vv.vv.v.', '.......vmv........',
+      '....vvvvvvvvv.....', '...vmmmmmmmmmv....', '..vmrwwrmmmmmmmv..', '..vmmmmmmmmmmmmvvv',
+      '...vmmmmmmmmv..vvv', '....vnn....nv.....', '..................', '..................',
     ],
     turret: [
       '............', '............', '...oooooo...', '..onnnnnno..',
@@ -345,7 +348,7 @@
            position to solve rather than an obstacle that walks into you. */
         if (ch === 'v') foes.push({
           k: 'bomber', x: rx * CELL, y: ry * CELL, home: rx * CELL,
-          w: 16, h: 12, hp: 2, cd: 70 + ((rx * 29) % 70), f: 0, y0: ry * CELL,
+          w: 18, h: 12, hp: 2, cd: 70 + ((rx * 29) % 70), f: 0, y0: ry * CELL,
           vx: 0.55, range: 78, bob: (rx % 10) * 0.6,
         });
         if (ch === '^') foes.push({ k: 'turret', x: rx * CELL, y: groundUnder(rx, ry, 12) - 4, w: 12, h: 12, hp: 3, cd: 40 + ((rx * 23) % 50) });
@@ -629,7 +632,7 @@
         else if (f.k === 'bomber') {
           /* The shadow is the warning. It lands where the bomb will — and
              over a pit there is no floor to land on, so there is none. */
-          var scol = Math.max(0, Math.min(MAP[0].length - 1, Math.round((f.x + 8) / CELL)));
+          var scol = Math.max(0, Math.min(MAP[0].length - 1, Math.round((f.x + 7) / CELL)));
           var sfloor = -1;
           for (var sr = 0; sr < MAP.length; sr++) {
             var sc = MAP[sr][scol];
@@ -637,9 +640,9 @@
           }
           if (sfloor >= 0) {
             ctx.fillStyle = 'rgba(10,10,11,.42)';
-            ctx.fillRect(Math.round(f.x + 4), sfloor - 1, 8, 2);
+            ctx.fillRect(Math.round(f.x + 3), sfloor - 1, 8, 2);
           }
-          sprite(f.f < 6 ? E.bomb1 : E.bomb2, f.x, f.y, false);
+          sprite(f.f < 4 ? E.bomb1 : E.bomb2, f.x, f.y, false);
         }
         else if (f.k === 'turret') sprite(E.turret, f.x, f.y + 4, false);
         else if (f.k === 'pick') {
@@ -804,9 +807,21 @@
         ctx.fillStyle = '#f2cd6b';
         ctx.textAlign = 'center';
         ctx.fillText({ R: 'RIFLE', S: 'SPREAD', L: 'LASER', M: 'MACHINE' }[player.gun] || 'RIFLE', VW / 2, 10);
-        ctx.fillStyle = '#f2efe9';
+        /* Hand-spaced on a fixed pitch. Left to the font, seven digits at 7px
+           ran into each other and the whole readout turned to grey noise —
+           a score you cannot read is not a score. Leading zeros sit back so
+           the live digits are the ones the eye lands on. */
+        ctx.textAlign = 'center';
+        var txt = ('0000000' + score).slice(-7);
+        var lead = txt.length - String(score).length;
+        var right = VW - 7;
+        for (var di = 0; di < txt.length; di++) {
+          ctx.fillStyle = di < lead ? 'rgba(242,239,233,.22)' : '#f2efe9';
+          ctx.fillText(txt[di], right - (txt.length - 1 - di) * 6, 10);
+        }
+        ctx.fillStyle = '#8e8b85';
         ctx.textAlign = 'right';
-        ctx.fillText(('0000000' + score).slice(-7), VW - 6, 10);
+        ctx.fillText('SCORE', right - txt.length * 6 - 2, 10);
         ctx.textAlign = 'left';
       }
 
@@ -930,10 +945,10 @@
           f.y = f.y0 + Math.sin(f.bob) * 3;
           /* Bombs come straight down, and only when it is actually over you,
              so the tell is the shadow arriving before the bomb does. */
-          if (--f.cd <= 0 && Math.abs((f.x + 8) - (player.x + 5)) < 26 && player.y > f.y) {
+          if (--f.cd <= 0 && Math.abs((f.x + 7) - (player.x + 5)) < 26 && player.y > f.y) {
             f.cd = 105 + Math.random() * 55;
             bullets.push({
-              x: f.x + 7, y: f.y + 11, vx: 0, vy: 0.6,
+              x: f.x + 7, y: f.y + 10, vx: 0, vy: 0.6,
               mine: false, life: 260, bomb: true,
             });
             blip(140, 0.12, 'sawtooth', 0.16, 90);

@@ -1820,7 +1820,19 @@
     const stl = gsap.timeline({
       scrollTrigger: narrowPipeline
         ? { trigger: pipelineScene, start: 'top 72%', once: true }
-        : { trigger: pipelineScene, start: 'top 76%', end: 'center 32%', scrub: SCRUB_UI, invalidateOnRefresh: true },
+        : {
+            trigger: pipelineScene,
+            start: 'top 78%',
+            /* Was `center 32%`. The pipeline sits at the TOP of a section that
+               also holds six principles, so tying the end to the section's
+               centre meant the sequence only finished once the words had
+               already travelled off the top of the screen — it completed just
+               as it was leaving. Ending on the section's own top keeps the
+               finished state in view. */
+            end: 'top 38%',
+            scrub: SCRUB_UI,
+            invalidateOnRefresh: true,
+          },
       /* The timeline is authored in scrub units; played as real time it wants
          to be a little quicker than one second per unit. */
       timeScale: narrowPipeline ? 1.45 : 1,
